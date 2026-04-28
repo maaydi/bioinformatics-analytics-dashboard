@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    # Testcontainers auto-configures this via @DynamicPropertySource
+    url:      ${TEST_DB_URL:jdbc:postgresql://localhost:5432/bio_test}
+    username: ${TEST_DB_USER:bio_user}
+    password: ${TEST_DB_PASS:bio_password}
+  flyway:
+    enabled: true
+  batch:
+    jdbc:
+      initialize-schema: always
+
+app:
+  jwt:
+    secret: test-secret-key-at-least-32-characters-long
+    access-token-expiry-seconds: 3600
+    refresh-token-expiry-seconds: 86400
+
+logging:
+  level:
+    com.bioinformatics.dashboard: DEBUG

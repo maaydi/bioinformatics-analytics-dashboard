@@ -1,0 +1,46 @@
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/.mvn/wrapper/maven-wrapper.properties
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+
+# Spring Boot
+backend/src/main/resources/application-local.yml
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.cache/
+
+# Environment secrets — NEVER commit
+.env
+*.env.local
+
+# Docker volumes
+postgres_data/
+
+# IDEs
+.idea/
+*.iml
+.vscode/settings.json
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+backend/target/site/
+frontend/coverage/

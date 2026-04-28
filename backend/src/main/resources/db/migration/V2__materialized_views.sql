@@ -1,0 +1,15 @@
+-- ============================================================
+-- V2__materialized_views.sql
+-- Materialized views for Dashboard and Analytics chart endpoints.
+--
+-- Authoritative DDL source: documentation/domain-model.md §11
+-- These views are REFRESHED CONCURRENTLY after each import job.
+-- TODO: paste DDL from domain-model.md §11 here
+-- ============================================================
+
+-- mv_length_histogram    — documentation/domain-model.md §11.1
+-- mv_organism_counts     — documentation/domain-model.md §11.2
+-- mv_reviewed_ratio      — documentation/domain-model.md §11.3
+-- mv_evidence_distribution — documentation/domain-model.md §11.4
+-- mv_keyword_frequency   — documentation/domain-model.md §11.5
+-- mv_dashboard_kpis      — documentation/domain-model.md §11.6
