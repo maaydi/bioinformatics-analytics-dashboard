@@ -1,11 +1,12 @@
 package com.bioinformatics.dashboard;
 
-import com.bioinformatics.dashboard.gene.service.GeneService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import com.bioinformatics.dashboard.gene.service.GeneService;
 
 /**
  * Smoke test — verifies the Spring application context loads without errors.
@@ -18,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class DashboardApplicationTests {
 
     // GeneService has no implementation yet (pre-existing stub); mock it so context loads.
-    @MockBean
+    @MockitoBean
     GeneService geneService;
 
     @Test
