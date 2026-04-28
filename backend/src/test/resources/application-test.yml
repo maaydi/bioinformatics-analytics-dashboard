@@ -1,12 +1,18 @@
 spring:
   datasource:
-    # Testcontainers auto-configures this via @DynamicPropertySource
-    url:      ${TEST_DB_URL:jdbc:postgresql://localhost:5432/bio_test}
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    url:      ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
     username: ${TEST_DB_USER:bio_user}
     password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   flyway:
-    enabled: true
+    enabled: false          # Migration stubs incomplete; Hibernate manages test schema
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Create schema from entities, drop on context close
   batch:
+    job:
+      enabled: false  # No batch jobs in test; UniProtImportJobConfig excluded via @Profile("!test")
     jdbc:
       initialize-schema: always
 

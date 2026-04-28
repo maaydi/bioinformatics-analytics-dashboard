@@ -26,6 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * <p>Concurrency: only one job may run at a time; enforced by {@code ImportService}.
  */
 @Configuration
+@org.springframework.context.annotation.Profile("!test")
 public class UniProtImportJobConfig {
 
     // TODO: inject UniProtItemReader, UniProtItemProcessor, UniProtItemWriter, chunkSize
