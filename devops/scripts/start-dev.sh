@@ -30,7 +30,7 @@ echo "    Backend is ready."
 echo "==> Starting Angular frontend..."
 cd "$ROOT_DIR/frontend"
 npm install --silent
-ng serve --proxy-config proxy.conf.json &
+npx ng serve --proxy-config proxy.conf.json &
 FRONTEND_PID=$!
 
 echo ""
