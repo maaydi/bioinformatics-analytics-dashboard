@@ -72,10 +72,14 @@ These rules apply to every search request body.
 
 | Field | Rule | Error |
 |---|---|---|
-| `username` | Required. Min 3, max 50 characters. | `400` |
-| `password` | Required. Min 8 characters. Must contain at least one uppercase letter, one lowercase letter, one digit. | `400` |
+| `username` (login) | Required. Min 3, max 50 characters. | `400` |
+| `password` (login) | Required. Non-blank. No complexity rules — correctness is verified by bcrypt in the service. | `400` |
+| `refreshToken` | Required. Non-blank. | `400` |
 | JWT Access Token | Expiry: 1 hour. Algorithm: HS256. Signed with server secret. | `401` on expiry |
 | JWT Refresh Token | Expiry: 24 hours. Single-use (invalidated on first use). | `401` on expiry |
+
+> **Note:** Password complexity constraints (uppercase, lowercase, digit) apply to **registration** only,
+> not to the login endpoint. Enforcing them at login causes `400` errors for otherwise valid stored passwords.
 
 ---
 
