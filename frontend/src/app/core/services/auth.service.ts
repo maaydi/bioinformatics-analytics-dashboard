@@ -25,14 +25,14 @@ export class AuthService {
 
   private readonly baseUrl = `${environment.apiBaseUrl}/auth`;
 
-  private readonly _isAuthenticated$ = new BehaviorSubject<boolean>(this.hasValidToken());
-
-  readonly isAuthenticated$ = this._isAuthenticated$.asObservable();
   private isBrowser: boolean;
+  private readonly _isAuthenticated$: BehaviorSubject<boolean>;
+  readonly isAuthenticated$: Observable<boolean>;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    // Determine if the code is running in the browser
     this.isBrowser = isPlatformBrowser(this.platformId);
+    this._isAuthenticated$ = new BehaviorSubject<boolean>(this.hasValidToken());
+    this.isAuthenticated$ = this._isAuthenticated$.asObservable();
   }
 
   login(credentials: LoginRequest): Observable<TokenResponse> {
@@ -42,21 +42,23 @@ export class AuthService {
   }
 
   refresh(): Observable<TokenResponse> {
-    const refreshToken = sessionStorage.getItem('refreshToken');
+    const refreshToken = this.isBrowser ? sessionStorage.getItem('refreshToken') : null;
     return this.http
       .post<TokenResponse>(`${this.baseUrl}/refresh`, { refreshToken })
       .pipe(tap((tokens) => this.storeTokens(tokens)));
   }
 
   logout(): void {
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
+    if (this.isBrowser) {
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('refreshToken');
+    }
     this._isAuthenticated$.next(false);
     this.router.navigate(['/login']);
   }
 
   getAccessToken(): string | null {
-    return sessionStorage.getItem('accessToken');
+    return this.isBrowser ? sessionStorage.getItem('accessToken') : null;
   }
 
   isAdmin(): boolean {
@@ -64,13 +66,15 @@ export class AuthService {
   }
 
   private storeTokens(tokens: TokenResponse): void {
-    sessionStorage.setItem('accessToken', tokens.accessToken);
-    sessionStorage.setItem('refreshToken', tokens.refreshToken);
+    if (this.isBrowser) {
+      sessionStorage.setItem('accessToken', tokens.accessToken);
+      sessionStorage.setItem('refreshToken', tokens.refreshToken);
+    }
     this._isAuthenticated$.next(true);
   }
 
   private hasValidToken(): boolean {
-    return !!sessionStorage.getItem('accessToken');
+    return this.isBrowser ? !!sessionStorage.getItem('accessToken') : false;
   }
 
   private extractRoles(): UserRole[] {
