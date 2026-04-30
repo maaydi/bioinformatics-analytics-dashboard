@@ -16,9 +16,14 @@ until docker compose -f "$ROOT_DIR/docker-compose.yml" exec postgres \
 done
 echo "    PostgreSQL is ready."
 
+echo "==> Build Spring Boot application..."
+cd "$ROOT_DIR/backend"
+mvn clean install -DskipTests
+
+
 echo "==> Starting Spring Boot backend (foreground — Ctrl+C to stop)..."
 cd "$ROOT_DIR/backend"
-mvn clean install spring-boot:run -DskipTests &
+mvn spring-boot:run -DskipTests &
 BACKEND_PID=$!
 
 echo "==> Waiting for backend on port 8080..."
