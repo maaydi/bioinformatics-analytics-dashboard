@@ -6,7 +6,7 @@ spring:
   datasource:
     url:      ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}
     username: ${SPRING_DATASOURCE_USERNAME:bio_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:bio_password}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -43,12 +43,13 @@ spring:
     multipart:
       max-file-size:    ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:2GB}
       max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:2GB}
+  web:
+    error:
+      include-message: never
 
 # ── Server ─────────────────────────────────────────────────────────────────────
 server:
   port: 8080
-  error:
-    include-message: never      # Do not leak stack traces to clients
 
 # ── Application-specific properties ───────────────────────────────────────────
 app:
