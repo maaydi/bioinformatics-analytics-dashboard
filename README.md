@@ -399,7 +399,29 @@ When implementing a ticket:
 
 ---
 
-## 14. Contributing
+## 14. Test Credentials
+
+The following accounts are seeded for local testing (see `Untitled-1` seed script).  
+**Do not use these in any non-local environment.**
+
+| Username | Password | Role |
+|---|---|---|
+| `user_test` | `password` | `ROLE_USER` |
+| `admin_test` | `admin123` | `ROLE_ADMIN` |
+
+Passwords are BCrypt-hashed (cost 10). To re-seed, run the INSERT script against the local database:
+
+```sql
+INSERT INTO public.app_user (username, password, role)
+VALUES
+  ('user_test',  '$2b$10$sd7Wth3x55Z/0F/iZ9qyzu5g0Ndz25F3Beez6qBPAMHQY7C.88Bsu', 'ROLE_USER'),
+  ('admin_test', '$2b$10$oFip6L2K1z7zDJHFvehoy.axDZHiFVuMZK4Xx8G9pHRkoGqewgSQa', 'ROLE_ADMIN')
+ON CONFLICT (username) DO NOTHING;
+```
+
+---
+
+## 15. Contributing
 
 1. Read [`documentation/constitution.md`](documentation/constitution.md) before writing any code.
 2. Follow the Ticket Workflow described in §11.
