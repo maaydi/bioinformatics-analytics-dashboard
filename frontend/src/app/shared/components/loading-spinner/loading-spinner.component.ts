@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 /**
@@ -9,20 +8,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
  */
 @Component({
   selector: 'app-loading-spinner',
-  standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule],
-  template: `
-    <div class="spinner-wrapper" role="status" aria-label="Loading">
-      <mat-spinner diameter="48" />
-    </div>
-  `,
-  styles: [`
-    .spinner-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 64px 0;
-    }
-  `],
+  imports: [MatProgressSpinnerModule],
+  templateUrl: './loading-spinner.component.html',
+  styleUrl: './loading-spinner.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingSpinnerComponent {}

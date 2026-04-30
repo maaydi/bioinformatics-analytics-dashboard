@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Saved Filters page — Epic 7 (US-20, US-21).
@@ -13,8 +12,9 @@ import { CommonModule } from '@angular/common';
  */
 @Component({
   selector: 'app-saved-filters',
-  standalone: true,
-  imports: [CommonModule],
-  template: `<h1>Saved Filters — TODO</h1>`,
+  imports: [],
+  templateUrl: './saved-filters.component.html',
+  styleUrl: './saved-filters.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavedFiltersComponent {}

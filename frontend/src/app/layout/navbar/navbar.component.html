@@ -1,0 +1,24 @@
+<mat-toolbar color="primary">
+  <span class="app-title">BioInfo Dashboard</span>
+  <span class="spacer"></span>
+
+  <a
+    mat-button
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    Dashboard
+  </a>
+  <a mat-button routerLink="/genes" routerLinkActive="active">Gene Explorer</a>
+  <a mat-button routerLink="/analytics" routerLinkActive="active">Analytics</a>
+  <a mat-button routerLink="/saved-filters" routerLinkActive="active">Saved Filters</a>
+
+  @if (authService.isAdmin()) {
+    <a mat-button routerLink="/admin/import" routerLinkActive="active">Import</a>
+  }
+
+  <button mat-icon-button (click)="authService.logout()" title="Logout" aria-label="Logout">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>

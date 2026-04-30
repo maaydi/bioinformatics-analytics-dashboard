@@ -1,9 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { LoginRequest, TokenResponse, UserRole } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
+import { LoginRequest, TokenResponse, UserRole } from '../models/auth.model';
 
 /**
  * Authentication service — manages JWT tokens and user session state.
@@ -19,8 +20,7 @@ import { environment } from '../../../environments/environment';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
-  private readonly http   = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
   private readonly baseUrl = `${environment.apiBaseUrl}/auth`;
@@ -28,18 +28,24 @@ export class AuthService {
   private readonly _isAuthenticated$ = new BehaviorSubject<boolean>(this.hasValidToken());
 
   readonly isAuthenticated$ = this._isAuthenticated$.asObservable();
+  private isBrowser: boolean;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    // Determine if the code is running in the browser
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   login(credentials: LoginRequest): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.baseUrl}/login`, credentials).pipe(
-      tap(tokens => this.storeTokens(tokens)),
-    );
+    return this.http
+      .post<TokenResponse>(`${this.baseUrl}/login`, credentials)
+      .pipe(tap((tokens) => this.storeTokens(tokens)));
   }
 
   refresh(): Observable<TokenResponse> {
     const refreshToken = sessionStorage.getItem('refreshToken');
-    return this.http.post<TokenResponse>(`${this.baseUrl}/refresh`, { refreshToken }).pipe(
-      tap(tokens => this.storeTokens(tokens)),
-    );
+    return this.http
+      .post<TokenResponse>(`${this.baseUrl}/refresh`, { refreshToken })
+      .pipe(tap((tokens) => this.storeTokens(tokens)));
   }
 
   logout(): void {

@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 
 /**
@@ -8,7 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
  * Displays a single protein entry with tabs:
  *   Summary | Sequence | Features | Cross References | Taxonomy | Publications | Similar Proteins
  *
- * Route: /genes/:id  (id bound via @Input via withComponentInputBinding)
+ * Route: /genes/:id  (id bound via input() with withComponentInputBinding)
  * Data source: GET /api/genes/{id} → ProteinDetail
  * NFR: ≤ 1 s load time (§12.1)
  *
@@ -16,22 +15,12 @@ import { MatTabsModule } from '@angular/material/tabs';
  */
 @Component({
   selector: 'app-gene-detail',
-  standalone: true,
-  imports: [CommonModule, MatTabsModule],
-  template: `
-    <h1>Gene Detail — TODO</h1>
-    <mat-tab-group>
-      <mat-tab label="Summary"><!-- TODO --></mat-tab>
-      <mat-tab label="Sequence"><!-- TODO --></mat-tab>
-      <mat-tab label="Features"><!-- TODO --></mat-tab>
-      <mat-tab label="Cross References"><!-- TODO --></mat-tab>
-      <mat-tab label="Taxonomy"><!-- TODO --></mat-tab>
-      <mat-tab label="Publications"><!-- TODO --></mat-tab>
-      <mat-tab label="Similar Proteins"><!-- TODO --></mat-tab>
-    </mat-tab-group>
-  `,
+  imports: [MatTabsModule],
+  templateUrl: './gene-detail.component.html',
+  styleUrl: './gene-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneDetailComponent {
-  // Route param id will be bound here via withComponentInputBinding
-  // @Input() id!: number;
+  // Route param `id` will be bound via input() with withComponentInputBinding
+  // readonly id = input.required<number>();
 }

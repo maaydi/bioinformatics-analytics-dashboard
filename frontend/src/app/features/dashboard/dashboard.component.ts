@@ -1,8 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { DashboardService } from './dashboard.service';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { DashboardService } from './dashboard.service';
 
 /**
  * Dashboard page — Epic 4 (US-11 to US-14 partial).
@@ -21,17 +20,12 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
  */
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, MatCardModule, LoadingSpinnerComponent],
-  template: `
-    <h1>Dashboard</h1>
-    <!-- TODO: KPI cards row -->
-    <!-- TODO: charts grid -->
-    <app-loading-spinner />
-  `,
+  imports: [MatCardModule, LoadingSpinnerComponent],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
-
   private readonly dashboardService = inject(DashboardService);
 
   ngOnInit(): void {

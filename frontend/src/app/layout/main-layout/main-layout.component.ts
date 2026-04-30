@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
 
 /**
  * Shell layout wrapping all authenticated routes.
@@ -9,19 +9,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
  */
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
   imports: [RouterOutlet, NavbarComponent, MatSidenavModule],
-  template: `
-    <div class="layout-wrapper">
-      <app-navbar />
-      <main class="layout-content">
-        <router-outlet />
-      </main>
-    </div>
-  `,
-  styles: [`
-    .layout-wrapper { display: flex; flex-direction: column; height: 100%; }
-    .layout-content { flex: 1; padding: 24px; overflow: auto; }
-  `],
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent {}

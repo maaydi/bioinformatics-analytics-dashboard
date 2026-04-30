@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
@@ -20,8 +19,9 @@ import { CommonModule } from '@angular/common';
  */
 @Component({
   selector: 'app-import-admin',
-  standalone: true,
-  imports: [CommonModule],
-  template: `<h1>Import Admin — TODO</h1>`,
+  imports: [],
+  templateUrl: './import-admin.component.html',
+  styleUrl: './import-admin.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportAdminComponent {}

@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Analytics page — Epic 4 full view.
@@ -20,8 +19,9 @@ import { CommonModule } from '@angular/common';
  */
 @Component({
   selector: 'app-analytics',
-  standalone: true,
-  imports: [CommonModule],
-  template: `<h1>Analytics — TODO</h1>`,
+  imports: [],
+  templateUrl: './analytics.component.html',
+  styleUrl: './analytics.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyticsComponent {}

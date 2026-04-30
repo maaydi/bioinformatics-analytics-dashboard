@@ -1,5 +1,5 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { GeneFilterSnapshot } from '../../../core/models/saved-filter.model';
 
 /**
@@ -15,18 +15,20 @@ import { GeneFilterSnapshot } from '../../../core/models/saved-filter.model';
  *   - goTermId pattern GO:\d{7}
  *   - No API request on invalid form
  *
- * @Output filterChange — emits the current filter snapshot when applied
- * @Output filterClear  — emits when "Clear All" is clicked
+ * Outputs:
+ *  - filterChange: emits the current filter snapshot when applied
+ *  - filterClear: emits when "Clear All" is clicked
  *
  * TODO: implement in ticket GENE-002
  */
 @Component({
   selector: 'app-gene-filter',
-  standalone: true,
   imports: [ReactiveFormsModule],
-  template: `<form><!-- TODO: filter fields --></form>`,
+  templateUrl: './gene-filter.component.html',
+  styleUrl: './gene-filter.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
-  @Output() filterChange = new EventEmitter<GeneFilterSnapshot>();
-  @Output() filterClear  = new EventEmitter<void>();
+  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterClear = output<void>();
 }

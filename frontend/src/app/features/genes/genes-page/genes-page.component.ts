@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Gene Explorer page — container component (smart).
@@ -15,13 +14,9 @@ import { CommonModule } from '@angular/common';
  */
 @Component({
   selector: 'app-genes-page',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
-    <h1>Gene Explorer</h1>
-    <!-- TODO: GeneFilterComponent -->
-    <!-- TODO: GenesTableComponent (AG Grid) -->
-    <!-- TODO: Export CSV button -->
-  `,
+  imports: [],
+  templateUrl: './genes-page.component.html',
+  styleUrl: './genes-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesPageComponent {}

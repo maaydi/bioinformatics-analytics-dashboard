@@ -1,0 +1,13 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.app-title {
+  font-weight: 600;
+  margin-right: 16px;
+}
+
+a.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
