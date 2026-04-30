@@ -1,0 +1,12 @@
+package com.bioinformatics.dashboard.auth.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+/**
+ * Request body for {@code POST /api/auth/refresh}.
+ */
+public record RefreshRequest(
+
+        @NotBlank(message = "Refresh token is required")
+        String refreshToken
+) {}

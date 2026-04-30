@@ -1,26 +1,26 @@
 package com.bioinformatics.dashboard.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
+
+import lombok.RequiredArgsConstructor;
+
 /**
- * Loads user details from {@code app_user} table for Spring Security authentication.
- *
- * <p>Implementation will use the {@code AppUserRepository} once the auth feature
- * is fully implemented (Phase 1 / ticket AUTH-001).
+ * Loads user details from the {@code app_user} table for Spring Security authentication.
  */
 @Service
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
 
-    // TODO: inject AppUserRepository when auth feature is implemented
+    private final AppUserRepository appUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // TODO: implement — load from app_user table
-        throw new UsernameNotFoundException("User not found: " + username);
+        return appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }

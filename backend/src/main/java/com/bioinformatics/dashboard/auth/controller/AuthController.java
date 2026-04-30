@@ -1,8 +1,18 @@
 package com.bioinformatics.dashboard.auth.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bioinformatics.dashboard.auth.dto.LoginRequest;
+import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
+import com.bioinformatics.dashboard.auth.dto.TokenResponse;
+import com.bioinformatics.dashboard.auth.service.AuthService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * REST controller for authentication endpoints (public — no JWT required).
@@ -20,17 +30,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    // TODO: inject AuthService
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Object request) {
-        // TODO: implement — accepts LoginRequest, returns TokenResponse
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Object request) {
-        // TODO: implement — accepts RefreshRequest, returns TokenResponse
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.refresh(request));
     }
 }

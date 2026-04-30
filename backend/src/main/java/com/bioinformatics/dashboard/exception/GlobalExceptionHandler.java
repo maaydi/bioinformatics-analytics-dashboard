@@ -1,15 +1,18 @@
 package com.bioinformatics.dashboard.exception;
 
-import jakarta.validation.ConstraintViolationException;
+import java.time.Instant;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.time.Instant;
-import java.util.stream.Collectors;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  * Centralised exception handling — all unhandled exceptions are converted to
@@ -59,13 +62,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleFileTooLarge(MaxUploadSizeExceededException ex) {
-        return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE,
+        return buildResponse(HttpStatus.CONTENT_TOO_LARGE,
                 "File exceeds maximum allowed size of 2 GB");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+    }
+
+    @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
+    public ResponseEntity<ErrorResponse> handleAuthentication(RuntimeException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
     @ExceptionHandler(Exception.class)
