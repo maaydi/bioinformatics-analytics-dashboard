@@ -1,11 +1,14 @@
 package com.bioinformatics.dashboard.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
  * Request body for {@code POST /api/auth/login}.
+ *
+ * <p>Only presence is validated here — credential correctness is verified by
+ * bcrypt comparison in the service layer, which returns 401 on mismatch.
+ * Password complexity constraints belong on registration, not login.
  *
  * @see documentation/validation-rules.md §4
  */
@@ -16,10 +19,5 @@ public record LoginRequest(
         String username,
 
         @NotBlank(message = "Password is required")
-        @Size(min = 8, message = "Password must be at least 8 characters")
-        @Pattern(
-                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
-                message = "Password must contain at least one uppercase letter, one lowercase letter, and one digit"
-        )
         String password
 ) {}

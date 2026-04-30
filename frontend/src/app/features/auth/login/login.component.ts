@@ -27,7 +27,7 @@ export class LoginComponent {
 
   readonly form: FormGroup = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required]],
   });
 
   readonly loading = signal(false);
