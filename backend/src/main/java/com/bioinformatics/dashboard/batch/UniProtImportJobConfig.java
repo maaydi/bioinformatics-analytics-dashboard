@@ -1,13 +1,6 @@
 package com.bioinformatics.dashboard.batch;
 
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.Step;
-import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * Spring Batch configuration for the UniProt import pipeline.
@@ -35,15 +28,15 @@ public class UniProtImportJobConfig {
      * Main import job bean.
      * Triggered by POST /api/admin/import/uniprot (not on application startup).
      */
-    @Bean
+    /* @Bean
     public Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep) {
         return new JobBuilder("uniProtImportJob", jobRepository)
                 .start(uniProtImportStep)
                 // TODO: add post-import step to REFRESH MATERIALIZED VIEW CONCURRENTLY
                 .build();
     }
-
-    @Bean
+ */
+    /* @Bean
     public Step uniProtImportStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager) {
@@ -54,5 +47,5 @@ public class UniProtImportJobConfig {
                 .processor(null)   // TODO: replace with UniProtItemProcessor
                 .writer(null)      // TODO: replace with UniProtItemWriter
                 .build();
-    }
+    } */
 }

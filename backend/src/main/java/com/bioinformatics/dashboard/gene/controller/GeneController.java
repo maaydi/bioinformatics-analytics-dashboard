@@ -1,14 +1,22 @@
 package com.bioinformatics.dashboard.gene.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.service.GeneService;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for gene/protein endpoints.
@@ -29,7 +37,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class GeneController {
 
-    private final GeneService geneService;
+    // TODO uncomment this if a concret class is created
+    // private final GeneService geneService;
 
     /** GET /api/genes — paginated list with optional sort/direction. */
     @GetMapping

@@ -21,14 +21,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        default_batch_fetch_size: 100  # Avoids N+1 on collections
+        '[format_sql]': true
+        '[default_batch_fetch_size]': 100  # Avoids N+1 on collections
 
   # ── Flyway ──────────────────────────────────────────────────────────────────
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: false
+    baseline-on-migrate: true
     validate-on-migrate: true
 
   # ── Spring Batch ─────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ app:
 logging:
   level:
     root: INFO
-    com.bioinformatics.dashboard: DEBUG
-    org.springframework.batch: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    '[com.bioinformatics.dashboard]': DEBUG
+    '[org.springframework.batch]': INFO
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.orm.jdbc.bind]': TRACE
