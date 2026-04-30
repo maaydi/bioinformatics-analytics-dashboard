@@ -43,8 +43,11 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(UserDetails userDetails) {
+        String roles = userDetails.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(java.util.stream.Collectors.joining(","));
         return buildToken(userDetails.getUsername(),
-                Map.of("type", "access"),
+                Map.of("type", "access", "roles", roles),
                 accessTokenExpirySeconds);
     }
 

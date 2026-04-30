@@ -14,18 +14,19 @@ export interface RefreshRequest {
 }
 
 export interface TokenResponse {
-  accessToken:  string;
+  accessToken: string;
   refreshToken: string;
-  expiresIn:    number;
-  tokenType:    'Bearer';
+  expiresIn: number;
+  tokenType: 'Bearer';
 }
 
 /** Decoded JWT payload (subset of claims used by the frontend). */
 export interface JwtPayload {
-  sub:  string;   // username
-  exp:  number;   // expiry timestamp (seconds)
-  iat:  number;   // issued-at timestamp
+  sub: string; // username
+  exp: number; // expiry timestamp (seconds)
+  iat: number; // issued-at timestamp
   type: 'access' | 'refresh';
+  roles: string; // comma-separated, e.g. "ROLE_USER" or "ROLE_ADMIN"
 }
 
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN';

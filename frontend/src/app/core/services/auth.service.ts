@@ -4,7 +4,7 @@ import { Inject, Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, TokenResponse, UserRole } from '../models/auth.model';
+import { JwtPayload, LoginRequest, TokenResponse, UserRole } from '../models/auth.model';
 
 /**
  * Authentication service — manages JWT tokens and user session state.
@@ -78,7 +78,13 @@ export class AuthService {
   }
 
   private extractRoles(): UserRole[] {
-    // TODO: decode JWT payload and extract roles claim
-    return [];
+    const token = this.getAccessToken();
+    if (!token) return [];
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])) as JwtPayload;
+      return payload.roles ? (payload.roles.split(',') as UserRole[]) : [];
+    } catch {
+      return [];
+    }
   }
 }
