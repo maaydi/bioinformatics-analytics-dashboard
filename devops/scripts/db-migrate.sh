@@ -3,7 +3,6 @@
 # Usage: ./devops/scripts/db-migrate.sh [info|migrate|repair|validate]
 
 set -euo pipefail
-
 COMMAND="${1:-info}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
@@ -19,7 +18,7 @@ DB_PASS="${SPRING_DATASOURCE_PASSWORD:-}"
 
 echo "==> Flyway $COMMAND on $DB_URL"
 cd "$ROOT_DIR/backend"
-./mvnw flyway:"$COMMAND" \
+mvn flyway:"$COMMAND" \
     -Dflyway.url="$DB_URL" \
     -Dflyway.user="$DB_USER" \
     -Dflyway.password="$DB_PASS" \

@@ -18,7 +18,7 @@ echo "    PostgreSQL is ready."
 
 echo "==> Starting Spring Boot backend (foreground — Ctrl+C to stop)..."
 cd "$ROOT_DIR/backend"
-./mvnw spring-boot:run &
+mvn clean install spring-boot:run -DskipTests &
 BACKEND_PID=$!
 
 echo "==> Waiting for backend on port 8080..."
