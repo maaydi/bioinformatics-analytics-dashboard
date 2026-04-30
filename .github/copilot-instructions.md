@@ -66,6 +66,10 @@ You are a senior full-stack software engineer specialized in Java Spring Boot, A
 - Organize by feature folders; separate smart/container and dumb/presentational components
 - Use services for all API calls; use RxJS correctly
 - Strong typing everywhere
+- **File Structure:** Every component must consist of three distinct files: `.ts`, `.html`, and `.scss`.
+- **No Inlines:** Never use `template: ` or `styles: []` inside the `@Component` decorator.
+- **Linking:** Always use `templateUrl` and `styleUrl` (or `styleUrls` for older versions).
+- **Styling:** Always use SCSS for component styling; avoid plain CSS.
 
 ### Components
 
