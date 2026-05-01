@@ -31,7 +31,8 @@ export class AuthService {
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-    this._isAuthenticated$ = new BehaviorSubject<boolean>(this.hasValidToken());
+    const initialStatus = this.hasValidToken();
+    this._isAuthenticated$ = new BehaviorSubject<boolean>(initialStatus);
     this.isAuthenticated$ = this._isAuthenticated$.asObservable();
   }
 
@@ -74,7 +75,15 @@ export class AuthService {
   }
 
   private hasValidToken(): boolean {
-    return this.isBrowser ? !!sessionStorage.getItem('accessToken') : false;
+    if (!this.isBrowser) return false;
+    const token = sessionStorage.getItem('accessToken');
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return Math.floor(Date.now() / 1000) < payload.exp;
+    } catch {
+      return false;
+    }
   }
 
   private extractRoles(): UserRole[] {

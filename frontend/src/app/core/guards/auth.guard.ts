@@ -1,7 +1,8 @@
-import { inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { map, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { map } from 'rxjs';
 
 /**
  * Route guard for authenticated routes.
@@ -10,10 +11,16 @@ import { map } from 'rxjs';
  * Applied to all routes inside the MainLayoutComponent shell (app.routes.ts).
  */
 export const authGuard: CanActivateFn = () => {
-  const auth   = inject(AuthService);
+  const auth = inject(AuthService);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
+
+  if (!isPlatformBrowser(platformId)) {
+    return true;
+  }
 
   return auth.isAuthenticated$.pipe(
-    map(authenticated => authenticated || router.createUrlTree(['/login'])),
+    take(1),
+    map((authenticated) => authenticated || router.createUrlTree(['/login'])),
   );
 };
