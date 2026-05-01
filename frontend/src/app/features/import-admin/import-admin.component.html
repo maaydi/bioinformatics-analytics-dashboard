@@ -1,1 +1,118 @@
-<h1>Import Admin — TODO</h1>
+<div class="import-container">
+  <mat-card class="upload-card">
+    <mat-card-header>
+      <mat-card-title>Import Uniprot Data</mat-card-title>
+      <mat-card-subtitle>Upload .dat or .tsv files(Max 2Gb)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (errorMessage()) {
+        <div class="error-banner">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+      <div class="form-section">
+        <div class="file-upload-row">
+          <input
+            type="file"
+            #fileInput
+            hidden
+            accept=".dat,.tsv"
+            (change)="onFileSelected($event)"
+          />
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="triggerFileInput()"
+            [disabled]="isUploading()"
+          >
+            <mat-icon>attach_file</mat-icon> Select File
+          </button>
+          @if (selectedFile()) {
+            <span class="file-name">
+              {{ selectedFile()?.name }}
+              <span class="file-size"
+                >({{ (selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2' }} MB)
+              </span>
+            </span>
+          }
+        </div>
+        <mat-form-field appearance="outline" class="strategy-select">
+          <mat-label>Import Strategy</mat-label>
+          <mat-select
+            [ngModel]="strategy()"
+            (ngModelChange)="strategy.set($event)"
+            [disabled]="isUploading()"
+          >
+            <mat-option value="OVERWRITE">OVERWRITE</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (isUploading()) {
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Import in progress...</span>
+              <span>{{ currentProgress() }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="currentProgress()"></mat-progress-bar>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions class="actions">
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!selectedFile() || isUploading()"
+        (click)="submitImport()"
+      >
+        <mat-icon>cloud_upload</mat-icon>Submit Import
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  <!--History section -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Import Job History</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table">
+        <ng-container matColumnDef="jobId">
+          <th mat-header-cell *matHeaderCellDef>Job ID</th>
+          <td mat-cell *matCellDef="let job">{{ job.jobId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let job">
+            <span class="status-badge" [ngClass]="job.status.toLowerCase()">{{ job.status }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="progress">
+          <th mat-header-cell *matHeaderCellDef>Progress</th>
+          <td mat-cell *matCellDef="let job">{{ job.progress }} %</td>
+        </ng-container>
+
+        <ng-container matColumnDef="startTime">
+          <th mat-header-cell *matHeaderCellDef>Start Time</th>
+          <td mat-cell *matCellDef="let job">{{ job.startTime | date: 'meduim' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="endTime">
+          <th mat-header-cell *matHeaderCellDef>End Time</th>
+          <td mat-cell *matCellDef="let job">
+            {{ job.endTime ? (job.endTime | date: 'meduim') : '-' }}
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr mat-row *matNoDataRow>
+          <td class="mat-cell empty-cell" [colSpan]="displayedColumns.length">
+            No import history found
+          </td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

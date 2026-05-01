@@ -1,3 +1,116 @@
-:host {
-  display: block;
+.import-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+.upload-card {
+  .mat-mdc-card-content {
+    padding-top: 1.5rem;
+  }
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  
+  .file-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .file-name {
+      font-family: monospace;
+      color: #333;
+      font-size: 0.95rem;
+      
+      .file-size {
+        color: #777;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .strategy-select {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+.error-banner {
+  background-color: #fdecea;
+  color: #d32f2f;
+  padding: 12px 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-left: 4px solid #d32f2f;
+  font-weight: 500;
+}
+
+.progress-section {
+  margin-top: 0.5rem;
+  
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #555;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 16px;
+}
+
+.history-table {
+  width: 100%;
+  margin-top: 1rem;
+
+  .empty-cell {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    font-style: italic;
+  }
+}
+
+// Status Badges
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &.pending {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+  
+  &.running {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+  
+  &.completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  &.failed {
+    background-color: #ffebee;
+    color: #c62828;
+  }
 }
