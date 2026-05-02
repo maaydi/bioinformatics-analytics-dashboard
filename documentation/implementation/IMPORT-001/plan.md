@@ -38,8 +38,8 @@
 - [ ] Integration tests for endpoints
 
 ### Frontend (Angular)
-- [ ] Service for API calls (import-admin.service.ts)
-- [ ] Models for API contracts (ImportJobSummary, ImportJobStatus, etc.)
+- [x] Service for API calls (import-admin.service.ts)
+- [x] Models for API contracts (ImportJobSummary, ImportJobStatus, etc.)
 - [ ] UI for:
 	- [x] Uploading UniProt file and selecting strategy
 	- [x] Viewing job list (paginated)

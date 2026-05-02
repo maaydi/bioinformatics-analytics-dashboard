@@ -1,5 +1,5 @@
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,7 +25,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { ImportJobSummary } from '@core/models/import.model';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
+import { ImportAdminService } from './import-admin.service';
 /**
  * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
  *
@@ -42,13 +44,6 @@ import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
  * - 422: unsupported file type
  *
  */
-interface JobStatus {
-  jobId: string;
-  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
-  progress: number;
-  startTime?: string;
-  endTime?: string;
-}
 
 @Component({
   selector: 'app-import-admin',
@@ -75,7 +70,7 @@ interface JobStatus {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportAdminComponent implements OnInit, OnDestroy {
-  private readonly http = inject(HttpClient);
+  private readonly importService = inject(ImportAdminService);
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
   private readonly ALLOWED_EXTENSIONS = ['.dat', '.tsv'];
 
@@ -84,7 +79,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   isUploading = signal<boolean>(false);
   currentProgress = signal<number>(0);
   errorMessage = signal<string | null>(null);
-  jobHistory = signal<JobStatus[]>([]);
+  jobHistory = signal<ImportJobSummary[]>([]);
 
   displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
 
@@ -136,24 +131,17 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
     this.currentProgress.set(0);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('strategy', this.strategy());
-    this.http
-      .post<{ jobId: string }>('/api/admin/import/uniprot', FormData, {
-        observe: 'response',
-      })
-      .subscribe({
-        next: (response) => {
-          if (response.status === 202 && response.body?.jobId) {
-            this.startPolling(response.body.jobId);
-          }
-        },
-        error: (err: HttpErrorResponse) => {
-          this.handleError(err);
-          this.isUploading.set(false);
-        },
-      });
+    this.importService.triggerImport(file, this.strategy()).subscribe({
+      next: (job) => {
+        if (job?.jobId) {
+          this.startPolling(job.jobId);
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err);
+        this.isUploading.set(false);
+      },
+    });
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -178,17 +166,20 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
     this.stopPolling();
     this.pollingSubscription = interval(5000)
       .pipe(
-        switchMap(() => this.http.get<JobStatus>(`/api/admin/import/status/${jobId}`)),
-        takeWhile((status) => status.status !== 'COMPLETED' && status.status !== 'FAILED', true),
+        switchMap(() => this.importService.getJobProgress(jobId)),
+        takeWhile(
+          (jobProgress) => jobProgress.status !== 'COMPLETED' && jobProgress.status !== 'FAILED',
+          true,
+        ),
       )
       .subscribe({
-        next: (status) => {
-          this.currentProgress.set(status.progress || 0);
-          if (status.status === 'COMPLETED' || status.status === 'FAILED') {
+        next: (jobProgress) => {
+          this.currentProgress.set(jobProgress.progressPercent || 0);
+          if (jobProgress.status === 'COMPLETED' || jobProgress.status === 'FAILED') {
             this.isUploading.set(false);
             this.selectedFile.set(null);
             this.loadJobHistory();
-            if (status.status === 'FAILED') {
+            if (jobProgress.status === 'FAILED') {
               this.errorMessage.set(`import Job ${jobId} failed to complete.`);
             }
           }
@@ -208,8 +199,9 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   }
 
   private loadJobHistory() {
-    this.http.get<JobStatus[]>('/api/admin/import/status').subscribe({
-      next: (history) => this.jobHistory.set(history),
+    // TODO add pagination
+    this.importService.listImportJobs().subscribe({
+      next: (history) => this.jobHistory.set(history.content),
       error: () => this.errorMessage.set('Failed to laod import job history.'),
     });
   }
