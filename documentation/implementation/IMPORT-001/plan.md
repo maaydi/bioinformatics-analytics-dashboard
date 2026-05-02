@@ -9,12 +9,12 @@
 6. Review and refactor as needed
 
 ## Status
-[x] Requirements analyzed
-[ ] Backend implemented (controller stubs only, not implemented)
-[ ] Frontend implemented (UI/service exists, not verified complete)
-[ ] Unit tests written
-[x] Documentation updated (initial docs only)
-[ ] Code reviewed
+- [x] Requirements analyzed
+- [ ] Backend implemented (controller stubs only, not implemented)
+- [ ] Frontend implemented (UI/service exists, not verified complete)
+- [ ] Unit tests written
+- [x] Documentation updated (initial docs only)
+- [ ] Code reviewed
 
 ---
 
@@ -41,10 +41,10 @@
 - [ ] Service for API calls (import-admin.service.ts)
 - [ ] Models for API contracts (ImportJobSummary, ImportJobStatus, etc.)
 - [ ] UI for:
-	- [ ] Uploading UniProt file and selecting strategy
-	- [ ] Viewing job list (paginated)
-	- [ ] Viewing job status/progress
-- [ ] Error, loading, and empty states handled
+	- [x] Uploading UniProt file and selecting strategy
+	- [x] Viewing job list (paginated)
+	- [x] Viewing job status/progress
+- [x] Error, loading, and empty states handled
 - [ ] Accessibility (WCAG AA, ARIA, focus management)
 - [ ] Unit tests for service and components
 
