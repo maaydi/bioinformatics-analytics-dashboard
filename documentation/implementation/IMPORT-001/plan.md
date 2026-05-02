@@ -21,16 +21,16 @@
 ## Detailed Checklist
 
 ### Backend
-- [ ] Controller endpoints implemented:
-	- [ ] POST /api/admin/import/uniprot (trigger import job)
-	- [ ] GET /api/admin/import/status (list jobs, paginated)
-	- [ ] GET /api/admin/import/status/{jobId} (job status)
+- [x] Controller endpoints implemented:
+	- [x] POST /api/admin/import/uniprot (trigger import job)
+	- [x] GET /api/admin/import/status (list jobs, paginated)
+	- [x] GET /api/admin/import/status/{jobId} (job status)
 - [ ] Service layer implemented (ImportService)
 - [ ] Repository layer for job persistence
-- [ ] DTOs for request/response (ImportJobSummary, ImportJobStatus, etc.)
+- [x] DTOs for request/response (ImportJobSummary, ImportJobStatus, etc.)
 - [ ] Entity/model for import jobs
 - [ ] MapStruct mappers for DTO/entity
-- [ ] Validation annotations and error handling
+- [x] Validation annotations and error handling
 - [ ] Integration with Spring Batch for import logic
 - [ ] Security: endpoints restricted to ROLE_ADMIN
 - [ ] Pagination and filtering for job list

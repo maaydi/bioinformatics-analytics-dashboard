@@ -1,0 +1,80 @@
+package com.bioinformatics.dashboard.admin.service;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.bioinformatics.dashboard.admin.dto.ImportJobProgress;
+import com.bioinformatics.dashboard.admin.dto.ImportJobSummary;
+import com.bioinformatics.dashboard.admin.dto.ImportStatus;
+import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ImportService {
+
+    @Value("${app.import.temp-dir}")
+    private String importDir;
+
+    public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
+        return new PagedResponse<>(List.of(
+                new ImportJobSummary(
+                        "job-8f3a2c91-4d7e-4b2a-9c11-6a9f5e2b7c33",
+                        ImportStatus.COMPLETED,
+                        "users_2026_05_02.csv",
+                        15432,
+                        2875L,
+                        LocalDateTime.of(2026, 5, 2, 10, 15, 30),
+                        LocalDateTime.of(2026, 5, 2, 10, 15, 33),
+                        null)),
+                1, 50, 1, 1);
+    }
+
+    public ImportJobSummary triggertImport(MultipartFile file, String strategy) {
+        var createdAt = LocalDateTime.now();
+        var jobId = UUID.randomUUID().toString();
+        try {
+            var uploadDir = Paths.get(importDir);
+            Files.createDirectories(uploadDir);
+            var fname = StringUtils.cleanPath(file.getOriginalFilename());
+            var target = uploadDir.resolve(fname);
+            if ("overwrite".equalsIgnoreCase(strategy)) {
+                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                fname = UUID.randomUUID() + "_" + fname;
+                target = uploadDir.resolve(fname);
+                Files.copy(file.getInputStream(), target);
+            }
+            return new ImportJobSummary(
+                    jobId,
+                    ImportStatus.COMPLETED,
+                    target.getFileName().toString(),
+                    0,
+                    0L,
+                    createdAt,
+                    LocalDateTime.now(),
+                    null);
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'triggertImport'");
+    }
+
+    public ImportJobProgress getImportJobStatus(String jobId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getImportJobStatus'");
+    }
+
+}
