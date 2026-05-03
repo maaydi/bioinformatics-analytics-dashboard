@@ -1,51 +1,97 @@
 package com.bioinformatics.dashboard.batch;
 
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.infrastructure.item.ItemStreamReader;
+import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
+import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 
 /**
  * Spring Batch configuration for the UniProt import pipeline.
  *
- * <p>Pipeline overview (documentation/overview.md §14):
+ * <p>
+ * Pipeline overview (documentation/overview.md §14):
  * <ol>
- *   <li><b>Reader</b>  — reads records from .dat or .tsv file in chunks of {@code BATCH_CHUNK_SIZE}</li>
- *   <li><b>Processor</b> — validates each record (validation-rules.md §1 + §3), maps to entity</li>
- *   <li><b>Writer</b>  — upserts to {@code protein_entry} with Overwrite strategy</li>
- *   <li><b>Post-step</b> — refreshes all materialized views</li>
+ * <li><b>Reader</b> — reads records from .dat or .tsv file in chunks of
+ * {@code BATCH_CHUNK_SIZE}</li>
+ * <li><b>Processor</b> — validates each record (validation-rules.md §1 + §3),
+ * maps to entity</li>
+ * <li><b>Writer</b> — upserts to {@code protein_entry} with Overwrite
+ * strategy</li>
+ * <li><b>Post-step</b> — refreshes all materialized views</li>
  * </ol>
  *
- * <p>Transaction boundary: one database transaction per chunk (chunk-size = 500).
+ * <p>
+ * Transaction boundary: one database transaction per chunk (chunk-size = 500).
  * A chunk failure rolls back only that chunk (overview.md §14.3).
  *
- * <p>Concurrency: only one job may run at a time; enforced by {@code ImportService}.
+ * <p>
+ * Concurrency: only one job may run at a time; enforced by
+ * {@code ImportService}.
  */
 @Configuration
 @org.springframework.context.annotation.Profile("!test")
 public class UniProtImportJobConfig {
 
-    // TODO: inject UniProtItemReader, UniProtItemProcessor, UniProtItemWriter, chunkSize
-
     /**
-     * Main import job bean.
-     * Triggered by POST /api/admin/import/uniprot (not on application startup).
+     * Dynamic reader factory. StepScope allows accessing jobParameters.
      */
-    /* @Bean
+    @Bean
+    @StepScope
+    public ItemStreamReader<String> dynamicUniprotReader(@Value("#{jobParameters[filePath]}") String filePath) {
+        var resource = new FileSystemResource(filePath);
+        if (filePath.toLowerCase().endsWith(".dat")) {
+            return new UniprotDatItemReader(resource);
+        } else if (filePath.toLowerCase().endsWith(".tsv")) {
+            return new FlatFileItemReaderBuilder<String>()
+                    .name("tsvReader")
+                    .resource(resource)
+                    .lineMapper((line, nbr) -> line)
+                    .linesToSkip(1) // skip header
+                    .build();
+        } else {
+            throw new IllegalArgumentException("Unsupported file extension");
+        }
+    }
+
+    @Bean
+    public Step uniProtImportStep(
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            ItemStreamReader<String> dynamicUniprotReader,
+            ProteinEntryItemProcessor processor,
+            JdbcBatchItemWriter<ProteinEntry> writer) {
+            
+        return new StepBuilder("uniProtImportStep", jobRepository)
+                .<String, ProteinEntry>chunk(500)
+                .transactionManager(transactionManager)
+                .reader(dynamicUniprotReader)      
+                .processor(processor)   
+                .writer(writer)      
+                .faultTolerant() // Allows configuring skip policies
+                .skip(MalformedUniprotFileException.class) // skip malformed uniprot
+                .build();
+    }
+
+    @Bean
     public Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep) {
         return new JobBuilder("uniProtImportJob", jobRepository)
                 .start(uniProtImportStep)
                 // TODO: add post-import step to REFRESH MATERIALIZED VIEW CONCURRENTLY
                 .build();
     }
- */
-    /* @Bean
-    public Step uniProtImportStep(
-            JobRepository jobRepository,
-            PlatformTransactionManager transactionManager) {
-        return new StepBuilder("uniProtImportStep", jobRepository)
-                // TODO: configure reader, processor, writer, chunk size, skip policy
-                .<Object, Object>chunk(500, transactionManager)
-                .reader(null)      // TODO: replace with UniProtItemReader
-                .processor(null)   // TODO: replace with UniProtItemProcessor
-                .writer(null)      // TODO: replace with UniProtItemWriter
-                .build();
-    } */
+
+    
 }
