@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.admin.dto;
+package com.bioinformatics.dashboard.job.dto;
 
 public enum ImportStatus {
     RUNNING,

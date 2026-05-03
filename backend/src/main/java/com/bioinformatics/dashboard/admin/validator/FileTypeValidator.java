@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.bioinformatics.dashboard.admin.exception.UnsupportedFileTypeException;
+import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.bioinformatics.dashboard.admin.dto.ImportJobProgress;
-import com.bioinformatics.dashboard.admin.dto.ImportJobSummary;
-import com.bioinformatics.dashboard.admin.dto.ImportStatus;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
+import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
+import com.bioinformatics.dashboard.job.dto.ImportStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -55,6 +55,7 @@ public class ImportService {
                 target = uploadDir.resolve(fname);
                 Files.copy(file.getInputStream(), target);
             }
+            // TODO call batch
             return new ImportJobSummary(
                     jobId,
                     ImportStatus.COMPLETED,

@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.bioinformatics.dashboard.admin.dto.ImportJobProgress;
-import com.bioinformatics.dashboard.admin.dto.ImportJobSummary;
-import com.bioinformatics.dashboard.admin.exception.UnsupportedFileTypeException;
 import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.admin.validator.ValidFileSize;
 import com.bioinformatics.dashboard.admin.validator.ValidFileType;
+import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
+import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 
 import lombok.RequiredArgsConstructor;
 
