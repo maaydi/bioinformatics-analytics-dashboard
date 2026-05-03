@@ -50,7 +50,7 @@ public class UniProtImportJobConfig {
      */
     @Bean
     @StepScope
-    public ItemStreamReader<String> dynamicUniprotReader(@Value("#{jobParameters[filePath]}") String filePath) {
+    ItemStreamReader<String> dynamicUniprotReader(@Value("#{jobParameters[filePath]}") String filePath) {
         var resource = new FileSystemResource(filePath);
         if (filePath.toLowerCase().endsWith(".dat")) {
             return new UniprotDatItemReader(resource);
@@ -67,31 +67,31 @@ public class UniProtImportJobConfig {
     }
 
     @Bean
-    public Step uniProtImportStep(
+    Step uniProtImportStep(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             ItemStreamReader<String> dynamicUniprotReader,
             ProteinEntryItemProcessor processor,
             JdbcBatchItemWriter<ProteinEntry> writer) {
-            
+
         return new StepBuilder("uniProtImportStep", jobRepository)
                 .<String, ProteinEntry>chunk(500)
                 .transactionManager(transactionManager)
-                .reader(dynamicUniprotReader)      
-                .processor(processor)   
-                .writer(writer)      
+                .reader(dynamicUniprotReader)
+                .processor(processor)
+                .writer(writer)
                 .faultTolerant() // Allows configuring skip policies
                 .skip(MalformedUniprotFileException.class) // skip malformed uniprot
                 .build();
     }
 
     @Bean
-    public Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep) {
+    Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
+            ImportJobDatabaseListener databaseListener) {
         return new JobBuilder("uniProtImportJob", jobRepository)
                 .start(uniProtImportStep)
-                // TODO: add post-import step to REFRESH MATERIALIZED VIEW CONCURRENTLY
+                .listener(databaseListener)
                 .build();
     }
 
-    
 }

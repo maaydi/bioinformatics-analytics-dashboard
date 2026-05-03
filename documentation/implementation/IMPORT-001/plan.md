@@ -25,13 +25,13 @@
 	- [x] POST /api/admin/import/uniprot (trigger import job)
 	- [x] GET /api/admin/import/status (list jobs, paginated)
 	- [x] GET /api/admin/import/status/{jobId} (job status)
-- [ ] Service layer implemented (ImportService)
-- [ ] Repository layer for job persistence
+- [x] Service layer implemented (ImportService)
+- [x] Repository layer for job persistence
 - [x] DTOs for request/response (ImportJobSummary, ImportJobStatus, etc.)
-- [ ] Entity/model for import jobs
-- [ ] MapStruct mappers for DTO/entity
+- [x] Entity/model for import jobs
+- [x] MapStruct mappers for DTO/entity
 - [x] Validation annotations and error handling
-- [ ] Integration with Spring Batch for import logic
+- [x] Integration with Spring Batch for import logic
 - [ ] Security: endpoints restricted to ROLE_ADMIN
 - [ ] Pagination and filtering for job list
 - [ ] Unit tests for service logic

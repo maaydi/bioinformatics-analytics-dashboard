@@ -7,15 +7,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
+import com.bioinformatics.dashboard.job.entity.ImportJob;
+import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +28,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImportService {
 
+    private final ImportJobRepository importJobRep;
+    private final AsyncUniprotImportJobExecutor importExec;
+
+
     @Value("${app.import.temp-dir}")
     private String importDir;
+
 
     public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
         return new PagedResponse<>(List.of(
@@ -42,7 +52,8 @@ public class ImportService {
 
     public ImportJobSummary triggertImport(MultipartFile file, String strategy) {
         var createdAt = LocalDateTime.now();
-        var jobId = UUID.randomUUID().toString();
+        var jobId = UUID.randomUUID();
+        
         try {
             var uploadDir = Paths.get(importDir);
             Files.createDirectories(uploadDir);
@@ -55,22 +66,34 @@ public class ImportService {
                 target = uploadDir.resolve(fname);
                 Files.copy(file.getInputStream(), target);
             }
-            // TODO call batch
+
+            var job = new ImportJob();
+            job.setId(jobId);
+            job.setStatus(ImportStatus.RUNNING);
+            job.setFileName(target.getFileName().toString());
+            job.setStrategy(strategy.toUpperCase());
+            importJobRep.save(job);
+
+            var parameters = new JobParametersBuilder()
+                    .addString("importUniprotJobId", jobId.toString())
+                    .addString("filePath", target.toAbsolutePath().toString())
+                    .addLong("timestamp", System.currentTimeMillis()) 
+                    .toJobParameters();
+
+            // 3. TODO Launch job asynchronously (Returns immediately)
+            importExec.executeImportJob(parameters);
+
+            // 4. Return summary to Controller
             return new ImportJobSummary(
-                    jobId,
-                    ImportStatus.COMPLETED,
+                    jobId.toString(),
+                    ImportStatus.RUNNING, // Return RUNNING, not COMPLETED
                     target.getFileName().toString(),
-                    0,
-                    0L,
-                    createdAt,
-                    LocalDateTime.now(),
-                    null);
+                    0, 0L, createdAt, null, null
+            );
 
         } catch (Exception e) {
-            // TODO: handle exception
+            throw new RuntimeException("Failed to trigger import", e);
         }
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'triggertImport'");
     }
 
     public ImportJobProgress getImportJobStatus(String jobId) {
