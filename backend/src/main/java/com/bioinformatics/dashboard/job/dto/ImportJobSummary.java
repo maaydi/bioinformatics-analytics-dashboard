@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.job.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record ImportJobSummary(String id, ImportStatus status, String fileName, int entryCount, long durationMs,
-                LocalDateTime createdAt, LocalDateTime completedAt, String errorMessage) {
+        Instant createdAt, Instant completedAt, String errorMessage) {
 }

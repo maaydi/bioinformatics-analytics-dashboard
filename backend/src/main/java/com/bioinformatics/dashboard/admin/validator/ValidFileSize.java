@@ -10,7 +10,7 @@ import jakarta.validation.Payload;
 
 @Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = FileTypeValidator.class)
+@Constraint(validatedBy = FileSizeValidator.class)
 public @interface ValidFileSize {
     String message() default "Invalid file";
 

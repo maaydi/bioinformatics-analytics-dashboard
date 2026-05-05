@@ -14,7 +14,6 @@ import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 
 @Component
 @RequiredArgsConstructor
@@ -52,8 +51,8 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
             }
         }
 
-        jobRecord.setRecordsProcessed(totalProcessed);
-        jobRecord.setEntryCount(totalProcessed);
+        jobRecord.setRecordsProcessed((int) totalProcessed);
+        jobRecord.setEntryCount((int) totalProcessed);
         jobRecord.setDurationMs(durationMs);
         jobRecord.setCompletedAt(jobExecution.getEndTime().atZone(ZoneId.systemDefault()).toInstant());
 

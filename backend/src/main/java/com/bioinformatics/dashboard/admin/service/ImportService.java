@@ -3,7 +3,7 @@ package com.bioinformatics.dashboard.admin.service;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,14 +41,14 @@ public class ImportService {
                         "users_2026_05_02.csv",
                         15432,
                         2875L,
-                        LocalDateTime.of(2026, 5, 2, 10, 15, 30),
-                        LocalDateTime.of(2026, 5, 2, 10, 15, 33),
+                        Instant.now(),
+                        Instant.now(),
                         null)),
                 1, 50, 1, 1);
     }
 
     public ImportJobSummary triggertImport(MultipartFile file, String strategy) {
-        var createdAt = LocalDateTime.now();
+        var createdAt = Instant.now();
         var jobId = UUID.randomUUID();
 
         try {
@@ -81,7 +81,7 @@ public class ImportService {
 
             return new ImportJobSummary(
                     jobId.toString(),
-                    ImportStatus.RUNNING, 
+                    ImportStatus.RUNNING,
                     target.getFileName().toString(),
                     0, 0L, createdAt, null, null);
 

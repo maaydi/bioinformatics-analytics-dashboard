@@ -1,6 +1,9 @@
 spring:
   application:
     name: bioinformatics-dashboard
+  devtools:
+    livereload:
+      enabled: true
 
   # ── DataSource ──────────────────────────────────────────────────────────────
   datasource:
@@ -61,7 +64,7 @@ app:
     chunk-size: ${BATCH_CHUNK_SIZE:500}
   import:
     temp-dir: ${java.io.tmpdir}/bio-import
-    file-size: 2147483648 # 2GB
+    max-size: 2147483648 # 2GB
     extensions: dat,tsv
 
 # ── Logging ───────────────────────────────────────────────────────────────────

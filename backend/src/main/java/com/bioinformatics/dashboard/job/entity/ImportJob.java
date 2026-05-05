@@ -44,7 +44,7 @@ public class ImportJob {
     /**
      * Current status of the import job.
      */
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ImportStatus status;
 
@@ -64,13 +64,13 @@ public class ImportJob {
      * Number of entries detected in the file.
      */
     @Column(name = "entry_count")
-    private long entryCount;
+    private int entryCount;
 
     /**
      * Number of records processed so far.
      */
     @Column(name = "records_processed", nullable = false)
-    private long recordsProcessed = 0L;
+    private int recordsProcessed = 0;
 
     /**
      * Estimated total number of records to process.
