@@ -20,7 +20,7 @@ public class AsyncUniprotImportJobExecutor {
     private final Job uniProtImportJob;
 
     @Async
-    public void executeImportJob(JobParameters parameters) {
+    public void execute(JobParameters parameters) {
         try {
             operator.start(uniProtImportJob, parameters);
         } catch (Exception e) {

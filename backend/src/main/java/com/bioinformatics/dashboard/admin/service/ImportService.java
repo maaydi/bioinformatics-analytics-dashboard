@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,10 +30,8 @@ public class ImportService {
     private final ImportJobRepository importJobRep;
     private final AsyncUniprotImportJobExecutor importExec;
 
-
     @Value("${app.import.temp-dir}")
     private String importDir;
-
 
     public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
         return new PagedResponse<>(List.of(
@@ -53,7 +50,7 @@ public class ImportService {
     public ImportJobSummary triggertImport(MultipartFile file, String strategy) {
         var createdAt = LocalDateTime.now();
         var jobId = UUID.randomUUID();
-        
+
         try {
             var uploadDir = Paths.get(importDir);
             Files.createDirectories(uploadDir);
@@ -77,19 +74,16 @@ public class ImportService {
             var parameters = new JobParametersBuilder()
                     .addString("importUniprotJobId", jobId.toString())
                     .addString("filePath", target.toAbsolutePath().toString())
-                    .addLong("timestamp", System.currentTimeMillis()) 
+                    .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters();
 
-            // 3. TODO Launch job asynchronously (Returns immediately)
-            importExec.executeImportJob(parameters);
+            importExec.execute(parameters);
 
-            // 4. Return summary to Controller
             return new ImportJobSummary(
                     jobId.toString(),
-                    ImportStatus.RUNNING, // Return RUNNING, not COMPLETED
+                    ImportStatus.RUNNING, 
                     target.getFileName().toString(),
-                    0, 0L, createdAt, null, null
-            );
+                    0, 0L, createdAt, null, null);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to trigger import", e);
@@ -97,7 +91,6 @@ public class ImportService {
     }
 
     public ImportJobProgress getImportJobStatus(String jobId) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getImportJobStatus'");
     }
 
