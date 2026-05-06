@@ -1,32 +1,29 @@
 package com.bioinformatics.dashboard.admin.validator;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
+import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
-
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-
 @Component
+@RequiredArgsConstructor
 public class FileTypeValidator implements ConstraintValidator<ValidFileType, MultipartFile> {
 
-    @Value("${app.import.extensions}")
-    private List<String> extensions;
+    private final AppProperties appProperties;
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
             return false;
         }
-        var fname = file.getOriginalFilename();
-        if (fname != null) {
-            var ext = fname.substring(fname.lastIndexOf(".") + 1).toLowerCase();
+        var fName = file.getOriginalFilename();
+        if (fName != null) {
+            var ext = fName.substring(fName.lastIndexOf(".") + 1).toLowerCase();
+            var extensions = appProperties.getImportConfig().getExtensions();
             if (!extensions.contains(ext)) {
-                // TODO add handler with correct status from front 
                 throw new UnsupportedFileTypeException(
                         String.format("Extension %s is not supported.", ext));
             }

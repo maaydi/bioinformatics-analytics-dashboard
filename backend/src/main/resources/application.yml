@@ -64,7 +64,6 @@ app:
     chunk-size: ${BATCH_CHUNK_SIZE:500}
   import:
     temp-dir: ${java.io.tmpdir}/bio-import
-    max-size: 2147483648 # 2GB
     extensions: dat,tsv
 
 # ── Logging ───────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.admin.service;
 
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
@@ -9,7 +10,6 @@ import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -29,9 +29,7 @@ public class ImportService {
 
     private final ImportJobRepository importJobRep;
     private final AsyncUniprotImportJobExecutor importExec;
-
-    @Value("${app.import.temp-dir}")
-    private String importDir;
+    private final AppProperties appProperties;
 
     public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
         return new PagedResponse<>(List.of(
@@ -50,7 +48,7 @@ public class ImportService {
     @Transactional
     public ImportJobSummary triggerImport(MultipartFile file, String strategy) {
         try {
-            var uploadDir = Paths.get(importDir);
+            var uploadDir = Paths.get(appProperties.getImportConfig().getTempDir());
             Files.createDirectories(uploadDir);
             var fname = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
             var target = uploadDir.resolve(fname);

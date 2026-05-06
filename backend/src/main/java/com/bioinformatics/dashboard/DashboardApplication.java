@@ -1,7 +1,9 @@
 package com.bioinformatics.dashboard;
 
+import com.bioinformatics.dashboard.config.AppProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  * Entry point for the Bioinformatics Analytics Dashboard backend.
@@ -23,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @see <a href="../../../../../../../documentation/api-contract.md">api-contract.md</a>
  */
 @SpringBootApplication
+@EnableConfigurationProperties(AppProperties.class)
 public class DashboardApplication {
 
     public static void main(String[] args) {

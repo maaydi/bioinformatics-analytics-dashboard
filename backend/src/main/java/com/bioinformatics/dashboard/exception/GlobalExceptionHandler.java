@@ -1,8 +1,6 @@
 package com.bioinformatics.dashboard.exception;
 
-import java.time.Instant;
-import java.util.stream.Collectors;
-
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,7 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import jakarta.validation.ConstraintViolationException;
+import java.time.Instant;
+import java.util.stream.Collectors;
 
 /**
  * Centralised exception handling — all unhandled exceptions are converted to
@@ -64,6 +63,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleFileTooLarge(MaxUploadSizeExceededException ex) {
         return buildResponse(HttpStatus.CONTENT_TOO_LARGE,
                 "File exceeds maximum allowed size of 2 GB");
+    }
+
+    @ExceptionHandler(UnsupportedFileTypeException.class)
+    public ResponseEntity<Object> handleUnsupportedFileTypeException(UnsupportedFileTypeException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

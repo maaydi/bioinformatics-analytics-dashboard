@@ -1,26 +1,15 @@
 package com.bioinformatics.dashboard.admin.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.admin.validator.ValidFileSize;
 import com.bioinformatics.dashboard.admin.validator.ValidFileType;
-import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * REST controller for UniProt import administration.
@@ -51,16 +40,20 @@ public class ImportController {
 
     private final ImportService service;
 
-    /** POST /api/admin/import/uniprot — triggers Spring Batch import job. */
+    /**
+     * POST /api/admin/import/uniprot — triggers Spring Batch import job.
+     */
     @PostMapping("/uniprot")
     public ResponseEntity<ImportJobSummary> triggerImport(
-            @RequestParam("file") @ValidFileType @ValidFileSize MultipartFile file,
+            @RequestParam("file") @ValidFileType MultipartFile file,
             @RequestParam("strategy") String strategy) {
         var job = service.triggerImport(file, strategy);
         return ResponseEntity.accepted().body(job);
     }
 
-    /** GET /api/admin/import/status — paginated list of all import jobs. */
+    /**
+     * GET /api/admin/import/status — paginated list of all import jobs.
+     */
     @GetMapping("/status")
     public PagedResponse<ImportJobSummary> listImportJobs(
             @RequestParam(defaultValue = "0") int page,
@@ -76,8 +69,5 @@ public class ImportController {
         return service.getImportJobStatus(jobId);
     }
 
-    @ExceptionHandler(UnsupportedFileTypeException.class)
-    public ResponseEntity<Object> handleUnsupportedFileTypeException(UnsupportedFileTypeException ex) {
-        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(ex.getMessage());
-    }
+
 }
