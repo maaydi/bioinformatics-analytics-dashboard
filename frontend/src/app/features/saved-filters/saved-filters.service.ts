@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { SavedFilter, CreateSavedFilterRequest } from '../../core/models/saved-filter.model';
-import { environment } from '../../../environments/environment';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {CreateSavedFilterRequest, SavedFilter} from '@core/models/saved-filter.model';
+import {environment} from '@env/environment';
 
 /**
  * Service for saved filter API calls.

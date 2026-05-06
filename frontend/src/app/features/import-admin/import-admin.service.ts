@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ImportJobCreated, ImportJobProgress, ImportJobSummary } from '../../core/models/import.model';
-import { PagedResponse } from '../../core/models/paged-response.model';
-import { environment } from '../../../environments/environment';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ImportJobCreated, ImportJobProgress, ImportJobSummary} from '@core/models/import.model';
+import {PagedResponse} from '@core/models/paged-response.model';
+import {environment} from '@env/environment';
 
 /**
  * Service for import admin API calls.

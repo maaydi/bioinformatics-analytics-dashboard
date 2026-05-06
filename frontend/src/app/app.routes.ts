@@ -1,6 +1,6 @@
-import { Routes } from '@angular/router';
-import { adminGuard } from './core/guards/admin.guard';
-import { authGuard } from './core/guards/auth.guard';
+import {Routes} from '@angular/router';
+import {adminGuard} from '@core/guards/admin.guard';
+import {authGuard} from '@core/guards/auth.guard';
 
 /**
  * Application routes.

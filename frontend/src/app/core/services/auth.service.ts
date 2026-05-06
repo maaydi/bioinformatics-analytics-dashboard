@@ -1,10 +1,10 @@
-import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { JwtPayload, LoginRequest, TokenResponse, UserRole } from '../models/auth.model';
+import {isPlatformBrowser} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {Inject, inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {Router} from '@angular/router';
+import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {environment} from '@env/environment';
+import {JwtPayload, LoginRequest, TokenResponse, UserRole} from '../models/auth.model';
 
 /**
  * Authentication service — manages JWT tokens and user session state.

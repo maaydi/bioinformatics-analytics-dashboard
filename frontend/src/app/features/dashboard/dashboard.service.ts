@@ -1,15 +1,15 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
 import {
   DashboardKpis,
+  EvidenceLevelItem,
+  KeywordFrequencyItem,
   LengthHistogramBucket,
   OrganismCount,
   ReviewedRatioItem,
-  EvidenceLevelItem,
-  KeywordFrequencyItem,
-} from '../../core/models/analytics.model';
-import { environment } from '../../../environments/environment';
+} from '@core/models/analytics.model';
+import {environment} from '@env/environment';
 
 /**
  * Service for analytics chart data.

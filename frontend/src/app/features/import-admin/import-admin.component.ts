@@ -1,5 +1,5 @@
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import {CommonModule, DecimalPipe} from '@angular/common';
+import {HttpErrorResponse} from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,8 +10,8 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatAnchor } from '@angular/material/button';
+import {FormsModule} from '@angular/forms';
+import {MatAnchor} from '@angular/material/button';
 import {
   MatCard,
   MatCardActions,
@@ -20,14 +20,15 @@ import {
   MatCardSubtitle,
   MatCardTitle,
 } from '@angular/material/card';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { ImportJobSummary } from '@core/models/import.model';
-import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
-import { ImportAdminService } from './import-admin.service';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
+import {MatIcon} from '@angular/material/icon';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSelectModule} from '@angular/material/select';
+import {MatTableModule} from '@angular/material/table';
+import {ImportJobSummary} from '@core/models/import.model';
+import {interval, Subscription, switchMap, takeWhile} from 'rxjs';
+import {ImportAdminService} from './import-admin.service';
+
 /**
  * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
  *
@@ -154,7 +155,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
         msg = 'Payload Too Large : The file side exceeds the 2 GB limit.';
         break;
       case 422:
-        msg = 'Unprocessable Entity: Unsuported file type.';
+        msg = 'Unprocessable Entity: Unsupported file type.';
         break;
       default:
         msg = 'An unexpected error occurred while communicating with server.';
