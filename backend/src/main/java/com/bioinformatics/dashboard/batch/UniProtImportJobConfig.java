@@ -1,5 +1,10 @@
 package com.bioinformatics.dashboard.batch;
 
+import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
+import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.job.dto.Constants;
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -14,9 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 
 /**
  * Spring Batch configuration for the UniProt import pipeline.
@@ -43,7 +45,10 @@ import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
  */
 @Configuration
 @org.springframework.context.annotation.Profile("!test")
+@RequiredArgsConstructor
 public class UniProtImportJobConfig {
+
+    private final AppProperties appProperties;
 
     /**
      * Dynamic reader factory. StepScope allows accessing jobParameters.
@@ -58,7 +63,7 @@ public class UniProtImportJobConfig {
             return new FlatFileItemReaderBuilder<String>()
                     .name("tsvReader")
                     .resource(resource)
-                    .lineMapper((line, nbr) -> line)
+                    .lineMapper((line, _) -> line)
                     .linesToSkip(1) // skip header
                     .build();
         } else {
@@ -74,8 +79,8 @@ public class UniProtImportJobConfig {
             ProteinEntryItemProcessor processor,
             JdbcBatchItemWriter<ProteinEntry> writer) {
 
-        return new StepBuilder("uniProtImportStep", jobRepository)
-                .<String, ProteinEntry>chunk(500)
+        return new StepBuilder(Constants.IMPORT_STEP.name(), jobRepository)
+                .<String, ProteinEntry>chunk(appProperties.getBatch().getChunkSize())
                 .transactionManager(transactionManager)
                 .reader(dynamicUniprotReader)
                 .processor(processor)
@@ -87,8 +92,8 @@ public class UniProtImportJobConfig {
 
     @Bean
     Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
-            ImportJobDatabaseListener databaseListener) {
-        return new JobBuilder("uniProtImportJob", jobRepository)
+                         ImportJobDatabaseListener databaseListener) {
+        return new JobBuilder(Constants.IMPORT_JOB.name(), jobRepository)
                 .start(uniProtImportStep)
                 .listener(databaseListener)
                 .build();

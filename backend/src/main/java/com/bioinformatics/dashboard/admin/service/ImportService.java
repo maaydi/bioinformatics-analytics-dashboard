@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.admin.service;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
@@ -64,12 +65,12 @@ public class ImportService {
             job.setStatus(ImportStatus.RUNNING);
             job.setFileName(target.getFileName().toString());
             job.setStrategy(strategy.toUpperCase());
-            var savedJob  = importJobRep.save(job);
+            var savedJob = importJobRep.save(job);
 
             var parameters = new JobParametersBuilder()
-                    .addString("importUniprotJobId", savedJob.getId().toString())
-                    .addString("filePath", target.toAbsolutePath().toString())
-                    .addLong("timestamp", System.currentTimeMillis())
+                    .addString(Constants.IMPORT_JOB_ID.name(), savedJob.getId().toString())
+                    .addString(Constants.FILE_PATH.name(), target.toAbsolutePath().toString())
+                    .addLong(Constants.TIMESTAMP.name(), System.currentTimeMillis())
                     .toJobParameters();
 
             importExec.execute(parameters);

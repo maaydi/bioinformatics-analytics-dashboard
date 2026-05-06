@@ -36,5 +36,15 @@ public class AppProperties {
     public static class ImportConfig {
         private String tempDir;
         private List<String> extensions;
+        private ThreadPoolSettings pool;
+    }
+
+    @Getter
+    @Setter
+    public static class ThreadPoolSettings {
+        private int corePoolSize;
+        private int maxPoolSize;
+        private int queueCapacity;
+        private String threadNamePrefix;
     }
 }

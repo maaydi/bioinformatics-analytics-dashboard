@@ -1,14 +1,15 @@
 package com.bioinformatics.dashboard.batch;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamException;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.core.io.Resource;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class UniprotDatItemReader implements ItemStreamReader<String> {
 
@@ -20,7 +21,7 @@ public class UniprotDatItemReader implements ItemStreamReader<String> {
     }
 
     @Override
-    public void open(ExecutionContext executionContext) throws ItemStreamException {
+    public void open(@NonNull ExecutionContext context) throws ItemStreamException {
         try {
             reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
         } catch (IOException e) {
@@ -42,7 +43,7 @@ public class UniprotDatItemReader implements ItemStreamReader<String> {
                 return rec.toString();
             }
         }
-        return rec.length() > 0 ? rec.toString() : null;
+        return !rec.isEmpty() ? rec.toString() : null;
     }
 
     @Override

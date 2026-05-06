@@ -1,16 +1,14 @@
 package com.bioinformatics.dashboard.config;
 
-import java.util.concurrent.Executor;
-
+import com.bioinformatics.dashboard.exception.UniprotAsyncExceptionHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.bioinformatics.dashboard.exception.UniprotAsyncExceptionHandler;
-
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
@@ -18,14 +16,16 @@ import lombok.RequiredArgsConstructor;
 public class AsyncConfig implements AsyncConfigurer {
 
     private final UniprotAsyncExceptionHandler exceptionHandler;
+    private final AppProperties appProperties;
 
     @Override
     public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        executor.setThreadNamePrefix("BatchAsync-");
+        var properties = appProperties.getImportConfig().getPool();
+        var executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(properties.getCorePoolSize());
+        executor.setMaxPoolSize(properties.getMaxPoolSize());
+        executor.setQueueCapacity(properties.getQueueCapacity());
+        executor.setThreadNamePrefix(properties.getThreadNamePrefix());
         executor.initialize();
         return executor;
     }

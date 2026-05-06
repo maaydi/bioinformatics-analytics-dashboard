@@ -1,19 +1,18 @@
 package com.bioinformatics.dashboard.batch;
 
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.UUID;
-
+import com.bioinformatics.dashboard.job.dto.Constants;
+import com.bioinformatics.dashboard.job.dto.ImportStatus;
+import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.listener.JobExecutionListener;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.stereotype.Component;
 
-import com.bioinformatics.dashboard.job.dto.ImportStatus;
-import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        var jobId = jobExecution.getJobParameters().getString("importUniprotJobId");
+        var jobId = jobExecution.getJobParameters().getString(Constants.IMPORT_JOB_ID.name());
         if (jobId == null)
             return;
 
@@ -38,6 +37,7 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
                 .mapToLong(StepExecution::getWriteCount)
                 .sum();
 
+        assert jobExecution.getEndTime() != null;
         var durationMs = Duration.between(
                 jobExecution.getCreateTime().atZone(ZoneId.systemDefault()).toInstant(),
                 jobExecution.getEndTime().atZone(ZoneId.systemDefault()).toInstant()).toMillis();

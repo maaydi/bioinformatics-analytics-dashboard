@@ -1,18 +1,18 @@
 package com.bioinformatics.dashboard.batch;
 
+import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
+import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import org.jspecify.annotations.Nullable;
-import org.springframework.batch.infrastructure.item.ItemProcessor;
-import org.springframework.stereotype.Component;
-
-import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 
 @Component
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
@@ -28,8 +28,8 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
     private static final Pattern VERSION_PATTERN = Pattern.compile("version (\\d+)");
 
     @Override
-    public @Nullable ProteinEntry process(String item) throws Exception {
-        if (item == null || item.trim().isEmpty())
+    public @Nullable ProteinEntry process(@NonNull String item) {
+        if (item.trim().isEmpty())
             return null;
         var entryBuilder = ProteinEntry.builder();
 
