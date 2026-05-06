@@ -56,7 +56,7 @@ public class ImportController {
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType @ValidFileSize MultipartFile file,
             @RequestParam("strategy") String strategy) {
-        var job = service.triggertImport(file, strategy);
+        var job = service.triggerImport(file, strategy);
         return ResponseEntity.accepted().body(job);
     }
 

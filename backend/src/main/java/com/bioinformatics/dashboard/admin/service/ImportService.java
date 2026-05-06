@@ -1,18 +1,5 @@
 package com.bioinformatics.dashboard.admin.service;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -20,8 +7,21 @@ import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,14 +47,12 @@ public class ImportService {
                 1, 50, 1, 1);
     }
 
-    public ImportJobSummary triggertImport(MultipartFile file, String strategy) {
-        var createdAt = Instant.now();
-        var jobId = UUID.randomUUID();
-
+    @Transactional
+    public ImportJobSummary triggerImport(MultipartFile file, String strategy) {
         try {
             var uploadDir = Paths.get(importDir);
             Files.createDirectories(uploadDir);
-            var fname = StringUtils.cleanPath(file.getOriginalFilename());
+            var fname = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
             var target = uploadDir.resolve(fname);
             if ("overwrite".equalsIgnoreCase(strategy)) {
                 Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
@@ -65,14 +63,13 @@ public class ImportService {
             }
 
             var job = new ImportJob();
-            job.setId(jobId);
             job.setStatus(ImportStatus.RUNNING);
             job.setFileName(target.getFileName().toString());
             job.setStrategy(strategy.toUpperCase());
-            importJobRep.save(job);
+            var savedJob  = importJobRep.save(job);
 
             var parameters = new JobParametersBuilder()
-                    .addString("importUniprotJobId", jobId.toString())
+                    .addString("importUniprotJobId", savedJob.getId().toString())
                     .addString("filePath", target.toAbsolutePath().toString())
                     .addLong("timestamp", System.currentTimeMillis())
                     .toJobParameters();
@@ -80,13 +77,13 @@ public class ImportService {
             importExec.execute(parameters);
 
             return new ImportJobSummary(
-                    jobId.toString(),
+                    savedJob.getId().toString(),
                     ImportStatus.RUNNING,
                     target.getFileName().toString(),
-                    0, 0L, createdAt, null, null);
+                    0, 0L, savedJob.getCreatedAt(), null, null);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to trigger import", e);
+            throw new RuntimeException("Failed to trigger import " + e.getMessage(), e);
         }
     }
 
