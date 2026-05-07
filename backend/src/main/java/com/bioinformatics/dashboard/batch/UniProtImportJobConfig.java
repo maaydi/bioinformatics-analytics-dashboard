@@ -78,10 +78,12 @@ public class UniProtImportJobConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<String> dynamicUniprotReader,
             ProteinEntryItemProcessor processor,
-            JdbcBatchItemWriter<ProteinEntry> writer) {
+            JdbcBatchItemWriter<ProteinEntry> writer,
+            ImportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.IMPORT_STEP.getKey(), jobRepository)
                 .<String, ProteinEntry>chunk(appProperties.getBatch().getChunkSize())
+                .listener(progressChunkListener)
                 .transactionManager(transactionManager)
                 .reader(dynamicUniprotReader)
                 .processor(processor)

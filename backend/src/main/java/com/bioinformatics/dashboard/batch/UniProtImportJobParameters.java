@@ -17,5 +17,8 @@ public class UniProtImportJobParameters {
     @Value("#{jobParameters[filePath]}")
     private String filePath;
 
+    @Value("#{jobParameters[importUniprotJobId]}")
+    private String jobId;
+
 
 }
