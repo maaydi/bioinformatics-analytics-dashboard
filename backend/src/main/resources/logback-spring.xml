@@ -10,9 +10,9 @@
     </appender>
     <!-- File appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>bioinformatic.log</file>
+        <file>${LOG_PATH}/bioinformatic.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>bioinformatic_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/bioinformatic_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
             <maxFileSize>1MB</maxFileSize>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
