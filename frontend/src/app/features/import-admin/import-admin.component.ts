@@ -106,7 +106,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
       this.errorMessage.set(null);
 
       if (file.size > this.MAX_FILE_SIZE) {
-        this.errorMessage.set('Payload Too Large: file exceeds the 2 GN limit.');
+        this.errorMessage.set('Payload Too Large: file exceeds the 2 GB limit.');
         this.selectedFile.set(null);
         input.value = '';
         return;
@@ -134,8 +134,8 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
 
     this.importService.triggerImport(file, this.strategy()).subscribe({
       next: (job) => {
-        if (job?.jobId) {
-          this.startPolling(job.jobId);
+        if (job?.id) {
+          this.startPolling(job.id);
         }
       },
       error: (err: HttpErrorResponse) => {
@@ -202,8 +202,10 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   private loadJobHistory() {
     // TODO add pagination
     this.importService.listImportJobs().subscribe({
-      next: (history) => this.jobHistory.set(history.content),
-      error: () => this.errorMessage.set('Failed to laod import job history.'),
+      next: (history) => {
+        this.jobHistory.set(history.content)
+      },
+      error: () => this.errorMessage.set('Failed to load import job history.'),
     });
   }
 }

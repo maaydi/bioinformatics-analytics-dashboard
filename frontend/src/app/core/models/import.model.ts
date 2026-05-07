@@ -8,7 +8,7 @@ export type ImportStatus = 'RUNNING' | 'COMPLETED' | 'FAILED';
 
 /** Returned by POST /api/admin/import/uniprot (202 Accepted) */
 export interface ImportJobCreated {
-  jobId:     string;
+  id: string;
   status:    ImportStatus;
   createdAt: string;
 }

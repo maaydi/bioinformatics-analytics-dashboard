@@ -78,7 +78,7 @@
       <table mat-table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table">
         <ng-container matColumnDef="jobId">
           <th mat-header-cell *matHeaderCellDef>Job ID</th>
-          <td mat-cell *matCellDef="let job">{{ job.jobId }}</td>
+          <td *matCellDef="let job" mat-cell>{{ job.id }}</td>
         </ng-container>
 
         <ng-container matColumnDef="status">
@@ -95,13 +95,13 @@
 
         <ng-container matColumnDef="startTime">
           <th mat-header-cell *matHeaderCellDef>Start Time</th>
-          <td mat-cell *matCellDef="let job">{{ job.startTime | date: 'meduim' }}</td>
+          <td *matCellDef="let job" mat-cell>{{ job.createdAt | date: 'medium' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="endTime">
           <th mat-header-cell *matHeaderCellDef>End Time</th>
           <td mat-cell *matCellDef="let job">
-            {{ job.endTime ? (job.endTime | date: 'meduim') : '-' }}
+            {{ job.completedAt ? (job.completedAt | date: 'medium') : '-' }}
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
