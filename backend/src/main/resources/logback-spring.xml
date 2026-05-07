@@ -1,0 +1,43 @@
+<configuration>
+    <!-- Console appender -->
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- File appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>bioinformatic.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>bioinformatic_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxFileSize>1MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    <!-- Application package -->
+    <logger name="com.bioinformatics.dashboard"
+            level="DEBUG"/>
+
+    <!-- Spring Batch -->
+    <logger name="org.springframework.batch"
+            level="INFO"/>
+
+    <!-- Hibernate SQL -->
+    <logger name="org.hibernate.SQL"
+            level="DEBUG"/>
+
+    <!-- Hibernate bind parameters -->
+    <logger name="org.hibernate.orm.jdbc.bind"
+            level="TRACE"/>
+</configuration>

@@ -7,7 +7,7 @@ spring:
 
   # ── DataSource ──────────────────────────────────────────────────────────────
   datasource:
-    url:      ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}
     username: ${SPRING_DATASOURCE_USERNAME:bio_user}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -44,7 +44,7 @@ spring:
   # ── File Upload ──────────────────────────────────────────────────────────────
   servlet:
     multipart:
-      max-file-size:    ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:2GB}
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:2GB}
       max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:2GB}
   web:
     error:
@@ -57,13 +57,13 @@ server:
 # ── Application-specific properties ───────────────────────────────────────────
 app:
   jwt:
-    secret:                      ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
-    access-token-expiry-seconds:  ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
+    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
+    access-token-expiry-seconds: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
     refresh-token-expiry-seconds: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:86400}
   batch:
     chunk-size: ${BATCH_CHUNK_SIZE:500}
 
-  import:
+  import-config:
     temp-dir: ${java.io.tmpdir}/bio-import
     extensions: dat,tsv
     pool:
@@ -75,9 +75,6 @@ app:
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:
-  level:
-    root: INFO
-    '[com.bioinformatics.dashboard]': DEBUG
-    '[org.springframework.batch]': INFO
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.orm.jdbc.bind]': TRACE
+  config: classpath:logback-spring.xml
+  file:
+    name: bioinformatic.log
