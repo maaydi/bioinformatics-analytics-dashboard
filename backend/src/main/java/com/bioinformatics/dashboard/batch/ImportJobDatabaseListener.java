@@ -22,7 +22,7 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        var jobId = jobExecution.getJobParameters().getString(Constants.IMPORT_JOB_ID.name());
+        var jobId = jobExecution.getJobParameters().getString(Constants.IMPORT_JOB_ID.getKey());
         if (jobId == null)
             return;
 

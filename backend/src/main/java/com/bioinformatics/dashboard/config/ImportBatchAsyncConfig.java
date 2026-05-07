@@ -13,7 +13,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @RequiredArgsConstructor
-public class AsyncConfig implements AsyncConfigurer {
+public class ImportBatchAsyncConfig implements AsyncConfigurer {
 
     private final UniprotAsyncExceptionHandler exceptionHandler;
     private final AppProperties appProperties;
@@ -22,8 +22,8 @@ public class AsyncConfig implements AsyncConfigurer {
     public Executor getAsyncExecutor() {
         var properties = appProperties.getImportConfig().getPool();
         var executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(properties.getCorePoolSize());
-        executor.setMaxPoolSize(properties.getMaxPoolSize());
+        executor.setCorePoolSize(properties.getCoreSize());
+        executor.setMaxPoolSize(properties.getMaxSize());
         executor.setQueueCapacity(properties.getQueueCapacity());
         executor.setThreadNamePrefix(properties.getThreadNamePrefix());
         executor.initialize();

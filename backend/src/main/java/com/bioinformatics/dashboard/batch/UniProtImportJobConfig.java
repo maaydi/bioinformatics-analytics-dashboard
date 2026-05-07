@@ -14,9 +14,9 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -44,7 +44,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * {@code ImportService}.
  */
 @Configuration
-@org.springframework.context.annotation.Profile("!test")
+@Profile("!test")
 @RequiredArgsConstructor
 public class UniProtImportJobConfig {
 
@@ -55,7 +55,8 @@ public class UniProtImportJobConfig {
      */
     @Bean
     @StepScope
-    ItemStreamReader<String> dynamicUniprotReader(@Value("#{jobParameters[filePath]}") String filePath) {
+    ItemStreamReader<String> dynamicUniprotReader(UniProtImportJobParameters params) {
+        var filePath = params.getFilePath();
         var resource = new FileSystemResource(filePath);
         if (filePath.toLowerCase().endsWith(".dat")) {
             return new UniprotDatItemReader(resource);
@@ -79,7 +80,7 @@ public class UniProtImportJobConfig {
             ProteinEntryItemProcessor processor,
             JdbcBatchItemWriter<ProteinEntry> writer) {
 
-        return new StepBuilder(Constants.IMPORT_STEP.name(), jobRepository)
+        return new StepBuilder(Constants.IMPORT_STEP.getKey(), jobRepository)
                 .<String, ProteinEntry>chunk(appProperties.getBatch().getChunkSize())
                 .transactionManager(transactionManager)
                 .reader(dynamicUniprotReader)
@@ -93,7 +94,7 @@ public class UniProtImportJobConfig {
     @Bean
     Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
                          ImportJobDatabaseListener databaseListener) {
-        return new JobBuilder(Constants.IMPORT_JOB.name(), jobRepository)
+        return new JobBuilder(Constants.IMPORT_JOB.getKey(), jobRepository)
                 .start(uniProtImportStep)
                 .listener(databaseListener)
                 .build();

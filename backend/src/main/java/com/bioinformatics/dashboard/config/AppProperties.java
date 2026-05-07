@@ -42,8 +42,8 @@ public class AppProperties {
     @Getter
     @Setter
     public static class ThreadPoolSettings {
-        private int corePoolSize;
-        private int maxPoolSize;
+        private int coreSize;
+        private int maxSize;
         private int queueCapacity;
         private String threadNamePrefix;
     }
