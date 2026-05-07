@@ -11,7 +11,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {MatAnchor} from '@angular/material/button';
+import {MatAnchor, MatButton} from '@angular/material/button';
 import {
   MatCard,
   MatCardActions,
@@ -26,7 +26,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSelectModule} from '@angular/material/select';
 import {MatTableModule} from '@angular/material/table';
 import {ImportJobSummary} from '@core/models/import.model';
-import {interval, Subscription, switchMap, takeWhile} from 'rxjs';
+import {catchError, EMPTY, interval, Subscription, switchMap, takeWhile} from 'rxjs';
 import {ImportAdminService} from './import-admin.service';
 
 /**
@@ -65,6 +65,7 @@ import {ImportAdminService} from './import-admin.service';
     MatCardActions,
     FormsModule,
     MatTableModule,
+    MatButton,
   ],
   templateUrl: './import-admin.component.html',
   styleUrl: './import-admin.component.scss',
@@ -85,14 +86,17 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
 
   private pollingSubscription?: Subscription;
+  private historySubscription?: Subscription;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   ngOnInit(): void {
     this.loadJobHistory();
   }
+
   ngOnDestroy(): void {
     this.stopPolling();
+    this.stopLoadHistory()
   }
 
   triggerFileInput() {
@@ -163,6 +167,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
     }
     this.errorMessage.set(msg);
   }
+
   private startPolling(jobId: string): void {
     this.stopPolling();
     this.pollingSubscription = interval(5000)
@@ -192,6 +197,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
         },
       });
   }
+
   private stopPolling() {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
@@ -201,11 +207,38 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
 
   private loadJobHistory() {
     // TODO add pagination
-    this.importService.listImportJobs().subscribe({
+    this.stopLoadHistory();
+    this.historySubscription = interval(2000).pipe(
+      switchMap(() => {
+        const hasRunning = this.jobHistory().some(job => job.status === 'RUNNING');
+        const hasHistory = this.jobHistory().length > 0;
+
+        if (!this.isUploading() && !hasRunning && hasHistory) {
+          return EMPTY;
+        }
+
+        return this.importService.listImportJobs().pipe(
+          catchError(() => {
+            this.errorMessage.set('Failed to load import job history.');
+            return EMPTY;
+          })
+        );
+      })
+    ).subscribe({
       next: (history) => {
-        this.jobHistory.set(history.content)
+        this.jobHistory.set(history.content);
       },
-      error: () => this.errorMessage.set('Failed to load import job history.'),
+      error: () => {
+        this.errorMessage.set('Lost connection to server while loading job history');
+        this.stopLoadHistory();
+      }
     });
+  }
+
+  private stopLoadHistory(): void {
+    if (this.historySubscription) {
+      this.historySubscription.unsubscribe();
+      this.historySubscription = undefined;
+    }
   }
 }

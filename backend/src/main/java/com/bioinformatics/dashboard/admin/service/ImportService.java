@@ -83,7 +83,7 @@ public class ImportService {
             return new ImportJobSummary(
                     savedJob.getId().toString(),
                     ImportStatus.RUNNING,
-                    target.getFileName().toString(),
+                    target.getFileName().toString(), 0,
                     totalRecords, 0L, savedJob.getCreatedAt(), null, null);
 
         } catch (Exception e) {

@@ -15,24 +15,25 @@ export interface ImportJobCreated {
 
 /** Item in paginated list — GET /api/admin/import/status */
 export interface ImportJobSummary {
-  id:           string;
-  status:       ImportStatus;
-  fileName:     string | null;
-  entryCount:   number | null;
-  durationMs:   number | null;
-  createdAt:    string;
-  completedAt:  string | null;
+  id: string;
+  status: ImportStatus;
+  fileName: string | null;
+  progressPercent: number | null;
+  entryCount: number | null;
+  durationMs: number | null;
+  createdAt: string;
+  completedAt: string | null;
   errorMessage: string | null;
 }
 
 /** Real-time progress — GET /api/admin/import/status/{jobId} */
 export interface ImportJobProgress {
-  id:                string;
-  status:            ImportStatus;
-  fileName:          string | null;
-  recordsProcessed:  number;
-  totalEstimated:    number | null;
-  progressPercent:   number;
-  elapsedMs:         number;
-  errorMessage:      string | null;
+  id: string;
+  status: ImportStatus;
+  fileName: string | null;
+  recordsProcessed: number;
+  totalEstimated: number | null;
+  progressPercent: number;
+  elapsedMs: number;
+  errorMessage: string | null;
 }

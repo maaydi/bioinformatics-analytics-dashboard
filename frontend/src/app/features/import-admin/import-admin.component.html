@@ -90,7 +90,7 @@
 
         <ng-container matColumnDef="progress">
           <th mat-header-cell *matHeaderCellDef>Progress</th>
-          <td mat-cell *matCellDef="let job">{{ job.progress }} %</td>
+          <td *matCellDef="let job" mat-cell>{{ job.progressPercent }} %</td>
         </ng-container>
 
         <ng-container matColumnDef="startTime">
