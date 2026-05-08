@@ -3,6 +3,8 @@ package com.bioinformatics.dashboard.admin.service;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.ExecuteJobException;
+import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.Constants;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,43 +54,14 @@ public class ImportService {
 
     @Transactional
     public ImportJobSummary triggerImport(MultipartFile file, String strategy) {
+        checkImportAlreadyRunning();
         try {
-            var uploadDir = Paths.get(appProperties.getImportConfig().getTempDir());
-            Files.createDirectories(uploadDir);
-            var fname = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-            var target = uploadDir.resolve(fname);
-            if ("overwrite".equalsIgnoreCase(strategy)) {
-                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-            } else {
-                fname = UUID.randomUUID() + "_" + fname;
-                target = uploadDir.resolve(fname);
-                Files.copy(file.getInputStream(), target);
-            }
-
-            var totalRecords = countUniprotEntries(target);
-            var job = new ImportJob();
-            job.setStatus(ImportStatus.RUNNING);
-            job.setFileName(target.getFileName().toString());
-            job.setStrategy(strategy.toUpperCase());
-            job.setTotalEstimated(totalRecords);
-            var savedJob = importJobRep.save(job);
-
-            var parameters = new JobParametersBuilder()
-                    .addString(Constants.IMPORT_JOB_ID.getKey(), savedJob.getId().toString())
-                    .addString(Constants.FILE_PATH.getKey(), target.toAbsolutePath().toString())
-                    .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
-                    .toJobParameters();
-
-            importExec.execute(parameters);
-
-            return new ImportJobSummary(
-                    savedJob.getId().toString(),
-                    ImportStatus.RUNNING,
-                    target.getFileName().toString(), 0,
-                    totalRecords, 0L, savedJob.getCreatedAt(), null, null);
-
+            var target = saveImportFile(file, strategy);
+            var savedJob = saveJob(target, strategy);
+            executeImport(savedJob, target);
+            return savedJob;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to trigger import " + e.getMessage(), e);
+            throw new ExecuteJobException("Failed to trigger import " + e.getMessage(), e);
         }
     }
 
@@ -100,6 +74,40 @@ public class ImportService {
         return jobMapper.toJobProgress(job.get());
     }
 
+    private void checkImportAlreadyRunning() {
+        var running = importJobRep.findByStatus(ImportStatus.RUNNING);
+        if (!running.isEmpty()) {
+            throw new ImportAlreadyRunningException(running.getFirst().getId().toString());
+        }
+
+    }
+
+    private Path saveImportFile(MultipartFile file, String strategy) throws IOException {
+        var uploadDir = Paths.get(appProperties.getImportConfig().getTempDir());
+        Files.createDirectories(uploadDir);
+        var fname = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        var target = uploadDir.resolve(fname);
+        if ("overwrite".equalsIgnoreCase(strategy)) {
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            fname = UUID.randomUUID() + "_" + fname;
+            target = uploadDir.resolve(fname);
+            Files.copy(file.getInputStream(), target);
+        }
+        return target;
+    }
+
+    private ImportJobSummary saveJob(Path file, String strategy) {
+        var totalRecords = countUniprotEntries(file);
+        var job = new ImportJob();
+        job.setStatus(ImportStatus.RUNNING);
+        job.setFileName(file.getFileName().toString());
+        job.setStrategy(strategy.toUpperCase());
+        job.setTotalEstimated(totalRecords);
+        var savedJob = importJobRep.save(job);
+        return jobMapper.toSummary(savedJob);
+    }
+
     private int countUniprotEntries(Path file) {
         var counter = registry.getCounter(file.toString());
         try (var is = Files.newInputStream(file)) {
@@ -108,5 +116,15 @@ public class ImportService {
             throw new MalformedUniprotFileException(e.getMessage());
         }
     }
+
+    private void executeImport(ImportJobSummary importJob, Path file) {
+        var parameters = new JobParametersBuilder()
+                .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
+                .addString(Constants.FILE_PATH.getKey(), file.toAbsolutePath().toString())
+                .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .toJobParameters();
+        importExec.execute(parameters);
+    }
+
 
 }

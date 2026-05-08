@@ -8,14 +8,9 @@ package com.bioinformatics.dashboard.exception;
  */
 public class ImportAlreadyRunningException extends RuntimeException {
 
-    private final String runningJobId;
 
     public ImportAlreadyRunningException(String runningJobId) {
-        super("An import job is already running");
-        this.runningJobId = runningJobId;
+        super("An import job is already running " + runningJobId);
     }
 
-    public String getRunningJobId() {
-        return runningJobId;
-    }
 }

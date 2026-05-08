@@ -105,7 +105,7 @@
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr *matRowDef="let _; columns: displayedColumns" mat-row></tr>
 
         <tr mat-row *matNoDataRow>
           <td class="mat-cell empty-cell" [colSpan]="displayedColumns.length">
