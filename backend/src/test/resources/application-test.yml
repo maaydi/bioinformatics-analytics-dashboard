@@ -21,7 +21,20 @@ app:
     secret: test-secret-key-at-least-32-characters-long
     access-token-expiry-seconds: 3600
     refresh-token-expiry-seconds: 86400
+  batch:
+    chunk-size: ${BATCH_CHUNK_SIZE:500}
+
+  import-config:
+    temp-dir: ${java.io.tmpdir}/bio-import
+    extensions: dat,tsv
+    pool:
+      core-size: 2
+      max-size: 10
+      queue-capacity: 25
+      thread-name-prefix: BatchAsync-
 
 logging:
-  level:
-    com.bioinformatics.dashboard: DEBUG
+  config: classpath:logback-spring.xml
+  file:
+    name: bioinformatic.log
+    path: ${java.io.tmpdir}/bio-logs
