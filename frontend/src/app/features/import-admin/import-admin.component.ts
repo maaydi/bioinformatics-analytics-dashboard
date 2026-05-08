@@ -28,6 +28,7 @@ import {MatTableModule} from '@angular/material/table';
 import {ImportJobSummary} from '@core/models/import.model';
 import {catchError, EMPTY, interval, Subscription, switchMap, takeWhile} from 'rxjs';
 import {ImportAdminService} from './import-admin.service';
+import {MatPaginator, PageEvent} from '@angular/material/paginator';
 
 /**
  * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
@@ -66,6 +67,7 @@ import {ImportAdminService} from './import-admin.service';
     FormsModule,
     MatTableModule,
     MatButton,
+    MatPaginator,
   ],
   templateUrl: './import-admin.component.html',
   styleUrl: './import-admin.component.scss',
@@ -82,6 +84,10 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   currentProgress = signal<number>(0);
   errorMessage = signal<string | null>(null);
   jobHistory = signal<ImportJobSummary[]>([]);
+  totalJobs = signal<number>(0);
+  pageSize = signal<number>(5);
+  pageIndex = signal<number>(0);
+  previousPage = signal<number>(this.pageIndex());
 
   displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
 
@@ -89,7 +95,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   private historySubscription?: Subscription;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   ngOnInit(): void {
     this.loadJobHistory();
   }
@@ -149,6 +155,13 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
     });
   }
 
+  onPageChange(event: PageEvent) {
+    this.pageIndex.set(event.pageIndex)
+    this.pageSize.set(event.pageSize)
+    this.loadJobHistory()
+
+  }
+
   private handleError(error: HttpErrorResponse) {
     let msg: string | null = null;
     switch (error.status) {
@@ -206,18 +219,20 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   }
 
   private loadJobHistory() {
-    // TODO add pagination
     this.stopLoadHistory();
     this.historySubscription = interval(2000).pipe(
       switchMap(() => {
         const hasRunning = this.jobHistory().some(job => job.status === 'RUNNING');
         const hasHistory = this.jobHistory().length > 0;
 
-        if (!this.isUploading() && !hasRunning && hasHistory) {
+        if (!this.isUploading()
+          && !hasRunning
+          && hasHistory
+          && this.previousPage() === this.pageIndex()) {
           return EMPTY;
         }
 
-        return this.importService.listImportJobs().pipe(
+        return this.importService.listImportJobs(this.pageIndex(), this.pageSize()).pipe(
           catchError(() => {
             this.errorMessage.set('Failed to load import job history.');
             return EMPTY;
@@ -226,7 +241,10 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (history) => {
+        console.log(history)
         this.jobHistory.set(history.content);
+        this.totalJobs.set(history.totalElements)
+        this.previousPage.set(this.pageIndex())
       },
       error: () => {
         this.errorMessage.set('Lost connection to server while loading job history');

@@ -113,6 +113,12 @@
           </td>
         </tr>
       </table>
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="totalJobs()"
+        [pageSizeOptions]="[5, 10, 20]"
+        [pageSize]="pageSize()">
+      </mat-paginator>
     </mat-card-content>
   </mat-card>
 </div>
