@@ -9,7 +9,7 @@
     "build": "ng build",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --watch=false",
     "serve:ssr:bioinformatics-dashboard-frontend": "node dist/bioinformatics-dashboard-frontend/server/server.mjs"
   },
   "dependencies": {
