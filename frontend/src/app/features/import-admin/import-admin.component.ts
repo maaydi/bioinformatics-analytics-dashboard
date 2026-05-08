@@ -87,7 +87,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   totalJobs = signal<number>(0);
   pageSize = signal<number>(5);
   pageIndex = signal<number>(0);
-  previousPage = signal<number>(this.pageIndex());
+  forceLoadHistory = signal<boolean>(false);
 
   displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
 
@@ -96,13 +96,14 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   ngOnInit(): void {
     this.loadJobHistory();
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
-    this.stopLoadHistory()
+    this.stopLoadHistory();
   }
 
   triggerFileInput() {
@@ -156,9 +157,10 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(event: PageEvent) {
-    this.pageIndex.set(event.pageIndex)
-    this.pageSize.set(event.pageSize)
-    this.loadJobHistory()
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.forceLoadHistory.set(true);
+    this.loadJobHistory();
 
   }
 
@@ -228,7 +230,7 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
         if (!this.isUploading()
           && !hasRunning
           && hasHistory
-          && this.previousPage() === this.pageIndex()) {
+          && !this.forceLoadHistory()) {
           return EMPTY;
         }
 
@@ -241,10 +243,10 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (history) => {
-        console.log(history)
+        console.log(history);
         this.jobHistory.set(history.content);
-        this.totalJobs.set(history.totalElements)
-        this.previousPage.set(this.pageIndex())
+        this.totalJobs.set(history.totalElements);
+        this.forceLoadHistory.set(false);
       },
       error: () => {
         this.errorMessage.set('Lost connection to server while loading job history');
