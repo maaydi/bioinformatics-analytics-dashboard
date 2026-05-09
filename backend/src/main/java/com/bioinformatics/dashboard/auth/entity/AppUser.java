@@ -1,25 +1,14 @@
 package com.bioinformatics.dashboard.auth.entity;
 
-import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * JPA entity for the {@code app_user} table.
@@ -41,7 +30,7 @@ public class AppUser implements UserDetails {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 20)
@@ -57,22 +46,9 @@ public class AppUser implements UserDetails {
         }
     }
 
-    // ── UserDetails ──────────────────────────────────────────────────────────
-
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
 
-    @Override
-    public boolean isAccountNonExpired() { return true; }
-
-    @Override
-    public boolean isAccountNonLocked() { return true; }
-
-    @Override
-    public boolean isCredentialsNonExpired() { return true; }
-
-    @Override
-    public boolean isEnabled() { return true; }
 }

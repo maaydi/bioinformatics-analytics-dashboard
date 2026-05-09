@@ -1,18 +1,17 @@
 package com.bioinformatics.dashboard.auth.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
-
 import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
 import com.bioinformatics.dashboard.auth.dto.TokenResponse;
 import com.bioinformatics.dashboard.security.JwtUtil;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
 /**
  * Authentication service.
@@ -45,38 +44,36 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+        var userDetails = userDetailsService.loadUserByUsername(request.username());
         return buildTokenResponse(userDetails);
     }
 
     /**
      * Validates the refresh token and issues a new JWT pair.
      *
-     * @throws org.springframework.security.authentication.BadCredentialsException if token is
+     * @throws BadCredentialsException if token is
      *         invalid, expired, or not of type "refresh"
      */
     public TokenResponse refresh(RefreshRequest request) {
-        String token = request.refreshToken();
+        var token = request.refreshToken();
 
         if (!jwtUtil.isRefreshToken(token)) {
-            throw new org.springframework.security.authentication.BadCredentialsException(
-                    "Invalid or expired refresh token");
+            throw new BadCredentialsException("Invalid or expired refresh token");
         }
 
-        String username = jwtUtil.extractUsername(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        var username = jwtUtil.extractUsername(token);
+        var userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!jwtUtil.isTokenValid(token, userDetails)) {
-            throw new org.springframework.security.authentication.BadCredentialsException(
-                    "Invalid or expired refresh token");
+            throw new BadCredentialsException("Invalid or expired refresh token");
         }
 
         return buildTokenResponse(userDetails);
     }
 
     private TokenResponse buildTokenResponse(UserDetails userDetails) {
-        String accessToken = jwtUtil.generateAccessToken(userDetails);
-        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+        var accessToken = jwtUtil.generateAccessToken(userDetails);
+        var refreshToken = jwtUtil.generateRefreshToken(userDetails);
         return TokenResponse.bearer(accessToken, refreshToken, accessTokenExpirySeconds);
     }
 }

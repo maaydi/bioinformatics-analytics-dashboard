@@ -1,18 +1,19 @@
 package com.bioinformatics.dashboard.exception;
 
-import java.lang.reflect.Method;
-import java.util.UUID;
-
+import com.bioinformatics.dashboard.job.dto.ImportStatus;
+import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.stereotype.Component;
 
-import com.bioinformatics.dashboard.job.dto.ImportStatus;
-import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import java.lang.reflect.Method;
+import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
+import static com.bioinformatics.dashboard.job.dto.Constants.IMPORT_JOB_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,14 +23,12 @@ public class UniprotAsyncExceptionHandler implements AsyncUncaughtExceptionHandl
     private final ImportJobRepository importJobRep;
 
     @Override
-    public void handleUncaughtException(Throwable ex, Method method, Object... params) {
+    public void handleUncaughtException(@NonNull Throwable ex, Method method, Object... params) {
         logger.error("Unexpected error occurred executing async method: {}", method.getName(), ex);
 
         for (Object param : params) {
-            if (param instanceof JobParameters) {
-                JobParameters jobParameters = (JobParameters) param;
-                String jobIdStr = jobParameters.getString("importUniprotJobId");
-
+            if (param instanceof JobParameters jobParameters) {
+                var jobIdStr = jobParameters.getString(IMPORT_JOB_ID.getKey());
                 if (jobIdStr != null) {
                     updateJobStatusToFailed(jobIdStr, ex.getMessage());
                 }
@@ -40,7 +39,7 @@ public class UniprotAsyncExceptionHandler implements AsyncUncaughtExceptionHandl
 
     private void updateJobStatusToFailed(String jobIdStr, String errorMessage) {
         try {
-            UUID jobId = UUID.fromString(jobIdStr);
+            var jobId = UUID.fromString(jobIdStr);
             importJobRep.findById(jobId).ifPresent(job -> {
                 job.setStatus(ImportStatus.FAILED);
                 job.setErrorMessage("Failed to start job: " + errorMessage);
