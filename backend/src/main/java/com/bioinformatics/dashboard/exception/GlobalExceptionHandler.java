@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,10 +32,12 @@ import java.util.stream.Collectors;
  * @see documentation/validation-rules.md §10
  */
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        log.warn("Handle Validation Exception {}", ex.getMessage(), ex);
         var message = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.joining("; "));
@@ -43,7 +46,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
-        String message = ex.getConstraintViolations().stream()
+        log.warn("Handle Constraint Violation {}", ex.getMessage(), ex);
+        var message = ex.getConstraintViolations().stream()
                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
                 .collect(Collectors.joining("; "));
         return buildResponse(HttpStatus.BAD_REQUEST, message);
@@ -51,37 +55,44 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        log.warn("Handle notFound Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ImportAlreadyRunningException.class)
     public ResponseEntity<ErrorResponse> handleImportConflict(ImportAlreadyRunningException ex) {
+        log.warn("Handle ImportAlreadyRunning Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleFileTooLarge(MaxUploadSizeExceededException ex) {
+        log.warn("Handle MaxUploadSizeExceeded Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.CONTENT_TOO_LARGE,
                 "File exceeds maximum allowed size of 2 GB");
     }
 
     @ExceptionHandler(UnsupportedFileTypeException.class)
     public ResponseEntity<Object> handleUnsupportedFileTypeException(UnsupportedFileTypeException ex) {
+        log.warn("Handle UnsupportedFileTypeException Exception: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Handle IllegalArgumentException Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
     }
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handleAuthentication(RuntimeException ex) {
+        log.warn("Handle Authentication Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        log.warn("Handle Unexpected Exception: {}", ex.getMessage(), ex);
         // Do NOT expose internal details to clients (OWASP A05)
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please contact support.");
