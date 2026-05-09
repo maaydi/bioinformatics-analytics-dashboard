@@ -2,7 +2,6 @@ package com.bioinformatics.dashboard.auth.service;
 
 import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
-import com.bioinformatics.dashboard.auth.dto.TokenResponse;
 import com.bioinformatics.dashboard.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,7 +26,7 @@ class AuthServiceTest {
     AuthenticationManager authenticationManager;
 
     @Mock
-    org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+    UserDetailsService userDetailsService;
 
     @Mock
     JwtUtil jwtUtil;
@@ -44,7 +44,7 @@ class AuthServiceTest {
     @Test
     void login_shouldReturnTokenResponse_whenCredentialsValid() {
         var req = new LoginRequest("alice", "secret");
-        UserDetails userDetails = User.withUsername("alice").password("secret").roles("USER").build();
+        var userDetails = User.withUsername("alice").password("secret").roles("USER").build();
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mock(org.springframework.security.core.Authentication.class));
@@ -52,7 +52,7 @@ class AuthServiceTest {
         when(jwtUtil.generateAccessToken(userDetails)).thenReturn("access-token");
         when(jwtUtil.generateRefreshToken(userDetails)).thenReturn("refresh-token");
 
-        TokenResponse resp = authService.login(req);
+        var resp = authService.login(req);
 
         assertThat(resp).isNotNull();
         assertThat(resp.accessToken()).isEqualTo("access-token");
@@ -77,7 +77,7 @@ class AuthServiceTest {
         when(jwtUtil.generateAccessToken(userDetails)).thenReturn("new-access");
         when(jwtUtil.generateRefreshToken(userDetails)).thenReturn("new-refresh");
 
-        TokenResponse resp = authService.refresh(req);
+        var resp = authService.refresh(req);
 
         assertThat(resp.accessToken()).isEqualTo("new-access");
         assertThat(resp.refreshToken()).isEqualTo("new-refresh");
