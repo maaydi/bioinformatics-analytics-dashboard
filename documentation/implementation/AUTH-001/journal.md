@@ -57,3 +57,22 @@ All eight acceptance criteria are now met.
 
 Added `spring-boot-devtools` dependency (`<optional>true</optional>`) to `pom.xml`.
 Updated `start-dev.sh` to use `mvn spring-boot:run -DskipTests` instead of `mvn clean install spring-boot:run -DskipTests` to avoid the unnecessary install phase on every dev startup.
+
+## 2026-05-08
+
+### Unit tests added for AuthService
+
+- Added unit tests for `AuthService` to validate login and refresh flows and error handling:
+	- `backend/src/test/java/com/bioinformatics/dashboard/auth/service/AuthServiceTest.java`
+		- login_success: verifies AuthenticationManager is invoked and JWT pair is returned
+		- refresh_success: validates refresh-token path issues a new JWT pair
+		- refresh_invalid: verifies invalid refresh token triggers BadCredentialsException
+
+### Integration tests added for authentication endpoints
+
+- Added integration tests that exercise the real HTTP endpoints and the persistence layer using Testcontainers (
+  PostgreSQL via the ContainerDatabaseDriver):
+	- `backend/src/test/java/com/bioinformatics/dashboard/auth/controller/AuthControllerIntegrationTest.java`
+	- Tests cover:
+		- `POST /api/auth/login` — success path returns access + refresh tokens and expiry
+		- `POST /api/auth/refresh` — exchanging a valid refresh token returns a new token pair
