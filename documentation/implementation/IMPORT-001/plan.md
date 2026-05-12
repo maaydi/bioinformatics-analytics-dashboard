@@ -37,7 +37,7 @@
 - [x] Security: endpoints restricted to ROLE_ADMIN
 - [x] Pagination and filtering for job list
 - [x] Unit tests for service logic (x)
-- [ ] Integration tests for endpoints
+- [x] Integration tests for endpoints
 
 ### Frontend (Angular)
 
@@ -60,4 +60,4 @@
 ### General
 
 - [x] Code reviewed
-- [ ] Coverage ≥ 80% (backend and frontend)
+- [ ] Coverage ≥ 80% (backend and frontend) — Integration tests added; coverage verification pending
