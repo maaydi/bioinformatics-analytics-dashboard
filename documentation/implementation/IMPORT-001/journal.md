@@ -70,3 +70,21 @@ Test execution results (local):
 - The import engine is executed asynchronously by `AsyncUniprotImportJobExecutor` and monitored via the `ImportJob`
   entity state.
 
+## 2026-05-12
+
+- Added backend integration tests for ImportController:
+    - `backend/src/test/java/com/bioinformatics/dashboard/admin/controller/ImportControllerIntegrationTest.java`
+    - Fixed @Transactional annotation issue: removed class-level @Transactional to allow database changes from user
+      setup to be visible during HTTP calls
+    - Added explicit `.flush()` calls after saving users to ensure persistence before token generation
+    - Test coverage includes:
+        - **POST /api/admin/import/uniprot**: valid file upload, append strategy, missing file/strategy validation,
+          forbidden access, unauthorized access, concurrent import conflict detection
+        - **GET /api/admin/import/status**: list jobs with pagination (page 0, page 1, page 2), default pagination,
+          ordering by created_at descending, empty list, forbidden/unauthorized access
+        - **GET /api/admin/import/status/{jobId}**: valid job id retrieval, completed job status, failed job with error
+          message, invalid job id handling, malformed UUID validation, forbidden/unauthorized access
+    - Total: 23 integration tests (all passing)
+    - Tests use MockMvc for multipart uploads, RestTestClient for REST calls, and mocked services (ImportService,
+      AsyncUniprotImportJobExecutor, GeneService, CounterRegistry)
+

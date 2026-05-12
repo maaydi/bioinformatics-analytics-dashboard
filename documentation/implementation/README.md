@@ -57,7 +57,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | Order | Ticket          | Status        | Why Now                                                      | End-User Visible Result                                                            |
 |-------|-----------------|---------------|--------------------------------------------------------------|------------------------------------------------------------------------------------|
 | 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access | Users can log in/out, refresh sessions, and access only authorized pages           |
-| 2     | `IMPORT-001`    | `in-progress` | Data ingestion must exist before meaningful exploration      | Admin can upload UniProt files and monitor import jobs                             |
+| 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration      | Admin can upload UniProt files and monitor import jobs                             |
 | 3     | `GENE-001`      | `not-started` | Core backend APIs needed by all gene views                   | `/api/genes` list/search/detail/export endpoints become functional                 |
 | 4     | `GENE-002`      | `not-started` | Filter UX depends on search contract from `GENE-001`         | Users can apply complex filters and see active filter chips                        |
 | 5     | `GENE-003`      | `not-started` | Table view consumes filters and list/search APIs             | Users can browse, sort, paginate, and open gene rows                               |
