@@ -1,5 +1,7 @@
 package com.bioinformatics.dashboard.gene.dto;
 
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 /**
@@ -18,7 +20,7 @@ public record PagedResponse<T>(
 ) {
 
     /** Convenience factory from a Spring {@code Page}. */
-    public static <T> PagedResponse<T> of(org.springframework.data.domain.Page<T> page) {
+    public static <T> PagedResponse<T> of(Page<T> page) {
         return new PagedResponse<>(
                 page.getContent(),
                 page.getNumber(),
