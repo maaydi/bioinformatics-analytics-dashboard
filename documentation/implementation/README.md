@@ -36,9 +36,9 @@ documentation/implementation/
 
 | ID              | Scope                                                                        | Status        |
 |-----------------|------------------------------------------------------------------------------|---------------|
-| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                | `in-progress` |
-| `IMPORT-001`    | Spring Batch import pipeline + ImportController                              | `in-progress` |
-| `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `not-started` |
+| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                | `done`        |
+| `IMPORT-001`    | Spring Batch import pipeline + ImportController                              | `done`        |
+| `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `in-progress` |
 | `GENE-002`      | GeneFilter Angular component + reactive form                                 | `not-started` |
 | `GENE-003`      | GenesTable AG Grid component                                                 | `not-started` |
 | `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `not-started` |
@@ -58,7 +58,7 @@ Implement tickets in this order so dependencies are respected and each increment
 |-------|-----------------|---------------|--------------------------------------------------------------|------------------------------------------------------------------------------------|
 | 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access | Users can log in/out, refresh sessions, and access only authorized pages           |
 | 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration      | Admin can upload UniProt files and monitor import jobs                             |
-| 3     | `GENE-001`      | `not-started` | Core backend APIs needed by all gene views                   | `/api/genes` list/search/detail/export endpoints become functional                 |
+| 3     | `GENE-001`      | `in-progress` | Core backend APIs needed by all gene views                   | `/api/genes` list/search/detail/export endpoints become functional                 |
 | 4     | `GENE-002`      | `not-started` | Filter UX depends on search contract from `GENE-001`         | Users can apply complex filters and see active filter chips                        |
 | 5     | `GENE-003`      | `not-started` | Table view consumes filters and list/search APIs             | Users can browse, sort, paginate, and open gene rows                               |
 | 6     | `DETAIL-001`    | `not-started` | Detail page depends on gene detail endpoint                  | Users can inspect full protein details, sequence, annotations, and references      |

@@ -130,9 +130,9 @@ public class ProteinEntry {
     // ── Relationships ─────────────────────────────────────────────────────────
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "protein_keyword",
-        joinColumns = @JoinColumn(name = "protein_id"),
-        inverseJoinColumns = @JoinColumn(name = "keyword_id")
+            name = "protein_keyword",
+            joinColumns = @JoinColumn(name = "protein_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
     @Builder.Default
     private List<Keyword> keywords = new ArrayList<>();
@@ -143,12 +143,15 @@ public class ProteinEntry {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "protein_go_term",
-        joinColumns = @JoinColumn(name = "protein_id"),
-        inverseJoinColumns = @JoinColumn(name = "go_term_id")
+            name = "protein_go_term",
+            joinColumns = @JoinColumn(name = "protein_id"),
+            inverseJoinColumns = @JoinColumn(name = "go_term_id")
     )
     @Builder.Default
     private List<GoTerm> goTerms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "proteinEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CrossReference> crossReferences = new ArrayList<>();
 
     @PrePersist
     void onCreate() {
