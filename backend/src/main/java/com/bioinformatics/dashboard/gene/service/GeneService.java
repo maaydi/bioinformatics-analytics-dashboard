@@ -3,30 +3,41 @@ package com.bioinformatics.dashboard.gene.service;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
+import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 /**
- * Service interface for gene/protein operations.
+ * Service for gene/protein operations.
  *
- * <p>All business logic lives here; the controller delegates to this interface.
- * Implementation must validate cross-field rules not covered by Bean Validation
- * (e.g. lengthMin ≤ lengthMax — see documentation/validation-rules.md §2).
  */
-public interface GeneService {
+@Component
+@RequiredArgsConstructor
+public class GeneService {
+
+    private final ProteinEntryRepository repository;
+    private final GeneMapper mapper;
 
     /**
      * Returns a paginated, optionally sorted list of all proteins.
      *
      * @see documentation/api-contract.md — GET /api/genes
      */
-    PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable);
+    public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
+        var page = repository.findAll(pageable);
+        var genes = page.getContent().stream().map(mapper::toSummary).toList();
+        return new PagedResponse<>(genes, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
+    }
 
     /**
      * Returns a paginated filtered result set.
      *
      * @see documentation/api-contract.md — POST /api/genes/search
      */
-    PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request);
+    public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
+    }
 
     /**
      * Returns the full detail of a single protein entry.

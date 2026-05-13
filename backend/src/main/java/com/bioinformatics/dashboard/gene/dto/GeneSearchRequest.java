@@ -36,13 +36,13 @@ public record GeneSearchRequest(
 
         String lineage,
 
-        @Min(value = 1, message = "lengthMin must be \u2265 1")
+        @Min(value = 1, message = "lengthMin must be ≥ 1")
         Integer lengthMin,
 
-        @Max(value = 100_000, message = "lengthMax must be \u2264 100000")
+        @Max(value = 100_000, message = "lengthMax must be ≤ 100000")
         Integer lengthMax,
 
-        @Min(value = 1, message = "molecularWeightMin must be \u2265 1")
+        @Min(value = 1, message = "molecularWeightMin must be ≥ 1")
         Integer molecularWeightMin,
 
         Integer molecularWeightMax,
@@ -62,7 +62,7 @@ public record GeneSearchRequest(
 
         String crossRefSource,
 
-        @Min(value = 0, message = "page must be \u2265 0")
+        @Min(value = 0, message = "page must be ≥ 0")
         Integer page,
 
         @Min(1) @Max(500)
@@ -72,4 +72,5 @@ public record GeneSearchRequest(
 
         @Pattern(regexp = "asc|desc")
         String direction
-) {}
+) {
+}
