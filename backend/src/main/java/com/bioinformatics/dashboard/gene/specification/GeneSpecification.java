@@ -5,6 +5,9 @@ import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 /**
  * JPA Specifications for dynamic multi-filter queries on {@link ProteinEntry}.
  *
@@ -23,30 +26,37 @@ import org.springframework.util.StringUtils;
  */
 public final class GeneSpecification {
 
-    private GeneSpecification() {}
+    private GeneSpecification() {
+    }
 
     public static Specification<ProteinEntry> fromRequest(GeneSearchRequest req) {
-        return Specification
-                .where(globalSearch(req.globalSearch()))
-                .and(accession(req.accession()))
-                .and(entryName(req.entryName()))
-                .and(geneNamePrimary(req.geneNamePrimary()))
-                .and(proteinFullName(req.proteinFullName()))
-                .and(reviewed(req.reviewed()))
-                .and(organism(req.organism()))
-                .and(taxid(req.taxid()))
-                .and(lengthBetween(req.lengthMin(), req.lengthMax()))
-                .and(molecularWeightBetween(req.molecularWeightMin(), req.molecularWeightMax()))
-                .and(evidenceLevels(req.evidenceLevels()))
-                .and(hasGoTermId(req.goTermId()))
-                .and(goAspect(req.goAspect()))
-                .and(featureType(req.featureType()))
-                .and(crossRefSource(req.crossRefSource()));
+        if (Objects.isNull(req)) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+
+        return Stream.of(globalSearch(req.globalSearch()),
+                        accession(req.accession()),
+                        entryName(req.entryName()),
+                        geneNamePrimary(req.geneNamePrimary()),
+                        proteinFullName(req.proteinFullName()),
+                        reviewed(req.reviewed()),
+                        organism(req.organism()),
+                        taxid(req.taxid()),
+                        lengthBetween(req.lengthMin(), req.lengthMax()),
+                        molecularWeightBetween(req.molecularWeightMin(), req.molecularWeightMax()),
+                        evidenceLevels(req.evidenceLevels()),
+                        hasGoTermId(req.goTermId()),
+                        goAspect(req.goAspect()),
+                        featureType(req.featureType()),
+                        crossRefSource(req.crossRefSource()))
+                .filter(Objects::nonNull)
+                .reduce(Specification::and)
+                .orElse((root, query, cb) -> cb.conjunction());
     }
 
     public static Specification<ProteinEntry> globalSearch(String query) {
         if (!StringUtils.hasText(query)) return null;
-        // Uses PostgreSQL tsvector full-text search via native query fragment
+        // Uses PostgreSQL ts-vector full-text search via native query fragment
         return (root, cq, cb) ->
                 cb.isTrue(cb.function(
                         "fts_match", Boolean.class,
@@ -56,22 +66,26 @@ public final class GeneSpecification {
 
     public static Specification<ProteinEntry> accession(String value) {
         if (!StringUtils.hasText(value)) return null;
-        return (root, cq, cb) -> cb.equal(root.get("accession"), value);
+        return (root, cq, cb) ->
+                cb.equal(root.get("accession"), value);
     }
 
     public static Specification<ProteinEntry> entryName(String value) {
         if (!StringUtils.hasText(value)) return null;
-        return (root, cq, cb) -> cb.like(cb.lower(root.get("entryName")), "%" + value.toLowerCase() + "%");
+        return (root, cq, cb) ->
+                cb.like(cb.lower(root.get("entryName")), "%" + value.toLowerCase() + "%");
     }
 
     public static Specification<ProteinEntry> geneNamePrimary(String value) {
         if (!StringUtils.hasText(value)) return null;
-        return (root, cq, cb) -> cb.like(cb.lower(root.get("geneNamePrimary")), "%" + value.toLowerCase() + "%");
+        return (root, cq, cb) ->
+                cb.like(cb.lower(root.get("geneNamePrimary")), "%" + value.toLowerCase() + "%");
     }
 
     public static Specification<ProteinEntry> proteinFullName(String value) {
         if (!StringUtils.hasText(value)) return null;
-        return (root, cq, cb) -> cb.like(cb.lower(root.get("proteinFullName")), "%" + value.toLowerCase() + "%");
+        return (root, cq, cb) ->
+                cb.like(cb.lower(root.get("proteinFullName")), "%" + value.toLowerCase() + "%");
     }
 
     public static Specification<ProteinEntry> reviewed(Boolean value) {
@@ -81,7 +95,8 @@ public final class GeneSpecification {
 
     public static Specification<ProteinEntry> organism(String value) {
         if (!StringUtils.hasText(value)) return null;
-        return (root, cq, cb) -> cb.like(cb.lower(root.get("organismName")), "%" + value.toLowerCase() + "%");
+        return (root, cq, cb) ->
+                cb.like(cb.lower(root.get("organismName")), "%" + value.toLowerCase() + "%");
     }
 
     public static Specification<ProteinEntry> taxid(Integer value) {
@@ -137,8 +152,12 @@ public final class GeneSpecification {
     }
 
     public static Specification<ProteinEntry> crossRefSource(String source) {
-        // cross_reference is not mapped as a collection on ProteinEntry yet — placeholder
         if (!StringUtils.hasText(source)) return null;
-        return (root, cq, cb) -> cb.conjunction(); // TODO: implement after cross_reference entity
+        return (root, query, cb) ->
+        {
+            query.distinct(true);
+            var crossRefJoin = root.join("crossReferences");
+            return cb.equal(crossRefJoin.get("source"), source);
+        };
     }
 }
