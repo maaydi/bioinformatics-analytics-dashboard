@@ -11,3 +11,8 @@
   `GeneService.java` exists as an empty class.
 - Identified that entity layer, specification, mapper, and CSV export service are all absent.
 - Implementation not yet started.
+
+## 2026-05-13
+
+- Create `CrossReference` entity
+- implement `GeneSpecification` class

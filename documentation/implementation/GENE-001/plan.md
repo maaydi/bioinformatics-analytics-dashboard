@@ -16,11 +16,11 @@
 
 ## Status
 
-- [ ] Requirements analyzed
+- [x] Requirements analyzed
 - [ ] DB migration created
-- [ ] Entities implemented
+- [x] Entities implemented
 - [ ] DTOs and mappers implemented
-- [ ] GeneSpecification implemented
+- [x] GeneSpecification implemented
 - [ ] GeneService implemented
 - [ ] CsvExportService implemented
 - [ ] GeneController completed
@@ -43,15 +43,15 @@
 
 ### Backend — Entity Layer
 
-- [ ] `ProteinEntry` entity with all fields from domain model
-- [ ] `Keyword` entity + `ProteinKeyword` join entity
-- [ ] `GoTerm` entity + `ProteinGoTerm` join entity
-- [ ] `CrossReference` entity
-- [ ] `ProteinFeature` entity
+- [x] `ProteinEntry` entity with all fields from domain model
+- [x] `Keyword` entity + `ProteinKeyword` join entity
+- [x] `GoTerm` entity + `ProteinGoTerm` join entity
+- [x] `CrossReference` entity
+- [x] `ProteinFeature` entity
 - [ ] `HostOrganism` entity
 - [ ] `ProteinComment` entity
 - [ ] `ProteinPublication` entity
-- [ ] All `@ManyToOne` / `@OneToMany` mappings with `FetchType.LAZY`
+- [x] All `@ManyToOne` / `@OneToMany` mappings with `FetchType.LAZY`
 
 ### Backend — DTO Layer
 
@@ -74,27 +74,27 @@
 
 ### Backend — Specification
 
-- [ ] `GeneSpecification.globalSearch(String)` — tsvector / ILIKE fallback
-- [ ] `GeneSpecification.accessionLike(String)`
-- [ ] `GeneSpecification.entryNameLike(String)`
-- [ ] `GeneSpecification.geneNameLike(String)`
-- [ ] `GeneSpecification.proteinNameLike(String)`
-- [ ] `GeneSpecification.reviewed(Boolean)`
-- [ ] `GeneSpecification.organismLike(String)`
-- [ ] `GeneSpecification.taxid(Integer)`
-- [ ] `GeneSpecification.lineageLike(String)`
-- [ ] `GeneSpecification.lengthBetween(Integer min, Integer max)`
-- [ ] `GeneSpecification.molecularWeightBetween(Integer min, Integer max)`
-- [ ] `GeneSpecification.evidenceLevelsIn(List<Integer>)`
-- [ ] `GeneSpecification.keywordsContainAll(List<String>)`
-- [ ] `GeneSpecification.goTermId(String)`
-- [ ] `GeneSpecification.goAspect(String)`
-- [ ] `GeneSpecification.featureType(String)`
-- [ ] `GeneSpecification.crossRefSource(String)`
+- [x] `GeneSpecification.globalSearch(String)` — tsvector / ILIKE fallback
+- [x] `GeneSpecification.accessionLike(String)`
+- [x] `GeneSpecification.entryNameLike(String)`
+- [x] `GeneSpecification.geneNameLike(String)`
+- [x] `GeneSpecification.proteinNameLike(String)`
+- [x] `GeneSpecification.reviewed(Boolean)`
+- [x] `GeneSpecification.organismLike(String)`
+- [x] `GeneSpecification.taxid(Integer)`
+- [x] `GeneSpecification.lineageLike(String)`
+- [x] `GeneSpecification.lengthBetween(Integer min, Integer max)`
+- [x] `GeneSpecification.molecularWeightBetween(Integer min, Integer max)`
+- [x] `GeneSpecification.evidenceLevelsIn(List<Integer>)`
+- [x] `GeneSpecification.keywordsContainAll(List<String>)`
+- [x] `GeneSpecification.goTermId(String)`
+- [x] `GeneSpecification.goAspect(String)`
+- [x] `GeneSpecification.featureType(String)`
+- [x] `GeneSpecification.crossRefSource(String)`
 
 ### Backend — Service
 
-- [ ] `GeneService.listGenes(page, size, sort, direction)` — validates sort field against whitelist
+- [x] `GeneService.listGenes(page, size, sort, direction)` — validates sort field against whitelist
 - [ ] `GeneService.searchGenes(GeneSearchRequest)` — composes specification from non-null fields
 - [ ] `GeneService.getGeneById(Long id)` — fetch join all relations; throw `GeneNotFoundException` if missing
 - [ ] `GeneService.exportCsv(GeneSearchRequest, HttpServletResponse)` — streams via `StreamingResponseBody`; hard cap
@@ -102,7 +102,7 @@
 
 ### Backend — Controller
 
-- [ ] Remove `UnsupportedOperationException` stubs
+- [x] Remove `UnsupportedOperationException` stubs
 - [ ] Wire `GeneService`; keep controller thin
 - [ ] Return correct HTTP status codes (`200`, `400`, `401`, `404`)
 
