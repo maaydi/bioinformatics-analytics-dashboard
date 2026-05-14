@@ -5,8 +5,11 @@ import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,6 +40,13 @@ public class GeneService {
      * @see documentation/api-contract.md — POST /api/genes/search
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
+        var direct = Sort.Direction.fromString(request.direction());
+        var page = PageRequest.of(request.page(), request.size(), direct, request.sort());
+        var spec = GeneSpecification.fromRequest(request);
+        var result = repository.findAll(spec, page);
+        var genes = result.getContent().stream().map(mapper::toSummary).toList();
+        return new PagedResponse<>(genes, result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+
     }
 
     /**

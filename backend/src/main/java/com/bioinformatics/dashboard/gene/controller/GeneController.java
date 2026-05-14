@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/genes")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','USER')")
 public class GeneController {
 
     private final GeneService geneService;
@@ -54,8 +56,8 @@ public class GeneController {
     @PostMapping("/search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> searchGenes(
             @RequestBody @Valid GeneSearchRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+        var result = geneService.searchGenes(request);
+        return ResponseEntity.ok(result);
     }
 
     /**

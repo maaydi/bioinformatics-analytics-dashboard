@@ -115,6 +115,9 @@ public class ProteinEntry {
     @Column(name = "evidence_level", nullable = false)
     private Short evidenceLevel;
 
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVector;
+
     // ── JSONB overflow ────────────────────────────────────────────────────────
     @Column(name = "metadata_jsonb", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
