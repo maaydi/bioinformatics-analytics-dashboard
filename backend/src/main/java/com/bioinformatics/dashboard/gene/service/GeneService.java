@@ -1,7 +1,9 @@
 package com.bioinformatics.dashboard.gene.service;
 
+import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
@@ -55,12 +57,18 @@ public class GeneService {
      * @throws com.bioinformatics.dashboard.exception.ResourceNotFoundException if not found
      * @see documentation/api-contract.md — GET /api/genes/{id}
      */
-    Object getGeneById(Long id); // Replace Object with ProteinDetailDto when implemented
+    public ProteinDetailDto getGeneById(Long id) {
+        var gene = repository.findById(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        return mapper.toDetail(gene);
+
+    } // Replace Object with ProteinDetailDto when implemented
 
     /**
      * Streams all filtered rows as CSV into the provided writer.
      *
      * @see documentation/api-contract.md — POST /api/genes/export-csv
      */
-    void exportCsv(GeneSearchRequest request, java.io.Writer writer);
+    public void exportCsv(GeneSearchRequest request, java.io.Writer writer) {
+
+    }
 }
