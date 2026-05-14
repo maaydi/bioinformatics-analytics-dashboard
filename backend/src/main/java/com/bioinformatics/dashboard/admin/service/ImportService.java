@@ -6,6 +6,7 @@ import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ExecuteJobException;
 import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
+import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -66,12 +67,10 @@ public class ImportService {
     }
 
     public ImportJobProgress getImportJobStatus(String jobId) {
-        var job = importJobRep.findById(UUID.fromString(jobId));
-        if (job.isEmpty()) {
-            return new ImportJobProgress(jobId, ImportStatus.FAILED, "", 0, 0, 0, 0L,
-                    "Could not find job with ID <%s>".formatted(jobId));
-        }
-        return jobMapper.toJobProgress(job.get());
+        var job = importJobRep
+                .findById(UUID.fromString(jobId))
+                .orElseThrow(() -> ResourceNotFoundException.forImportJob(jobId));
+        return jobMapper.toJobProgress(job);
     }
 
     private void checkImportAlreadyRunning() {

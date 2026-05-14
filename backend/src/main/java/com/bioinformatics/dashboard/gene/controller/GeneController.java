@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.gene.controller;
 
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.service.GeneService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -64,9 +65,8 @@ public class GeneController {
      * GET /api/genes/{id} — full protein detail.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGeneById(@PathVariable Long id) {
-        // TODO: implement — return ProteinDetailDto
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
+        return ResponseEntity.ok(geneService.getGeneById(id));
     }
 
     /**
