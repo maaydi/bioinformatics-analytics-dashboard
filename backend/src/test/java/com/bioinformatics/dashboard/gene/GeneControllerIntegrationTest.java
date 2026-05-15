@@ -195,6 +195,15 @@ class GeneControllerIntegrationTest {
     }
 
     @Test
+    void getGeneById_notFound_returnsNotFound() throws Exception {
+        restClient.get()
+                .uri("/api/genes/{id}", 9999)
+                .header("Authorization", "Bearer " + adminToken)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
     void getGenes_invalidSort_returnsBadRequest() throws Exception {
         restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/api/genes").queryParam("sort", "not_a_field").build())
