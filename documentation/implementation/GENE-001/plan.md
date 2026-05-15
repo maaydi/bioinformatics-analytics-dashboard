@@ -17,13 +17,13 @@
 ## Status
 
 - [x] Requirements analyzed
-- [ ] DB migration created
+- [x] DB migration created
 - [x] Entities implemented
-- [ ] DTOs and mappers implemented
+- [x] DTOs and mappers implemented
 - [x] GeneSpecification implemented
-- [ ] GeneService implemented
-- [ ] CsvExportService implemented
-- [ ] GeneController completed
+- [x] GeneService implemented
+- [x] CsvExportService implemented
+- [x] GeneController completed
 - [ ] Unit tests written
 - [ ] Integration tests written
 - [ ] Documentation updated
@@ -36,10 +36,10 @@
 
 ### Database Migration
 
-- [ ] `V3__gene_indexes.sql` — GIN index on `search_tsv` generated column
-- [ ] Trigram extension + `ix_protein_organism_trgm` index
-- [ ] B-tree indexes on: `accession`, `gene_name_primary`, `organism_name`, `length`, `molecular_weight`, `reviewed`,
-  `evidence_level`, `updated_date`
+- [x] `V5__gene_indexes.sql` — Trigram extension + trigram indexes for organism_name & gene_name_primary
+- [x] B-tree indexes on: `gene_name_primary`, `updated_date`
+- [x] B-tree indexes on: `accession`, `organism_name`, `length`, `molecular_weight`, `reviewed`, `evidence_level` (
+  created in V1)
 
 ### Backend — Entity Layer
 
