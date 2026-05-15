@@ -61,10 +61,10 @@ public class GeneService {
      * @see documentation/api-contract.md — GET /api/genes/{id}
      */
     public ProteinDetailDto getGeneById(Long id) {
-        var gene = repository.findById(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        var gene = repository.findByIdWithAllRelations(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
         return mapper.toDetail(gene);
 
-    } // Replace Object with ProteinDetailDto when implemented
+    }
 
     /**
      * Streams all filtered rows as CSV into the provided writer.
