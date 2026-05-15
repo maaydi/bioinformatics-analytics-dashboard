@@ -45,6 +45,8 @@ public final class GeneSpecification {
                         lengthBetween(req.lengthMin(), req.lengthMax()),
                         molecularWeightBetween(req.molecularWeightMin(), req.molecularWeightMax()),
                         evidenceLevels(req.evidenceLevels()),
+                        keywords(req.keywords()),
+                        lineage(req.lineage()),
                         hasGoTermId(req.goTermId()),
                         goAspect(req.goAspect()),
                         featureType(req.featureType()),
@@ -132,6 +134,29 @@ public final class GeneSpecification {
         return (root, cq, cb) -> {
             var join = root.join("goTerms", jakarta.persistence.criteria.JoinType.INNER);
             return cb.equal(join.get("goId"), goId);
+        };
+    }
+
+    public static Specification<ProteinEntry> keywords(java.util.List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return null;
+        return (root, query, cb) -> {
+            query.distinct(true);
+            var join = root.join("keywords", jakarta.persistence.criteria.JoinType.INNER);
+            var preds = keywords.stream()
+                    .filter(StringUtils::hasText)
+                    .map(k -> cb.like(cb.lower(join.get("name")), "%" + k.toLowerCase() + "%"))
+                    .toArray(jakarta.persistence.criteria.Predicate[]::new);
+            if (preds.length == 0) return cb.conjunction();
+            return cb.or(preds);
+        };
+    }
+
+    public static Specification<ProteinEntry> lineage(String lineageValue) {
+        if (!StringUtils.hasText(lineageValue)) return null;
+        return (root, query, cb) -> {
+            // Use PostgreSQL array_to_string to search within the lineage text[] column
+            var arrayStr = cb.function("array_to_string", String.class, root.get("lineage"), cb.literal(","));
+            return cb.like(cb.lower(arrayStr), "%" + lineageValue.toLowerCase() + "%");
         };
     }
 

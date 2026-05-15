@@ -36,6 +36,7 @@ public interface ProteinEntryRepository
             LEFT JOIN FETCH p.keywords
             LEFT JOIN FETCH p.features
             LEFT JOIN FETCH p.goTerms
+            LEFT JOIN FETCH p.crossReferences
             WHERE p.id = :id
             """)
     Optional<ProteinEntry> findByIdWithAllRelations(@Param("id") Long id);
