@@ -73,4 +73,22 @@ public record GeneSearchRequest(
         @Pattern(regexp = "asc|desc")
         String direction
 ) {
+    /**
+     * Cross-field validation: if both lengthMin and lengthMax are provided, lengthMin must be ≤ lengthMax.
+     */
+    @AssertTrue(message = "lengthMin must be ≤ lengthMax")
+    private boolean isLengthRangeValid() {
+        if (lengthMin() == null || lengthMax() == null) return true;
+        return lengthMin() <= lengthMax();
+    }
+
+    /**
+     * Cross-field validation: if both molecularWeightMin and molecularWeightMax are provided,
+     * molecularWeightMin must be ≤ molecularWeightMax.
+     */
+    @AssertTrue(message = "molecularWeightMin must be ≤ molecularWeightMax")
+    private boolean isMolecularWeightRangeValid() {
+        if (molecularWeightMin() == null || molecularWeightMax() == null) return true;
+        return molecularWeightMin() <= molecularWeightMax();
+    }
 }

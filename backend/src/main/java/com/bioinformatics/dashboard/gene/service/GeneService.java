@@ -16,6 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service for gene/protein operations.
@@ -28,6 +32,12 @@ public class GeneService {
     private final ProteinEntryRepository repository;
     private final GeneMapper mapper;
     private final CsvWriter csvWriter;
+
+
+    // Whitelisted sortable fields from ProteinSummaryDto
+    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
+            .map(Field::getName).collect(Collectors.toSet());
+
 
     /**
      * Returns a paginated, optionally sorted list of all proteins.
@@ -46,8 +56,15 @@ public class GeneService {
      * @see documentation/api-contract.md — POST /api/genes/search
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
-        var direct = Sort.Direction.fromString(request.direction());
-        var page = PageRequest.of(request.page(), request.size(), direct, request.sort());
+        var dir = request.direction() == null ? "asc" : request.direction();
+        var direct = Sort.Direction.fromString(dir);
+
+        var sortField = request.sort() == null ? "id" : request.sort();
+        if (!SORT_WHITELIST.contains(sortField)) {
+            throw new IllegalArgumentException("Invalid sort field: '" + sortField + "'. Allowed fields: " + SORT_WHITELIST);
+        }
+
+        var page = PageRequest.of(request.page(), request.size(), direct, sortField);
         var spec = GeneSpecification.fromRequest(request);
         var result = repository.findAll(spec, page);
         var genes = result.getContent().stream().map(mapper::toSummary).toList();
