@@ -15,6 +15,7 @@ public class AppProperties {
     private final Jwt jwt = new Jwt();
     private final Batch batch = new Batch();
     private final ImportConfig importConfig = new ImportConfig();
+    private final Export export = new Export();
 
     @Getter
     @Setter
@@ -46,5 +47,17 @@ public class AppProperties {
         private int maxSize;
         private int queueCapacity;
         private String threadNamePrefix;
+    }
+
+    @Getter
+    @Setter
+    public static class Export {
+        private Csv csv;
+    }
+
+    @Getter
+    @Setter
+    public static class Csv {
+        private int maxRows;
     }
 }

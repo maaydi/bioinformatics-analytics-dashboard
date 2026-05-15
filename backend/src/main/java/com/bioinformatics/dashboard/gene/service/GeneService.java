@@ -27,6 +27,7 @@ public class GeneService {
 
     private final ProteinEntryRepository repository;
     private final GeneMapper mapper;
+    private final CsvWriter csvWriter;
 
     /**
      * Returns a paginated, optionally sorted list of all proteins.
@@ -74,9 +75,8 @@ public class GeneService {
      */
     public void exportCsv(GeneSearchRequest request, java.io.Writer writer) throws IOException {
         var spec = GeneSpecification.fromRequest(request);
-        var genes = repository.findAll(spec).stream().map(mapper::toDetail).toList();
-        var csvWriter = new CsvWriter<ProteinDetailDto>(writer);
-        csvWriter.write(genes);
+        var genes = repository.findAll(spec).stream().map(mapper::toSummary).toList();
+        csvWriter.write(writer, genes);
 
     }
 }

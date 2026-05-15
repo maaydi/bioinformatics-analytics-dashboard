@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.controller;
 
+import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 /**
  * REST controller for gene/protein endpoints.
@@ -82,10 +84,14 @@ public class GeneController {
         // 2. Set headers
         response.setContentType("text/csv");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"export.csv\"");
+        var filename = String.format("proteins_%s.csv", LocalDate.now());
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"%s\"".formatted(filename));
         try (var writer = response.getWriter()) {
             geneService.exportCsv(request, writer);
         } catch (Exception e) {
+            if (e instanceof PayloadTooLargeException pex) {
+                response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Failed to export csv " + pex.getMessage());
+            }
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to export csv " + e.getMessage());
         }
     }
