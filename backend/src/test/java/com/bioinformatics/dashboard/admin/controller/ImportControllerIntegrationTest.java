@@ -7,6 +7,7 @@ import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
 import com.bioinformatics.dashboard.batch.counter.RecordCounter;
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.ErrorResponse;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.service.GeneService;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -15,6 +16,7 @@ import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -52,6 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
+@Slf4j
 class ImportControllerIntegrationTest {
 
 
@@ -542,13 +545,14 @@ class ImportControllerIntegrationTest {
                 .uri("/api/admin/import/status/{jobId}", invalidJobId)
                 .header("Authorization", "Bearer " + adminToken)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(ImportJobProgress.class)
+                .expectStatus().isNotFound()
+                .expectBody(ErrorResponse.class)
                 .consumeWith(result -> {
-                    ImportJobProgress body = result.getResponseBody();
+                    ErrorResponse body = result.getResponseBody();
                     assertThat(body).isNotNull();
-                    assertThat(body.status()).isEqualTo(ImportStatus.FAILED);
-                    assertThat(body.errorMessage()).contains("Could not find job");
+                    assertThat(body.status()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                    assertThat(body.error()).isEqualTo("Not Found");
+                    assertThat(body.message()).isEqualTo("Import job not found: " + invalidJobId);
                 });
     }
 
