@@ -1,8 +1,12 @@
 package com.bioinformatics.dashboard.gene.dto;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Request body for {@code POST /api/genes/search} and {@code POST /api/genes/export-csv}.
@@ -90,5 +94,17 @@ public record GeneSearchRequest(
     private boolean isMolecularWeightRangeValid() {
         if (molecularWeightMin() == null || molecularWeightMax() == null) return true;
         return molecularWeightMin() <= molecularWeightMax();
+    }
+
+    public Pageable getRequestPage(Set<String> sortFields, String defaultSortField) {
+        var dir = direction == null ? "asc" : direction;
+        var direct = Sort.Direction.fromString(dir);
+
+        var sortField = sort == null ? defaultSortField : sort;
+        if (!sortFields.contains(sortField)) {
+            throw new IllegalArgumentException("Invalid sort field: '" + sortField + "'. Allowed fields: " + sortFields);
+        }
+
+        return PageRequest.of(page, size, direct, sortField);
     }
 }
