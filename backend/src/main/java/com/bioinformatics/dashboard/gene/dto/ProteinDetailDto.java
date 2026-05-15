@@ -1,8 +1,12 @@
 package com.bioinformatics.dashboard.gene.dto;
 
+import com.bioinformatics.dashboard.csv.CsvSerializable;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public record ProteinDetailDto(
 
@@ -49,5 +53,91 @@ public record ProteinDetailDto(
         List<GoTermDto> goTerms,
         List<CrossReferenceDto> crossReferences
 
-) {
+) implements CsvSerializable {
+    @Override
+    public String row() {
+        return Stream.of(
+
+                        format(id()),
+
+                        format(accession()),
+                        format(entryName()),
+                        format(reviewed()),
+
+                        format(integratedDate()),
+                        format(sequenceDate()),
+                        format(updatedDate()),
+
+                        format(sequenceVersion()),
+                        format(entryVersion()),
+
+                        format(proteinFullName()),
+                        format(proteinShortName()),
+                        format(proteinEcNumber()),
+
+                        format(geneNamePrimary()),
+                        format(joinArray(geneNameSynonyms())),
+                        format(joinArray(geneOrfNames())),
+                        format(joinArray(geneOrderedLocus())),
+
+                        format(organismName()),
+                        format(organismCommonName()),
+                        format(taxid()),
+
+                        format(joinArray(lineage())),
+
+                        format(length()),
+                        format(molecularWeight()),
+
+                        format(sequenceChecksum()),
+                        format(sequence()),
+
+                        format(evidenceLevel()),
+
+                        format(metadataJsonb()),
+
+                        format(createdAt()),
+                        format(updatedAt()),
+
+                        format(joinList(keywords())),
+                        format(formatFeatures(features())),
+                        format(formatGoTerms(goTerms())),
+                        format(formatCrossReferences(crossReferences())))
+                .collect(Collectors.joining(separator()));
+    }
+
+
+    private String formatFeatures(List<ProteinFeatureDto> features) {
+        if (features == null || features.isEmpty()) {
+            return "";
+        }
+
+        var result = features.stream()
+                .map(f -> f.featureId() + ":" + f.featureType() + " - " + f.note())
+                .collect(Collectors.joining(" | "));
+        return format(result);
+    }
+
+    private String formatGoTerms(List<GoTermDto> goTerms) {
+        if (goTerms == null || goTerms.isEmpty()) {
+            return "";
+        }
+
+        var result = goTerms.stream()
+                .map(g -> g.id() + ":" + g.goId())
+                .collect(Collectors.joining(" | "));
+        return format(result);
+    }
+
+    private String formatCrossReferences(List<CrossReferenceDto> refs) {
+        if (refs == null || refs.isEmpty()) {
+            return "";
+        }
+
+        var result = refs.stream()
+                .map(r -> r.identifier() + ":" + r.source())
+                .collect(Collectors.joining(" | "));
+        return format(result);
+    }
+
 }

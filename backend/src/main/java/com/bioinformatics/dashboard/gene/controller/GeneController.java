@@ -10,9 +10,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * REST controller for gene/protein endpoints.
@@ -72,11 +75,18 @@ public class GeneController {
     /**
      * POST /api/genes/export-csv — download CSV for filtered result set.
      */
-    @PostMapping("/export-csv")
+    @PostMapping(value = "/export-csv", produces = "text/csv")
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
-            HttpServletResponse response) {
-        // TODO: implement — streams CSV into response
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+            HttpServletResponse response) throws IOException {
+        // 2. Set headers
+        response.setContentType("text/csv");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"export.csv\"");
+        try (var writer = response.getWriter()) {
+            geneService.exportCsv(request, writer);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to export csv " + e.getMessage());
+        }
     }
 }

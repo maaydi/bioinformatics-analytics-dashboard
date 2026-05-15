@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.service;
 
+import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 /**
  * Service for gene/protein operations.
@@ -65,10 +68,15 @@ public class GeneService {
 
     /**
      * Streams all filtered rows as CSV into the provided writer.
+     * Page configuration is ignored and all data are returned
      *
      * @see documentation/api-contract.md — POST /api/genes/export-csv
      */
-    public void exportCsv(GeneSearchRequest request, java.io.Writer writer) {
+    public void exportCsv(GeneSearchRequest request, java.io.Writer writer) throws IOException {
+        var spec = GeneSpecification.fromRequest(request);
+        var genes = repository.findAll(spec).stream().map(mapper::toDetail).toList();
+        var csvWriter = new CsvWriter<ProteinDetailDto>(writer);
+        csvWriter.write(genes);
 
     }
 }
