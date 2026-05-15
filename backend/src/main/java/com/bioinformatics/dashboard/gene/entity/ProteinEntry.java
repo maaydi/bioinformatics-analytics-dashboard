@@ -166,6 +166,11 @@ public class ProteinEntry {
     private List<ProteinComment> comments = new ArrayList<>();
 
 
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProteinPublication> publications = new ArrayList<>();
+
+
     @PrePersist
     void onCreate() {
         var now = Instant.now();

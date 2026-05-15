@@ -53,7 +53,8 @@ public record ProteinDetailDto(
         List<GoTermDto> goTerms,
         List<CrossReferenceDto> crossReferences,
         List<HostOrganismDto> hostOrganisms,
-        List<ProteinCommentDto> comments
+        List<ProteinCommentDto> comments,
+        List<ProteinPublicationDto> publications
 
 ) implements CsvSerializable {
     @Override
@@ -106,7 +107,8 @@ public record ProteinDetailDto(
                         format(formatGoTerms(goTerms())),
                         format(formatCrossReferences(crossReferences())),
                         format(formatHostOrganisms(hostOrganisms())),
-                        format(formatComment(comments))
+                        format(formatComment(comments())),
+                        format(formatPublications(publications()))
 
                 )
                 .collect(Collectors.joining(separator()));
@@ -157,13 +159,24 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatComment(List<ProteinCommentDto> hosts) {
-        if (hosts == null || hosts.isEmpty()) {
+    private String formatComment(List<ProteinCommentDto> comments) {
+        if (comments == null || comments.isEmpty()) {
             return "";
         }
 
-        var result = hosts.stream()
+        var result = comments.stream()
                 .map(r -> r.commentType() + ":" + r.text())
+                .collect(Collectors.joining(" | "));
+        return format(result);
+    }
+
+    private String formatPublications(List<ProteinPublicationDto> publications) {
+        if (publications == null || publications.isEmpty()) {
+            return "";
+        }
+
+        var result = publications.stream()
+                .map(r -> r.pubmedId() + "[" + r.refNumber() + "]: " + r.title() + " - " + r.authors())
                 .collect(Collectors.joining(" | "));
         return format(result);
     }
