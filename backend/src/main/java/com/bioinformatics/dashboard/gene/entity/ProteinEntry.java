@@ -156,6 +156,11 @@ public class ProteinEntry {
     @OneToMany(mappedBy = "proteinEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CrossReference> crossReferences = new ArrayList<>();
 
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<HostOrganism> hostOrganisms = new ArrayList<>();
+
+
     @PrePersist
     void onCreate() {
         var now = Instant.now();

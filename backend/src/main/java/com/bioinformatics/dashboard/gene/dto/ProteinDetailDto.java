@@ -51,7 +51,8 @@ public record ProteinDetailDto(
         List<String> keywords,
         List<ProteinFeatureDto> features,
         List<GoTermDto> goTerms,
-        List<CrossReferenceDto> crossReferences
+        List<CrossReferenceDto> crossReferences,
+        List<HostOrganismDto> hostOrganisms
 
 ) implements CsvSerializable {
     @Override
@@ -102,7 +103,10 @@ public record ProteinDetailDto(
                         format(joinList(keywords())),
                         format(formatFeatures(features())),
                         format(formatGoTerms(goTerms())),
-                        format(formatCrossReferences(crossReferences())))
+                        format(formatCrossReferences(crossReferences())),
+                        format(formatHostOrganisms(hostOrganisms()))
+
+                )
                 .collect(Collectors.joining(separator()));
     }
 
@@ -136,6 +140,17 @@ public record ProteinDetailDto(
 
         var result = refs.stream()
                 .map(r -> r.identifier() + ":" + r.source())
+                .collect(Collectors.joining(" | "));
+        return format(result);
+    }
+
+    private String formatHostOrganisms(List<HostOrganismDto> hosts) {
+        if (hosts == null || hosts.isEmpty()) {
+            return "";
+        }
+
+        var result = hosts.stream()
+                .map(r -> r.id() + ":" + r.name())
                 .collect(Collectors.joining(" | "));
         return format(result);
     }
