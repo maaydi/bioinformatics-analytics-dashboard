@@ -1,6 +1,8 @@
 package com.bioinformatics.dashboard.gene.service;
 
+import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
+import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -12,10 +14,10 @@ import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
@@ -31,7 +33,7 @@ public class GeneService {
 
     private final ProteinEntryRepository repository;
     private final GeneMapper mapper;
-    private final CsvWriter csvWriter;
+    private final AppProperties appProperties;
 
 
     // Whitelisted sortable fields from ProteinSummaryDto
@@ -56,15 +58,7 @@ public class GeneService {
      * @see documentation/api-contract.md — POST /api/genes/search
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
-        var dir = request.direction() == null ? "asc" : request.direction();
-        var direct = Sort.Direction.fromString(dir);
-
-        var sortField = request.sort() == null ? "id" : request.sort();
-        if (!SORT_WHITELIST.contains(sortField)) {
-            throw new IllegalArgumentException("Invalid sort field: '" + sortField + "'. Allowed fields: " + SORT_WHITELIST);
-        }
-
-        var page = PageRequest.of(request.page(), request.size(), direct, sortField);
+        var page = request.getRequestPage(SORT_WHITELIST, "id");
         var spec = GeneSpecification.fromRequest(request);
         var result = repository.findAll(spec, page);
         var genes = result.getContent().stream().map(mapper::toSummary).toList();
@@ -90,10 +84,18 @@ public class GeneService {
      *
      * @see documentation/api-contract.md — POST /api/genes/export-csv
      */
-    public void exportCsv(GeneSearchRequest request, java.io.Writer writer) throws IOException {
+    public void exportCsv(GeneSearchRequest request, Writer writer) throws IOException {
+        var maxSize = appProperties.getExport().getCsv().getMaxRows();
+        request.getRequestPage(SORT_WHITELIST, "id"); // to validate sort field or use default one if null
+        var page = PageRequest.of(0, maxSize);
         var spec = GeneSpecification.fromRequest(request);
-        var genes = repository.findAll(spec).stream().map(mapper::toSummary).toList();
-        csvWriter.write(writer, genes);
+        var genes = repository.findAll(spec, page);
+        if (genes.getTotalElements() > maxSize) {
+            throw new PayloadTooLargeException("Export limit exceeded. Maximum allowed rows: " + maxSize);
+        }
+        var csvWriter = new CsvWriter();
+        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
 
     }
+
 }
