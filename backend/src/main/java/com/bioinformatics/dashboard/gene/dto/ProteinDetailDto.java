@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.csv.CsvSerializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,12 +50,12 @@ public record ProteinDetailDto(
         Instant updatedAt,
 
         List<String> keywords,
-        List<ProteinFeatureDto> features,
-        List<GoTermDto> goTerms,
-        List<CrossReferenceDto> crossReferences,
-        List<HostOrganismDto> hostOrganisms,
-        List<ProteinCommentDto> comments,
-        List<ProteinPublicationDto> publications
+        Set<ProteinFeatureDto> features,
+        Set<GoTermDto> goTerms,
+        Set<CrossReferenceDto> crossReferences,
+        Set<HostOrganismDto> hostOrganisms,
+        Set<ProteinCommentDto> comments,
+        Set<ProteinPublicationDto> publications
 
 ) implements CsvSerializable {
     @Override
@@ -115,7 +116,7 @@ public record ProteinDetailDto(
     }
 
 
-    private String formatFeatures(List<ProteinFeatureDto> features) {
+    private String formatFeatures(Set<ProteinFeatureDto> features) {
         if (features == null || features.isEmpty()) {
             return "";
         }
@@ -126,7 +127,7 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatGoTerms(List<GoTermDto> goTerms) {
+    private String formatGoTerms(Set<GoTermDto> goTerms) {
         if (goTerms == null || goTerms.isEmpty()) {
             return "";
         }
@@ -137,7 +138,7 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatCrossReferences(List<CrossReferenceDto> refs) {
+    private String formatCrossReferences(Set<CrossReferenceDto> refs) {
         if (refs == null || refs.isEmpty()) {
             return "";
         }
@@ -148,7 +149,7 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatHostOrganisms(List<HostOrganismDto> hosts) {
+    private String formatHostOrganisms(Set<HostOrganismDto> hosts) {
         if (hosts == null || hosts.isEmpty()) {
             return "";
         }
@@ -159,7 +160,7 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatComment(List<ProteinCommentDto> comments) {
+    private String formatComment(Set<ProteinCommentDto> comments) {
         if (comments == null || comments.isEmpty()) {
             return "";
         }
@@ -170,7 +171,7 @@ public record ProteinDetailDto(
         return format(result);
     }
 
-    private String formatPublications(List<ProteinPublicationDto> publications) {
+    private String formatPublications(Set<ProteinPublicationDto> publications) {
         if (publications == null || publications.isEmpty()) {
             return "";
         }

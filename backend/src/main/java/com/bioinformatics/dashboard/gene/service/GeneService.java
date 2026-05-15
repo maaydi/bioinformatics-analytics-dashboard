@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -72,8 +73,10 @@ public class GeneService {
      * @throws com.bioinformatics.dashboard.exception.ResourceNotFoundException if not found
      * @see documentation/api-contract.md — GET /api/genes/{id}
      */
+    @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
-        var gene = repository.findByIdWithAllRelations(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        var gene = repository.findBaseDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        gene = repository.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
         return mapper.toDetail(gene);
 
     }

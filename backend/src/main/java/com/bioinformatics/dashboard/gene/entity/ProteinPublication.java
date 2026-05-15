@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cross_reference")
+@Table(name = "protein_publication")
 @Getter
 @Setter
 @NoArgsConstructor

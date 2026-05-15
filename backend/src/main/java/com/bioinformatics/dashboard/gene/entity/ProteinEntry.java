@@ -8,7 +8,9 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * JPA entity for {@code protein_entry} table.
@@ -142,7 +144,7 @@ public class ProteinEntry {
 
     @OneToMany(mappedBy = "proteinEntry", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ProteinFeature> features = new ArrayList<>();
+    private Set<ProteinFeature> features = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -151,24 +153,25 @@ public class ProteinEntry {
             inverseJoinColumns = @JoinColumn(name = "go_term_id")
     )
     @Builder.Default
-    private List<GoTerm> goTerms = new ArrayList<>();
+    private Set<GoTerm> goTerms = new HashSet<>();
 
     @OneToMany(mappedBy = "proteinEntry", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CrossReference> crossReferences = new ArrayList<>();
+    @Builder.Default
+    private Set<CrossReference> crossReferences = new HashSet<>();
 
     @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<HostOrganism> hostOrganisms = new ArrayList<>();
-
-
-    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ProteinComment> comments = new ArrayList<>();
+    private Set<HostOrganism> hostOrganisms = new HashSet<>();
 
 
     @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ProteinPublication> publications = new ArrayList<>();
+    private Set<ProteinComment> comments = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProteinPublication> publications = new HashSet<>();
 
 
     @PrePersist

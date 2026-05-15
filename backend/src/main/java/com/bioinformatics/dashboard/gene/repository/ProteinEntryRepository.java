@@ -21,14 +21,14 @@ import java.util.Optional;
  */
 public interface ProteinEntryRepository
         extends JpaRepository<ProteinEntry, Long>,
-                JpaSpecificationExecutor<ProteinEntry> {
+        JpaSpecificationExecutor<ProteinEntry> {
 
     Optional<ProteinEntry> findByAccession(String accession);
 
     boolean existsByAccession(String accession);
 
     /**
-     * Full detail fetch with all related collections in a single query.
+     * base detail fetch with three related collections in a single query.
      * Used exclusively for the Gene Detail page (GET /api/genes/{id}).
      */
     @Query("""
@@ -36,11 +36,21 @@ public interface ProteinEntryRepository
             LEFT JOIN FETCH p.keywords
             LEFT JOIN FETCH p.features
             LEFT JOIN FETCH p.goTerms
+            WHERE p.id = :id
+            """)
+    Optional<ProteinEntry> findBaseDetails(@Param("id") Long id);
+
+    /**
+     * Full detail fetch with the rest of  related collections in a single query.
+     * Used exclusively for the Gene Detail page (GET /api/genes/{id}).
+     */
+    @Query("""
+            SELECT p FROM ProteinEntry p
             LEFT JOIN FETCH p.crossReferences
             LEFT JOIN FETCH p.hostOrganisms
             LEFT JOIN FETCH p.comments
             LEFT JOIN FETCH p.publications
             WHERE p.id = :id
             """)
-    Optional<ProteinEntry> findByIdWithAllRelations(@Param("id") Long id);
+    Optional<ProteinEntry> findAdditionalDetails(@Param("id") Long id);
 }
