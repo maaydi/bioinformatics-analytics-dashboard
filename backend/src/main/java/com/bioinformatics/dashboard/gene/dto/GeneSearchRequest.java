@@ -1,8 +1,12 @@
 package com.bioinformatics.dashboard.gene.dto;
 
 import jakarta.validation.constraints.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Request body for {@code POST /api/genes/search} and {@code POST /api/genes/export-csv}.
@@ -36,13 +40,13 @@ public record GeneSearchRequest(
 
         String lineage,
 
-        @Min(value = 1, message = "lengthMin must be \u2265 1")
+        @Min(value = 1, message = "lengthMin must be ≥ 1")
         Integer lengthMin,
 
-        @Max(value = 100_000, message = "lengthMax must be \u2264 100000")
+        @Max(value = 100_000, message = "lengthMax must be ≤ 100000")
         Integer lengthMax,
 
-        @Min(value = 1, message = "molecularWeightMin must be \u2265 1")
+        @Min(value = 1, message = "molecularWeightMin must be ≥ 1")
         Integer molecularWeightMin,
 
         Integer molecularWeightMax,
@@ -62,7 +66,7 @@ public record GeneSearchRequest(
 
         String crossRefSource,
 
-        @Min(value = 0, message = "page must be \u2265 0")
+        @Min(value = 0, message = "page must be ≥ 0")
         Integer page,
 
         @Min(1) @Max(500)
@@ -72,4 +76,35 @@ public record GeneSearchRequest(
 
         @Pattern(regexp = "asc|desc")
         String direction
-) {}
+) {
+    /**
+     * Cross-field validation: if both lengthMin and lengthMax are provided, lengthMin must be ≤ lengthMax.
+     */
+    @AssertTrue(message = "lengthMin must be ≤ lengthMax")
+    private boolean isLengthRangeValid() {
+        if (lengthMin() == null || lengthMax() == null) return true;
+        return lengthMin() <= lengthMax();
+    }
+
+    /**
+     * Cross-field validation: if both molecularWeightMin and molecularWeightMax are provided,
+     * molecularWeightMin must be ≤ molecularWeightMax.
+     */
+    @AssertTrue(message = "molecularWeightMin must be ≤ molecularWeightMax")
+    private boolean isMolecularWeightRangeValid() {
+        if (molecularWeightMin() == null || molecularWeightMax() == null) return true;
+        return molecularWeightMin() <= molecularWeightMax();
+    }
+
+    public Pageable getRequestPage(Set<String> sortFields, String defaultSortField) {
+        var dir = direction == null ? "asc" : direction;
+        var direct = Sort.Direction.fromString(dir);
+
+        var sortField = sort == null ? defaultSortField : sort;
+        if (!sortFields.contains(sortField)) {
+            throw new IllegalArgumentException("Invalid sort field: '" + sortField + "'. Allowed fields: " + sortFields);
+        }
+
+        return PageRequest.of(page, size, direct, sortField);
+    }
+}

@@ -5,7 +5,7 @@ import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
 import com.bioinformatics.dashboard.batch.counter.RecordCounter;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
-import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
+import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -120,11 +121,10 @@ class ImportServiceTest {
         var jobId = UUID.randomUUID().toString();
         when(importJobRep.findById(UUID.fromString(jobId))).thenReturn(Optional.empty());
 
-        ImportJobProgress p = importService.getImportJobStatus(jobId);
-
-        assertThat(p).isNotNull();
-        assertThat(p.status()).isEqualTo(ImportStatus.FAILED);
-        assertThat(p.errorMessage()).contains("Could not find job");
+        assertThatThrownBy(() -> importService.getImportJobStatus(jobId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Import job not found:")
+                .hasMessageContaining(jobId);
     }
 }
 

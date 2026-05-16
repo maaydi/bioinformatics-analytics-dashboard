@@ -1,22 +1,23 @@
 package com.bioinformatics.dashboard.gene.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.service.GeneService;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.time.LocalDate;
 
 /**
  * REST controller for gene/protein endpoints.
@@ -35,43 +36,63 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/genes")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','USER')")
 public class GeneController {
 
-    // TODO uncomment this if a concret class is created
-    // private final GeneService geneService;
+    private final GeneService geneService;
 
-    /** GET /api/genes — paginated list with optional sort/direction. */
+
+    /**
+     * GET /api/genes — paginated list with optional sort/direction.
+     */
     @GetMapping
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> listGenes(
-            @RequestParam(defaultValue = "0")    int page,
-            @RequestParam(defaultValue = "50")   int size,
-            @RequestParam(defaultValue = "id")   String sort,
-            @RequestParam(defaultValue = "asc")  String direction) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "asc") String direction) {
+        var direct = Sort.Direction.fromString(direction);
+        var result = geneService.listGenes(PageRequest.of(page, size, direct, sort));
+        return ResponseEntity.ok(result);
     }
 
-    /** POST /api/genes/search — search and filter with full filter support. */
+    /**
+     * POST /api/genes/search — search and filter with full filter support.
+     */
     @PostMapping("/search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> searchGenes(
             @RequestBody @Valid GeneSearchRequest request) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+        var result = geneService.searchGenes(request);
+        return ResponseEntity.ok(result);
     }
 
-    /** GET /api/genes/{id} — full protein detail. */
+    /**
+     * GET /api/genes/{id} — full protein detail.
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGeneById(@PathVariable Long id) {
-        // TODO: implement — return ProteinDetailDto
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
+        return ResponseEntity.ok(geneService.getGeneById(id));
     }
 
-    /** POST /api/genes/export-csv — download CSV for filtered result set. */
-    @PostMapping("/export-csv")
+    /**
+     * POST /api/genes/export-csv — download CSV for filtered result set.
+     */
+    @PostMapping(value = "/export-csv", produces = "text/csv")
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
-            HttpServletResponse response) {
-        // TODO: implement — streams CSV into response
-        throw new UnsupportedOperationException("Not yet implemented — see plan.md");
+            HttpServletResponse response) throws IOException {
+        // 2. Set headers
+        response.setContentType("text/csv");
+        response.setCharacterEncoding("UTF-8");
+        var filename = String.format("proteins_%s.csv", LocalDate.now());
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"%s\"".formatted(filename));
+        try (var writer = response.getWriter()) {
+            geneService.exportCsv(request, writer);
+        } catch (Exception e) {
+            if (e instanceof PayloadTooLargeException pex) {
+                response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Failed to export csv " + pex.getMessage());
+            }
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to export csv " + e.getMessage());
+        }
     }
 }

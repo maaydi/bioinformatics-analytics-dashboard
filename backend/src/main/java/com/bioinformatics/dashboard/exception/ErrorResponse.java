@@ -1,7 +1,6 @@
 package com.bioinformatics.dashboard.exception;
 
 import lombok.Builder;
-import lombok.Value;
 
 import java.time.Instant;
 
@@ -19,11 +18,11 @@ import java.time.Instant;
  * }
  * }</pre>
  */
-@Value
 @Builder
-public class ErrorResponse {
-    int    status;
-    String error;
-    String message;
-    Instant timestamp;
+public record ErrorResponse(
+        int status,
+        String error,
+        String message,
+        Instant timestamp
+) {
 }

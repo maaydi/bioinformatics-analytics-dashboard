@@ -71,6 +71,9 @@ app:
       max-size: 10
       queue-capacity: 25
       thread-name-prefix: BatchAsync-
+  export:
+    csv:
+      max-rows: 100000
 
 
 # ── Logging ───────────────────────────────────────────────────────────────────

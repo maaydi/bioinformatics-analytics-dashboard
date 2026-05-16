@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.mapper;
 
+import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
@@ -23,11 +24,13 @@ public interface GeneMapper {
     @Mapping(target = "keywords", source = "keywords", qualifiedByName = "keywordsToNames")
     ProteinSummaryDto toSummary(ProteinEntry entity);
 
+    @Mapping(target = "keywords", source = "keywords", qualifiedByName = "keywordsToNames")
+    ProteinDetailDto toDetail(ProteinEntry entity);
+
     @Named("keywordsToNames")
     static List<String> keywordsToNames(List<Keyword> keywords) {
         if (keywords == null) return List.of();
         return keywords.stream().map(Keyword::getName).toList();
     }
 
-    // TODO: add toDetail(ProteinEntry) -> ProteinDetailDto when ProteinDetailDto is created
 }

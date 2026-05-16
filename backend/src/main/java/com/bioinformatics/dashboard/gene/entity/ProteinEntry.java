@@ -8,7 +8,9 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * JPA entity for {@code protein_entry} table.
@@ -115,6 +117,9 @@ public class ProteinEntry {
     @Column(name = "evidence_level", nullable = false)
     private Short evidenceLevel;
 
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVector;
+
     // ── JSONB overflow ────────────────────────────────────────────────────────
     @Column(name = "metadata_jsonb", columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
@@ -130,25 +135,44 @@ public class ProteinEntry {
     // ── Relationships ─────────────────────────────────────────────────────────
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "protein_keyword",
-        joinColumns = @JoinColumn(name = "protein_id"),
-        inverseJoinColumns = @JoinColumn(name = "keyword_id")
+            name = "protein_keyword",
+            joinColumns = @JoinColumn(name = "protein_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
     @Builder.Default
     private List<Keyword> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "proteinEntry", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<ProteinFeature> features = new ArrayList<>();
+    private Set<ProteinFeature> features = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "protein_go_term",
-        joinColumns = @JoinColumn(name = "protein_id"),
-        inverseJoinColumns = @JoinColumn(name = "go_term_id")
+            name = "protein_go_term",
+            joinColumns = @JoinColumn(name = "protein_id"),
+            inverseJoinColumns = @JoinColumn(name = "go_term_id")
     )
     @Builder.Default
-    private List<GoTerm> goTerms = new ArrayList<>();
+    private Set<GoTerm> goTerms = new HashSet<>();
+
+    @OneToMany(mappedBy = "proteinEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<CrossReference> crossReferences = new HashSet<>();
+
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<HostOrganism> hostOrganisms = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProteinComment> comments = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProteinPublication> publications = new HashSet<>();
+
 
     @PrePersist
     void onCreate() {
