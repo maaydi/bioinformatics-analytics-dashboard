@@ -2,6 +2,8 @@ package com.bioinformatics.dashboard.batch;
 
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.entity.*;
+import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -11,16 +13,18 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
+
+    private final KeywordRepository keywordRepository;
+    private final Map<String, Keyword> keywordCache = new ConcurrentHashMap<>();
 
     private static final DateTimeFormatter DATE_FORMATTER = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
@@ -193,7 +197,7 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                         var comBuilder = ProteinComment.builder();
                         var l = data.split("-!-")[1].split(":");
                         comBuilder.commentType(l[0].trim());
-                        comBuilder.text(l[1].trim());
+                        comBuilder.text(l.length > 1 ? l[1].trim() : "");
                         commBuilders.add(comBuilder);
                         break;
                     }
@@ -238,12 +242,15 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                             featureBuilders.add(ft);
                         }
                     } else {
-                        if (data.startsWith("/id")) {
-                            featureBuilders.getLast().featureId(data.split("=")[1]);
-                        } else if (data.startsWith("/note")) {
-                            featureBuilders.getLast().note(data.split("=")[1]);
-                        } else if (data.startsWith("/evidence")) {
-                            featureBuilders.getLast().evidence(data.split("=")[1]);
+                        if (!featureBuilders.isEmpty()) {
+                            var last = featureBuilders.getLast().build();
+                            if (data.startsWith("/id") && last.getFeatureId() == null) {
+                                featureBuilders.getLast().featureId(data.split("=")[1]);
+                            } else if (data.startsWith("/note") && last.getNote() == null) {
+                                featureBuilders.getLast().note(data.split("=")[1]);
+                            } else if (data.startsWith("/evidence") && last.getEvidence() == null) {
+                                featureBuilders.getLast().evidence(data.split("=")[1]);
+                            }
                         }
                     }
                     break;
@@ -283,7 +290,7 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                 .map(ProteinComment.ProteinCommentBuilder::build)
                 .collect(Collectors.toSet()));
         entryBuilder.crossReferences(crossRefs);
-        entryBuilder.keywords(keywords);
+        entryBuilder.keywords(handleKeywords(keywords));
         entryBuilder.features(
                 featureBuilders
                         .stream()
@@ -291,6 +298,13 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                         .collect(Collectors.toSet())
         );
         var entry = entryBuilder.build();
+
+        // Assert Bi-directional relation
+        entry.getHostOrganisms().forEach(e -> e.setProtein(entry));
+        entry.getPublications().forEach(e -> e.setProtein(entry));
+        entry.getComments().forEach(e -> e.setProtein(entry));
+        entry.getCrossReferences().forEach(e -> e.setProtein(entry));
+        entry.getFeatures().forEach(e -> e.setProtein(entry));
 
         if (entry.getAccession() == null || entry.getEntryName() == null) {
             throw new MalformedUniprotFileException("Malformed Data: Missing Accession or Entry Name");
@@ -321,6 +335,19 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
             return v.substring(0, v.length() - 1);
         }
         return v;
+    }
+
+    private List<Keyword> handleKeywords(final List<Keyword> dataKeywords) {
+        var managedKeywords = new ArrayList<Keyword>();
+        var names = dataKeywords.stream().map(Keyword::getName).toList();
+        for (var keyword : names) {
+            var managedKeyword = keywordCache.computeIfAbsent(keyword, k ->
+                    keywordRepository.findByName(k)
+                            .orElseGet(() -> keywordRepository.save(Keyword.builder().name(k).build()))
+            );
+            managedKeywords.add(managedKeyword);
+        }
+        return managedKeywords;
     }
 
 
