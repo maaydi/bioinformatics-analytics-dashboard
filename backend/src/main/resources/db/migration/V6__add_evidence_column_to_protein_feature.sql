@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS protein_feature
+    ADD COLUMN IF NOT EXISTS evidence TEXT;

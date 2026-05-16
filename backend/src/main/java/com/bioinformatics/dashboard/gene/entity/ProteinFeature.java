@@ -40,4 +40,7 @@ public class ProteinFeature {
 
     @Column(name = "feature_id", length = 20)
     private String featureId;
+
+    @Column(columnDefinition = "TEXT")
+    private String evidence;
 }

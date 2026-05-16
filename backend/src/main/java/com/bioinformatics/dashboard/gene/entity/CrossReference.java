@@ -1,15 +1,15 @@
 package com.bioinformatics.dashboard.gene.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "cross_reference")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CrossReference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
