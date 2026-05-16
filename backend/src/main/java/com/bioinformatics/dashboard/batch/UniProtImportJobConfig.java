@@ -12,7 +12,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.infrastructure.item.database.JpaItemWriter;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,7 +78,7 @@ public class UniProtImportJobConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<String> dynamicUniprotReader,
             ProteinEntryItemProcessor processor,
-            JdbcBatchItemWriter<ProteinEntry> writer,
+            JpaItemWriter<ProteinEntry> writer,
             ImportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.IMPORT_STEP.getKey(), jobRepository)
