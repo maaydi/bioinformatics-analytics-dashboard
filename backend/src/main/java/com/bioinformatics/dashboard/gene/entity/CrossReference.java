@@ -17,17 +17,17 @@ public class CrossReference {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "protein_id", nullable = false)
-    private ProteinEntry proteinEntry;
+    private ProteinEntry protein;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String source;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String identifier;
 
-    @Column(name = "secondary_id", length = 100)
+    @Column(name = "secondary_id", columnDefinition = "TEXT")
     private String secondaryId;
 
-    @Column(name = "tertiary_info", length = 200)
+    @Column(name = "tertiary_info", columnDefinition = "TEXT")
     private String tertiaryInfo;
 }

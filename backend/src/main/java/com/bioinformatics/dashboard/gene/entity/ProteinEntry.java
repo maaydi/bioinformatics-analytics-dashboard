@@ -35,10 +35,10 @@ public class ProteinEntry {
     private Long id;
 
     // ── Identification ────────────────────────────────────────────────────────
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String accession;
 
-    @Column(name = "entry_name", nullable = false, length = 50)
+    @Column(name = "entry_name", nullable = false, columnDefinition = "TEXT")
     private String entryName;
 
     @Column(nullable = false)
@@ -64,14 +64,14 @@ public class ProteinEntry {
     @Column(name = "protein_full_name", columnDefinition = "TEXT")
     private String proteinFullName;
 
-    @Column(name = "protein_short_name", length = 200)
+    @Column(name = "protein_short_name", columnDefinition = "TEXT")
     private String proteinShortName;
 
-    @Column(name = "protein_ec_number", length = 50)
+    @Column(name = "protein_ec_number", columnDefinition = "TEXT")
     private String proteinEcNumber;
 
     // ── Gene Name ─────────────────────────────────────────────────────────────
-    @Column(name = "gene_name_primary", length = 100)
+    @Column(name = "gene_name_primary", columnDefinition = "TEXT")
     private String geneNamePrimary;
 
     @Column(name = "gene_name_synonyms", columnDefinition = "TEXT[]")
@@ -87,10 +87,10 @@ public class ProteinEntry {
     private String[] geneOrderedLocus;
 
     // ── Organism ──────────────────────────────────────────────────────────────
-    @Column(name = "organism_name", nullable = false, length = 300)
+    @Column(name = "organism_name", nullable = false, columnDefinition = "TEXT")
     private String organismName;
 
-    @Column(name = "organism_common_name", length = 150)
+    @Column(name = "organism_common_name", columnDefinition = "TEXT")
     private String organismCommonName;
 
     @Column(nullable = false)
@@ -107,7 +107,7 @@ public class ProteinEntry {
     @Column(name = "molecular_weight")
     private Integer molecularWeight;
 
-    @Column(name = "sequence_checksum", length = 20)
+    @Column(name = "sequence_checksum", columnDefinition = "TEXT")
     private String sequenceChecksum;
 
     @Column(columnDefinition = "TEXT")
@@ -133,20 +133,19 @@ public class ProteinEntry {
     private Instant updatedAt;
 
     // ── Relationships ─────────────────────────────────────────────────────────
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "protein_keyword",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
-    @Builder.Default
     private List<Keyword> keywords = new ArrayList<>();
 
-    @OneToMany(mappedBy = "proteinEntry", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "protein", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ProteinFeature> features = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "protein_go_term",
             joinColumns = @JoinColumn(name = "protein_id"),
@@ -155,7 +154,7 @@ public class ProteinEntry {
     @Builder.Default
     private Set<GoTerm> goTerms = new HashSet<>();
 
-    @OneToMany(mappedBy = "proteinEntry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<CrossReference> crossReferences = new HashSet<>();
 

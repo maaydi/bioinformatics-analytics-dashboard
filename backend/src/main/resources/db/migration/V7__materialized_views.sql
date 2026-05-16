@@ -1,5 +1,5 @@
 -- ============================================================
--- V2__materialized_views.sql
+-- V7__materialized_views.sql
 -- Materialized views for Dashboard and Analytics chart endpoints.
 --
 -- Authoritative DDL source: documentation/domain-model.md §11

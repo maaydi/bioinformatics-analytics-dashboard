@@ -19,7 +19,7 @@ public class ProteinComment {
     @JoinColumn(name = "protein_id", nullable = false)
     private ProteinEntry protein;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String commentType;
 
     @Column(nullable = false, columnDefinition = "TEXT")
