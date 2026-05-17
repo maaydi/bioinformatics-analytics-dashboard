@@ -13,8 +13,9 @@
         <file>${LOG_PATH}/bioinformatic.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/bioinformatic_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
-            <maxFileSize>1MB</maxFileSize>
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>10</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n</pattern>
@@ -27,7 +28,7 @@
     </root>
     <!-- Application package -->
     <logger name="com.bioinformatics.dashboard"
-            level="DEBUG"/>
+            level="INFO"/>
 
     <!-- Spring Batch -->
     <logger name="org.springframework.batch"
@@ -35,9 +36,9 @@
 
     <!-- Hibernate SQL -->
     <logger name="org.hibernate.SQL"
-            level="DEBUG"/>
+            level="INFO"/>
 
     <!-- Hibernate bind parameters -->
     <logger name="org.hibernate.orm.jdbc.bind"
-            level="TRACE"/>
+            level="INFO"/>
 </configuration>
