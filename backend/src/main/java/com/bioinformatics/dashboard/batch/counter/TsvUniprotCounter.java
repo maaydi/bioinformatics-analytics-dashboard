@@ -9,6 +9,9 @@ import java.io.IOException;
 public class TsvUniprotCounter extends AbstractUniprotCounter {
     private static final String EXTENSION = ".tsv";
 
+    /**
+     * Counts non-empty lines in a TSV file (suitable for simple row counts).
+     */
     @Override
     public boolean supports(String filename) {
         return filename != null && filename.toLowerCase().endsWith(EXTENSION);

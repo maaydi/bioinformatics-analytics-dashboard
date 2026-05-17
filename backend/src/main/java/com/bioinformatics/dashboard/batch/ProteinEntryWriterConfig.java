@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ProteinEntryWriterConfig {
 
+    /**
+     * JPA-backed ItemWriter for persisting ProteinEntry entities within a batch chunk.
+     * Uses the provided EntityManagerFactory.
+     */
     @Bean
     public JpaItemWriter<ProteinEntry> proteinEntryItemWriter(EntityManagerFactory entityManagerFactory) {
 

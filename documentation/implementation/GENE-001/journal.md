@@ -77,3 +77,9 @@
 - Add unit and integration tests
 - check every think works
 - merge branch in main
+
+## 2026-05-17
+
+- Fixed protein import: added required tables/fields to `protein_entry` to persist import state so server restarts no
+  longer mark completed or in-progress jobs as failed. Short tests and merge completed.
+- Documentation update 

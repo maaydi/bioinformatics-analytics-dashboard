@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * This class resolve the uniqueness of keywords while processing uniprot
- * It use cache to keep keywords in memory
+ * Resolves and caches Keyword entities. Ensures uniqueness and persists any
+ * new keywords encountered during UniProt import.
  */
 @Component
 @RequiredArgsConstructor

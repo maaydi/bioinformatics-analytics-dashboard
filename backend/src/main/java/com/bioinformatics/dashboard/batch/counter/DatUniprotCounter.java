@@ -10,6 +10,9 @@ public class DatUniprotCounter extends AbstractUniprotCounter {
     private static final String DELIMITER = "//";
     private static final String EXTENSION = ".dat";
 
+    /**
+     * Counts records in a .dat file. Records are delimited by a line containing only "//".
+     */
     @Override
     public boolean supports(String filename) {
         return filename != null && filename.toLowerCase().endsWith(EXTENSION);
