@@ -20,6 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RunningJobFailureMarker implements ApplicationRunner {
 
+    /**
+     * On application start, marks any previously RUNNING import jobs as FAILED and
+     * cleans up non-completed job executions to avoid dangling state after restarts.
+     */
+
     private final ImportJobRepository importJobRepo;
     private final JobRepository jobRepo;
 

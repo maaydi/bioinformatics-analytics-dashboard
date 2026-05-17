@@ -15,6 +15,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ImportProgressChunkListener implements ChunkListener<String, ProteinEntry> {
+    /**
+     * Updates import job progress in the database after each processed chunk.
+     * Keeps the ImportJob.recordsProcessed counter up-to-date for monitoring.
+     */
     private final ImportJobRepository repository;
     private final UniProtImportJobParameters jobParameters;
 

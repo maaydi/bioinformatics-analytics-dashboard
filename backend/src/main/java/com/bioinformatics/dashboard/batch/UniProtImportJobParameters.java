@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 public class UniProtImportJobParameters {
 
     /**
-     * defined in {@linkplain com.bioinformatics.dashboard.job.dto.Constants#FILE_PATH}
-     *
+     * Job file path (job parameter: filePath). See Constants#FILE_PATH.
      */
     @Value("#{jobParameters[filePath]}")
     private String filePath;
 
+    /** Import job id (job parameter: importUniprotJobId) */
     @Value("#{jobParameters[importUniprotJobId]}")
     private String jobId;
 

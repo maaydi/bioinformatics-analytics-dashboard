@@ -24,6 +24,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
 
+    /**
+     * Transforms raw UniProt record text into a {@link ProteinEntry} entity.
+     *
+     * <p>Performs parsing, basic validation and resolves related entities
+     * (keywords, cross-references, publications, features) before returning
+     * a ready-to-persist entity. Returns null to skip records (e.g. duplicates).
+     */
+
     private final KeywordResolver keywordResolver;
     private final ProteinAccessionResolver accessionResolver;
 

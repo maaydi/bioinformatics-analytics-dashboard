@@ -17,11 +17,24 @@ public class AsyncUniprotImportJobExecutor {
     private final JobOperator operator;
     private final Job uniProtImportJob;
 
+    /**
+     * Asynchronously starts the UniProt import batch job using the provided {@link JobParameters}.
+     *
+     * <p>This method delegates to the Spring Batch {@link JobOperator} to launch the configured {@code uniProtImportJob}.
+     * It is executed asynchronously (thread pool managed by Spring),
+     * so callers should not expect an immediate result. Any exception during job start is wrapped in
+     * {@link com.bioinformatics.dashboard.exception.ExecuteJobException} to provide a clear failure signal to callers.
+     *
+     * @param parameters parameters passed to the batch job; must not be null
+     * @throws com.bioinformatics.dashboard.exception.ExecuteJobException when the job cannot be started
+     */
     @Async
     public void execute(JobParameters parameters) {
         try {
             operator.start(uniProtImportJob, parameters);
+            log.info("UniProt import job started asynchronously");
         } catch (Exception e) {
+            log.error("Failed to start UniProt import job", e);
             throw new ExecuteJobException("Failed to start uniprot import job", e);
         }
     }

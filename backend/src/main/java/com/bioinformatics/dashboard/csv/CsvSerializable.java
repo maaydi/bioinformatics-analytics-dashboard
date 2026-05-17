@@ -6,9 +6,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Contract for objects that can be serialized to CSV.
+ * <p>
+ * Implementations provide a header and a row representation. Values are
+ * escaped and quoted by {@link #format(Object)} to be safe for CSV output.
+ */
 public interface CsvSerializable extends Serializable {
 
-    
+
     default String header() {
         return Arrays.stream(this.getClass().getDeclaredFields())
                 .map(Field::getName)

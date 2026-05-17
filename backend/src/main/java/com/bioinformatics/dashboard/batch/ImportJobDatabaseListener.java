@@ -20,6 +20,11 @@ import java.util.UUID;
 @Slf4j
 public class ImportJobDatabaseListener implements JobExecutionListener {
 
+    /**
+     * Persists import job results to the database after job completion.
+     * Updates status, processed counts, duration and error message when applicable.
+     */
+
     private final ImportJobRepository importJobRep;
 
     @Override

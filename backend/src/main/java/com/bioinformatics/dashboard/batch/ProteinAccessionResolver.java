@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class resolve the uniqueness of accession while processing uniprot
- *
+ * Maintains an in-memory set of existing UniProt accessions and provides
+ * a fast check to avoid inserting duplicate protein entries during import.
  */
 @Component
 @RequiredArgsConstructor

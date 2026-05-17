@@ -13,6 +13,11 @@ import java.io.InputStreamReader;
 
 public class UniprotDatItemReader implements ItemStreamReader<String> {
 
+    /**
+     * Reader for UniProt .dat files. Returns a single entry (multi-line) per read()
+     * where records are separated by a line containing only "//".
+     */
+
     private final Resource resource;
     private BufferedReader reader;
 
