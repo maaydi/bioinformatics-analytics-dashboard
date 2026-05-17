@@ -2,7 +2,6 @@ package com.bioinformatics.dashboard.batch;
 
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.entity.*;
-import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -13,8 +12,10 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
 
-    private final KeywordRepository keywordRepository;
-    private final Map<String, Keyword> keywordCache = new ConcurrentHashMap<>();
+    private final KeywordResolver keywordResolver;
 
     private static final DateTimeFormatter DATE_FORMATTER = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
@@ -290,7 +290,7 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                 .map(ProteinComment.ProteinCommentBuilder::build)
                 .collect(Collectors.toSet()));
         entryBuilder.crossReferences(crossRefs);
-        entryBuilder.keywords(handleKeywords(keywords));
+        entryBuilder.keywords(keywordResolver.resolveKeywords(keywords));
         entryBuilder.features(
                 featureBuilders
                         .stream()
@@ -335,19 +335,6 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
             return v.substring(0, v.length() - 1);
         }
         return v;
-    }
-
-    private List<Keyword> handleKeywords(final List<Keyword> dataKeywords) {
-        var managedKeywords = new ArrayList<Keyword>();
-        var names = dataKeywords.stream().map(Keyword::getName).toList();
-        for (var keyword : names) {
-            var managedKeyword = keywordCache.computeIfAbsent(keyword, k ->
-                    keywordRepository.findByName(k)
-                            .orElseGet(() -> keywordRepository.save(Keyword.builder().name(k).build()))
-            );
-            managedKeywords.add(managedKeyword);
-        }
-        return managedKeywords;
     }
 
 

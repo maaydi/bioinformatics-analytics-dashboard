@@ -133,7 +133,7 @@ public class ProteinEntry {
     private Instant updatedAt;
 
     // ── Relationships ─────────────────────────────────────────────────────────
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
             name = "protein_keyword",
             joinColumns = @JoinColumn(name = "protein_id"),
@@ -145,13 +145,12 @@ public class ProteinEntry {
     @Builder.Default
     private Set<ProteinFeature> features = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
             name = "protein_go_term",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "go_term_id")
     )
-    @Builder.Default
     private Set<GoTerm> goTerms = new HashSet<>();
 
     @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
