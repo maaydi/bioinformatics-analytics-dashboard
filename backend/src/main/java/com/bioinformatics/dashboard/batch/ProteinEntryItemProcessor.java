@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
 
     private final KeywordResolver keywordResolver;
+    private final ProteinAccessionResolver accessionResolver;
 
     private static final DateTimeFormatter DATE_FORMATTER = new DateTimeFormatterBuilder()
             .parseCaseInsensitive()
@@ -81,7 +82,12 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                     break;
                 // 2. Accession Number
                 case "AC":
-                    entryBuilder.accession(data.split(";")[0].trim());
+                    var acc = data.split(";")[0].trim();
+                    if (accessionResolver.alreadyExists(acc)) {
+                        log.warn("Duplicated accession <{}> .. SKIP Protein entry", acc);
+                        return null;
+                    }
+                    entryBuilder.accession(acc);
                     break;
                 // 3. Dates
                 case "DT":

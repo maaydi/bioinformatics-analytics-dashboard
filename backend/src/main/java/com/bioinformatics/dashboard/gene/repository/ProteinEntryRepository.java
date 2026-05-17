@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,4 +54,9 @@ public interface ProteinEntryRepository
             WHERE p.id = :id
             """)
     Optional<ProteinEntry> findAdditionalDetails(@Param("id") Long id);
+
+    @Query("""
+                SELECT p.accession FROM ProteinEntry p
+            """)
+    List<String> findAllAccessions();
 }

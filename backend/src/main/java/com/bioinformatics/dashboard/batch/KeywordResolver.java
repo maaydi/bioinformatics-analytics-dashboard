@@ -15,9 +15,12 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * This class resolve the uniqueness of keywords while processing uniprot
+ * It use cache to keep keywords in memory
+ */
 @Component
 @RequiredArgsConstructor
-
 public class KeywordResolver {
     private final KeywordRepository keywordRepository;
     private final Map<String, Keyword> keywordCache = new ConcurrentHashMap<>();
@@ -25,9 +28,8 @@ public class KeywordResolver {
 
     @PostConstruct
     public void init() {
-        keywordRepository.findAll().forEach(keyword -> {
-            keywordCache.put(keyword.getName(), keyword);
-        });
+        keywordRepository.findAll()
+                .forEach(keyword -> keywordCache.put(keyword.getName(), keyword));
     }
 
     @Transactional
