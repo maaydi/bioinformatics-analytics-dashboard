@@ -22,7 +22,7 @@ public class GoTerm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "go_id", nullable = false, unique = true, length = 15)
+    @Column(name = "go_id", nullable = false, unique = true, columnDefinition = "TEXT")
     private String goId;
 
     /** P = Biological Process, F = Molecular Function, C = Cellular Component */

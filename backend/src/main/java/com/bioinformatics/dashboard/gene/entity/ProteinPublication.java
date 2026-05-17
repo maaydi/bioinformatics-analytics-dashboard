@@ -1,15 +1,15 @@
 package com.bioinformatics.dashboard.gene.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "protein_publication")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProteinPublication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +21,10 @@ public class ProteinPublication {
 
     private Short refNumber;
 
-    @Column(length = 20)
+    @Column(columnDefinition = "TEXT")
     private String pubmedId;
 
-    @Column(length = 200)
+    @Column(columnDefinition = "TEXT")
     private String doi;
 
     @Column(columnDefinition = "TEXT")
@@ -33,6 +33,6 @@ public class ProteinPublication {
     @Column(columnDefinition = "TEXT")
     private String title;
 
-    @Column(length = 300)
+    @Column(columnDefinition = "TEXT")
     private String journal;
 }

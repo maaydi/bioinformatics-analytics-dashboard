@@ -16,6 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ProteinFeature {
 
     @Id
@@ -24,9 +25,9 @@ public class ProteinFeature {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "protein_id", nullable = false)
-    private ProteinEntry proteinEntry;
+    private ProteinEntry protein;
 
-    @Column(name = "feature_type", nullable = false, length = 30)
+    @Column(name = "feature_type", nullable = false, columnDefinition = "TEXT")
     private String featureType;
 
     @Column(name = "start_pos")
@@ -38,6 +39,9 @@ public class ProteinFeature {
     @Column(columnDefinition = "TEXT")
     private String note;
 
-    @Column(name = "feature_id", length = 20)
+    @Column(name = "feature_id", columnDefinition = "TEXT")
     private String featureId;
+
+    @Column(columnDefinition = "TEXT")
+    private String evidence;
 }

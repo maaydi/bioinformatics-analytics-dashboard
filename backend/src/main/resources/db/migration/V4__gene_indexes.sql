@@ -1,5 +1,5 @@
 -- ============================================================
--- V5__gene_indexes.sql
+-- V4__gene_indexes.sql
 -- Additional indexes for gene search and filtering performance
 --
 -- Adds:

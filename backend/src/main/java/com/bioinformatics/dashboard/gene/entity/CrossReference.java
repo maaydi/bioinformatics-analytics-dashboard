@@ -1,15 +1,15 @@
 package com.bioinformatics.dashboard.gene.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "cross_reference")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CrossReference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,17 +17,17 @@ public class CrossReference {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "protein_id", nullable = false)
-    private ProteinEntry proteinEntry;
+    private ProteinEntry protein;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String source;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String identifier;
 
-    @Column(name = "secondary_id", length = 100)
+    @Column(name = "secondary_id", columnDefinition = "TEXT")
     private String secondaryId;
 
-    @Column(name = "tertiary_info", length = 200)
+    @Column(name = "tertiary_info", columnDefinition = "TEXT")
     private String tertiaryInfo;
 }
