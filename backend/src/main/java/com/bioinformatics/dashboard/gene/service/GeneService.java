@@ -9,12 +9,11 @@ import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -28,11 +27,11 @@ import java.util.stream.Collectors;
  * Service for gene/protein operations.
  *
  */
-@Service
+@Component
 @RequiredArgsConstructor
 public class GeneService {
 
-    private final ProteinEntryRepository repository;
+    private final ProteinEntryService proteinService;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
@@ -48,7 +47,7 @@ public class GeneService {
      * @see documentation/api-contract.md — GET /api/genes
      */
     public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
-        var page = repository.findAll(pageable);
+        var page = proteinService.findAll(pageable);
         var genes = page.getContent().stream().map(mapper::toSummary).toList();
         return new PagedResponse<>(genes, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
     }
@@ -61,7 +60,7 @@ public class GeneService {
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         var page = request.getRequestPage(SORT_WHITELIST, "id");
         var spec = GeneSpecification.fromRequest(request);
-        var result = repository.findAll(spec, page);
+        var result = proteinService.findAll(spec, page);
         var genes = result.getContent().stream().map(mapper::toSummary).toList();
         return new PagedResponse<>(genes, result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
 
@@ -75,11 +74,10 @@ public class GeneService {
      */
     @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
-        var gene = repository.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
         return mapper.toDetail(gene);
 
     }
-
 
     /**
      * Streams all filtered rows as CSV into the provided writer.
@@ -92,7 +90,7 @@ public class GeneService {
         request.getRequestPage(SORT_WHITELIST, "id"); // to validate sort field or use default one if null
         var page = PageRequest.of(0, maxSize);
         var spec = GeneSpecification.fromRequest(request);
-        var genes = repository.findAll(spec, page);
+        var genes = proteinService.findAll(spec, page);
         if (genes.getTotalElements() > maxSize) {
             throw new PayloadTooLargeException("Export limit exceeded. Maximum allowed rows: " + maxSize);
         }
