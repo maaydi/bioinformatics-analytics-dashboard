@@ -15,7 +15,6 @@ import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Batch ItemWriter that persists a {@link ProteinEntry} and its children
@@ -41,10 +40,9 @@ public class ProteinAggregateItemWriter implements ItemWriter<ProteinEntry> {
     public void write(Chunk<? extends ProteinEntry> chunk) throws Exception {
         var items = chunk.getItems();
 
-        // Collect children before saving parents (ids not yet assigned)
-        List<CrossReference> allCrossRefs = new ArrayList<>();
-        List<ProteinComment> allComments = new ArrayList<>();
-        List<ProteinPublication> allPublications = new ArrayList<>();
+        var allCrossRefs = new ArrayList<CrossReference>();
+        var allComments = new ArrayList<ProteinComment>();
+        var allPublications = new ArrayList<ProteinPublication>();
 
         for (ProteinEntry entry : items) {
             allCrossRefs.addAll(entry.getCrossReferences());

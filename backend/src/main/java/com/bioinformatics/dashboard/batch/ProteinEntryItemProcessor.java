@@ -342,8 +342,8 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
      * "Full=Putative transcription factor;" -> "Putative transcription factor"
      */
     private String extractValue(String line, String key) {
-        int start = line.indexOf(key) + key.length();
-        int end = line.indexOf(";", start);
+        var start = line.indexOf(key) + key.length();
+        var end = line.indexOf(";", start);
         if (end == -1)
             end = line.length();
         return line.substring(start, end).trim();
