@@ -14,7 +14,7 @@ import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * Service for gene/protein operations.
  *
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class GeneService {
 
@@ -75,11 +75,11 @@ public class GeneService {
      */
     @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
-        var gene = repository.findBaseDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
-        gene = repository.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+        var gene = repository.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
         return mapper.toDetail(gene);
 
     }
+
 
     /**
      * Streams all filtered rows as CSV into the provided writer.
