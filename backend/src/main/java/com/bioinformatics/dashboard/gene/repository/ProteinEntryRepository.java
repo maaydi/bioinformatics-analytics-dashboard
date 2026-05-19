@@ -47,10 +47,7 @@ public interface ProteinEntryRepository
      */
     @Query("""
             SELECT p FROM ProteinEntry p
-            LEFT JOIN FETCH p.crossReferences
             LEFT JOIN FETCH p.hostOrganisms
-            LEFT JOIN FETCH p.comments
-            LEFT JOIN FETCH p.publications
             WHERE p.id = :id
             """)
     Optional<ProteinEntry> findAdditionalDetails(@Param("id") Long id);

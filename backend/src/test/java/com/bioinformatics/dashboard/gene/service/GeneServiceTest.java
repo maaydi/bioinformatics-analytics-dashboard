@@ -9,7 +9,6 @@ import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.when;
 class GeneServiceTest {
 
     @Mock
-    ProteinEntryRepository repository;
+    ProteinEntryService proteinEntryService;
 
     @Mock
     GeneMapper mapper;
@@ -50,7 +49,7 @@ class GeneServiceTest {
         export.setCsv(new AppProperties.Csv());
         export.getCsv().setMaxRows(1000);
 
-        service = new GeneService(repository, mapper, appProperties);
+        service = new GeneService(proteinEntryService, mapper, appProperties);
     }
 
     private GeneSearchRequest buildRequest(
@@ -93,7 +92,7 @@ class GeneServiceTest {
         entry.setId(1L);
 
         var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
-        when(repository.findAll(any(PageRequest.class))).thenReturn(page);
+        when(proteinEntryService.findAll(any(PageRequest.class))).thenReturn(page);
 
         var dto = new ProteinSummaryDto(1L, "ACC", "entry", "full", "gene", "org", 123, true, 100, 200, (short) 1, List.of());
         when(mapper.toSummary(entry)).thenReturn(dto);
@@ -110,8 +109,7 @@ class GeneServiceTest {
         var entry = new ProteinEntry();
         entry.setId(2L);
 
-        when(repository.findBaseDetails(2L)).thenReturn(Optional.of(entry));
-        when(repository.findAdditionalDetails(2L)).thenReturn(Optional.of(entry));
+        when(proteinEntryService.findAdditionalDetails(2L)).thenReturn(Optional.of(entry));
 
         var detail = new ProteinDetailDto(
                 2L,
@@ -135,7 +133,7 @@ class GeneServiceTest {
 
     @Test
     void getGeneById_notFound_throws() {
-        when(repository.findBaseDetails(99L)).thenReturn(Optional.empty());
+        when(proteinEntryService.findAdditionalDetails(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.getGeneById(99L));
     }
@@ -148,7 +146,7 @@ class GeneServiceTest {
         var request = buildRequest(null, null, null, 10, null);
 
         var page = new PageImpl<>(List.of(new ProteinEntry(), new ProteinEntry()), PageRequest.of(0, 1), 2);
-        when(repository.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
         assertThrows(PayloadTooLargeException.class, () -> service.exportCsv(request, new StringWriter()));
     }
@@ -159,7 +157,7 @@ class GeneServiceTest {
         entry.setId(10L);
 
         var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
-        when(repository.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
         var dto = new ProteinSummaryDto(10L, "ACC10", "entry10", "full10",
                 "gene10", "org10", 100, true, 50, 60,
@@ -180,7 +178,7 @@ class GeneServiceTest {
         entry.setId(11L);
 
         var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
-        when(repository.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
         var dto = new ProteinSummaryDto(11L, "ACC11", "entry11", "full11",
                 "gene11", "org11", 101, false, 70, 80,
@@ -212,7 +210,7 @@ class GeneServiceTest {
         entry2.setId(22L);
 
         var page = new PageImpl<>(List.of(entry1, entry2), PageRequest.of(0, 2), 2);
-        when(repository.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
         var dto1 = new ProteinSummaryDto(21L, "ACC21", "e21", "f21",
                 "g21", "o21", 201, true, 10, 20,

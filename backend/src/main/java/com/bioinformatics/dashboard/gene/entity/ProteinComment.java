@@ -12,7 +12,8 @@ import lombok.*;
 @Builder
 public class ProteinComment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_comment_seq")
+    @SequenceGenerator(name = "protein_comment_seq", sequenceName = "protein_comment_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

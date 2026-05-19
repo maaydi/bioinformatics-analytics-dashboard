@@ -1,5 +1,6 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.listener;
 
+import com.bioinformatics.dashboard.batch.UniProtImportJobParameters;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import lombok.RequiredArgsConstructor;

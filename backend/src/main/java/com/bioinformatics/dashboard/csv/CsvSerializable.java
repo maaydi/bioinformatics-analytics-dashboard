@@ -32,7 +32,7 @@ public interface CsvSerializable extends Serializable {
             return "\"\"";
         }
 
-        String escaped = value.toString()
+        var escaped = value.toString()
                 .replace("\"", "\"\"")
                 .replace("\n", " ")
                 .replace("\r", " ");

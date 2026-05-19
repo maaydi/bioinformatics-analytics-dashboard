@@ -12,7 +12,8 @@ import lombok.*;
 @Builder
 public class ProteinPublication {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_publication_seq")
+    @SequenceGenerator(name = "protein_publication_seq", sequenceName = "protein_publication_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

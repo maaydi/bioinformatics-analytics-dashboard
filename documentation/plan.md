@@ -25,21 +25,22 @@ Cross-references:
 
 ## Ticket Map
 
-| Ticket ID | Scope | Stories |
-|---|---|---|
-| `AUTH-001` | DB schema (V1) + JWT login/refresh/logout + role guards | US-22, US-23, US-24, US-43 |
-| `IMPORT-001` | Spring Batch import pipeline + ImportController | US-1, US-2, US-3, US-25, US-26, US-31 |
-| `GENE-001` | GeneController + GeneService + GeneSpecification | US-4, US-5, US-6, US-10 |
-| `GENE-002` | GeneFilter Angular component + reactive form | US-7, US-8, US-9, US-10, US-27, US-28, US-29, US-30 |
-| `GENE-003` | GenesTable AG Grid component | US-4, US-5, US-6, US-36 |
-| `DETAIL-001` | Gene Detail page (all tabs) | US-15, US-16, US-17 |
-| `ANALYTICS-001` | Analytics endpoints + materialized views | US-11, US-12, US-33, US-34, US-35 |
-| `DASH-001` | Dashboard page (KPI cards + charts) | US-32 |
-| `FILTER-001` | Saved filter feature (backend + frontend) | US-20, US-21 |
-| `EXPORT-001` | CSV / chart-image export | US-18, US-19 |
-| `COMPARE-001` | Compare-mode analytics | US-13, US-14 |
-| `OPS-001` | Health check, audit log, rate limiting | US-38, US-39, US-40 |
-| `A11Y-001` | Accessibility & UX polish | US-36, US-37, US-41, US-42 |
+| Ticket ID       | Scope                                                   | Stories                                             |
+|-----------------|---------------------------------------------------------|-----------------------------------------------------|
+| `AUTH-001`      | DB schema (V1) + JWT login/refresh/logout + role guards | US-22, US-23, US-24, US-43                          |
+| `IMPORT-001`    | Spring Batch import pipeline + ImportController         | US-1, US-2, US-3, US-25, US-26, US-31               |
+| `GENE-001`      | GeneController + GeneService + GeneSpecification        | US-4, US-5, US-6, US-10                             |
+| `GENE-002`      | GeneFilter Angular component + reactive form            | US-7, US-8, US-9, US-10, US-27, US-28, US-29, US-30 |
+| `GENE-003`      | GenesTable AG Grid component                            | US-4, US-5, US-6, US-36                             |
+| `DETAIL-001`    | Gene Detail page (all tabs)                             | US-15, US-16, US-17                                 |
+| `ANALYTICS-001` | Analytics endpoints + materialized views                | US-11, US-12, US-33, US-34, US-35                   |
+| `DASH-001`      | Dashboard page (KPI cards + charts)                     | US-32                                               |
+| `FILTER-001`    | Saved filter feature (backend + frontend)               | US-20, US-21                                        |
+| `EXPORT-001`    | CSV / chart-image export                                | US-18, US-19                                        |
+| `COMPARE-001`   | Compare-mode analytics                                  | US-13, US-14                                        |
+| `OPS-001`       | Health check, audit log, rate limiting                  | US-38, US-39, US-40                                 |
+| `A11Y-001`      | Accessibility & UX polish                               | US-36, US-37, US-41, US-42                          |
+| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins   | US-44, US-45, US-46                                 |
 
 ---
 
@@ -80,6 +81,7 @@ Then the job status becomes FAILED with a descriptive error message
 ```
 
 **Implementation notes**
+
 - **Backend:** `ImportController#uploadUniprot(MultipartFile)`,
   `ImportService`, `UniprotDatItemReader`, `UniprotTsvItemReader`,
   `ProteinEntryItemProcessor`, `ProteinEntryItemWriter`, chunk size = 500.
@@ -119,6 +121,7 @@ Then status shows FAILED with the error message and the step at which failure oc
 ```
 
 **Implementation notes**
+
 - **Backend:** `GET /api/admin/import/status/{jobId}` returning
   `ImportJobStatus { id, status, progressPct, processed, total, insertedCount, skippedCount, durationMs, errorMessage, failedStep }`.
 - **Frontend:** `import-admin/import-status.component`, polling every 5 s with
@@ -149,6 +152,7 @@ Then the server rejects the request with HTTP 409
 ```
 
 **Implementation notes**
+
 - **Concurrency guard:** unique partial index
   `CREATE UNIQUE INDEX ux_import_running ON import_job((status)) WHERE status='RUNNING';`
 - **Stale flag:** `protein_entry.stale BOOLEAN DEFAULT FALSE`; set with a single
@@ -185,6 +189,7 @@ Then an empty state message "No proteins found" is shown instead of an empty tab
 ```
 
 **Implementation notes**
+
 - **Endpoint:** `GET /api/genes?page=0&size=50&sort=id,asc`.
 - **DTO:** `PagedResponse<GeneSummaryDto>` (envelope already in
   `frontend/src/app/core/models/paged-response.model.ts`).
@@ -214,6 +219,7 @@ Then sorting reverts to the default order (id ASC)
 ```
 
 **Implementation notes**
+
 - Whitelist sortable properties in `GeneController` to prevent injection via
   `sort=` parameter (`accession`, `geneNamePrimary`, `proteinFullName`,
   `organismName`, `length`, `reviewed`, `evidenceLevel`).
@@ -243,6 +249,7 @@ Then an empty state message "No results for '<query>'" is shown
 ```
 
 **Implementation notes**
+
 - **Index:** `CREATE INDEX ix_protein_search ON protein_entry USING GIN(search_tsv);`
   where `search_tsv` is a generated column.
 - **Frontend:** `debounceTime(400) + distinctUntilChanged()`.
@@ -267,6 +274,7 @@ Then the organism filter is cleared and all organisms are included again
 ```
 
 **Implementation notes**
+
 - `GeneSpecification.organismLike(String)` using
   `cb.like(cb.lower(...), "%" + value.toLowerCase() + "%")`.
 - Trigram index: `CREATE INDEX ix_protein_organism_trgm ON protein_entry USING GIN (organism_name gin_trgm_ops);`
@@ -288,6 +296,7 @@ Then the UI shows an inline validation error
 ```
 
 **Implementation notes**
+
 - Reactive form cross-field validator `lengthRangeValidator`.
 - Server: `@AssertTrue` on `GeneSearchRequest` (`isLengthRangeValid()`).
 
@@ -324,6 +333,7 @@ Then all filter values reset to their defaults and the full dataset is shown
 ```
 
 **Implementation notes**
+
 - Compose `Specification`s with `.and()`; null-check each predicate.
 - Persist active filters as a signal store
   (`features/genes/state/filters.store.ts`) used by both filter panel and table.
@@ -348,6 +358,7 @@ Then a tooltip shows: range (e.g. "200–299 AA"), count, and percentage of tota
 ```
 
 **Implementation notes**
+
 - `GET /api/analytics/length-histogram` →
   `[{ rangeStart, rangeEnd, count }]`.
 - Compute percentage client-side from total returned in the same payload.
@@ -381,6 +392,7 @@ Then the filter is toggled off and all evidence levels are included
 ```
 
 **Implementation notes**
+
 - Chart `output()` event → push value into shared `filters.store`.
 
 ---
@@ -401,6 +413,7 @@ Then a warning is shown: "Filter sets are identical — comparison is not meanin
 ```
 
 **Implementation notes**
+
 - `POST /api/analytics/compare` body `{ setA: GeneSearchRequest, setB: GeneSearchRequest }`
   → `{ a: AnalyticsSubset, b: AnalyticsSubset }`.
 
@@ -442,6 +455,7 @@ Then a table of annotated features is shown with columns:
 ```
 
 **Implementation notes**
+
 - Lazy-load tab payloads (one HTTP call per tab on first activation).
 
 ---
@@ -459,6 +473,7 @@ Then the link opens in a new browser tab pointing to the correct external resour
 ```
 
 **Implementation notes**
+
 - Use `target="_blank" rel="noopener noreferrer"` (security).
 
 ---
@@ -482,6 +497,7 @@ Then the button is disabled and a tooltip reads "No data to export"
 ```
 
 **Implementation notes**
+
 - Stream with `StreamingResponseBody` to avoid loading all rows in memory.
 - Hard cap = 100,000 rows; above that, return HTTP 413 with guidance to refine.
 
@@ -522,6 +538,7 @@ Then a confirmation prompt asks "Overwrite existing '<name>'?" before proceeding
 ```
 
 **Implementation notes**
+
 - Table `saved_filter (id, user_id, name, filter_json, created_at)` with
   unique `(user_id, name)`.
 
@@ -574,6 +591,7 @@ Then the server returns HTTP 423 (Locked)
 ```
 
 **Implementation notes**
+
 - `POST /api/auth/login` → `LoginRequest { email, password }` →
   `AuthResponse { accessToken, refreshToken, user: UserDto }`.
 - Passwords stored with BCrypt cost ≥ 12.
@@ -594,6 +612,7 @@ Then HTTP 401 is returned and the client redirects to login
 ```
 
 **Implementation notes**
+
 - Refresh tokens stored hashed in `refresh_token` table; revoked on logout.
 
 ---
@@ -623,6 +642,7 @@ Then HTTP 401 is returned with body { error: "Authentication required" }
 ```
 
 **Implementation notes**
+
 - `SecurityFilterChain` with `.requestMatchers("/api/admin/**").hasRole("ADMIN")`.
 - `@PreAuthorize("hasRole('ADMIN')")` on `ImportController` methods.
 - Frontend route guards: `authGuard`, `adminGuard` (already in
@@ -649,6 +669,7 @@ Then the job detail panel opens showing the same fields as the live status view
 ```
 
 **Implementation notes**
+
 - `GET /api/admin/import/jobs?page=&size=` → `PagedResponse<ImportJobSummaryDto>`.
 
 ---
@@ -665,6 +686,7 @@ Then the Spring Batch job receives a stop signal
 ```
 
 **Implementation notes**
+
 - `POST /api/admin/import/{jobId}/cancel` →
   `JobOperator.stop(executionId)`.
 
@@ -797,6 +819,7 @@ Then a clear empty-state message is rendered (empty state)
 ```
 
 **Implementation notes**
+
 - Reuse a shared `<app-state-host>` component that takes a discriminated union
   `{ status: 'loading'|'error'|'empty'|'ready', data?, error? }`.
 
@@ -814,6 +837,7 @@ Then it passes axe-core checks with 0 violations of severity ≥ "serious"
 ```
 
 **Implementation notes**
+
 - Add `@axe-core/playwright` to e2e suite; fail the build on serious issues.
 
 ---
@@ -883,7 +907,129 @@ Then the 61st request returns HTTP 429 with Retry-After header
 ```
 
 **Implementation notes**
+
 - Use Bucket4j with in-memory bucket per IP for MVP (Redis-backed when scaled).
+
+---
+
+---
+
+# Epic 15: Database & ORM Performance — 570k UniProt Scale
+
+> Ticket: `PERF-001`  
+> See full specification in [implementation/PERF-001/overview.md](implementation/PERF-001/overview.md)
+
+This epic addresses all Hibernate/PostgreSQL bottlenecks identified in `analyse_db_model.md`
+before the production import of ~570,000 UniProt entries (~3.5M cross-references, ~5M child rows).
+
+---
+
+### US-44 — Hibernate ID generation and JDBC batching
+
+_As a platform engineer, I want Hibernate to use PostgreSQL SEQUENCE-based ID generation
+and JDBC batch inserts so that the 570k import completes in under 30 minutes without OOM._
+
+**Acceptance Criteria:**
+
+```
+Given all JPA entities use GenerationType.SEQUENCE with allocationSize = 500
+And application.yml sets hibernate.jdbc.batch_size = 1000, order_inserts = true
+When a 570k UniProt import runs
+Then the JVM heap stays below 2 GB sustained
+  and Hibernate issues batched INSERTs (verifiable via hibernate statistics or SQL logging)
+  and the full import completes in < 30 min (benchmark recorded in journal.md)
+  and all existing unit and integration tests pass without regression
+```
+
+**Implementation notes:**
+
+- Replace `GenerationType.IDENTITY` with `GenerationType.SEQUENCE` on:
+  `ProteinEntry`, `CrossReference`, `ProteinFeature`, `ProteinComment`,
+  `ProteinPublication`, `HostOrganism`, `Keyword`, `GoTerm`.
+- Add Flyway `V11__add_sequences.sql`:
+  creates named sequences, uses `setval(MAX(id)+1)` for safe migration on existing data.
+- `application.yml` additions:
+  ```yaml
+  spring.jpa.properties.hibernate.jdbc.batch_size: 1000
+  spring.jpa.properties.hibernate.order_inserts: true
+  spring.jpa.properties.hibernate.order_updates: true
+  spring.jpa.properties.hibernate.jdbc.batch_versioned_data: true
+  ```
+- **Tests:** unit test `ImportServiceTest`; assert no `ConstraintViolationException` on batch persist.
+- **Coverage target:** ≥ 80% on `ImportService` and all modified entity classes.
+
+---
+
+### US-45 — ProteinEntry aggregate refactoring
+
+_As a platform engineer, I want to remove the three heaviest `@OneToMany` collections from
+`ProteinEntry` so the persistence context does not track millions of managed entities per chunk._
+
+**Acceptance Criteria:**
+
+```
+Given ProteinEntry no longer holds @OneToMany for crossReferences, comments, publications
+When a chunk of 250 proteins is processed by the Spring Batch writer
+Then the persistence context contains at most ~250 × 8 entities (features + hosts + keywords + goTerms)
+  instead of ~250 × 20+ previously
+  and cascade DELETE still works via PostgreSQL ON DELETE CASCADE (no ORM cascade needed)
+  and GET /api/genes/{id} still returns cross-references, comments, and publications via
+    dedicated repository queries (no API contract breakage)
+```
+
+**Implementation notes:**
+
+- Remove from `ProteinEntry`:
+  ```java
+  // DELETE these three fields:
+  private Set<CrossReference> crossReferences;
+  private Set<ProteinComment> comments;
+  private Set<ProteinPublication> publications;
+  ```
+- Keep bidirectional `@ManyToOne` on child side (unchanged).
+- Create `ProteinAggregateWriter` (`admin/batch/ProteinAggregateWriter.java`):
+  step 1 `proteinRepository.saveAll()` → step 2 attach protein ref to children →
+  step 3 `crossReferenceRepository.saveAll()` → step 4 `proteinCommentRepository.saveAll()` →
+  step 5 `proteinPublicationRepository.saveAll()` → step 6 `entityManager.flush(); entityManager.clear()`.
+- Reduce Spring Batch chunk size from 500 to 250.
+- **GeneDetailService** must fetch children via repositories, not navigation properties.
+- **Tests:** integration test asserting child rows are persisted and API returns them correctly.
+
+---
+
+### US-46 — Import trigger optimisation and materialized view refresh
+
+_As a platform engineer, I want the `search_vector` trigger disabled during bulk import
+and materialized views refreshed concurrently after import so the process is faster
+and never blocks reads._
+
+**Acceptance Criteria:**
+
+```
+Given the import job starts
+When ImportService initialises the job
+Then ALTER TABLE protein_entry DISABLE TRIGGER tg_pe_search_vector is executed
+  (or a WARN is logged if the DB user lacks TRIGGER privilege — non-blocking fallback)
+
+Given the import job completes successfully
+When the post-import step runs
+Then a single bulk UPDATE recomputes search_vector for all 570k rows in one statement
+  and ALTER TABLE protein_entry ENABLE TRIGGER tg_pe_search_vector is executed
+  and all 6 materialized views are refreshed with REFRESH MATERIALIZED VIEW CONCURRENTLY
+
+Given the import job fails
+When the failure occurs
+Then the trigger is re-enabled even in the error path (finally block)
+  and partial search_vector data is not corrupted
+```
+
+**Implementation notes:**
+
+- `ImportService.disableSearchVectorTrigger()` / `enableSearchVectorTrigger()` via `JdbcTemplate`.
+- Bulk recompute SQL matches the exact expression in `trg_protein_entry_search_vector()`.
+- Materialized view refresh order: `mv_dashboard_kpis`, `mv_reviewed_ratio`,
+  `mv_evidence_distribution`, `mv_length_histogram`, `mv_organism_counts`, `mv_keyword_frequency`.
+- **Tests:** mock `JdbcTemplate`; assert trigger disable/enable calls in happy and error paths.
 
 ---
 
