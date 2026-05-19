@@ -1,24 +1,37 @@
 package com.bioinformatics.dashboard.batch;
 
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
-import jakarta.persistence.EntityManagerFactory;
-import org.springframework.batch.infrastructure.item.database.JpaItemWriter;
-import org.springframework.batch.infrastructure.item.database.builder.JpaItemWriterBuilder;
+import com.bioinformatics.dashboard.gene.repository.CrossReferenceRepository;
+import com.bioinformatics.dashboard.gene.repository.ProteinCommentRepository;
+import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.gene.repository.ProteinPublicationRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ProteinEntryWriterConfig {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     /**
-     * JPA-backed ItemWriter for persisting ProteinEntry entities within a batch chunk.
-     * Uses the provided EntityManagerFactory.
+     * Aggregate ItemWriter that persists ProteinEntry and explicitly saves children
+     * (cross-references, comments, publications) via their own repositories after
+     * the parent is flushed — avoiding CascadeType.ALL overhead on large collections.
      */
     @Bean
-    public JpaItemWriter<ProteinEntry> proteinEntryItemWriter(EntityManagerFactory entityManagerFactory) {
+    public ProteinAggregateItemWriter proteinAggregateItemWriter(
+            ProteinEntryRepository proteinEntryRepository,
+            CrossReferenceRepository crossReferenceRepository,
+            ProteinCommentRepository proteinCommentRepository,
+            ProteinPublicationRepository proteinPublicationRepository) {
 
-        return new JpaItemWriterBuilder<ProteinEntry>()
-                .entityManagerFactory(entityManagerFactory)
-                .build();
+        return new ProteinAggregateItemWriter(
+                proteinEntryRepository,
+                crossReferenceRepository,
+                proteinCommentRepository,
+                proteinPublicationRepository,
+                entityManager);
     }
 }
