@@ -25,19 +25,19 @@
 
 ## Tasks
 
-| #   | Task                                                                                       | Layer             | Status |
-|-----|--------------------------------------------------------------------------------------------|-------------------|--------|
-| T1  | Switch all entity ID strategies from `IDENTITY` to `SEQUENCE`                              | Backend / Entity  | TODO   |
-| T2  | Add Hibernate batching properties to `application.yml`                                     | Backend / Config  | TODO   |
-| T3  | Remove `@OneToMany crossReferences`, `comments`, `publications` from `ProteinEntry`        | Backend / Entity  | TODO   |
-| T4  | Create `ProteinAggregateWriter` — custom `ItemWriter` persisting children via repositories | Backend / Batch   | TODO   |
-| T5  | Create Flyway `V11__add_sequences.sql` — add PostgreSQL sequences safely                   | DB / Migration    | TODO   |
-| T6  | Add `@Table` + `@Index` annotations on child entities matching `domain-model.md` indexes   | Backend / Entity  | TODO   |
-| T7  | Implement trigger disable/enable + bulk `search_vector` recompute in `ImportService`       | Backend / Service | TODO   |
-| T8  | Verify and enforce `CONCURRENTLY` materialized view refresh after import                   | Backend / Service | TODO   |
-| T9  | Tune chunk size to 250 and add `entityManager.clear()` in writer                           | Backend / Batch   | TODO   |
-| T10 | Run full 570k import benchmark; record heap, duration, batch efficiency                    | DevOps / QA       | TODO   |
-| T11 | Update `ImportServiceTest` for new persistence flow; ensure ≥ 80% coverage                 | Backend / Test    | TODO   |
+| #   | Task                                                                                       | Layer             | Status                         |
+|-----|--------------------------------------------------------------------------------------------|-------------------|--------------------------------|
+| T1  | Switch all entity ID strategies from `IDENTITY` to `SEQUENCE`                              | Backend / Entity  | DONE                           |
+| T2  | Add Hibernate batching properties to `application.yml`                                     | Backend / Config  | DONE                           |
+| T3  | Remove `@OneToMany crossReferences`, `comments`, `publications` from `ProteinEntry`        | Backend / Entity  | DONE (converted to @Transient) |
+| T4  | Create `ProteinAggregateWriter` — custom `ItemWriter` persisting children via repositories | Backend / Batch   | DONE                           |
+| T5  | Create Flyway `V11__add_sequences.sql` — add PostgreSQL sequences safely                   | DB / Migration    | DONE                           |
+| T6  | Add `@Table` + `@Index` annotations on child entities matching `domain-model.md` indexes   | Backend / Entity  | TODO                           |
+| T7  | Implement trigger disable/enable + bulk `search_vector` recompute in `ImportService`       | Backend / Service | TODO                           |
+| T8  | Verify and enforce `CONCURRENTLY` materialized view refresh after import                   | Backend / Service | TODO                           |
+| T9  | Tune chunk size to 250 and add `entityManager.clear()` in writer                           | Backend / Batch   | DONE                           |
+| T10 | Run full 570k import benchmark; record heap, duration, batch efficiency                    | DevOps / QA       | TODO                           |
+| T11 | Update `ImportServiceTest` for new persistence flow; ensure ≥ 80% coverage                 | Backend / Test    | TODO                           |
 
 ---
 

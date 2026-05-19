@@ -109,7 +109,6 @@ class GeneServiceTest {
         var entry = new ProteinEntry();
         entry.setId(2L);
 
-        when(proteinEntryService.findBaseDetails(2L)).thenReturn(Optional.of(entry));
         when(proteinEntryService.findAdditionalDetails(2L)).thenReturn(Optional.of(entry));
 
         var detail = new ProteinDetailDto(
@@ -134,7 +133,7 @@ class GeneServiceTest {
 
     @Test
     void getGeneById_notFound_throws() {
-        when(proteinEntryService.findBaseDetails(99L)).thenReturn(Optional.empty());
+        when(proteinEntryService.findAdditionalDetails(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.getGeneById(99L));
     }
