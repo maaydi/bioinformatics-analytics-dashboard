@@ -1,6 +1,6 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.processor.resolver;
 
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.gene.service.ProteinEntryService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class ProteinAccessionResolver {
-    private final ProteinEntryRepository proteinEntryRepository;
+    private final ProteinEntryService proteinEntryService;
     private final Set<String> accessions = ConcurrentHashMap.newKeySet();
 
 
     @PostConstruct
     public void init() {
-        accessions.addAll(proteinEntryRepository.findAllAccessions());
+        accessions.addAll(proteinEntryService.findAllAccessions());
     }
 
     public boolean alreadyExists(String accession) {

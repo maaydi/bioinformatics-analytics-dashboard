@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.writer;
 
 import com.bioinformatics.dashboard.gene.repository.CrossReferenceRepository;
 import com.bioinformatics.dashboard.gene.repository.ProteinCommentRepository;

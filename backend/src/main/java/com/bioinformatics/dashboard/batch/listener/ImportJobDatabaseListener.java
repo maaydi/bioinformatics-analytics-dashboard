@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.listener;
 
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;

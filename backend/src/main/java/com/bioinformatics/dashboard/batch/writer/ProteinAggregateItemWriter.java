@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.writer;
 
 import com.bioinformatics.dashboard.gene.entity.CrossReference;
 import com.bioinformatics.dashboard.gene.entity.ProteinComment;
@@ -40,6 +40,7 @@ public class ProteinAggregateItemWriter implements ItemWriter<ProteinEntry> {
     public void write(Chunk<? extends ProteinEntry> chunk) throws Exception {
         var items = chunk.getItems();
 
+        // Collect children before saving parents (ids not yet assigned)
         var allCrossRefs = new ArrayList<CrossReference>();
         var allComments = new ArrayList<ProteinComment>();
         var allPublications = new ArrayList<ProteinPublication>();
@@ -50,18 +51,18 @@ public class ProteinAggregateItemWriter implements ItemWriter<ProteinEntry> {
             allPublications.addAll(entry.getPublications());
         }
 
-        // 1. Persist ProteinEntry (cascades features + hostOrganisms)
+        // Persist ProteinEntry (cascades features + hostOrganisms)
         proteinEntryRepository.saveAll(items);
         entityManager.flush();
 
-        // 2. Ensure children have the protein reference set (protein.id is now populated)
+        // Ensure children have the protein reference set (protein.id is now populated)
         for (ProteinEntry entry : items) {
             entry.getCrossReferences().forEach(c -> c.setProtein(entry));
             entry.getComments().forEach(c -> c.setProtein(entry));
             entry.getPublications().forEach(p -> p.setProtein(entry));
         }
 
-        // 3. Persist children explicitly
+        // Persist children explicitly
         if (!allCrossRefs.isEmpty()) {
             crossReferenceRepository.saveAll(allCrossRefs);
         }

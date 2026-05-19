@@ -1,5 +1,10 @@
 package com.bioinformatics.dashboard.batch;
 
+import com.bioinformatics.dashboard.batch.listener.ImportJobDatabaseListener;
+import com.bioinformatics.dashboard.batch.listener.ImportProgressChunkListener;
+import com.bioinformatics.dashboard.batch.processor.ProteinEntryItemProcessor;
+import com.bioinformatics.dashboard.batch.reader.UniprotDatItemReader;
+import com.bioinformatics.dashboard.batch.writer.ProteinAggregateItemWriter;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
