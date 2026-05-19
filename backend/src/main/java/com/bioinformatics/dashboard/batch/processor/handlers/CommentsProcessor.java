@@ -27,7 +27,7 @@ public class CommentsProcessor implements LineProcessor {
             var comBuilder = ProteinComment.builder();
             var l = line.split("-!-")[1].split(":");
             comBuilder.commentType(l[0].trim());
-            comBuilder.text(l.length > 1 ? l[1].trim() : "");
+            comBuilder.text(l.length > 1 ? l[1].trim().replace(";", "") : "");
             commBuilders.add(comBuilder);
             return;
         }
