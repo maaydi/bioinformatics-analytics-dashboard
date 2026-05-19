@@ -164,8 +164,11 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                     if (oxMatch.find()) {
                         hostBuilder.taxid(Integer.parseInt(oxMatch.group(1)));
                     }
-                    hostBuilder.name(data.split(";")[1].trim());
-                    hostOrganisms.add(hostBuilder.build());
+                    var ohParts = data.split(";");
+                    if (ohParts.length >= 2) {
+                        hostBuilder.name(ohParts[1].trim());
+                        hostOrganisms.add(hostBuilder.build());
+                    }
                     break;
                 // 10. References / Publication
                 case "RN":
@@ -183,20 +186,28 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                     // ignore what was studied in domain model
                     break;
                 case "RX":
-                    pubBuilders.getLast().pubmedId(extractValue(data, "PubMed="));
-                    pubBuilders.getLast().doi(extractValue(data, "DOI="));
+                    if (!pubBuilders.isEmpty()) {
+                        pubBuilders.getLast().pubmedId(extractValue(data, "PubMed="));
+                        pubBuilders.getLast().doi(extractValue(data, "DOI="));
+                    }
                     break;
                 case "RA":
-                    var author = pubBuilders.getLast().build().getAuthors();
-                    pubBuilders.getLast().authors(String.join(author, " ", data.split(";")[0]).trim());
+                    if (!pubBuilders.isEmpty()) {
+                        var author = pubBuilders.getLast().build().getAuthors();
+                        pubBuilders.getLast().authors(String.join(author, " ", data.split(";")[0]).trim());
+                    }
                     break;
                 case "RT":
-                    var title = pubBuilders.getLast().build().getTitle();
-                    pubBuilders.getLast().title(String.join(title, " ", data.split(";")[0]).trim());
+                    if (!pubBuilders.isEmpty()) {
+                        var title = pubBuilders.getLast().build().getTitle();
+                        pubBuilders.getLast().title(String.join(title, " ", data.split(";")[0]).trim());
+                    }
                     break;
                 case "RL":
-                    var journal = pubBuilders.getLast().build().getJournal();
-                    pubBuilders.getLast().journal(String.join(journal, " ", data).trim());
+                    if (!pubBuilders.isEmpty()) {
+                        var journal = pubBuilders.getLast().build().getJournal();
+                        pubBuilders.getLast().journal(String.join(journal, " ", data).trim());
+                    }
                     break;
                 // 11. Comments
                 case "CC":
@@ -216,8 +227,10 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
                         break;
                     }
                     // same comment text in multiple lines
-                    var c = commBuilders.getLast().build().getText();
-                    commBuilders.getLast().text(String.join(c, " ", data));
+                    if (!commBuilders.isEmpty()) {
+                        var c = commBuilders.getLast().build().getText();
+                        commBuilders.getLast().text(String.join(c, " ", data));
+                    }
                     break;
                 // 12. Cross-References
                 case "DR":
@@ -295,15 +308,6 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
             entryBuilder.geneNameSynonyms(synonyms.toArray(new String[0]));
         }
         entryBuilder.hostOrganisms(hostOrganisms);
-        entryBuilder.publications(pubBuilders
-                .stream()
-                .map(ProteinPublication.ProteinPublicationBuilder::build)
-                .collect(Collectors.toSet()));
-        entryBuilder.comments(commBuilders
-                .stream()
-                .map(ProteinComment.ProteinCommentBuilder::build)
-                .collect(Collectors.toSet()));
-        entryBuilder.crossReferences(crossRefs);
         entryBuilder.keywords(keywordResolver.resolveKeywords(keywords));
         entryBuilder.features(
                 featureBuilders
@@ -313,12 +317,18 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
         );
         var entry = entryBuilder.build();
 
-        // Assert Bi-directional relation
+        // Assert Bi-directional relation for JPA-cascaded children
         entry.getHostOrganisms().forEach(e -> e.setProtein(entry));
-        entry.getPublications().forEach(e -> e.setProtein(entry));
-        entry.getComments().forEach(e -> e.setProtein(entry));
-        entry.getCrossReferences().forEach(e -> e.setProtein(entry));
         entry.getFeatures().forEach(e -> e.setProtein(entry));
+
+        // Populate transient collections (writer will persist these and set protein reference)
+        entry.getCrossReferences().addAll(crossRefs);
+        entry.getComments().addAll(commBuilders.stream()
+                .map(ProteinComment.ProteinCommentBuilder::build)
+                .collect(java.util.stream.Collectors.toSet()));
+        entry.getPublications().addAll(pubBuilders.stream()
+                .map(ProteinPublication.ProteinPublicationBuilder::build)
+                .collect(java.util.stream.Collectors.toSet()));
 
         if (entry.getAccession() == null || entry.getEntryName() == null) {
             throw new MalformedUniprotFileException("Malformed Data: Missing Accession or Entry Name");
