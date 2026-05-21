@@ -3,4 +3,13 @@
   <mat-card appearance="outlined" class="filter-card">
     <app-gene-filter (filterChange)="searchGene($event)"></app-gene-filter>
   </mat-card>
+  <!--  Result table View  -->
+  <mat-card class="result-card">
+    <app-genes-table
+      (rowClick)="selectGeneSummary($event)"
+      [data]="searchResult()"
+      [filters]="activeFilters()"
+      [loading]="loading()">
+    </app-genes-table>
+  </mat-card>
 </div>

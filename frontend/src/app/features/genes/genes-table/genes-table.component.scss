@@ -1,3 +1,56 @@
 :host {
   display: block;
+  width: 100%;
+}
+
+.gene-table-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+}
+
+.criteria-chip-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.table-state {
+  margin-top: 1rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gene-result-table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.more-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.more-button:hover {
+  color: var(--mat-sys-on-surface);
+}
+
+.more-button:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+  border-radius: 999px;
 }

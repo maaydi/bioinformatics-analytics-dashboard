@@ -5,6 +5,7 @@ import {GenesService} from '@features/genes/genes.service';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GenesTableComponent} from '@features/genes/genes-table/genes-table.component';
 
 /**
  * Gene Explorer page — container component (smart).
@@ -21,7 +22,8 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
   selector: 'app-genes-page',
   imports: [
     MatCard,
-    GeneFilterComponent
+    GeneFilterComponent,
+    GenesTableComponent
   ],
   templateUrl: './genes-page.component.html',
   styleUrl: './genes-page.component.scss',
@@ -66,6 +68,4 @@ export class GenesPageComponent {
   selectGeneSummary(protein: ProteinSummary): void {
     this.selectedGene.set(protein);
   }
-
-
 }
