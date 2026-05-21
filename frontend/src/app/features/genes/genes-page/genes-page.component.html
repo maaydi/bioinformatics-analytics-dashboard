@@ -1,4 +1,6 @@
-<h1>Gene Explorer</h1>
-<!-- TODO: GeneFilterComponent -->
-<!-- TODO: GenesTableComponent (AG Grid) -->
-<!-- TODO: Export CSV button -->
+<div class="page-container">
+  <!-- Filters side bar -->
+  <mat-card appearance="outlined" class="filter-card">
+    <app-gene-filter (filterChange)="searchGene($event)"></app-gene-filter>
+  </mat-card>
+</div>

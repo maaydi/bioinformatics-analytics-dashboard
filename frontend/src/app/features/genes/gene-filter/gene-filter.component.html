@@ -1,1 +1,225 @@
-<form><!-- TODO: filter fields --></form>
+<mat-card-header class="filters-header">
+  <div class="filter-title">
+    <mat-icon>filter_list</mat-icon>
+    <span>Filters</span>
+  </div>
+  <button (click)="clearAll()"
+          color="primary"
+          mat-button
+          title="Clear all filters"
+          type="button">
+    <mat-icon>delete_sweep</mat-icon>
+    Clear All
+  </button>
+</mat-card-header>
+<mat-divider/>
+<mat-card-content>
+  <form (ngSubmit)="applyFilters()"
+        [formGroup]="form"
+        class="filters-form"
+  >
+    <!--  Global Search -->
+    <section class="filter-group">
+      <label class="section-label">Global Search</label>
+      <mat-form-field appearance="outline"
+                      hintLabel="Search across all indexed fields"
+                      matIconSuffix="search">
+        <input formControlName="globalSearch"
+               matInput
+               placeholder="Search proteins, genes, organisms"
+               title="Global Search"
+        />
+      </mat-form-field>
+    </section>
+    <!--  Basic fields -->
+    <section class="filter-group">
+      <label class="section-label">Accession</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="accession"
+               matInput
+               placeholder="e.g. P12345"
+               title="Accession"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Entry Name</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="entryName"
+               matInput
+               placeholder="e.g. 001R_FRG3G"
+               title="Entry Name"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Protein Name</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="proteinFullName"
+               matInput
+               placeholder="e.g. Breast cancer type 1"
+               title="Protein Name"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Organism</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="organism"
+               matInput
+               placeholder="e.g. Homo Sapiens"
+               title="Organism"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Taxonomy ID</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="taxid"
+               matInput
+               placeholder="e.g. 9606"
+               title="Taxonomy ID"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Lineage</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="lineage"
+               matInput
+               placeholder="e.g. Eukaryota; Metazoa"
+               title="Lineage"
+        />
+      </mat-form-field>
+    </section>
+    <!--    Reviewed   -->
+    <section class="filter-group">
+      <label class="section-label">Reviewed</label>
+      <mat-button-toggle-group formControlName="reviewed">
+        <mat-button-toggle [value]="null">All</mat-button-toggle>
+        <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+        <mat-button-toggle [value]="false">No</mat-button-toggle>
+      </mat-button-toggle-group>
+    </section>
+
+    <!--    Length   -->
+    <section class="filter-group">
+      <label class="section-label">Length (aa)</label>
+      <div class="range-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Min</mat-label>
+          <input formControlName="lengthMin"
+                 matInput
+                 placeholder="e.g. 100"
+                 title="Minimum Length"
+                 type="number"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Max</mat-label>
+          <input formControlName="lengthMax"
+                 matInput
+                 placeholder="e.g. 900"
+                 title="Maximum Length"
+                 type="number"
+          />
+        </mat-form-field>
+      </div>
+    </section>
+    <!--    Molecular weight  -->
+    <section class="filter-group">
+      <label class="section-label">Molecular Weight (kDa)</label>
+      <div class="range-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Min</mat-label>
+          <input formControlName="molecularWeightMin"
+                 matInput
+                 placeholder="e.g. 1000"
+                 title="Minimum molecular weight"
+                 type="number"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Max</mat-label>
+          <input formControlName="molecularWeightMax"
+                 matInput
+                 placeholder="e.g. 50000"
+                 title="Maximum molecular weight"
+                 type="number"
+          />
+        </mat-form-field>
+      </div>
+    </section>
+    <!-- Evidence level -->
+    <section class="filter-group">
+      <label class="section-label">Evidence Levels</label>
+      <div class="checkbox-grid">
+        @for (level of evidenceLevels; track level) {
+          <mat-checkbox (change)="toggleEvidence(level)"
+                        [checked]="isEvidenceSelected(level)">
+            {{ level }}
+          </mat-checkbox>
+        }
+      </div>
+    </section>
+    <!--    Go Term    -->
+    <section class="filter-group">
+      <label class="section-label">Go Term ID</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="goTermId"
+               matInput
+               placeholder="GO:0008150"
+               title="Go Term ID"/>
+        @if (form.get('goTermId')?.hasError('pattern')) {
+          <mat-error>Format must be GO:1234567</mat-error>
+        }
+      </mat-form-field>
+      <label class="section-label">Go Aspect</label>
+      <mat-form-field appearance="outline">
+        <mat-select formControlName="goAspect"
+                    placeholder="Select 60 Aspect"
+                    title="Go Aspect">
+          <mat-option [value]="null">All</mat-option>
+          <mat-option value="P">Biological Process</mat-option>
+          <mat-option value="F">Molecular Function</mat-option>
+          <mat-option value="C">Cellular Component</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+
+    <!--    Other   -->
+    <section class="filter-group">
+      <label class="section-label">Feature Type</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="featureType" matInput
+               placeholder="e.g. DOMAIN" title="Feature Type"
+        />
+      </mat-form-field>
+
+      <label class="section-label">Cross-Ref Source</label>
+      <mat-form-field appearance="outline">
+        <input formControlName="crossRefSource" matInput
+               placeholder="e.g. InterPro" title="Cross-Reference Source"
+        />
+      </mat-form-field>
+    </section>
+
+    <!--    Keywords   -->
+    <section class="filter-group">
+      <label class="section-label">Keywords</label>
+      <mat-form-field appearance="outline">
+        <input disabled
+               matInput
+               placeholder="e.g. Not implemented"
+               title="Keywords"
+        />
+        <!--               TODO add it -->
+      </mat-form-field>
+    </section>
+    <!--    Submit button   -->
+    <section class="filter-actions">
+      <button [disabled]="form.invalid"
+              color="primary"
+              mat-flat-button
+              title="Apply filters"
+              type="submit"
+      >Apply Filters
+      </button>
+    </section>
+  </form>
+</mat-card-content>
