@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: row;
   gap: 2rem;
+  align-items: stretch;
 }
 
 .filter-card {
@@ -9,7 +10,7 @@
     padding-top: 1.5rem;
   }
 
-  height: 100%;
+  height: calc(100vh - 100px);
   width: 20%;
   display: flex;
   flex-direction: column;
@@ -18,8 +19,14 @@
 .result-card {
   .mat-mdc-card-content {
     padding-top: 1.5rem;
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
   }
 
   width: 80%;
-  height: 100%;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
