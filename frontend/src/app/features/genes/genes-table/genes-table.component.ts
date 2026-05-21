@@ -16,6 +16,7 @@ import {
   MatTable
 } from '@angular/material/table';
 import {MatIcon} from '@angular/material/icon';
+import {NgClass} from '@angular/common';
 
 type FilterChip = { label: string, value: string };
 
@@ -57,7 +58,8 @@ type FilterChip = { label: string, value: string };
     MatHeaderRow,
     MatRow,
     MatHeaderRowDef,
-    MatRowDef
+    MatRowDef,
+    NgClass
   ],
   templateUrl: './genes-table.component.html',
   styleUrl: './genes-table.component.scss',
@@ -65,6 +67,7 @@ type FilterChip = { label: string, value: string };
 })
 export class GenesTableComponent {
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
+  readonly errorMessage = input<String | null>(null);
   readonly loading = input(false);
 
   readonly filters = input<GeneFilterSnapshot | null>(null);
@@ -111,7 +114,7 @@ export class GenesTableComponent {
     const chips: FilterChip[] = [];
     for (const item of config) {
       const rawValue = filters[item.key];
-      if (!rawValue || rawValue === '') {
+      if (rawValue === null || rawValue === undefined || rawValue === '') {
         continue;
       }
       if (Array.isArray(rawValue)) {

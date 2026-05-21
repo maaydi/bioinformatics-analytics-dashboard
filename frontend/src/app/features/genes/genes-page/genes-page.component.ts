@@ -32,6 +32,7 @@ import {GenesTableComponent} from '@features/genes/genes-table/genes-table.compo
 export class GenesPageComponent {
   readonly activeFilters = signal<GeneFilterSnapshot | null>(null);
   readonly searchResult = signal<PagedResponse<ProteinSummary> | null>(null);
+  readonly onErrorMessage = signal<String | null>(null);
   readonly selectedGene = signal<ProteinSummary | null>(null);
   readonly loading = signal(false);
   private readonly geneService = inject(GenesService);
@@ -53,13 +54,13 @@ export class GenesPageComponent {
       {
         next: (result) => {
           this.searchResult.set(result);
+          this.onErrorMessage.set(null);
           this.loading.set(false);
-          console.log('Gene search result ', result);
 
         },
-        error: (err: unknown) => {
+        error: () => {
+          this.onErrorMessage.set('Failed to search genes. Please contact the administrator for help.');
           this.loading.set(false);
-          console.error(err);
         }
       }
     );

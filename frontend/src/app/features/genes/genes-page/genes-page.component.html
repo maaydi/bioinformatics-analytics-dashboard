@@ -9,7 +9,9 @@
       (rowClick)="selectGeneSummary($event)"
       [data]="searchResult()"
       [filters]="activeFilters()"
-      [loading]="loading()">
+      [errorMessage]="onErrorMessage()"
+      [loading]="loading()"
+    >
     </app-genes-table>
   </mat-card>
 </div>

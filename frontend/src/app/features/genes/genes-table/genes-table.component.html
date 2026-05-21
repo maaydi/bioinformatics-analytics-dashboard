@@ -17,7 +17,9 @@
            mat-table>
       <ng-container matColumnDef="accession">
         <th *matHeaderCellDef mat-header-cell>Accession</th>
-        <td *matCellDef="let row" mat-cell>{{ row.accession }}</td>
+        <td *matCellDef="let row" mat-cell>
+          <span class="accession-col">{{ row.accession }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="entryName">
@@ -46,13 +48,18 @@
 
       <ng-container matColumnDef="reviewed">
         <th *matHeaderCellDef mat-header-cell>Reviewed</th>
-        <td *matCellDef="let row" mat-cell>{{ row.reviewed ? 'Yes' : 'No' }}</td>
+        <td *matCellDef="let row" mat-cell>
+          <span [ngClass]="row.reviewed ? 'is-reviewed' : 'not-reviewed'"
+                class="review-badge">{{ row.reviewed ? 'Yes' : 'No' }}</span>
+        </td>
       </ng-container>
 
 
       <ng-container matColumnDef="evidenceLevel">
         <th *matHeaderCellDef mat-header-cell>Evidence</th>
-        <td *matCellDef="let row" mat-cell>{{ row.evidenceLevel }}</td>
+        <td *matCellDef="let row" mat-cell>
+          <span [ngClass]="'level-' + row.evidenceLevel" class="evidence-badge">{{ row.evidenceLevel }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
@@ -74,6 +81,8 @@
 
     </table>
   </div>
+} @else if (errorMessage()) {
+  <div class="error-msg">{{ errorMessage() }}</div>
 } @else {
   <div class="table-state">No gene results yes. Apply filters to search.</div>
 }
