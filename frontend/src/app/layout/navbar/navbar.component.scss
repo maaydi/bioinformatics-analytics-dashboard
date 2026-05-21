@@ -4,7 +4,13 @@
 
 .app-title {
   font-weight: 600;
-  margin-right: 16px;
+  margin-right: 1rem;
+}
+
+.app-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 a.active {
