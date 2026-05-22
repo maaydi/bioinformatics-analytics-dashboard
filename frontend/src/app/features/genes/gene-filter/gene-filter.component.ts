@@ -17,23 +17,16 @@ import {RangeInputComponent} from '@shared/components/range-input/range-input.co
 import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
 
 /**
- * Presentational (dumb) filter panel component.
+ * Presentational filter panel for gene search criteria.
  *
- * Filter fields (documentation/overview.md §6 + api-contract.md §1):
- *   globalSearch, accession, geneNamePrimary, proteinFullName, reviewed (toggle),
- *   organism, taxid, lengthMin, lengthMax, molecularWeightMin, molecularWeightMax,
- *   evidenceLevels (multi-select), keywords, goTermId, goAspect, featureType
- *
- * Validation (documentation/validation-rules.md §2):
- *   - lengthMin ≤ lengthMax enforced client-side (cross-field validator)
- *   - goTermId pattern GO:\d{7}
- *   - No API request on invalid form
+ * Behavior:
+ * - Maintains a reactive form for all supported gene filters.
+ * - Debounces global search updates before emitting filters.
+ * - Prevents emission while the form is invalid.
  *
  * Outputs:
- *  - filterChange: emits the current filter snapshot when applied
- *  - filterClear: emits when "Clear All" is clicked
- *
- * TODO: implement in ticket GENE-002
+ * - `filterChange`: emits a normalized `GeneFilterSnapshot`.
+ * - `filterClear`: emits after form reset.
  */
 @Component({
   selector: 'app-gene-filter',
@@ -74,6 +67,7 @@ export class GeneFilterComponent {
     this.listenToGlobalSearch();
   }
 
+  /** Validates and emits the current filter snapshot. */
   applyFilters(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -83,7 +77,17 @@ export class GeneFilterComponent {
     this.filterChange.emit(snapshot);
   }
 
+  /** Toggles one evidence level and emits the updated snapshot. */
+  toggleEvidence(level: EvidenceLevel): void {
+    const current = this.form.controls.evidenceLevels.value ?? [];
+    const updated = current?.includes(level)
+      ? current.filter((v) => v != level)
+      : [...current, level];
+    this.form.controls.evidenceLevels.setValue(updated);
+    this.applyFilters();
+  }
 
+  /** Resets all filter fields to defaults and notifies the parent. */
   protected clearAll() {
     this.form.reset({
       globalSearch: '',
@@ -107,23 +111,16 @@ export class GeneFilterComponent {
     this.filterClear.emit();
   }
 
-  toggleEvidence(level: EvidenceLevel): void {
-    const current = this.form.controls.evidenceLevels.value ?? [];
-    const updated = current?.includes(level)
-      ? current.filter((v) => v != level)
-      : [...current, level];
-    this.form.controls.evidenceLevels.setValue(updated);
-    this.applyFilters();
-  }
-
   protected isEvidenceSelected(level: EvidenceLevel): boolean | undefined {
     return this.form.controls.evidenceLevels.value?.includes(level);
   }
 
+  /** Returns the display label for one evidence option. */
   protected getEvidenceLevel(level: EvidenceLevel): String {
     return `${level} - ${EVIDENCE_LEVEL_LABELS[level]}`;
   }
 
+  /** Subscribes to global-search changes with debounce and distinct guards. */
   private listenToGlobalSearch(): void {
     this.form.controls.globalSearch.valueChanges
       .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
@@ -135,6 +132,7 @@ export class GeneFilterComponent {
       });
   }
 
+  /** Maps form raw values to the API-compatible filter snapshot. */
   private toSnapshot(): GeneFilterSnapshot {
     const rawValue = this.form.getRawValue();
     return {

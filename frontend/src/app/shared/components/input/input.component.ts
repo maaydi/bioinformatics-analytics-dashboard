@@ -19,6 +19,15 @@ import {MatTooltip} from '@angular/material/tooltip';
     }
   ]
 })
+/**
+ * Generic text input control compatible with reactive forms.
+ *
+ * Inputs:
+ * - `title`: field label.
+ * - `isSearch`: enables search-style visual behavior.
+ * - `placeholder`: input placeholder text.
+ * - `hintLabel`: optional helper text.
+ */
 export class InputComponent implements ControlValueAccessor {
   title = input<string>('Your Title');
   isSearch = input<boolean>(false);
@@ -39,18 +48,22 @@ export class InputComponent implements ControlValueAccessor {
   onTouch: any = () => {
   };
 
+  /** Writes value from parent form control without re-emitting change events. */
   writeValue(value: string): void {
     this.internalControl.setValue(value, {emitEvent: false});
   }
 
+  /** Registers callback invoked on input value changes. */
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
 
+  /** Registers callback invoked when the control is touched. */
   registerOnTouched(fn: any): void {
     this.onTouch = fn;
   }
 
+  /** Applies disabled state from the parent form control. */
   setDisabledState(isDisabled: boolean): void {
     isDisabled ? this.internalControl.disable() : this.internalControl.enable();
   }

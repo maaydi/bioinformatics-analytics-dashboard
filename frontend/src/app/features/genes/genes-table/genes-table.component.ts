@@ -21,27 +21,19 @@ import {NgClass} from '@angular/common';
 type FilterChip = { label: string, value: string };
 
 /**
- * Presentational (dumb) component — renders the AG Grid protein table.
- *
- * Columns (documentation/overview.md §5.B):
- *   Accession, Gene Name, Protein Name, Organism, Length, Reviewed, Evidence, Keywords
- *
- * Features (US-4, US-5, US-6):
- * - Server-side pagination
- * - Server-side sorting (click header)
- * - Row click → navigate to gene detail
- * - Column hide/show
+ * Presentational table component for gene search results.
  *
  * Inputs:
- *  - data: page of ProteinSummary items from parent
- *  - loading: spinner flag
+ * - `data`: current paged response to render.
+ * - `errorMessage`: user-facing error text to display when loading fails.
+ * - `loading`: true while data is being fetched.
+ * - `filters`: active filter snapshot used to render summary chips.
  *
  * Outputs:
- *  - sortChange: {field, direction} when sort header clicked
- *  - pageChange: {page, size} when paginator changes
- *  - rowClick: protein id when a row is clicked
- *  - exportClick: when export CSV is triggered
- *
+ * - `sortChange`: emits `{ field, direction }` when sort changes.
+ * - `pageChange`: emits `{ page, size }` when pagination changes.
+ * - `rowClick`: emits the selected `ProteinSummary` row.
+ * - `exportClick`: emits when CSV export is requested.
  */
 @Component({
   selector: 'app-genes-table',
@@ -81,10 +73,12 @@ export class GenesTableComponent {
   readonly rowClick = output<ProteinSummary>();
   readonly exportClick = output<void>();
 
+  /** Emits the selected row to the container for navigation/details handling. */
   selectRowSummary(row: ProteinSummary): void {
     this.rowClick.emit(row);
   }
 
+  /** Converts non-empty filter fields into display chips. */
   private buildFiltersChips(filters: GeneFilterSnapshot | null): FilterChip[] {
     if (!filters) {
       return [];

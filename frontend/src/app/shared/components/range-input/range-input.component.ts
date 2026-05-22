@@ -30,6 +30,15 @@ export interface RangeValue {
     }
   ]
 })
+/**
+ * Numeric min/max range control compatible with reactive forms.
+ *
+ * Inputs:
+ * - `label`: field label.
+ * - `hintLabel`: optional helper text.
+ * - `minPlaceholder`: placeholder for minimum value.
+ * - `maxPlaceholder`: placeholder for maximum value.
+ */
 export class RangeInputComponent implements ControlValueAccessor {
   label = input<string>('');
   hintLabel = input<string>('');
@@ -56,6 +65,7 @@ export class RangeInputComponent implements ControlValueAccessor {
   onTouch: any = () => {
   };
 
+  /** Writes parent control value into the internal min/max form. */
   writeValue(value: RangeValue | null): void {
     if (value) {
       this.rangeForm.setValue({
@@ -67,14 +77,17 @@ export class RangeInputComponent implements ControlValueAccessor {
     }
   }
 
+  /** Registers callback invoked when min/max values change. */
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
 
+  /** Registers callback invoked when the control is touched. */
   registerOnTouched(fn: any): void {
     this.onTouch = fn;
   }
 
+  /** Enables or disables the internal range form. */
   setDisabledState(isDisabled: boolean): void {
     if (isDisabled) {
       this.rangeForm.disable({emitEvent: false});

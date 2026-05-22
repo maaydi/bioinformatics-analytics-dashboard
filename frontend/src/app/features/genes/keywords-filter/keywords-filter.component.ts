@@ -35,6 +35,14 @@ import {Observable} from 'rxjs';
     multi: true
   }]
 })
+/**
+ * Keyword multi-select control with autocomplete suggestions.
+ *
+ * Behavior:
+ * - Implements `ControlValueAccessor` for reactive forms integration.
+ * - Loads available keywords from backend once on init.
+ * - Emits selected keyword arrays on every toggle.
+ */
 export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
 
   protected selectedKeywords = signal<string[]>([]);
@@ -50,18 +58,22 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
     this.initAutoCompleteStream();
   }
 
+  /** Writes the current form value from parent control state. */
   writeValue(value: string[] | null): void {
     this.selectedKeywords.set(value || []);
   }
 
+  /** Registers callback invoked when selected keywords change. */
   registerOnChange(fn: (value: string[]) => void): void {
     this.onChange = fn;
   }
 
+  /** Registers callback invoked when control is touched. */
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
+  /** Enables or disables the search input according to parent form state. */
   setDisabledState(isDisabled: boolean): void {
     this.isDisabled = isDisabled;
     if (isDisabled) {
@@ -78,6 +90,7 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
     return this.selectedKeywords().includes(keyword);
   }
 
+  /** Adds or removes a keyword and propagates the updated selection. */
   protected toggleKeyword(event: MatAutocompleteSelectedEvent): void {
     const value = event.option.value as string;
     const current = this.selectedKeywords();
@@ -93,6 +106,7 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
     });
   }
 
+  /** Returns a compact summary label for selected keywords. */
   protected getSelectedKeywords() {
     const k = this.selectedKeywords();
     return k.length > 0
@@ -109,6 +123,7 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
       .subscribe(k => this.allKeywords.push(...k));
   }
 
+  /** Builds the autocomplete stream from user input text. */
   private initAutoCompleteStream(): void {
     this.filteredKeywords$ = this.keywordSearchCtrl.valueChanges.pipe(
       debounceTime(150),
@@ -119,6 +134,7 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
     );
   }
 
+  /** Filters backend keywords by case-insensitive substring match. */
   private filterKeywords(value: string): string[] {
     const v = value.toLowerCase().trim();
     return this.allKeywords
@@ -126,6 +142,7 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
       .slice(0, 20);
   }
 
+  /** Notifies the parent control about value and touch updates. */
   private notifyParent(): void {
     this.onChange(this.selectedKeywords());
     this.onTouched();

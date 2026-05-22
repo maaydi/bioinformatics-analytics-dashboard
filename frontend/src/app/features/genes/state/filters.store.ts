@@ -28,10 +28,12 @@ export const GenesStore = signalStore(
   {providedIn: 'root'},
   withState(initialState),
   withMethods((store, geneService = inject(GenesService)) => ({
+    /** Stores the row selected in the results table. */
     selectGeneSummary(protein: ProteinSummary): void {
       patchState(store, {selectedGene: protein});
     },
 
+    /** Clears filters, current result set, selected row, and error state. */
     clearFilters(): void {
       patchState(store, {
         activeFilters: null,
@@ -42,6 +44,7 @@ export const GenesStore = signalStore(
       });
     },
 
+    /** Runs server-side search and updates loading, result, and error state. */
     searchGene: rxMethod<GeneFilterSnapshot>(
       pipe(
         tap((snapshot) => {

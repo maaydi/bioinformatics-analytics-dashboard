@@ -5,15 +5,12 @@ import {GenesTableComponent} from '@features/genes/genes-table/genes-table.compo
 import {GenesStore} from '@features/genes/state/filters.store';
 
 /**
- * Gene Explorer page — container component (smart).
- * Epic 2 (US-4 to US-6), Epic 3 (US-7 to US-10), Epic 6 (US-18).
+ * Container component for the Genes feature.
  *
- * Responsibilities:
- * - Holds reactive filter state
- * - Coordinates GenesTableComponent (dumb) and GeneFilterComponent (dumb)
- * - Calls GenesService for data
- * - Handles loading / error / empty states
- *
+ * Behavior:
+ * - Owns a local `GenesStore` instance.
+ * - Connects filter interactions and table rendering through shared store state.
+ * - Delegates API calls and state transitions to the store.
  */
 @Component({
   selector: 'app-genes-page',
