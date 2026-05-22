@@ -1,16 +1,16 @@
 <div class="page-container">
   <!-- Filters side bar -->
   <mat-card appearance="outlined" class="filter-card">
-    <app-gene-filter (filterChange)="searchGene($event)"></app-gene-filter>
+    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"></app-gene-filter>
   </mat-card>
   <!--  Result table View  -->
   <mat-card class="result-card">
     <app-genes-table
-      (rowClick)="selectGeneSummary($event)"
-      [data]="searchResult()"
-      [filters]="activeFilters()"
-      [errorMessage]="onErrorMessage()"
-      [loading]="loading()"
+      (rowClick)="store.selectGeneSummary($event)"
+      [data]="store.searchResult()"
+      [errorMessage]="store.onErrorMessage()"
+      [filters]="store.activeFilters()"
+      [loading]="store.loading()"
     >
     </app-genes-table>
   </mat-card>

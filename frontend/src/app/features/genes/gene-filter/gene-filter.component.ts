@@ -1,13 +1,13 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, output} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {GeneFilterSnapshot} from '../../../core/models/saved-filter.model';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/list';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {MatError, MatFormField, MatInput, MatLabel, MatSuffix} from '@angular/material/input';
+import {MatError, MatFormField, MatInput, MatSuffix} from '@angular/material/input';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
@@ -33,7 +33,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
  */
 @Component({
   selector: 'app-gene-filter',
-  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatSuffix, MatInput, MatButtonToggleGroup, MatButtonToggle, MatLabel, MatCheckbox, MatError, MatSelect, MatOption],
+  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatSuffix, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption],
   templateUrl: './gene-filter.component.html',
   styleUrl: './gene-filter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +70,6 @@ export class GeneFilterComponent {
 
   constructor() {
     this.listenToGlobalSearch();
-    this.listenToFilters();
   }
 
   applyFilters(): void {
@@ -112,7 +111,7 @@ export class GeneFilterComponent {
       goAspect: null,
       featureType: '',
       crossRefSource: '',
-    });
+    }, {emitEvent: false});
     this.filterClear.emit();
   }
 
@@ -123,12 +122,11 @@ export class GeneFilterComponent {
   private listenToGlobalSearch(): void {
     this.form.controls.globalSearch.valueChanges
       .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.applyFilters());
-  }
-
-  private listenToFilters(): void {
-    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
+        if (this.form.pristine && !this.form.controls.globalSearch.value) {
+          return;
+        }
+        this.applyFilters();
       });
   }
 

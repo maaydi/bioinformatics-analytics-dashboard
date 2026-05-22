@@ -11,7 +11,7 @@
 }
 @if (loading()) {
   <div class="table-state">loading gene results...</div>
-} @else if ((data()?.content?.length ?? 0) > 0) {
+} @else if ((data()?.content?.length ?? 0) > 0 && filtersChips().length > 0) {
   <div class="table-responsive-container">
     <table [dataSource]="data()!.content" class="mat-elevation-z1 gene-result-table"
            mat-table>
