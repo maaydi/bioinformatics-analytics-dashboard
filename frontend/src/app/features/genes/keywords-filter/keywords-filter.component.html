@@ -1,7 +1,6 @@
 <mat-form-field [hintLabel]="getSelectedKeywords()" appearance="outline" class="keywords-search-field">
   <input
     (blur)="onTouched()"
-    [disabled]="isDisabled"
     [formControl]="keywordSearchCtrl"
     [matAutocomplete]="auto"
     aria-label="Search and select keywords"
