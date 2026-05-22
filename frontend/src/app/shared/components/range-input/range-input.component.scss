@@ -1,0 +1,20 @@
+@use "form-shared" as shared;
+
+.section-group {
+  @include shared.filter-section-group;
+}
+
+.label-container {
+  @include shared.filter-label-container;
+}
+
+.range-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  mat-form-field {
+    flex: 1;
+    width: 100%;
+  }
+}

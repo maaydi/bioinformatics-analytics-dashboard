@@ -1,0 +1,85 @@
+import {Component, forwardRef, input} from '@angular/core';
+import {ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
+
+export interface RangeValue {
+  min: number | null;
+  max: number | null;
+}
+
+@Component({
+  selector: 'app-range-input',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatTooltipModule
+  ],
+  templateUrl: './range-input.component.html',
+  styleUrls: ['./range-input.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => RangeInputComponent),
+      multi: true
+    }
+  ]
+})
+export class RangeInputComponent implements ControlValueAccessor {
+  label = input<string>('');
+  hintLabel = input<string>('');
+  minPlaceholder = input<string>('Min');
+  maxPlaceholder = input<string>('Max');
+
+  rangeForm = new FormGroup({
+    min: new FormControl<number | null>(null),
+    max: new FormControl<number | null>(null)
+  });
+
+  constructor() {
+    this.rangeForm.valueChanges.subscribe((value) => {
+      this.onChange({
+        min: value.min ?? null,
+        max: value.max ?? null
+      });
+    });
+  }
+
+  onChange: any = () => {
+  };
+
+  onTouch: any = () => {
+  };
+
+  writeValue(value: RangeValue | null): void {
+    if (value) {
+      this.rangeForm.setValue({
+        min: value.min,
+        max: value.max
+      }, {emitEvent: false});
+    } else {
+      this.rangeForm.reset({}, {emitEvent: false});
+    }
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouch = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.rangeForm.disable({emitEvent: false});
+    } else {
+      this.rangeForm.enable({emitEvent: false});
+    }
+  }
+}

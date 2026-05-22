@@ -19,131 +19,77 @@
         class="filters-form"
   >
     <!--  Global Search -->
-    <section class="filter-group">
-      <label class="section-label">Global Search</label>
-      <mat-form-field appearance="outline"
-                      hintLabel="Search across all indexed fields"
-                      matIconSuffix="search">
-        <input formControlName="globalSearch"
-               matInput
-               placeholder="Search proteins, genes, organisms"
-               title="Global Search"
-        />
-      </mat-form-field>
-    </section>
+    <app-input
+      [isSearch]="true"
+      formControlName="globalSearch"
+      hintLabel="Search across all indexed fields"
+      placeholder="Search proteins, genes, organisms"
+      title="Global Search"
+    >
+    </app-input>
     <!--  Basic fields -->
-    <section class="filter-group">
-      <label class="section-label">Accession</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="accession"
-               matInput
-               placeholder="e.g. P12345"
-               title="Accession"
-        />
-      </mat-form-field>
-
-      <label class="section-label">Entry Name</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="entryName"
-               matInput
-               placeholder="e.g. 001R_FRG3G"
-               title="Entry Name"
-        />
-      </mat-form-field>
-
-      <label class="section-label">Protein Name</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="proteinFullName"
-               matInput
+    <app-input
+      formControlName="accession"
+      placeholder="e.g. P12345"
+      title="Accession"
+    >
+    </app-input>
+    <app-input
+      formControlName="entryName"
+      placeholder="e.g. 001R_FRG3G"
+      title="Entry Name"
+    >
+    </app-input>
+    <app-input formControlName="proteinFullName"
                placeholder="e.g. Breast cancer type 1"
                title="Protein Name"
-        />
-      </mat-form-field>
-
-      <label class="section-label">Organism</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="organism"
-               matInput
+    >
+    </app-input>
+    <app-input formControlName="organism"
                placeholder="e.g. Homo Sapiens"
                title="Organism"
-        />
-      </mat-form-field>
-
-      <label class="section-label">Taxonomy ID</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="taxid"
-               matInput
+    >
+    </app-input>
+    <app-input formControlName="taxid"
                placeholder="e.g. 9606"
                title="Taxonomy ID"
-        />
-      </mat-form-field>
-
-      <label class="section-label">Lineage</label>
-      <mat-form-field appearance="outline">
-        <input formControlName="lineage"
-               matInput
+    >
+    </app-input>
+    <app-input formControlName="lineage"
                placeholder="e.g. Eukaryota; Metazoa"
                title="Lineage"
-        />
-      </mat-form-field>
-    </section>
+    >
+    </app-input>
     <!--    Reviewed   -->
     <section class="filter-group">
-      <label class="section-label">Reviewed</label>
+      <div class="label-container">
+        <label class="section-label">Reviewed</label>
+      </div>
       <mat-button-toggle-group formControlName="reviewed">
         <mat-button-toggle [value]="null">All</mat-button-toggle>
         <mat-button-toggle [value]="true">Yes</mat-button-toggle>
         <mat-button-toggle [value]="false">No</mat-button-toggle>
       </mat-button-toggle-group>
+      <div style="margin-bottom: 0.75rem"></div>
     </section>
 
     <!--    Length   -->
-    <section class="filter-group">
-      <label class="section-label">Length (aa)</label>
-      <div class="range-row">
-        <mat-form-field appearance="outline">
-          <input formControlName="lengthMin"
-                 matInput
-                 placeholder="Min"
-                 title="Minimum Length"
-                 type="number"
-          />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <input formControlName="lengthMax"
-                 matInput
-                 placeholder="Max"
-                 title="Maximum Length"
-                 type="number"
-          />
-        </mat-form-field>
-      </div>
-    </section>
+    <app-range-input
+      formControlName="length"
+      hintLabel="Filter results by length"
+      label="Length (aa)"
+    ></app-range-input>
     <!--    Molecular weight  -->
-    <section class="filter-group">
-      <label class="section-label">Molecular Weight (kDa)</label>
-      <div class="range-row">
-        <mat-form-field appearance="outline">
-          <input formControlName="molecularWeightMin"
-                 matInput
-                 placeholder="Min"
-                 title="Minimum molecular weight"
-                 type="number"
-          />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <input formControlName="molecularWeightMax"
-                 matInput
-                 placeholder="Max"
-                 title="Maximum molecular weight"
-                 type="number"
-          />
-        </mat-form-field>
-      </div>
-    </section>
+    <app-range-input
+      formControlName="molecularWeight"
+      hintLabel="Filter results by molecular mass bounds"
+      label="Molecular Weight (kDa)">
+    </app-range-input>
     <!-- Evidence level -->
     <section class="filter-group">
-      <label class="section-label">Evidence Levels</label>
+      <div class="label-container">
+        <label class="section-label">Evidence Levels</label>
+      </div>
       <div class="checkbox-flex">
         @for (level of evidenceLevels; track level) {
           <mat-checkbox (change)="toggleEvidence(level)"
@@ -155,7 +101,9 @@
     </section>
     <!--    Go Term    -->
     <section class="filter-group">
-      <label class="section-label">Go Term ID</label>
+      <div class="label-container">
+        <label class="section-label">Go Term ID</label>
+      </div>
       <mat-form-field appearance="outline">
         <input formControlName="goTermId"
                matInput
@@ -165,7 +113,9 @@
           <mat-error>Format must be GO:1234567</mat-error>
         }
       </mat-form-field>
-      <label class="section-label">Go Aspect</label>
+      <div class="label-container">
+        <label class="section-label">Go Aspect</label>
+      </div>
       <mat-form-field appearance="outline">
         <mat-select formControlName="goAspect"
                     placeholder="Select 60 Aspect"
@@ -180,14 +130,17 @@
 
     <!--    Other   -->
     <section class="filter-group">
-      <label class="section-label">Feature Type</label>
+      <div class="label-container">
+        <label class="section-label">Feature Type</label>
+      </div>
       <mat-form-field appearance="outline">
         <input formControlName="featureType" matInput
                placeholder="e.g. DOMAIN" title="Feature Type"
         />
       </mat-form-field>
-
-      <label class="section-label">Cross-Ref Source</label>
+      <div class="label-container">
+        <label class="section-label">Cross-Ref Source</label>
+      </div>
       <mat-form-field appearance="outline">
         <input formControlName="crossRefSource" matInput
                placeholder="e.g. InterPro" title="Cross-Reference Source"

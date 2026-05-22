@@ -1,0 +1,40 @@
+<section class="section-group">
+  @if (label()) {
+    <div class="label-container">
+      <label class="section-label">{{ label() }}</label>
+
+      @if (hintLabel()) {
+        <mat-icon
+          [matTooltip]="hintLabel()"
+          class="help-icon"
+          matTooltipPosition="above">
+          help_outline
+        </mat-icon>
+      }
+    </div>
+  }
+
+  <div [formGroup]="rangeForm" class="range-row">
+    <mat-form-field appearance="outline">
+      <input
+        (blur)="onTouch()"
+        [placeholder]="minPlaceholder()"
+        [title]="label() + ' Minimum'"
+        formControlName="min"
+        matInput
+        type="number"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <input
+        (blur)="onTouch()"
+        [placeholder]="maxPlaceholder()"
+        [title]="label() + ' Maximum'"
+        formControlName="max"
+        matInput
+        type="number"
+      />
+    </mat-form-field>
+  </div>
+</section>

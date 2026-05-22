@@ -1,3 +1,5 @@
+@use "form-shared" as shared;
+
 .filters-header {
   display: flex;
   align-items: center;
@@ -17,7 +19,6 @@
 .filters-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   padding-top: 1rem;
   overflow-y: auto;
   height: calc(100vh - 180px);
@@ -25,38 +26,11 @@
 }
 
 .filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    min-height: 36px !important; // Controls the total visible container height
-    height: 36px !important;
-  }
-
-  ::ng-deep .mat-mdc-form-field-flex {
-    align-items: center !important;
-    height: 100% !important;
-  }
-
-  ::ng-deep input.mat-mdc-form-field-input {
-    height: auto !important;
-    line-height: normal !important;
-  }
+  @include shared.filter-section-group;
 }
 
-.section-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface);
-}
-
-.range-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.label-container {
+  @include shared.filter-label-container;
 }
 
 .checkbox-flex {

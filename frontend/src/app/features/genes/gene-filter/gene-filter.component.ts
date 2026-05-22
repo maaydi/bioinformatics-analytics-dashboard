@@ -7,11 +7,13 @@ import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/list';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {MatError, MatFormField, MatInput, MatSuffix} from '@angular/material/input';
+import {MatError, MatFormField, MatInput} from '@angular/material/input';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/models/protein.model';
+import {InputComponent} from '@shared/components/input/input.component';
+import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
 
 /**
  * Presentational (dumb) filter panel component.
@@ -34,7 +36,7 @@ import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/model
  */
 @Component({
   selector: 'app-gene-filter',
-  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatSuffix, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption],
+  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption, InputComponent, RangeInputComponent],
   templateUrl: './gene-filter.component.html',
   styleUrl: './gene-filter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,10 +57,8 @@ export class GeneFilterComponent {
     organism: [''],
     taxid: [null as number | null],
     lineage: [''],
-    lengthMin: [null as number | null],
-    lengthMax: [null as number | null],
-    molecularWeightMin: [null as number | null],
-    molecularWeightMax: [null as number | null],
+    length: [{min: null as number | null, max: null as number | null}],
+    molecularWeight: [{min: null as number | null, max: null as number | null}],
     evidenceLevels: [[] as EvidenceLevel[]],
     keywords: [[] as string[]],
     goTermId: ['', [Validators.pattern(/^GO:\d{7}$/)]],
@@ -94,10 +94,8 @@ export class GeneFilterComponent {
       organism: '',
       taxid: null,
       lineage: '',
-      lengthMin: null,
-      lengthMax: null,
-      molecularWeightMin: null,
-      molecularWeightMax: null,
+      length: {min: null, max: null},
+      molecularWeight: {min: null, max: null},
       evidenceLevels: [],
       keywords: [],
       goTermId: null,
@@ -140,6 +138,10 @@ export class GeneFilterComponent {
     const rawValue = this.form.getRawValue();
     return {
       ...rawValue,
+      lengthMin: rawValue.length ? rawValue.length.min : null,
+      lengthMax: rawValue.length ? rawValue.length.max : null,
+      molecularWeightMin: rawValue.molecularWeight ? rawValue.molecularWeight.min : null,
+      molecularWeightMax: rawValue.molecularWeight ? rawValue.molecularWeight.max : null,
       goAspect: rawValue.goAspect ?? null,
       goTermId: rawValue.goTermId && rawValue.goTermId !== '' ? rawValue.goTermId : null
     };
