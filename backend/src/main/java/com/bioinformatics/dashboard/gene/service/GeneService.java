@@ -8,7 +8,9 @@ import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
+import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 public class GeneService {
 
     private final ProteinEntryRepository repository;
+    private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
@@ -101,4 +105,10 @@ public class GeneService {
 
     }
 
+    public List<String> listKeywords() {
+        return keywordRepository.findAll()
+                .stream()
+                .map(Keyword::getName)
+                .toList();
+    }
 }

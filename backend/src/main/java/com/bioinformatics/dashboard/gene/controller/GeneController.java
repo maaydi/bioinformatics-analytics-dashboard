@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * REST controller for gene/protein endpoints.
@@ -94,5 +95,10 @@ public class GeneController {
             }
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to export csv " + e.getMessage());
         }
+    }
+
+    @GetMapping(value = "/keywords")
+    public List<String> loadKeywords() {
+        return geneService.listKeywords();
     }
 }
