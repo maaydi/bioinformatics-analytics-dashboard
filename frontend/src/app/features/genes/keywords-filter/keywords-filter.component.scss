@@ -1,0 +1,26 @@
+.keywords-search-field {
+  width: 100%;
+  display: block;
+}
+
+.selected-count {
+  font-size: 0.75rem;
+  color: var(--mat-sys-primary, #1976d2);
+  font-weight: 500;
+  margin-right: 0.25rem;
+}
+
+.keyword-option {
+  ::ng-deep(.mat-mdc-option-text) {
+    width: 100%;
+  }
+
+  mat-checkbox {
+    width: 100%;
+    pointer-events: none;
+
+    ::ng-deep(.mdc-form-field) {
+      width: 100%;
+    }
+  }
+}

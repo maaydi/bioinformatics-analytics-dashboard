@@ -14,6 +14,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
 import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/models/protein.model';
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
+import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
 
 /**
  * Presentational (dumb) filter panel component.
@@ -36,7 +37,7 @@ import {RangeInputComponent} from '@shared/components/range-input/range-input.co
  */
 @Component({
   selector: 'app-gene-filter',
-  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption, InputComponent, RangeInputComponent],
+  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption, InputComponent, RangeInputComponent, KeywordsFilterComponent],
   templateUrl: './gene-filter.component.html',
   styleUrl: './gene-filter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,10 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ProteinSummary, ProteinDetail } from '../../core/models/protein.model';
-import { PagedResponse } from '../../core/models/paged-response.model';
-import { GeneFilterSnapshot } from '../../core/models/saved-filter.model';
-import { environment } from '../../../environments/environment';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ProteinDetail, ProteinSummary} from '../../core/models/protein.model';
+import {PagedResponse} from '../../core/models/paged-response.model';
+import {GeneFilterSnapshot} from '../../core/models/saved-filter.model';
+import {environment} from '../../../environments/environment';
 
 /**
  * Service for gene/protein API calls.
@@ -43,5 +43,9 @@ export class GenesService {
 
   exportCsv(filter: GeneFilterSnapshot): Observable<Blob> {
     return this.http.post(`${this.baseUrl}/export-csv`, filter, { responseType: 'blob' });
+  }
+
+  loadKeywords(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/keywords`);
   }
 }

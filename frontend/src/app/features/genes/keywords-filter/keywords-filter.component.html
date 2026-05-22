@@ -1,0 +1,36 @@
+<mat-form-field [hintLabel]="getSelectedKeywords()" appearance="outline" class="keywords-search-field">
+  <input
+    (blur)="onTouched()"
+    [disabled]="isDisabled"
+    [formControl]="keywordSearchCtrl"
+    [matAutocomplete]="auto"
+    aria-label="Search and select keywords"
+    matInput
+    placeholder="e.g. Kinase, Receptor"
+  />
+</mat-form-field>
+
+<mat-autocomplete
+  #auto="matAutocomplete"
+  (optionSelected)="toggleKeyword($event)"
+  [panelWidth]="'auto'"
+  class="keywords-autocomplete-panel"
+>
+  @if (filteredKeywords$ | async; as keywords) {
+    @if (keywords.length === 0) {
+      <mat-option disabled>No keywords found</mat-option>
+    }
+    @for (keyword of keywords; track keyword) {
+      <mat-option [value]="keyword" class="keyword-option">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          [aria-label]="keyword"
+          [checked]="isSelected(keyword)"
+          tabindex="-1"
+        >
+          {{ keyword }}
+        </mat-checkbox>
+      </mat-option>
+    }
+  }
+</mat-autocomplete>

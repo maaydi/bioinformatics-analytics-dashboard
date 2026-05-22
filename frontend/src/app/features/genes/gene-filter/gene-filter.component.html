@@ -150,15 +150,10 @@
 
     <!--    Keywords   -->
     <section class="filter-group">
-      <label class="section-label">Keywords</label>
-      <mat-form-field appearance="outline">
-        <input disabled
-               matInput
-               placeholder="e.g. Not implemented"
-               title="Keywords"
-        />
-        <!--               TODO add it -->
-      </mat-form-field>
+      <div class="label-container">
+        <label class="section-label">Keywords</label>
+      </div>
+      <app-keywords-filter formControlName="keywords"></app-keywords-filter>
     </section>
     <!--    Submit button   -->
     <section class="filter-actions">
