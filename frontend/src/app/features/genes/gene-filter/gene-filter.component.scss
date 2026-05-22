@@ -59,10 +59,15 @@
   gap: 1rem;
 }
 
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
+.checkbox-flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.checkbox-flex mat-checkbox {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .validation-error {

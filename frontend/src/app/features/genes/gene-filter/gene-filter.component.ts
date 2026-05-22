@@ -11,6 +11,7 @@ import {MatError, MatFormField, MatInput, MatSuffix} from '@angular/material/inp
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
+import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/models/protein.model';
 
 /**
  * Presentational (dumb) filter panel component.
@@ -39,7 +40,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
-  readonly evidenceLevels = [1, 2, 3, 4, 5];
+  readonly evidenceLevels = EVIDENCE_LEVELS;
   private readonly fb = inject(FormBuilder);
 
   readonly filterChange = output<GeneFilterSnapshot>();
@@ -58,7 +59,7 @@ export class GeneFilterComponent {
     lengthMax: [null as number | null],
     molecularWeightMin: [null as number | null],
     molecularWeightMax: [null as number | null],
-    evidenceLevels: [[] as number[]],
+    evidenceLevels: [[] as EvidenceLevel[]],
     keywords: [[] as string[]],
     goTermId: ['', [Validators.pattern(/^GO:\d{7}$/)]],
     goAspect: [null as 'P' | 'F' | 'C' | null],
@@ -81,14 +82,6 @@ export class GeneFilterComponent {
     this.filterChange.emit(snapshot);
   }
 
-  toggleEvidence(level: number): void {
-    const current = this.form.controls.evidenceLevels.value ?? [];
-    const updated = current?.includes(level)
-      ? current.filter((v) => v != level)
-      : [...current, level];
-    this.form.controls.evidenceLevels.setValue(updated);
-    this.applyFilters();
-  }
 
   protected clearAll() {
     this.form.reset({
@@ -115,8 +108,21 @@ export class GeneFilterComponent {
     this.filterClear.emit();
   }
 
-  protected isEvidenceSelected(level: number): boolean | undefined {
+  toggleEvidence(level: EvidenceLevel): void {
+    const current = this.form.controls.evidenceLevels.value ?? [];
+    const updated = current?.includes(level)
+      ? current.filter((v) => v != level)
+      : [...current, level];
+    this.form.controls.evidenceLevels.setValue(updated);
+    this.applyFilters();
+  }
+
+  protected isEvidenceSelected(level: EvidenceLevel): boolean | undefined {
     return this.form.controls.evidenceLevels.value?.includes(level);
+  }
+
+  protected getEvidenceLevel(level: EvidenceLevel): String {
+    return `${level} - ${EVIDENCE_LEVEL_LABELS[level]}`;
   }
 
   private listenToGlobalSearch(): void {

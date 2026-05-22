@@ -144,11 +144,11 @@
     <!-- Evidence level -->
     <section class="filter-group">
       <label class="section-label">Evidence Levels</label>
-      <div class="checkbox-grid">
+      <div class="checkbox-flex">
         @for (level of evidenceLevels; track level) {
           <mat-checkbox (change)="toggleEvidence(level)"
                         [checked]="isEvidenceSelected(level)">
-            {{ level }}
+            {{ getEvidenceLevel(level) }}
           </mat-checkbox>
         }
       </div>
