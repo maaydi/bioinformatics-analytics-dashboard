@@ -12,3 +12,60 @@
 - `genes.service.ts` exists at `features/genes/genes.service.ts`; implementation status unknown.
 - Signal store (`filters.store.ts`) is absent — needs to be created.
 - Implementation not yet started.
+
+## 2026-05-22
+
+### Implementation review (actual state)
+
+- Reviewed scope against `overview.md`, `plan.md`, and current implementation in `frontend/src/app/features/genes`,
+  `frontend/src/app/shared/components/input`, and `frontend/src/app/shared/components/range-input`.
+
+#### Done
+
+- [x] Signal-based feature store exists and wires search/loading/error/result state (
+  `frontend/src/app/features/genes/state/filters.store.ts`).
+- [x] Filter panel component exists with reactive form and most required controls (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
+- [x] Global search debounce is implemented with `debounceTime(400)` and `distinctUntilChanged()` (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
+- [x] Evidence-level multi-select behavior is implemented and mapped into API snapshot (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
+- [x] Active filter chips are rendered above the table (
+  `frontend/src/app/features/genes/genes-table/genes-table.component.ts`,
+  `frontend/src/app/features/genes/genes-table/genes-table.component.html`).
+- [x] Loading, error, and empty states are present in table rendering (
+  `frontend/src/app/features/genes/genes-table/genes-table.component.html`).
+- [x] `ChangeDetectionStrategy.OnPush` is set on key feature components (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`,
+  `frontend/src/app/features/genes/genes-table/genes-table.component.ts`,
+  `frontend/src/app/features/genes/genes-page/genes-page.component.ts`).
+- [x] Unit tests exist for `GeneFilterComponent` (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.spec.ts`).
+
+#### Not done
+
+- [x] `GeneFilterComponent` template does not render the required `Gene Name` field (`geneNamePrimary`) (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
+- [ ] Required cross-field validators are missing: `lengthRangeValidator` and `molecularWeightRangeValidator`; min > max
+  is not blocked before submit (`frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
+- [ ] Inline range validation errors for invalid min/max combinations are not implemented in the filter UI (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
+- [ ] Active filter chips are not dismissible and there is no per-chip clear action (
+  `frontend/src/app/features/genes/genes-table/genes-table.component.html`,
+  `frontend/src/app/features/genes/genes-table/genes-table.component.ts`).
+- [ ] "Clear All" clears local state but does not reload unfiltered table results as required (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`,
+  `frontend/src/app/features/genes/genes-page/genes-page.component.html`,
+  `frontend/src/app/features/genes/state/filters.store.ts`).
+- [ ] Filter state is not persistent across page navigation because `GenesStore` is provided at page component level (
+  `frontend/src/app/features/genes/genes-page/genes-page.component.ts`).
+- [ ] `GenesService` is not aligned with the planned/contract method surface (`search`, `getById`, `exportCsv`
+  contract-centric naming/signature) (`frontend/src/app/features/genes/genes.service.ts`,
+  `documentation/implementation/GENE-002/plan.md`).
+- [ ] `GenesService` unit tests are missing (`frontend/src/app/features/genes`).
+- [ ] Table uses `NgClass`/`[ngClass]` despite project constraint to avoid it (
+  `frontend/src/app/features/genes/genes-table/genes-table.component.ts`,
+  `frontend/src/app/features/genes/genes-table/genes-table.component.html`).
+- [ ] Shared components still explicitly set `standalone: true`, which conflicts with project Angular v20+ rule (
+  `frontend/src/app/shared/components/input/input.component.ts`,
+  `frontend/src/app/shared/components/range-input/range-input.component.ts`).
