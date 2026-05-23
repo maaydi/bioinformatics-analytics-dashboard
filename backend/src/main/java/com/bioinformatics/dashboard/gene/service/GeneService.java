@@ -11,7 +11,6 @@ import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -49,7 +48,6 @@ public class GeneService {
     /**
      * Returns a paginated, optionally sorted list of all proteins.
      *
-     * @see documentation/api-contract.md — GET /api/genes
      */
     public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
         var page = proteinService.findAll(pageable);
@@ -60,7 +58,6 @@ public class GeneService {
     /**
      * Returns a paginated filtered result set.
      *
-     * @see documentation/api-contract.md — POST /api/genes/search
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         var page = request.getRequestPage(SORT_WHITELIST, "id");
@@ -75,7 +72,6 @@ public class GeneService {
      * Returns the full detail of a single protein entry.
      *
      * @throws com.bioinformatics.dashboard.exception.ResourceNotFoundException if not found
-     * @see documentation/api-contract.md — GET /api/genes/{id}
      */
     @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
@@ -88,7 +84,6 @@ public class GeneService {
      * Streams all filtered rows as CSV into the provided writer.
      * Page configuration is ignored and all data are returned
      *
-     * @see documentation/api-contract.md — POST /api/genes/export-csv
      */
     public void exportCsv(GeneSearchRequest request, Writer writer) throws IOException {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
