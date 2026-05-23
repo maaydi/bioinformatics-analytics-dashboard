@@ -7,7 +7,6 @@ import {MatTooltip} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-input',
-  standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatTooltip],
   templateUrl: './input.component.html',
   styleUrls: ['./input.component.scss'],

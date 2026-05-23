@@ -66,6 +66,6 @@
 - [x] Table uses `NgClass`/`[ngClass]` despite project constraint to avoid it (
   `frontend/src/app/features/genes/genes-table/genes-table.component.ts`,
   `frontend/src/app/features/genes/genes-table/genes-table.component.html`).
-- [ ] Shared components still explicitly set `standalone: true`, which conflicts with project Angular v20+ rule (
+- [x] Shared components still explicitly set `standalone: true`, which conflicts with project Angular v20+ rule (
   `frontend/src/app/shared/components/input/input.component.ts`,
   `frontend/src/app/shared/components/range-input/range-input.component.ts`).

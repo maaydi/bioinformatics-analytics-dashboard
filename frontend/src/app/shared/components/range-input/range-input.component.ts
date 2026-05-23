@@ -22,7 +22,6 @@ export interface RangeValue {
 
 @Component({
   selector: 'app-range-input',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
