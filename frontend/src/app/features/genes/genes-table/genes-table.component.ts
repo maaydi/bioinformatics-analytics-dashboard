@@ -16,7 +16,6 @@ import {
   MatTable
 } from '@angular/material/table';
 import {MatIcon} from '@angular/material/icon';
-import {NgClass} from '@angular/common';
 
 type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string };
 
@@ -51,7 +50,6 @@ type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string 
     MatRow,
     MatHeaderRowDef,
     MatRowDef,
-    NgClass,
     MatChipRemove
   ],
   templateUrl: './genes-table.component.html',
