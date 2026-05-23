@@ -19,7 +19,6 @@ import {GenesStore} from '@features/genes/state/filters.store';
     GeneFilterComponent,
     GenesTableComponent
   ],
-  providers: [GenesStore],
   templateUrl: './genes-page.component.html',
   styleUrl: './genes-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

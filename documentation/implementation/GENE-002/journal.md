@@ -53,11 +53,11 @@
 - [x] Active filter chips are not dismissible and there is no per-chip clear action (
   `frontend/src/app/features/genes/genes-table/genes-table.component.html`,
   `frontend/src/app/features/genes/genes-table/genes-table.component.ts`).
-- [ ] "Clear All" clears local state but does not reload unfiltered table results as required (
+- [x] "Clear All" clears local state but does not reload unfiltered table results as required (
   `frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`,
   `frontend/src/app/features/genes/genes-page/genes-page.component.html`,
   `frontend/src/app/features/genes/state/filters.store.ts`).
-- [ ] Filter state is not persistent across page navigation because `GenesStore` is provided at page component level (
+- [x] Filter state is not persistent across page navigation because `GenesStore` is provided at page component level (
   `frontend/src/app/features/genes/genes-page/genes-page.component.ts`).
 - [ ] `GenesService` is not aligned with the planned/contract method surface (`search`, `getById`, `exportCsv`
   contract-centric naming/signature) (`frontend/src/app/features/genes/genes.service.ts`,
