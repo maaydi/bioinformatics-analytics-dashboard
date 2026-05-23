@@ -53,8 +53,9 @@
       <ng-container matColumnDef="reviewed">
         <th *matHeaderCellDef mat-header-cell>Reviewed</th>
         <td *matCellDef="let row" mat-cell>
-          <span [ngClass]="row.reviewed ? 'is-reviewed' : 'not-reviewed'"
-                class="review-badge">{{ row.reviewed ? 'Yes' : 'No' }}</span>
+          <span [class.is-reviewed]="row.reviewed" [class.not-reviewed]="!row.reviewed" class="review-badge">
+            {{ row.reviewed ? 'Yes' : 'No' }}
+          </span>
         </td>
       </ng-container>
 
@@ -62,7 +63,7 @@
       <ng-container matColumnDef="evidenceLevel">
         <th *matHeaderCellDef mat-header-cell>Evidence</th>
         <td *matCellDef="let row" mat-cell>
-          <span [ngClass]="'level-' + row.evidenceLevel" class="evidence-badge">{{ row.evidenceLevel }}</span>
+          <span [class]="'evidence-badge level-' + row.evidenceLevel">{{ row.evidenceLevel }}</span>
         </td>
       </ng-container>
 
