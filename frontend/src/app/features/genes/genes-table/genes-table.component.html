@@ -1,1 +1,93 @@
-<p>AG Grid table — TODO: implement</p>
+<div class="gene-table-title">
+  <span>Gene Results</span>
+</div>
+
+@if (filtersChips().length > 0) {
+  <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
+    @for (chip of filtersChips(); track chip.label + chip.value) {
+      <mat-chip (removed)="removeFilter(chip.key)" removable>{{ chip.label }}: {{ chip.value }}
+        <button aria-label="Remove Filter" matChipRemove>
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    }
+  </mat-chip-set>
+}
+@if (loading()) {
+  <div class="table-state">loading gene results...</div>
+} @else if ((data()?.content?.length ?? 0) > 0 && filtersChips().length > 0) {
+  <div class="table-responsive-container">
+    <table [dataSource]="data()!.content" class="mat-elevation-z1 gene-result-table"
+           mat-table>
+      <ng-container matColumnDef="accession">
+        <th *matHeaderCellDef mat-header-cell>Accession</th>
+        <td *matCellDef="let row" mat-cell>
+          <span class="accession-col">{{ row.accession }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="entryName">
+        <th *matHeaderCellDef mat-header-cell>Entry Name</th>
+        <td *matCellDef="let row" mat-cell>{{ row.entryName }}</td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="proteinFullName">
+        <th *matHeaderCellDef mat-header-cell>Protein Name</th>
+        <td *matCellDef="let row" mat-cell>{{ row.proteinFullName }}</td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="organismName">
+        <th *matHeaderCellDef mat-header-cell>Organism</th>
+        <td *matCellDef="let row" mat-cell>{{ row.organismName }}</td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="length">
+        <th *matHeaderCellDef mat-header-cell>Length</th>
+        <td *matCellDef="let row" mat-cell>{{ row.length }}</td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="reviewed">
+        <th *matHeaderCellDef mat-header-cell>Reviewed</th>
+        <td *matCellDef="let row" mat-cell>
+          <span [class.is-reviewed]="row.reviewed" [class.not-reviewed]="!row.reviewed" class="review-badge">
+            {{ row.reviewed ? 'Yes' : 'No' }}
+          </span>
+        </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="evidenceLevel">
+        <th *matHeaderCellDef mat-header-cell>Evidence</th>
+        <td *matCellDef="let row" mat-cell>
+          <span [class]="'evidence-badge level-' + row.evidenceLevel">{{ row.evidenceLevel }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell>More</th>
+        <td *matCellDef="let row" mat-cell>
+          <button (click)="selectRowSummary(row)"
+                  aria-label="View gene summary"
+                  class="more-button"
+                  title="View Gene Summary"
+                  type="button">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let _; columns:displayedColumns" mat-row></tr>
+
+
+    </table>
+  </div>
+} @else if (errorMessage()) {
+  <div class="error-msg">{{ errorMessage() }}</div>
+} @else {
+  <div class="table-state">No gene results yes. Apply filters to search.</div>
+}

@@ -1,3 +1,62 @@
-:host {
-  display: block;
+@use "form-shared" as shared;
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+}
+
+.filter-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 60%;
+}
+
+.filters-form {
+  display: flex;
+  flex-direction: column;
+  padding-top: 1rem;
+  overflow-y: auto;
+  height: calc(100vh - 180px);
+  padding-right: 0.5rem;
+}
+
+.filter-group {
+  @include shared.filter-section-group;
+}
+
+.label-container {
+  @include shared.filter-label-container;
+}
+
+.checkbox-flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.checkbox-flex mat-checkbox {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.filter-actions {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid whitesmoke;
+}
+
+.filter-actions button {
+  width: 100%;
+}
+
+.error-message {
+  @include shared.filter-error-message;
 }

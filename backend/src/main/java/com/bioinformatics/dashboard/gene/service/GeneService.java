@@ -8,7 +8,9 @@ import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
+import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 public class GeneService {
 
     private final ProteinEntryService proteinService;
+    private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
@@ -44,7 +48,6 @@ public class GeneService {
     /**
      * Returns a paginated, optionally sorted list of all proteins.
      *
-     * @see documentation/api-contract.md — GET /api/genes
      */
     public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
         var page = proteinService.findAll(pageable);
@@ -55,7 +58,6 @@ public class GeneService {
     /**
      * Returns a paginated filtered result set.
      *
-     * @see documentation/api-contract.md — POST /api/genes/search
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         var page = request.getRequestPage(SORT_WHITELIST, "id");
@@ -70,7 +72,6 @@ public class GeneService {
      * Returns the full detail of a single protein entry.
      *
      * @throws com.bioinformatics.dashboard.exception.ResourceNotFoundException if not found
-     * @see documentation/api-contract.md — GET /api/genes/{id}
      */
     @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
@@ -83,7 +84,6 @@ public class GeneService {
      * Streams all filtered rows as CSV into the provided writer.
      * Page configuration is ignored and all data are returned
      *
-     * @see documentation/api-contract.md — POST /api/genes/export-csv
      */
     public void exportCsv(GeneSearchRequest request, Writer writer) throws IOException {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
@@ -99,4 +99,10 @@ public class GeneService {
 
     }
 
+    public List<String> listKeywords() {
+        return keywordRepository.findAll()
+                .stream()
+                .map(Keyword::getName)
+                .toList();
+    }
 }

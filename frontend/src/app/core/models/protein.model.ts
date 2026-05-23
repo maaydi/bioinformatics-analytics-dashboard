@@ -89,7 +89,9 @@ export interface HostOrganismItem {
 }
 
 /** Evidence level codes 1–5. See documentation/glossary.md */
-export type EvidenceLevel = 1 | 2 | 3 | 4 | 5;
+export const EVIDENCE_LEVELS = [1, 2, 3, 4, 5] as const;
+
+export type EvidenceLevel = typeof EVIDENCE_LEVELS[number];
 
 export const EVIDENCE_LEVEL_LABELS: Record<EvidenceLevel, string> = {
   1: 'Protein level',

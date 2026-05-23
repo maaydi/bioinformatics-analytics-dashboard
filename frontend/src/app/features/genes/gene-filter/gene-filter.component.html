@@ -1,1 +1,198 @@
-<form><!-- TODO: filter fields --></form>
+<mat-card-header class="filters-header">
+  <div class="filter-title">
+    <mat-icon>filter_list</mat-icon>
+    <span>Filters</span>
+  </div>
+  <button (click)="clearAll()"
+          color="primary"
+          mat-button
+          title="Clear all filters"
+          type="button">
+    <mat-icon>delete_sweep</mat-icon>
+    Clear All
+  </button>
+</mat-card-header>
+<mat-divider/>
+<mat-card-content>
+  <form (ngSubmit)="applyFilters()"
+        [formGroup]="form"
+        class="filters-form"
+  >
+    <!--  Global Search -->
+    <app-input
+      [isSearch]="true"
+      formControlName="globalSearch"
+      hintLabel="Search across all indexed fields"
+      placeholder="Search proteins, genes, organisms"
+      title="Global Search"
+    >
+    </app-input>
+    @if (form.controls.globalSearch.touched && form.controls.globalSearch.hasError('maxlength')) {
+      <mat-error class="error-message">Global Search is limited to 200 characters.</mat-error>
+    }
+    <!--  Basic fields -->
+    <app-input
+      formControlName="accession"
+      placeholder="e.g. P12345"
+      title="Accession"
+    >
+    </app-input>
+    @if (form.controls.accession.touched && form.controls.accession.hasError('maxlength')) {
+      <mat-error class="error-message">Accession is limited to 20 characters.</mat-error>
+    }
+    <app-input
+      formControlName="entryName"
+      placeholder="e.g. 001R_FRG3G"
+      title="Entry Name"
+    ></app-input>
+    <app-input
+      formControlName="geneNamePrimary"
+      placeholder="e.g. 1-CysPxn {ECO:0000305}"
+      title="Gene Name"
+    >
+    </app-input>
+    @if (form.controls.geneNamePrimary.touched && form.controls.geneNamePrimary.hasError('maxlength')) {
+      <mat-error class="error-message">Gene Name is limited to 100 characters.</mat-error>
+    }
+    <app-input formControlName="proteinFullName"
+               placeholder="e.g. Breast cancer type 1"
+               title="Protein Name"
+    >
+    </app-input>
+    <app-input formControlName="organism"
+               placeholder="e.g. Homo Sapiens"
+               title="Organism"
+    >
+    </app-input>
+    @if (form.controls.organism.touched && form.controls.organism.hasError('maxlength')) {
+      <mat-error class="error-message">Organism is limited to 300 characters.</mat-error>
+    }
+    <app-input formControlName="taxid"
+               placeholder="e.g. 9606"
+               title="Taxonomy ID"
+    >
+    </app-input>
+    @if (form.controls.taxid.touched && form.controls.taxid.hasError('min')) {
+      <mat-error class="error-message">Taxonomy ID must be greater than 0.</mat-error>
+    }
+    @if (form.controls.taxid.touched && form.controls.taxid.hasError('taxidPositiveInteger')) {
+      <mat-error class="error-message">Taxonomy ID must be a positive integer.</mat-error>
+    }
+    <app-input formControlName="lineage"
+               placeholder="e.g. Eukaryota; Metazoa"
+               title="Lineage"
+    >
+    </app-input>
+    <!--    Reviewed   -->
+    <section class="filter-group">
+      <div class="label-container">
+        <label class="section-label">Reviewed</label>
+      </div>
+      <mat-button-toggle-group formControlName="reviewed">
+        <mat-button-toggle [value]="null">All</mat-button-toggle>
+        <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+        <mat-button-toggle [value]="false">No</mat-button-toggle>
+      </mat-button-toggle-group>
+      <div style="margin-bottom: 0.75rem"></div>
+    </section>
+
+    <!--    Length   -->
+    <app-range-input
+      formControlName="length"
+      hintLabel="Filter results by length"
+      label="Length (aa)"
+    ></app-range-input>
+    <!--    Molecular weight  -->
+    <app-range-input
+      formControlName="molecularWeight"
+      hintLabel="Filter results by molecular mass bounds"
+      label="Molecular Weight (kDa)">
+    </app-range-input>
+    <!-- Evidence level -->
+    <section class="filter-group">
+      <div class="label-container">
+        <label class="section-label">Evidence Levels</label>
+      </div>
+      <div class="checkbox-flex">
+        @for (level of evidenceLevels; track level) {
+          <mat-checkbox (change)="toggleEvidence(level)"
+                        [checked]="isEvidenceSelected(level)">
+            {{ getEvidenceLevel(level) }}
+          </mat-checkbox>
+        }
+      </div>
+    </section>
+    <!--    Go Term    -->
+    <section class="filter-group">
+      <div class="label-container">
+        <label class="section-label">Go Term ID</label>
+      </div>
+      <mat-form-field appearance="outline">
+        <input formControlName="goTermId"
+               matInput
+               placeholder="GO:0008150"
+               title="Go Term ID"/>
+        @if (form.get('goTermId')?.hasError('pattern')) {
+          <mat-error class="error-message">Format must be GO:1234567</mat-error>
+        }
+      </mat-form-field>
+      <div class="label-container">
+        <label class="section-label">Go Aspect</label>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-select formControlName="goAspect"
+                    placeholder="Select 60 Aspect"
+                    title="Go Aspect">
+          <mat-option [value]="null">All</mat-option>
+          <mat-option value="P">Biological Process</mat-option>
+          <mat-option value="F">Molecular Function</mat-option>
+          <mat-option value="C">Cellular Component</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+
+    <!--    Other   -->
+    <section class="filter-group">
+      <div class="label-container">
+        <label class="section-label">Feature Type</label>
+      </div>
+      <mat-form-field appearance="outline">
+        <input formControlName="featureType" matInput
+               placeholder="e.g. DOMAIN" title="Feature Type"
+        />
+      </mat-form-field>
+      <div class="label-container">
+        <label class="section-label">Cross-Ref Source</label>
+      </div>
+      <mat-form-field appearance="outline">
+        <input formControlName="crossRefSource" matInput
+               placeholder="e.g. InterPro" title="Cross-Reference Source"
+        />
+      </mat-form-field>
+    </section>
+
+    <!--    Keywords   -->
+    <section class="filter-group">
+      <div class="label-container">
+        <label class="section-label">Keywords</label>
+      </div>
+      <app-keywords-filter formControlName="keywords"></app-keywords-filter>
+      @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordsMaxCount')) {
+        <mat-error class="error-message">Maximum 10 keywords are allowed.</mat-error>
+      }
+      @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordMaxLength')) {
+        <mat-error class="error-message">Each keyword must be at most 100 characters.</mat-error>
+      }
+    </section>
+    <!--    Submit button   -->
+    <section class="filter-actions">
+      <button [disabled]="form.invalid"
+              color="primary"
+              mat-flat-button
+              title="Apply filters"
+              type="submit"
+      >Apply Filters
+      </button>
+    </section>
+  </form>
+</mat-card-content>

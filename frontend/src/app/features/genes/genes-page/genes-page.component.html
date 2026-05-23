@@ -1,4 +1,19 @@
-<h1>Gene Explorer</h1>
-<!-- TODO: GeneFilterComponent -->
-<!-- TODO: GenesTableComponent (AG Grid) -->
-<!-- TODO: Export CSV button -->
+<div class="page-container">
+  <!-- Filters side bar -->
+  <mat-card appearance="outlined" class="filter-card">
+    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"
+                     [value]="store.activeFilters()"></app-gene-filter>
+  </mat-card>
+  <!--  Result table View  -->
+  <mat-card class="result-card">
+    <app-genes-table
+      (rowClick)="store.selectGeneSummary($event)"
+      [data]="store.searchResult()"
+      [errorMessage]="store.onErrorMessage()"
+      [filters]="store.activeFilters()"
+      [loading]="store.loading()"
+      (filterRemoved)="store.removeFilter($event)"
+    >
+    </app-genes-table>
+  </mat-card>
+</div>

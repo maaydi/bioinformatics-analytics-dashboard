@@ -1,0 +1,9 @@
+@use "form-shared" as shared;
+
+.section-group {
+  @include shared.filter-section-group;
+}
+
+.label-container {
+  @include shared.filter-label-container;
+}

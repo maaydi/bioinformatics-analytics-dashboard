@@ -1,0 +1,28 @@
+<section class="section-group">
+  @if (title()) {
+    <div class="label-container">
+      <label class="section-label">{{ title() }}</label>
+      @if (hintLabel()) {
+        <mat-icon
+          [matTooltip]="hintLabel()"
+          class="help-icon"
+          matTooltipPosition="above">
+          help_outline
+        </mat-icon>
+      }
+    </div>
+  }
+
+  <mat-form-field appearance="outline">
+    <input
+      (blur)="onTouch()"
+      [formControl]="internalControl"
+      [placeholder]="placeholder()"
+      [title]="title()"
+      matInput
+    />
+    @if (isSearch()) {
+      <mat-icon matSuffix>search</mat-icon>
+    }
+  </mat-form-field>
+</section>

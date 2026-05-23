@@ -9,6 +9,8 @@ import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
+import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
+import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,9 @@ class GeneServiceTest {
     ProteinEntryService proteinEntryService;
 
     @Mock
+    KeywordRepository keywordRepository;
+
+    @Mock
     GeneMapper mapper;
 
     AppProperties appProperties;
@@ -49,7 +54,7 @@ class GeneServiceTest {
         export.setCsv(new AppProperties.Csv());
         export.getCsv().setMaxRows(1000);
 
-        service = new GeneService(proteinEntryService, mapper, appProperties);
+        service = new GeneService(proteinEntryService, keywordRepository, mapper, appProperties);
     }
 
     private GeneSearchRequest buildRequest(
