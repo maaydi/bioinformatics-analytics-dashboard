@@ -1,5 +1,15 @@
 import {Component, forwardRef, input} from '@angular/core';
-import {ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  FormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validator
+} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
@@ -27,6 +37,11 @@ export interface RangeValue {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => RangeInputComponent),
       multi: true
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => RangeInputComponent),
+      multi: true
     }
   ]
 })
@@ -39,7 +54,7 @@ export interface RangeValue {
  * - `minPlaceholder`: placeholder for minimum value.
  * - `maxPlaceholder`: placeholder for maximum value.
  */
-export class RangeInputComponent implements ControlValueAccessor {
+export class RangeInputComponent implements ControlValueAccessor, Validator {
   label = input<string>('');
   hintLabel = input<string>('');
   minPlaceholder = input<string>('Min');
@@ -64,6 +79,18 @@ export class RangeInputComponent implements ControlValueAccessor {
 
   onTouch: any = () => {
   };
+
+
+  validate(control: AbstractControl): ValidationErrors | null {
+    return this.isMinGreaterThanMax() ? {minGreaterThanMax: true} : null;
+  }
+
+  protected isMinGreaterThanMax(): boolean {
+    const min = this.rangeForm.get('min')?.value;
+    const max = this.rangeForm.get('max')?.value;
+
+    return !!(min && max && min > max);
+  }
 
   /** Writes parent control value into the internal min/max form. */
   writeValue(value: RangeValue | null): void {
@@ -95,4 +122,5 @@ export class RangeInputComponent implements ControlValueAccessor {
       this.rangeForm.enable({emitEvent: false});
     }
   }
+
 }

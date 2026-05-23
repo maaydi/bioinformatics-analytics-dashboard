@@ -46,7 +46,7 @@
 
 - [x] `GeneFilterComponent` template does not render the required `Gene Name` field (`geneNamePrimary`) (
   `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
-- [ ] Required cross-field validators are missing: `lengthRangeValidator` and `molecularWeightRangeValidator`; min > max
+- [x] Required cross-field validators are missing: `lengthRangeValidator` and `molecularWeightRangeValidator`; min > max
   is not blocked before submit (`frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
 - [ ] Inline range validation errors for invalid min/max combinations are not implemented in the filter UI (
   `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
