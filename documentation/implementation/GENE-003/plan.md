@@ -14,12 +14,12 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] AG Grid dependency verified
-- [ ] GenesTableComponent implemented
-- [ ] GenesPageComponent implemented
-- [ ] Filter → table wiring done
-- [ ] All UI states implemented
+- [x] Requirements analyzed
+- [x] AG Grid dependency verified
+- [x] GenesTableComponent implemented
+- [x] GenesPageComponent implemented
+- [x] Filter → table wiring done
+- [x] All UI states implemented
 - [ ] Route configured
 - [ ] Unit tests written
 - [ ] Documentation updated
@@ -37,11 +37,11 @@
 
 ### `GenesTableComponent` (`features/genes/genes-table/`)
 
-- [ ] `genes-table.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `genes-table.component.html` — `<ag-grid-angular>` template
-- [ ] `genes-table.component.scss`
-- [ ] `input()` for `searchRequest: GeneSearchRequest`
-- [ ] `output()` `rowClicked` event emitting `ProteinSummary`
+- [x] `genes-table.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `genes-table.component.html` — `<ag-grid-angular>` template
+- [x] `genes-table.component.scss`
+- [x] `input()` for `searchRequest: GeneSearchRequest`
+- [x] `output()` `rowClicked` event emitting `ProteinSummary`
 - [ ] Column definitions:
     - [ ] `accession` — sortable, linkable
     - [ ] `geneNamePrimary` — sortable
