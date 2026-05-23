@@ -1,4 +1,4 @@
-import {Component, forwardRef, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input} from '@angular/core';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -16,7 +16,8 @@ import {MatTooltip} from '@angular/material/tooltip';
       useExisting: forwardRef(() => InputComponent),
       multi: true
     }
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 /**
  * Generic text input control compatible with reactive forms.
@@ -33,7 +34,13 @@ export class InputComponent implements ControlValueAccessor {
   placeholder = input<string>('Type here...');
   hintLabel = input<string>('');
 
-  internalControl = new FormControl('');
+  internalControl = new FormControl<string | null>('');
+
+  onChange: (value: string | null) => void = () => {
+  };
+
+  onTouch: () => void = () => {
+  };
 
   constructor() {
     this.internalControl.valueChanges.subscribe(value => {
@@ -41,24 +48,18 @@ export class InputComponent implements ControlValueAccessor {
     });
   }
 
-  onChange: any = () => {
-  };
-
-  onTouch: any = () => {
-  };
-
   /** Writes value from parent form control without re-emitting change events. */
-  writeValue(value: string): void {
-    this.internalControl.setValue(value, {emitEvent: false});
+  writeValue(value: string | null): void {
+    this.internalControl.setValue(value ?? '', {emitEvent: false});
   }
 
   /** Registers callback invoked on input value changes. */
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: string | null) => void): void {
     this.onChange = fn;
   }
 
   /** Registers callback invoked when the control is touched. */
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouch = fn;
   }
 

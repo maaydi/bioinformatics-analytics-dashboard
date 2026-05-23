@@ -25,7 +25,5 @@
 }
 
 .error-message {
-  font-weight: 400;
-  font-size: 0.75rem;
-  margin-bottom: 0.25rem;
+  @include shared.filter-error-message;
 }

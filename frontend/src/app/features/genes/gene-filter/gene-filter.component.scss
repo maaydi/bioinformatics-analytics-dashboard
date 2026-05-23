@@ -44,12 +44,6 @@
   margin-bottom: 0;
 }
 
-.validation-error {
-  font-size: 0.75rem;
-  color: red;
-  margin-top: -0.5rem;
-}
-
 .filter-actions {
   position: sticky;
   bottom: 0;
@@ -61,4 +55,8 @@
 
 .filter-actions button {
   width: 100%;
+}
+
+.error-message {
+  @include shared.filter-error-message;
 }

@@ -1,4 +1,4 @@
-import {Component, forwardRef, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, forwardRef, input} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -42,7 +42,8 @@ export interface RangeValue {
       useExisting: forwardRef(() => RangeInputComponent),
       multi: true
     }
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 /**
  * Numeric min/max range control compatible with reactive forms.
@@ -64,6 +65,12 @@ export class RangeInputComponent implements ControlValueAccessor, Validator {
     max: new FormControl<number | null>(null)
   });
 
+  onChange: (value: RangeValue) => void = () => {
+  };
+
+  onTouch: () => void = () => {
+  };
+
   constructor() {
     this.rangeForm.valueChanges.subscribe((value) => {
       this.onChange({
@@ -73,14 +80,7 @@ export class RangeInputComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  onChange: any = () => {
-  };
-
-  onTouch: any = () => {
-  };
-
-
-  validate(control: AbstractControl): ValidationErrors | null {
+  validate(_control: AbstractControl): ValidationErrors | null {
     return this.isMinGreaterThanMax() ? {minGreaterThanMax: true} : null;
   }
 
@@ -104,12 +104,12 @@ export class RangeInputComponent implements ControlValueAccessor, Validator {
   }
 
   /** Registers callback invoked when min/max values change. */
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: RangeValue) => void): void {
     this.onChange = fn;
   }
 
   /** Registers callback invoked when the control is touched. */
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouch = fn;
   }
 

@@ -1,5 +1,13 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {GeneFilterFormControls, GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
@@ -15,6 +23,48 @@ import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/model
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
 import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
+
+const MAX_GLOBAL_SEARCH_LENGTH = 200;
+const MAX_ACCESSION_LENGTH = 20;
+const MAX_GENE_NAME_PRIMARY_LENGTH = 100;
+const MAX_ORGANISM_LENGTH = 300;
+const MAX_KEYWORDS_COUNT = 10;
+const MAX_KEYWORD_LENGTH = 100;
+
+const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
+  const value = control.value;
+  if (value === null) {
+    return null;
+  }
+  if (!Number.isInteger(value) || value <= 0) {
+    return {taxidPositiveInteger: true};
+  }
+  return null;
+};
+
+const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null>): ValidationErrors | null => {
+  const keywords = control.value ?? [];
+
+  if (keywords.length > MAX_KEYWORDS_COUNT) {
+    return {
+      keywordsMaxCount: {
+        max: MAX_KEYWORDS_COUNT,
+        actual: keywords.length,
+      }
+    };
+  }
+
+  const oversizedKeyword = keywords.find((keyword) => keyword.length > MAX_KEYWORD_LENGTH);
+  if (oversizedKeyword) {
+    return {
+      keywordMaxLength: {
+        max: MAX_KEYWORD_LENGTH,
+      }
+    };
+  }
+
+  return null;
+};
 
 
 /**
@@ -38,21 +88,34 @@ import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-
 })
 export class GeneFilterComponent {
   readonly evidenceLevels = EVIDENCE_LEVELS;
-  private readonly fb = inject(FormBuilder);
 
   readonly value = input<GeneFilterSnapshot | null>(null);
 
   readonly filterChange = output<GeneFilterSnapshot>();
   readonly filterClear = output<void>();
   readonly form = new FormGroup<GeneFilterFormControls>({
-    globalSearch: new FormControl('', {nonNullable: false}),
-    accession: new FormControl('', {nonNullable: false}),
+    globalSearch: new FormControl('', {
+      nonNullable: false,
+      validators: [Validators.maxLength(MAX_GLOBAL_SEARCH_LENGTH)]
+    }),
+    accession: new FormControl('', {
+      nonNullable: false,
+      validators: [Validators.maxLength(MAX_ACCESSION_LENGTH)]
+    }),
     entryName: new FormControl('', {nonNullable: false}),
-    geneNamePrimary: new FormControl('', {nonNullable: false}),
+    geneNamePrimary: new FormControl('', {
+      nonNullable: false,
+      validators: [Validators.maxLength(MAX_GENE_NAME_PRIMARY_LENGTH)]
+    }),
     proteinFullName: new FormControl('', {nonNullable: false}),
     reviewed: new FormControl<boolean | null>(null),
-    organism: new FormControl('', {nonNullable: false}),
-    taxid: new FormControl<number | null>(null),
+    organism: new FormControl('', {
+      nonNullable: false,
+      validators: [Validators.maxLength(MAX_ORGANISM_LENGTH)]
+    }),
+    taxid: new FormControl<number | null>(null, {
+      validators: [Validators.min(1), taxidPositiveIntegerValidator]
+    }),
     lineage: new FormControl('', {nonNullable: false}),
 
     // Storing object values cleanly inside single form controls
@@ -60,7 +123,9 @@ export class GeneFilterComponent {
     molecularWeight: new FormControl<{ min: number | null; max: number | null }>({min: null, max: null}),
 
     evidenceLevels: new FormControl<EvidenceLevel[]>([]),
-    keywords: new FormControl<string[]>([]),
+    keywords: new FormControl<string[]>([], {
+      validators: [keywordsValidator],
+    }),
     goTermId: new FormControl('', {
       nonNullable: false,
       validators: [Validators.pattern(/^GO:\d{7}$/)]
@@ -78,7 +143,7 @@ export class GeneFilterComponent {
       if (currentFilters) {
         this.form.patchValue(this.toForm(currentFilters), {emitEvent: false});
       } else {
-        this.form.reset({}, {emitEvent: false});
+        this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
       }
     });
   }
@@ -105,25 +170,7 @@ export class GeneFilterComponent {
 
   /** Resets all filter fields to defaults and notifies the parent. */
   protected clearAll() {
-    this.form.reset({
-      globalSearch: '',
-      accession: '',
-      entryName: '',
-      geneNamePrimary: '',
-      proteinFullName: '',
-      reviewed: null,
-      organism: '',
-      taxid: null,
-      lineage: '',
-      length: {min: null, max: null},
-      molecularWeight: {min: null, max: null},
-      evidenceLevels: [],
-      keywords: [],
-      goTermId: null,
-      goAspect: null,
-      featureType: '',
-      crossRefSource: '',
-    }, {emitEvent: false});
+    this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
     this.filterClear.emit();
   }
 
@@ -181,6 +228,28 @@ export class GeneFilterComponent {
       goAspect: snapshot.goAspect,
       featureType: snapshot.featureType ?? '',
       crossRefSource: snapshot.crossRefSource ?? '',
+    };
+  }
+
+  private getDefaultFormValue(): GeneFilterFormValue {
+    return {
+      globalSearch: '',
+      accession: '',
+      entryName: '',
+      geneNamePrimary: '',
+      proteinFullName: '',
+      reviewed: null,
+      organism: '',
+      taxid: null,
+      lineage: '',
+      length: {min: null, max: null},
+      molecularWeight: {min: null, max: null},
+      evidenceLevels: [],
+      keywords: [],
+      goTermId: '',
+      goAspect: null,
+      featureType: '',
+      crossRefSource: '',
     };
   }
 

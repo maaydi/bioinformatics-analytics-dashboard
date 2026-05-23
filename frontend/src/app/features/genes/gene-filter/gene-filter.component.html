@@ -27,6 +27,9 @@
       title="Global Search"
     >
     </app-input>
+    @if (form.controls.globalSearch.touched && form.controls.globalSearch.hasError('maxlength')) {
+      <mat-error class="error-message">Global Search is limited to 200 characters.</mat-error>
+    }
     <!--  Basic fields -->
     <app-input
       formControlName="accession"
@@ -34,6 +37,9 @@
       title="Accession"
     >
     </app-input>
+    @if (form.controls.accession.touched && form.controls.accession.hasError('maxlength')) {
+      <mat-error class="error-message">Accession is limited to 20 characters.</mat-error>
+    }
     <app-input
       formControlName="entryName"
       placeholder="e.g. 001R_FRG3G"
@@ -45,6 +51,9 @@
       title="Gene Name"
     >
     </app-input>
+    @if (form.controls.geneNamePrimary.touched && form.controls.geneNamePrimary.hasError('maxlength')) {
+      <mat-error class="error-message">Gene Name is limited to 100 characters.</mat-error>
+    }
     <app-input formControlName="proteinFullName"
                placeholder="e.g. Breast cancer type 1"
                title="Protein Name"
@@ -55,11 +64,20 @@
                title="Organism"
     >
     </app-input>
+    @if (form.controls.organism.touched && form.controls.organism.hasError('maxlength')) {
+      <mat-error class="error-message">Organism is limited to 300 characters.</mat-error>
+    }
     <app-input formControlName="taxid"
                placeholder="e.g. 9606"
                title="Taxonomy ID"
     >
     </app-input>
+    @if (form.controls.taxid.touched && form.controls.taxid.hasError('min')) {
+      <mat-error class="error-message">Taxonomy ID must be greater than 0.</mat-error>
+    }
+    @if (form.controls.taxid.touched && form.controls.taxid.hasError('taxidPositiveInteger')) {
+      <mat-error class="error-message">Taxonomy ID must be a positive integer.</mat-error>
+    }
     <app-input formControlName="lineage"
                placeholder="e.g. Eukaryota; Metazoa"
                title="Lineage"
@@ -115,7 +133,7 @@
                placeholder="GO:0008150"
                title="Go Term ID"/>
         @if (form.get('goTermId')?.hasError('pattern')) {
-          <mat-error>Format must be GO:1234567</mat-error>
+          <mat-error class="error-message">Format must be GO:1234567</mat-error>
         }
       </mat-form-field>
       <div class="label-container">
@@ -159,6 +177,12 @@
         <label class="section-label">Keywords</label>
       </div>
       <app-keywords-filter formControlName="keywords"></app-keywords-filter>
+      @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordsMaxCount')) {
+        <mat-error class="error-message">Maximum 10 keywords are allowed.</mat-error>
+      }
+      @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordMaxLength')) {
+        <mat-error class="error-message">Each keyword must be at most 100 characters.</mat-error>
+      }
     </section>
     <!--    Submit button   -->
     <section class="filter-actions">
