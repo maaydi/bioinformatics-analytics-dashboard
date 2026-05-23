@@ -19,7 +19,8 @@ import lombok.*;
 public class HostOrganism {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "host_organism_seq")
+    @SequenceGenerator(name = "host_organism_seq", sequenceName = "host_organism_seq", allocationSize = 500)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

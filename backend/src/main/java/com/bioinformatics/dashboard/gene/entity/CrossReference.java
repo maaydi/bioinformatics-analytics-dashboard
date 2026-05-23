@@ -12,7 +12,8 @@ import lombok.*;
 @Builder
 public class CrossReference {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cross_reference_seq")
+    @SequenceGenerator(name = "cross_reference_seq", sequenceName = "cross_reference_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

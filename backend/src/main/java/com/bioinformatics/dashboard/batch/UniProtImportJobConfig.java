@@ -1,5 +1,10 @@
 package com.bioinformatics.dashboard.batch;
 
+import com.bioinformatics.dashboard.batch.listener.ImportJobDatabaseListener;
+import com.bioinformatics.dashboard.batch.listener.ImportProgressChunkListener;
+import com.bioinformatics.dashboard.batch.processor.ProteinEntryItemProcessor;
+import com.bioinformatics.dashboard.batch.reader.UniprotDatItemReader;
+import com.bioinformatics.dashboard.batch.writer.ProteinAggregateItemWriter;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
@@ -12,7 +17,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
-import org.springframework.batch.infrastructure.item.database.JpaItemWriter;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +40,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * </ol>
  *
  * <p>
- * Transaction boundary: one database transaction per chunk (chunk-size = 500).
+ * Transaction boundary: one database transaction per chunk (chunk-size = 250).
  * A chunk failure rolls back only that chunk (overview.md §14.3).
  *
  * <p>
@@ -78,7 +82,7 @@ public class UniProtImportJobConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<String> dynamicUniprotReader,
             ProteinEntryItemProcessor processor,
-            JpaItemWriter<ProteinEntry> writer,
+            ProteinAggregateItemWriter writer,
             ImportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.IMPORT_STEP.getKey(), jobRepository)

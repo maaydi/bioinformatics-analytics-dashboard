@@ -6,12 +6,12 @@ This folder contains per-ticket implementation artifacts, created as development
 
 When starting a ticket, create a subfolder `<Ticket-ID>/` containing:
 
-| File | Purpose |
-|---|---|
-| `overview.md` | Ticket description and acceptance criteria (copied from backlog) |
-| `journal.md` | Chronological log of actions: date, action taken, outcome |
-| `analyse.md` | Ambiguity analysis — if any exist, add this file and wait for clarification |
-| `plan.md` | Task breakdown with status tracking (not-started / in-progress / done) |
+| File          | Purpose                                                                     |
+|---------------|-----------------------------------------------------------------------------|
+| `overview.md` | Ticket description and acceptance criteria (copied from backlog)            |
+| `journal.md`  | Chronological log of actions: date, action taken, outcome                   |
+| `analyse.md`  | Ambiguity analysis — if any exist, add this file and wait for clarification |
+| `plan.md`     | Task breakdown with status tracking (not-started / in-progress / done)      |
 
 ## Example structure
 
@@ -49,6 +49,7 @@ documentation/implementation/
 | `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `not-started` |
 | `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `not-started` |
 | `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `not-started` |
+| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                        | `done`        |
 
 ## Chronological Implementation Order (Recommended)
 
@@ -69,6 +70,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 11    | `COMPARE-001`   | `not-started` | Compare mode reuses filters + analytics foundation           | Users can compare two populations side by side                                     |
 | 12    | `OPS-001`       | `not-started` | Hardening after core features are in place                   | Better reliability: health probes, throttling, auditability, safe page-size limits |
 | 13    | `A11Y-001`      | `not-started` | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |
+| 14    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins        | Improve import performance for the whole UNIPROT data                              |     
 
 ## End-User Validation Milestones
 

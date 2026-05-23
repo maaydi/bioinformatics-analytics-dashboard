@@ -19,7 +19,8 @@ import lombok.*;
 public class GoTerm {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "go_term_seq")
+    @SequenceGenerator(name = "go_term_seq", sequenceName = "go_term_seq", allocationSize = 500)
     private Integer id;
 
     @Column(name = "go_id", nullable = false, unique = true, columnDefinition = "TEXT")

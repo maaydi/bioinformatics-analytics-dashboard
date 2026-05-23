@@ -31,8 +31,9 @@ public class AsyncUniprotImportJobExecutor {
     @Async
     public void execute(JobParameters parameters) {
         try {
-            operator.start(uniProtImportJob, parameters);
             log.info("UniProt import job started asynchronously");
+            operator.start(uniProtImportJob, parameters);
+            log.info("UniProt import job completed");
         } catch (Exception e) {
             log.error("Failed to start UniProt import job", e);
             throw new ExecuteJobException("Failed to start uniprot import job", e);

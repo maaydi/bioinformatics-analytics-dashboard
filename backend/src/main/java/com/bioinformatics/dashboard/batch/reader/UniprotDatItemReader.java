@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.reader;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

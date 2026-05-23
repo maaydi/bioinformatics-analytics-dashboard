@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.batch;
+package com.bioinformatics.dashboard.batch.processor.resolver;
 
 import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.repository.KeywordRepository;

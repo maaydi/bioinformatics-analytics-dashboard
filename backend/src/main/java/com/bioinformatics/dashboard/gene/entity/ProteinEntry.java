@@ -31,7 +31,8 @@ import java.util.Set;
 public class ProteinEntry {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_entry_seq")
+    @SequenceGenerator(name = "protein_entry_seq", sequenceName = "protein_entry_seq", allocationSize = 500)
     private Long id;
 
     // ── Identification ────────────────────────────────────────────────────────
@@ -153,21 +154,32 @@ public class ProteinEntry {
     )
     private Set<GoTerm> goTerms = new HashSet<>();
 
-    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<CrossReference> crossReferences = new HashSet<>();
-
-    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "protein", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<HostOrganism> hostOrganisms = new HashSet<>();
 
+    /**
+     * Cross-references are NOT cascade-persisted by JPA.
+     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
+     * This field is transient so that JPA never attempts to cascade-flush it.
+     */
+    @Transient
+    @Builder.Default
+    private Set<CrossReference> crossReferences = new HashSet<>();
 
-    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    /**
+     * Comments are NOT cascade-persisted by JPA.
+     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
+     */
+    @Transient
     @Builder.Default
     private Set<ProteinComment> comments = new HashSet<>();
 
-
-    @OneToMany(mappedBy = "protein", cascade = CascadeType.ALL, orphanRemoval = true)
+    /**
+     * Publications are NOT cascade-persisted by JPA.
+     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
+     */
+    @Transient
     @Builder.Default
     private Set<ProteinPublication> publications = new HashSet<>();
 

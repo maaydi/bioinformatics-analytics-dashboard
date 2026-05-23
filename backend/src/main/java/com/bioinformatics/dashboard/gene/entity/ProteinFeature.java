@@ -20,7 +20,8 @@ import lombok.*;
 public class ProteinFeature {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_feature_seq")
+    @SequenceGenerator(name = "protein_feature_seq", sequenceName = "protein_feature_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
