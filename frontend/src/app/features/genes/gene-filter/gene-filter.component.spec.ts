@@ -137,6 +137,40 @@ describe('GeneFilterComponent', () => {
       control?.setValue('');
       expect(control?.hasError('pattern')).toBe(false);
     });
+
+    it('should enforce max length validation on documented text fields', () => {
+      component.form.controls.globalSearch.setValue('a'.repeat(201));
+      component.form.controls.accession.setValue('a'.repeat(21));
+      component.form.controls.geneNamePrimary.setValue('a'.repeat(101));
+      component.form.controls.organism.setValue('a'.repeat(301));
+
+      expect(component.form.controls.globalSearch.hasError('maxlength')).toBe(true);
+      expect(component.form.controls.accession.hasError('maxlength')).toBe(true);
+      expect(component.form.controls.geneNamePrimary.hasError('maxlength')).toBe(true);
+      expect(component.form.controls.organism.hasError('maxlength')).toBe(true);
+    });
+
+    it('should enforce taxid as positive integer', () => {
+      component.form.controls.taxid.setValue(0);
+      expect(component.form.controls.taxid.hasError('min')).toBe(true);
+
+      component.form.controls.taxid.setValue(-2);
+      expect(component.form.controls.taxid.hasError('taxidPositiveInteger')).toBe(true);
+
+      component.form.controls.taxid.setValue(9606);
+      expect(component.form.controls.taxid.errors).toBeNull();
+    });
+
+    it('should enforce keyword array constraints', () => {
+      component.form.controls.keywords.setValue(Array.from({length: 11}, (_, index) => `k-${index}`));
+      expect(component.form.controls.keywords.hasError('keywordsMaxCount')).toBe(true);
+
+      component.form.controls.keywords.setValue(['a'.repeat(101)]);
+      expect(component.form.controls.keywords.hasError('keywordMaxLength')).toBe(true);
+
+      component.form.controls.keywords.setValue(['valid-keyword']);
+      expect(component.form.controls.keywords.errors).toBeNull();
+    });
   });
 
   describe('Apply Filters', () => {
@@ -346,7 +380,7 @@ describe('GeneFilterComponent', () => {
     });
 
     it('should not emit change events when resetting', async () => {
-      const changes: any[] = [];
+      const changes: GeneFilterSnapshot[] = [];
 
       component.filterChange.subscribe((snapshot) => {
         changes.push(snapshot);
@@ -631,7 +665,7 @@ describe('GeneFilterComponent', () => {
         snapshot = s;
       });
 
-      const longString = 'a'.repeat(1000);
+      const longString = 'a'.repeat(201);
       component.form.patchValue({
         globalSearch: longString
       });
@@ -640,7 +674,8 @@ describe('GeneFilterComponent', () => {
 
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(snapshot?.globalSearch).toBe(longString);
+      expect(snapshot).toBeUndefined();
+      expect(component.form.controls.globalSearch.hasError('maxlength')).toBe(true);
     });
 
     it('should handle special characters in search', async () => {

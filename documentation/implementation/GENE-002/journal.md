@@ -69,3 +69,33 @@
 - [x] Shared components still explicitly set `standalone: true`, which conflicts with project Angular v20+ rule (
   `frontend/src/app/shared/components/input/input.component.ts`,
   `frontend/src/app/shared/components/range-input/range-input.component.ts`).
+
+## 2026-05-23
+
+### Post-fix status
+
+#### Done
+
+- [x] Added missing client-side validators in `GeneFilterComponent` aligned with `documentation/validation-rules.md`
+  for:
+  - `taxid > 0` (positive integer)
+  - `globalSearch` max 200
+  - `accession` max 20
+  - `geneNamePrimary` max 100
+  - `organism` max 300
+  - `keywords` max 10 items and max 100 per item
+    (`frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
+- [x] Added/updated inline validation messages in filter UI for newly enforced constraints (
+  `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
+- [x] Shared controls `input` and `range-input` explicitly use `ChangeDetectionStrategy.OnPush` (
+  `frontend/src/app/shared/components/input/input.component.ts`,
+  `frontend/src/app/shared/components/range-input/range-input.component.ts`).
+- [x] Added `GenesService` unit tests with success-path coverage for `listGenes`, `searchGenes`, `getGeneById`,
+  `exportCsv`, and `loadKeywords`, including request URL/method/body/params assertions (
+  `frontend/src/app/features/genes/genes.service.spec.ts`).
+
+#### Explicitly accepted (won't fix per user directive)
+
+- [x] Keep current behavior where clear-all does not automatically reload unfiltered results.
+- [x] Keep table hidden when no filters are applied.
+- [x] Keep current payload spread behavior for `length` / `molecularWeight` in search snapshot.
