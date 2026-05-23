@@ -1,7 +1,8 @@
 <div class="page-container">
   <!-- Filters side bar -->
   <mat-card appearance="outlined" class="filter-card">
-    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"></app-gene-filter>
+    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"
+                     [value]="store.activeFilters()"></app-gene-filter>
   </mat-card>
   <!--  Result table View  -->
   <mat-card class="result-card">
@@ -11,6 +12,7 @@
       [errorMessage]="store.onErrorMessage()"
       [filters]="store.activeFilters()"
       [loading]="store.loading()"
+      (filterRemoved)="store.removeFilter($event)"
     >
     </app-genes-table>
   </mat-card>

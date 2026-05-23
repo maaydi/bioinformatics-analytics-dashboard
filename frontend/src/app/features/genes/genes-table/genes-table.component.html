@@ -5,7 +5,11 @@
 @if (filtersChips().length > 0) {
   <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
     @for (chip of filtersChips(); track chip.label + chip.value) {
-      <mat-chip>{{ chip.label }}: {{ chip.value }}</mat-chip>
+      <mat-chip (removed)="removeFilter(chip.key)" removable>{{ chip.label }}: {{ chip.value }}
+        <button aria-label="Remove Filter" matChipRemove>
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
     }
   </mat-chip-set>
 }

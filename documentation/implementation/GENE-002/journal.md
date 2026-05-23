@@ -48,9 +48,9 @@
   `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
 - [x] Required cross-field validators are missing: `lengthRangeValidator` and `molecularWeightRangeValidator`; min > max
   is not blocked before submit (`frontend/src/app/features/genes/gene-filter/gene-filter.component.ts`).
-- [ ] Inline range validation errors for invalid min/max combinations are not implemented in the filter UI (
+- [x] Inline range validation errors for invalid min/max combinations are not implemented in the filter UI (
   `frontend/src/app/features/genes/gene-filter/gene-filter.component.html`).
-- [ ] Active filter chips are not dismissible and there is no per-chip clear action (
+- [x] Active filter chips are not dismissible and there is no per-chip clear action (
   `frontend/src/app/features/genes/genes-table/genes-table.component.html`,
   `frontend/src/app/features/genes/genes-table/genes-table.component.ts`).
 - [ ] "Clear All" clears local state but does not reload unfiltered table results as required (

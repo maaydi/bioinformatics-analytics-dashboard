@@ -18,14 +18,14 @@
 - [x] Requirements analyzed
 - [x] Angular models defined
 - [x] Signal store implemented
-- [ ] GenesService updated
+- [x] GenesService updated
 - [x] GeneFilterComponent implemented
 - [x] Chip list implemented
 - [x] Clear All implemented
 - [x] Integration with table complete
-- [ ] Unit tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
+- [x] Unit tests written
+- [x] Documentation updated
+- [x] Code reviewed
 - [ ] Coverage ≥ 80%
 
 ---

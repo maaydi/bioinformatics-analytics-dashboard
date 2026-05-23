@@ -43,6 +43,30 @@ export const GenesStore = signalStore(
         loading: false
       });
     },
+    /** Remove a filter by key and refresh gene table by search */
+    removeFilter(key: keyof GeneFilterSnapshot): void {
+      const currentFilters = store.activeFilters();
+      if (!currentFilters) {
+        return;
+      }
+      const updatedFilters = {...currentFilters};
+      if (Array.isArray(updatedFilters[key])) {
+        (updatedFilters as any)[key] = [];
+      } else {
+        (updatedFilters as any)[key] = null;
+      }
+      const hasRemainingFilters = Object.keys(updatedFilters)
+        .some(k => {
+          const v = (updatedFilters as any)[k];
+          if (Array.isArray(v)) return v.length > 0;
+          return v !== null && v !== undefined && v !== '';
+        });
+      if (!hasRemainingFilters) {
+        this.clearFilters();
+        return;
+      }
+      this.searchGene(updatedFilters);
+    },
 
     /** Runs server-side search and updates loading, result, and error state. */
     searchGene: rxMethod<GeneFilterSnapshot>(
