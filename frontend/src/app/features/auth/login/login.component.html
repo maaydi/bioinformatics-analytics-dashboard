@@ -5,10 +5,10 @@
       <mat-card-subtitle>Sign in to continue</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <form (ngSubmit)="onSubmit()" [formGroup]="form" aria-label="Sign in form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Username</mat-label>
-          <input matInput formControlName="username" autocomplete="username" />
+          <input autocomplete="username" formControlName="username" matInput required/>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Password</mat-label>
@@ -17,6 +17,7 @@
             type="password"
             formControlName="password"
             autocomplete="current-password"
+            required
           />
         </mat-form-field>
 

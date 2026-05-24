@@ -16,7 +16,7 @@ $theme: mat.define-theme((
   ),
   density: (
     scale: 0
-  ), 
+  ),
 ));
 
 // 3. Apply the theme globally
@@ -35,6 +35,16 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f5f5f5;
+  color: var(--mat-sys-on-surface);
+}
+
+body {
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
 }
 
 /* ── Utility classes ───────────────────────────────────────────────────────── */

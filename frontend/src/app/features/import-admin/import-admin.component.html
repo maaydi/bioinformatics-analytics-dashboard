@@ -1,4 +1,4 @@
-<div class="import-container">
+<div aria-label="Import administration" class="import-container">
   <mat-card class="upload-card">
     <mat-card-header>
       <mat-card-title>Import Uniprot Data</mat-card-title>
@@ -6,7 +6,7 @@
     </mat-card-header>
     <mat-card-content>
       @if (errorMessage()) {
-        <div class="error-banner">
+        <div class="error-banner" role="alert">
           <mat-icon>error_outline</mat-icon>
           <span>{{ errorMessage() }}</span>
         </div>
@@ -30,7 +30,7 @@
             Select File
           </button>
           @if (selectedFile()) {
-            <span class="file-name">
+            <span aria-live="polite" class="file-name">
               {{ selectedFile()?.name }}
               <span class="file-size"
               >({{ (selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2' }} MB)
@@ -49,7 +49,7 @@
           </mat-select>
         </mat-form-field>
         @if (isUploading()) {
-          <div class="progress-section">
+          <div aria-live="polite" class="progress-section">
             <div class="progress-label">
               <span>Import in progress...</span>
               <span>{{ currentProgress() }}%</span>
@@ -77,44 +77,47 @@
       <mat-card-title>Import Job History</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table">
-        <ng-container matColumnDef="jobId">
-          <th mat-header-cell *matHeaderCellDef>Job ID</th>
-          <td *matCellDef="let job" mat-cell>{{ job.id }}</td>
-        </ng-container>
+      <div class="history-table-wrapper">
+        <table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table" mat-table>
+          <caption class="sr-only">Import jobs history</caption>
+          <ng-container matColumnDef="jobId">
+            <th *matHeaderCellDef mat-header-cell>Job ID</th>
+            <td *matCellDef="let job" mat-cell>{{ job.id }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let job">
-            <span [class]="'status-badge '+ job.status.toLowerCase()">{{ job.status }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="status">
+            <th *matHeaderCellDef mat-header-cell>Status</th>
+            <td *matCellDef="let job" mat-cell>
+              <span [class]="'status-badge '+ job.status.toLowerCase()">{{ job.status }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="progress">
-          <th mat-header-cell *matHeaderCellDef>Progress</th>
-          <td *matCellDef="let job" mat-cell>{{ job.progressPercent }} %</td>
-        </ng-container>
+          <ng-container matColumnDef="progress">
+            <th *matHeaderCellDef mat-header-cell>Progress</th>
+            <td *matCellDef="let job" mat-cell>{{ job.progressPercent }} %</td>
+          </ng-container>
 
-        <ng-container matColumnDef="startTime">
-          <th mat-header-cell *matHeaderCellDef>Start Time</th>
-          <td *matCellDef="let job" mat-cell>{{ job.createdAt | date: 'medium' }}</td>
-        </ng-container>
+          <ng-container matColumnDef="startTime">
+            <th *matHeaderCellDef mat-header-cell>Start Time</th>
+            <td *matCellDef="let job" mat-cell>{{ job.createdAt | date: 'medium' }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="endTime">
-          <th mat-header-cell *matHeaderCellDef>End Time</th>
-          <td mat-cell *matCellDef="let job">
-            {{ job.completedAt ? (job.completedAt | date: 'medium') : '-' }}
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr *matRowDef="let _; columns: displayedColumns" mat-row></tr>
+          <ng-container matColumnDef="endTime">
+            <th *matHeaderCellDef mat-header-cell>End Time</th>
+            <td *matCellDef="let job" mat-cell>
+              {{ job.completedAt ? (job.completedAt | date: 'medium') : '-' }}
+            </td>
+          </ng-container>
+          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+          <tr *matRowDef="let _; columns: displayedColumns" mat-row></tr>
 
-        <tr mat-row *matNoDataRow>
-          <td class="mat-cell empty-cell" [colSpan]="displayedColumns.length">
-            No import history found
-          </td>
-        </tr>
-      </table>
+          <tr *matNoDataRow mat-row>
+            <td [colSpan]="displayedColumns.length" class="mat-cell empty-cell">
+              No import history found.
+            </td>
+          </tr>
+        </table>
+      </div>
       <mat-paginator
         (page)="onPageChange($event)"
         [length]="totalJobs()"

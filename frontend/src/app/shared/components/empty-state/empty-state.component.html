@@ -1,4 +1,4 @@
-<div class="empty-state">
-  <mat-icon class="empty-icon">{{ icon() }}</mat-icon>
+<div aria-live="polite" class="empty-state" role="status">
+  <mat-icon aria-hidden="true" class="empty-icon">{{ icon() }}</mat-icon>
   <p class="empty-message">{{ message() }}</p>
 </div>

@@ -7,3 +7,8 @@
 .label-container {
   @include shared.filter-label-container;
 }
+
+mat-form-field {
+  width: 100%;
+}
+

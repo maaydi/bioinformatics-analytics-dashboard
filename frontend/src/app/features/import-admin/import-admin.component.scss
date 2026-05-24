@@ -1,9 +1,9 @@
 .import-container {
   max-width: 1000px;
-  margin: 2rem auto;
+  margin: 1rem auto 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   padding: 0 1rem;
 }
 
@@ -17,19 +17,21 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  
+
   .file-upload-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 1rem;
-    
+
     .file-name {
       font-family: monospace;
-      color: #333;
+      color: var(--mat-sys-on-surface);
       font-size: 0.95rem;
-      
+      overflow-wrap: anywhere;
+
       .file-size {
-        color: #777;
+        color: var(--mat-sys-on-surface-variant);
         font-size: 0.85rem;
       }
     }
@@ -42,21 +44,21 @@
 }
 
 .error-banner {
-  background-color: #fdecea;
-  color: #d32f2f;
+  background-color: rgba(211, 47, 47, 0.1);
+  color: var(--mat-sys-error);
   padding: 12px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
-  border-left: 4px solid #d32f2f;
+  border-left: 4px solid var(--mat-sys-error);
   font-weight: 500;
 }
 
 .progress-section {
   margin-top: 0.5rem;
-  
+
   .progress-label {
     display: flex;
     justify-content: space-between;
@@ -76,6 +78,7 @@
 .history-table {
   width: 100%;
   margin-top: 1rem;
+  min-width: 720px;
 
   .empty-cell {
     text-align: center;
@@ -83,6 +86,10 @@
     color: #666;
     font-style: italic;
   }
+}
+
+.history-table-wrapper {
+  overflow-x: auto;
 }
 
 // Status Badges
@@ -98,19 +105,41 @@
     background-color: #fff3e0;
     color: #e65100;
   }
-  
+
   &.running {
     background-color: #e3f2fd;
     color: #1565c0;
   }
-  
+
   &.completed {
     background-color: #e8f5e9;
     color: #2e7d32;
   }
-  
+
   &.failed {
     background-color: #ffebee;
     color: #c62828;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .actions {
+    justify-content: stretch;
+
+    button {
+      width: 100%;
+    }
   }
 }

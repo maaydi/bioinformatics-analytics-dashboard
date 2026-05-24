@@ -1,23 +1,25 @@
-<mat-toolbar color="primary">
-  <img alt="Logo" class="app-logo" src="/bio_logo.png">
+<mat-toolbar aria-label="Primary navigation" color="primary" role="navigation">
+  <img alt="Bioinformatics Analytics Dashboard logo" class="app-logo" src="/bio_logo.png">
   <span class="app-title">BioInfo Dashboard</span>
   <span class="spacer"></span>
 
-  <a
-    mat-button
-    routerLink="/"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
-  >
-    Dashboard
-  </a>
-  <a mat-button routerLink="/genes" routerLinkActive="active">Gene Explorer</a>
-  <a mat-button routerLink="/analytics" routerLinkActive="active">Analytics</a>
-  <a mat-button routerLink="/saved-filters" routerLinkActive="active">Saved Filters</a>
+  <div aria-label="Main sections" class="nav-links">
+    <a
+      [routerLinkActiveOptions]="{ exact: true }"
+      mat-button
+      routerLink="/"
+      routerLinkActive="active"
+    >
+      Dashboard
+    </a>
+    <a mat-button routerLink="/genes" routerLinkActive="active">Gene Explorer</a>
+    <a mat-button routerLink="/analytics" routerLinkActive="active">Analytics</a>
+    <a mat-button routerLink="/saved-filters" routerLinkActive="active">Saved Filters</a>
 
-  @if (authService.isAdmin()) {
-    <a mat-button routerLink="/admin/import" routerLinkActive="active">Import</a>
-  }
+    @if (authService.isAdmin()) {
+      <a mat-button routerLink="/admin/import" routerLinkActive="active">Import</a>
+    }
+  </div>
 
   <button mat-icon-button (click)="authService.logout()" title="Logout" aria-label="Logout">
     <mat-icon>logout</mat-icon>

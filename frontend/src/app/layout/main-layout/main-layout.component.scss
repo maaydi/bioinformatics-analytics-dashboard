@@ -9,3 +9,9 @@
   padding: 1rem;
   overflow: auto;
 }
+
+.layout-content-inner {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+}
+

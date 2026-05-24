@@ -27,3 +27,11 @@
 .error-message {
   @include shared.filter-error-message;
 }
+
+@media (max-width: 600px) {
+  .range-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

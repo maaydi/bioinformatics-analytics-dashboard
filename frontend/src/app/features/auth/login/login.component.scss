@@ -3,10 +3,11 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  padding: 1rem;
 }
 
 .login-card {
-  width: 380px;
+  width: min(100%, 420px);
   padding: 16px;
 }
 
@@ -17,7 +18,7 @@
 }
 
 .error-text {
-  color: #d32f2f;
+  color: var(--mat-sys-error);
   font-size: 14px;
   margin-bottom: 8px;
 }
