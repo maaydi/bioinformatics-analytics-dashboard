@@ -14,11 +14,12 @@
   </mat-chip-set>
 }
 @if (loading()) {
-  <div class="table-state">loading gene results...</div>
+  <div aria-live="polite" class="table-state">Loading gene results…</div>
 } @else if ((data()?.content?.length ?? 0) > 0 && filtersChips().length > 0) {
   <div class="table-responsive-container">
     <table [dataSource]="data()!.content" class="mat-elevation-z1 gene-result-table"
            mat-table>
+      <caption class="sr-only">Gene search results table</caption>
       <ng-container matColumnDef="accession">
         <th *matHeaderCellDef mat-header-cell>Accession</th>
         <td *matCellDef="let row" mat-cell>
@@ -71,7 +72,7 @@
         <th *matHeaderCellDef mat-header-cell>More</th>
         <td *matCellDef="let row" mat-cell>
           <button (click)="selectRowSummary(row)"
-                  aria-label="View gene summary"
+                  [attr.aria-label]="'View summary for ' + row.accession"
                   class="more-button"
                   title="View Gene Summary"
                   type="button">
@@ -87,7 +88,7 @@
     </table>
   </div>
 } @else if (errorMessage()) {
-  <div class="error-msg">{{ errorMessage() }}</div>
+  <div class="error-msg" role="alert">{{ errorMessage() }}</div>
 } @else {
-  <div class="table-state">No gene results yes. Apply filters to search.</div>
+  <div aria-live="polite" class="table-state">No gene results yet. Apply filters to start searching.</div>
 }

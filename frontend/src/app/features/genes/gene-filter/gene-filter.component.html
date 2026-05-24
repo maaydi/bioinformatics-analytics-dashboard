@@ -15,9 +15,11 @@
 <mat-divider/>
 <mat-card-content>
   <form (ngSubmit)="applyFilters()"
+        aria-label="Gene filters form"
         [formGroup]="form"
         class="filters-form"
   >
+    <div class="filters-scroll-area">
     <!--  Global Search -->
     <app-input
       [isSearch]="true"
@@ -88,12 +90,12 @@
       <div class="label-container">
         <label class="section-label">Reviewed</label>
       </div>
-      <mat-button-toggle-group formControlName="reviewed">
+      <mat-button-toggle-group aria-label="Reviewed status" formControlName="reviewed">
         <mat-button-toggle [value]="null">All</mat-button-toggle>
         <mat-button-toggle [value]="true">Yes</mat-button-toggle>
         <mat-button-toggle [value]="false">No</mat-button-toggle>
       </mat-button-toggle-group>
-      <div style="margin-bottom: 0.75rem"></div>
+      <div aria-hidden="true" class="group-spacer"></div>
     </section>
 
     <!--    Length   -->
@@ -113,7 +115,7 @@
       <div class="label-container">
         <label class="section-label">Evidence Levels</label>
       </div>
-      <div class="checkbox-flex">
+      <div aria-label="Evidence levels" class="checkbox-flex" role="group">
         @for (level of evidenceLevels; track level) {
           <mat-checkbox (change)="toggleEvidence(level)"
                         [checked]="isEvidenceSelected(level)">
@@ -141,8 +143,8 @@
       </div>
       <mat-form-field appearance="outline">
         <mat-select formControlName="goAspect"
-                    placeholder="Select 60 Aspect"
-                    title="Go Aspect">
+                    placeholder="Select GO Aspect"
+                    title="GO Aspect">
           <mat-option [value]="null">All</mat-option>
           <mat-option value="P">Biological Process</mat-option>
           <mat-option value="F">Molecular Function</mat-option>
@@ -184,6 +186,7 @@
         <mat-error class="error-message">Each keyword must be at most 100 characters.</mat-error>
       }
     </section>
+    </div>
     <!--    Submit button   -->
     <section class="filter-actions">
       <button [disabled]="form.invalid"

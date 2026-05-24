@@ -1,3 +1,18 @@
 :host {
   display: block;
 }
+
+.gene-detail-page h1 {
+  margin: 0;
+}
+
+.gene-detail-subtitle {
+  margin: 0.5rem 0 1rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.tab-placeholder {
+  padding: 1rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+

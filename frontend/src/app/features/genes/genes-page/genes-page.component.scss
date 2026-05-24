@@ -1,8 +1,9 @@
 .page-container {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
-  align-items: stretch;
+  gap: 1rem;
+  align-items: flex-start;
+  min-height: calc(100dvh - 90px);
 }
 
 .filter-card {
@@ -10,10 +11,13 @@
     padding-top: 1.5rem;
   }
 
-  height: calc(100vh - 100px);
-  width: 20%;
+  flex: 0 0 clamp(260px, 24vw, 360px);
+  height: calc(100dvh - 90px);
+  max-height: calc(100dvh - 90px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .result-card {
@@ -24,9 +28,27 @@
     min-height: 0;
   }
 
-  width: 80%;
-  height: calc(100vh - 100px);
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
+@media (max-width: 1080px) {
+  .page-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .filter-card,
+  .result-card {
+    flex: 1 1 auto;
+  }
+
+  .filter-card {
+    height: auto;
+    max-height: none;
+  }
+}
+
