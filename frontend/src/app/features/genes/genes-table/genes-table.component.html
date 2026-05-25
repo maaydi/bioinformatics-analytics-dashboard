@@ -1,5 +1,7 @@
 <section [attr.aria-busy]="loading()" class="table-wrapper">
   <ag-grid-angular
+    (gridReady)="onGridReady($event)"
+    (gridSizeChanged)="onGridSizeChanged($event)"
     (rowClicked)="onGridRowClicked($event)"
     (sortChanged)="onGridSortChanged($event)"
     [animateRows]="true"

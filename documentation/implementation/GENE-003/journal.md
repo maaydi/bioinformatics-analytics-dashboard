@@ -104,3 +104,17 @@
 - [~] Functional acceptance criteria are implemented for table/page behavior and UI states.
 - [ ] Coverage evidence for the mandatory >=80% gate remains an open blocker until coverage reporting is wired/executed.
 
+### UX refinement (table readability and widths)
+
+#### Implemented
+
+- [x] Rebalanced AG Grid column minimum widths to improve full-table visibility on standard laptop screens.
+- [x] Added responsive fit behavior on grid ready and container resize (`sizeColumnsToFit`).
+- [x] Added truncation + tooltips for long text cells (`proteinFullName`, `organismName`, `keywords`) to avoid clipping.
+- [x] Introduced clearer visual styling for accession, numeric fields, reviewed status, and evidence level badges.
+
+#### Verification run
+
+- [x] Executed: `npm test -- --include src/app/features/genes/genes-table/genes-table.component.spec.ts`
+- [x] Result: 1/1 files passed, 12/12 tests passed.
+

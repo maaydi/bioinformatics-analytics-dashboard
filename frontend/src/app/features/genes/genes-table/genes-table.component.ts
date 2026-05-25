@@ -1,6 +1,14 @@
 import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 import {AgGridAngular} from 'ag-grid-angular';
-import {AllCommunityModule, ColDef, ModuleRegistry, RowClickedEvent, SortChangedEvent} from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ColDef,
+  GridReadyEvent,
+  GridSizeChangedEvent,
+  ModuleRegistry,
+  RowClickedEvent,
+  SortChangedEvent
+} from 'ag-grid-community';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {GeneFilterPageSort} from '@core/models/saved-filter.model';
@@ -45,64 +53,112 @@ export class GenesTableComponent {
       field: 'accession',
       headerName: 'Accession',
       sortable: true,
-      minWidth: 140,
+      minWidth: 80,
       sort: 'asc',
       sortIndex: 0,
+      tooltipField: 'accession',
+      cellRenderer: ({value}: { value: string }) => {
+        return `<span class="accession-col">${value}</span>`;
+      }
     },
     {
       field: 'geneNamePrimary',
       headerName: 'Gene Name',
       sortable: true,
-      minWidth: 160,
+      minWidth: 100,
       valueFormatter: ({value}) => value ?? '-',
+      tooltipValueGetter: ({value}) => value ?? '-',
     },
     {
       field: 'proteinFullName',
       headerName: 'Protein Name',
       sortable: true,
-      minWidth: 220,
+      minWidth: 100,
       valueFormatter: ({value}) => value ?? '-',
+      tooltipValueGetter: ({value}) => value ?? '-',
     },
     {
       field: 'organismName',
       headerName: 'Organism',
       sortable: true,
-      minWidth: 220,
+      minWidth: 100,
+      tooltipField: 'organismName',
     },
     {
       field: 'length',
       headerName: 'Length',
       sortable: true,
-      minWidth: 110,
+      minWidth: 80,
       type: 'numericColumn',
+      cellClass: 'numeric-cell',
     },
     {
       field: 'reviewed',
       headerName: 'Reviewed',
       sortable: true,
-      minWidth: 130,
-      valueFormatter: ({value}) => (value ? 'Reviewed' : 'Unreviewed'),
+      minWidth: 80,
+
+      cellRenderer: ({value}: { value: boolean }) => `
+    <span class="review-badge ${value ? 'is-reviewed' : 'not-reviewed'}">
+      ${value ? 'Yes' : 'No'}
+    </span>
+  `,
     },
+
     {
       field: 'evidenceLevel',
       headerName: 'Evidence Level',
       sortable: true,
-      minWidth: 150,
+      minWidth: 100,
       type: 'numericColumn',
+
+      cellRenderer: ({value}: { value: number }) => `
+<span class="evidence-badge level-${value}">
+${value ?? '-'}
+    </span>
+  `,
     },
     {
       field: 'keywords',
       headerName: 'Keywords',
       sortable: false,
-      minWidth: 260,
-      valueFormatter: ({value}) => {
+      minWidth: 150,
+
+      cellRenderer: ({value}: { value: string[] }) => {
         if (!Array.isArray(value) || value.length === 0) {
-          return '-';
+          return '<span class="empty-value">-</span>';
         }
-        if (value.length <= 3) {
-          return value.join(', ');
-        }
-        return `${value.slice(0, 3).join(', ')} +${value.length - 3} more`;
+
+        const visible = value.slice(0, 2);
+
+        const chips = visible
+          .map(
+            keyword => `
+          <span class="keyword-chip">
+            ${keyword}
+          </span>
+        `
+          )
+          .join('\n');
+
+        const more =
+          value.length > 2
+            ? `
+          <span
+            class="keyword-chip more-counter-chip"
+            title="${value.slice(2).join(', ')}"
+          >
+            +${value.length - 2} more
+          </span>
+        `
+            : '';
+
+        return `
+      <div class="keywords-cell">
+        ${chips}
+        ${more}
+      </div>
+    `;
       },
     },
   ];
@@ -111,7 +167,7 @@ export class GenesTableComponent {
     resizable: true,
     unSortIcon: true,
     suppressMovable: true,
-    flex: 1,
+    cellClass: 'text-truncate',
   };
 
   readonly rowSelection = {
@@ -141,6 +197,14 @@ export class GenesTableComponent {
       direction: sortedColumn.sort,
       page: 0,
     });
+  }
+
+  onGridReady(event: GridReadyEvent<ProteinSummary>): void {
+    event.api.sizeColumnsToFit();
+  }
+
+  onGridSizeChanged(event: GridSizeChangedEvent<ProteinSummary>): void {
+    event.api.sizeColumnsToFit();
   }
 
   retrySearch(): void {

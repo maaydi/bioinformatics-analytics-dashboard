@@ -42,6 +42,7 @@
 - [x] `genes-table.component.scss`
 - [x] Input-driven rendering from paged search response in store container flow
 - [x] `output()` `rowClick` event emitting `ProteinSummary`
+- [x] Responsive column-width tuning (fit-to-container + truncation + tooltips)
 - [x] Column definitions:
   - [x] `accession` — sortable, linkable
   - [x] `geneNamePrimary` — sortable

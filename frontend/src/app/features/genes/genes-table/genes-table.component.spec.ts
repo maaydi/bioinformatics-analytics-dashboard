@@ -21,6 +21,8 @@ class MockAgGridAngularComponent {
   @Input() suppressRowClickSelection: unknown;
   @Output() readonly rowClicked = new EventEmitter<unknown>();
   @Output() readonly sortChanged = new EventEmitter<unknown>();
+  @Output() readonly gridReady = new EventEmitter<unknown>();
+  @Output() readonly gridSizeChanged = new EventEmitter<unknown>();
 }
 
 describe('GenesTableComponent', () => {
@@ -192,6 +194,32 @@ describe('GenesTableComponent', () => {
     });
 
     component.retrySearch();
+
+    expect(called).toBe(true);
+  });
+
+  it('should size columns to fit when grid is ready', () => {
+    let called = false;
+    component.onGridReady({
+      api: {
+        sizeColumnsToFit: () => {
+          called = true;
+        },
+      },
+    } as never);
+
+    expect(called).toBe(true);
+  });
+
+  it('should size columns to fit when grid size changes', () => {
+    let called = false;
+    component.onGridSizeChanged({
+      api: {
+        sizeColumnsToFit: () => {
+          called = true;
+        },
+      },
+    } as never);
 
     expect(called).toBe(true);
   });
