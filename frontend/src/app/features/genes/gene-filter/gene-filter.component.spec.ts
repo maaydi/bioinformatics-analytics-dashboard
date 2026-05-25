@@ -22,8 +22,8 @@ describe('GeneFilterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize form controls without globalSearch', () => {
-    expect(component.form.get('globalSearch')).toBeNull();
+  it('should initialize form controls including globalSearch', () => {
+    expect(component.form.get('globalSearch')).toBeDefined();
     expect(component.form.get('accession')).toBeDefined();
     expect(component.form.get('goTermId')).toBeDefined();
     expect(component.form.get('keywords')).toBeDefined();

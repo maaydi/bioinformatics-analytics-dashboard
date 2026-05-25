@@ -24,10 +24,12 @@ describe('GenesPageComponent', () => {
     expect(component.store).toBeDefined();
   });
 
-  it('should render filter and table containers', () => {
+  it('should render filter, global search, active filters and table containers', () => {
     const host = fixture.nativeElement as HTMLElement;
 
     expect(host.querySelector('app-gene-filter')).toBeTruthy();
+    expect(host.querySelector('app-global-search')).toBeTruthy();
+    expect(host.querySelector('app-active-filters')).toBeTruthy();
     expect(host.querySelector('app-genes-table')).toBeTruthy();
   });
 
