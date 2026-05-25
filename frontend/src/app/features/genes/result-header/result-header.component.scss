@@ -1,0 +1,19 @@
+@use "form-shared" as shared;
+
+:host {
+  display: block;
+  width: 100%;
+  --mat-paginator-container-background-color: transparent;
+}
+
+.table-header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.label-container {
+  @include shared.filter-label-container;
+}

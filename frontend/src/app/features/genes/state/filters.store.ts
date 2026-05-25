@@ -4,7 +4,7 @@ import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {pipe, switchMap, tap} from 'rxjs';
 import {ProteinSummary} from '@core/models/protein.model';
 import {PagedResponse} from '@core/models/paged-response.model';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {GenesService} from '@features/genes/genes.service';
 import {tapResponse} from '@ngrx/operators';
 
@@ -15,6 +15,10 @@ export interface FilterState {
   onErrorMessage: string | null;
   selectedGene: ProteinSummary | null;
   loading: boolean;
+  page: number;
+  size: number;
+  sort: string;
+  direction: 'asc' | 'desc';
 }
 
 const initialState: FilterState = {
@@ -24,6 +28,10 @@ const initialState: FilterState = {
   onErrorMessage: null,
   selectedGene: null,
   loading: false,
+  page: 0,
+  size: 50,
+  sort: 'id',
+  direction: 'asc',
 };
 
 export const GenesStore = signalStore(
@@ -41,6 +49,15 @@ export const GenesStore = signalStore(
       }
     },
 
+    /** Update pagination / sorting parameters and trigger a reload */
+    updatePaginationAndSort(params: GeneFilterPageSort): void {
+      patchState(store, {...params});
+      const currentFilters = store.activeFilters();
+      if (currentFilters) {
+        this.searchGene(currentFilters);
+      }
+    },
+
     /** Clears filters, current result set, selected row, and error state. */
     clearFilters(): void {
       patchState(store, {
@@ -48,7 +65,11 @@ export const GenesStore = signalStore(
         searchResult: null,
         selectedGene: null,
         onErrorMessage: null,
-        loading: false
+        loading: false,
+        page: 0,
+        size: 50,
+        sort: 'id',
+        direction: 'asc',
       });
     },
     /** Remove a filter by key and refresh gene table by search */
@@ -73,6 +94,7 @@ export const GenesStore = signalStore(
         this.clearFilters();
         return;
       }
+      patchState(store, {page: 0});
       this.searchGene(updatedFilters);
     },
 
@@ -89,10 +111,10 @@ export const GenesStore = signalStore(
         switchMap((snapshot) =>
           geneService.searchGenes({
             ...snapshot,
-            page: 0,
-            size: 20,
-            sort: 'id',
-            direction: 'asc',
+            page: store.page(),
+            size: store.size(),
+            sort: store.sort(),
+            direction: store.direction(),
           }).pipe(
             tapResponse({
               next: (result) => patchState(store, {

@@ -5,6 +5,7 @@ import {GlobalSearchComponent} from '@features/genes/global-search/global-search
 import {GenesTableComponent} from '@features/genes/genes-table/genes-table.component';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {ActiveFiltersComponent} from '@features/genes/active-filters/active-filters.component';
+import {ResultHeaderComponent} from '@features/genes/result-header/result-header.component';
 
 /**
  * Container component for the Genes feature.
@@ -21,7 +22,8 @@ import {ActiveFiltersComponent} from '@features/genes/active-filters/active-filt
     GeneFilterComponent,
     GlobalSearchComponent,
     GenesTableComponent,
-    ActiveFiltersComponent
+    ActiveFiltersComponent,
+    ResultHeaderComponent
   ],
   templateUrl: './genes-page.component.html',
   styleUrl: './genes-page.component.scss',

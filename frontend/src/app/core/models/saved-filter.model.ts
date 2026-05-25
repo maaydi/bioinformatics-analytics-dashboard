@@ -18,6 +18,13 @@ export interface CreateSavedFilterRequest {
   filterJson: GeneFilterSnapshot;
 }
 
+export interface GeneFilterPageSort {
+  page?: number;
+  size?: number;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
 /**
  * The filter state that is serialized and stored.
  * Fields mirror the POST /api/genes/search request body.

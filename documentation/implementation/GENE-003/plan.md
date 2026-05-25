@@ -51,9 +51,9 @@
     - [ ] `reviewed` — boolean badge renderer (`Reviewed` / `Unreviewed`)
     - [ ] `evidenceLevel` — badge renderer (1–5 with label)
     - [ ] `keywords` — chip list renderer (first 3 + overflow)
-- [ ] Server-side pagination: `datasource` calling `GenesService.search()`
+- [x] Server-side pagination: `datasource` calling `GenesService.search()`
 - [ ] Sort event → update store sort field and direction
-- [ ] Page size options: 50, 100, 200 (validated at 200 max)
+- [x] Page size options: 50, 100, 200 (validated at 200 max)
 - [ ] Loading overlay (AG Grid built-in + custom skeleton)
 - [ ] Empty overlay "No proteins found"
 - [ ] Error state: catch HTTP errors, display error block with Retry
