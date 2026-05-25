@@ -29,6 +29,7 @@
       [filters]="store.activeFilters()"
       [loading]="store.loading()"
       [chipsCount]="store.chipsCount()"
+      (updateSortDirection)="store.updatePaginationAndSort($event)"
     >
     </app-genes-table>
   </mat-card>

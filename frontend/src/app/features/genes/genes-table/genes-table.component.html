@@ -6,38 +6,81 @@
            mat-table>
       <caption class="sr-only">Gene search results table</caption>
       <ng-container matColumnDef="accession">
-        <th *matHeaderCellDef mat-header-cell>Accession</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="accession"
+            label="Accession">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>
           <span class="accession-col">{{ row.accession }}</span>
         </td>
       </ng-container>
-
-      <ng-container matColumnDef="entryName">
-        <th *matHeaderCellDef mat-header-cell>Entry Name</th>
-        <td *matCellDef="let row" mat-cell>{{ row.entryName }}</td>
+      <ng-container matColumnDef="geneNamePrimary">
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="geneNamePrimary"
+            label="Gene Name">
+          </app-custom-header-sort>
+        </th>
+        <td *matCellDef="let row" mat-cell>{{ row.geneNamePrimary }}</td>
       </ng-container>
 
-
       <ng-container matColumnDef="proteinFullName">
-        <th *matHeaderCellDef mat-header-cell>Protein Name</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="proteinFullName"
+            label="Protein Name">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>{{ row.proteinFullName }}</td>
       </ng-container>
 
-
       <ng-container matColumnDef="organismName">
-        <th *matHeaderCellDef mat-header-cell>Organism</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="organismName"
+            label="Organism">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>{{ row.organismName }}</td>
       </ng-container>
 
-
       <ng-container matColumnDef="length">
-        <th *matHeaderCellDef mat-header-cell>Length</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="length"
+            label="Length">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>{{ row.length }}</td>
       </ng-container>
 
-
       <ng-container matColumnDef="reviewed">
-        <th *matHeaderCellDef mat-header-cell>Reviewed</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="reviewed"
+            label="Reviewed">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>
           <span [class.is-reviewed]="row.reviewed" [class.not-reviewed]="!row.reviewed" class="review-badge">
             {{ row.reviewed ? 'Yes' : 'No' }}
@@ -45,12 +88,32 @@
         </td>
       </ng-container>
 
-
       <ng-container matColumnDef="evidenceLevel">
-        <th *matHeaderCellDef mat-header-cell>Evidence</th>
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="evidenceLevel"
+            label="Evidence">
+          </app-custom-header-sort>
+        </th>
         <td *matCellDef="let row" mat-cell>
           <span [class]="'evidence-badge level-' + row.evidenceLevel">{{ row.evidenceLevel }}</span>
         </td>
+      </ng-container>
+
+      <ng-container matColumnDef="keywords">
+        <th *matHeaderCellDef mat-header-cell>
+          <app-custom-header-sort
+            (sortChange)="onSortChange($event)"
+            [activeSortDirection]="currentSortDirection"
+            [activeSortField]="currentSortField"
+            field="keywords"
+            label="Keywords">
+          </app-custom-header-sort>
+        </th>
+        <td *matCellDef="let row" mat-cell>{{ row.keywords }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">

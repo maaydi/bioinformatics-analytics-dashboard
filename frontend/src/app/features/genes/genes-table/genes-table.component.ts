@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {
   MatCell,
   MatCellDef,
@@ -15,6 +15,11 @@ import {
   MatTable
 } from '@angular/material/table';
 import {MatIcon} from '@angular/material/icon';
+import {
+  CustomHeaderSortComponent,
+  SortDirection,
+  SortExchangeEvent
+} from '@shared/components/custom-header-sort/custom-header-sort.component';
 
 
 /**
@@ -45,21 +50,24 @@ import {MatIcon} from '@angular/material/icon';
     MatHeaderRow,
     MatRow,
     MatHeaderRowDef,
-    MatRowDef
+    MatRowDef,
+    CustomHeaderSortComponent
   ],
   templateUrl: './genes-table.component.html',
   styleUrl: './genes-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesTableComponent {
+  currentSortField: string = 'id';
+  currentSortDirection: SortDirection = 'asc';
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
   readonly chipsCount = input<number>(0);
   readonly errorMessage = input<String | null>(null);
   readonly loading = input(false);
-
   readonly filters = input<GeneFilterSnapshot | null>(null);
+  readonly updateSortDirection = output<GeneFilterPageSort>();
   readonly displayedColumns = [
-    'accession', 'entryName', 'proteinFullName', 'organismName', 'length', 'reviewed', 'evidenceLevel', 'actions'
+    'accession', 'geneNamePrimary', 'proteinFullName', 'organismName', 'length', 'reviewed', 'evidenceLevel', 'keywords', 'actions'
   ];
 
   readonly sortChange = output<{ field: string; direction: 'asc' | 'desc' }>();
@@ -70,6 +78,15 @@ export class GenesTableComponent {
   /** Emits the selected row to the container for navigation/details handling. */
   selectRowSummary(row: ProteinSummary): void {
     this.rowClick.emit(row);
+  }
+
+  onSortChange(event: SortExchangeEvent): void {
+    this.currentSortField = event.field;
+    this.currentSortDirection = event.direction;
+    this.updateSortDirection.emit({
+      sort: this.currentSortField,
+      direction: this.currentSortDirection === 'desc' ? 'desc' : 'asc'
+    });
   }
 
 

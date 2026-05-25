@@ -42,20 +42,20 @@
 - [x] `genes-table.component.scss`
 - [x] `input()` for `searchRequest: GeneSearchRequest`
 - [x] `output()` `rowClicked` event emitting `ProteinSummary`
-- [ ] Column definitions:
-    - [ ] `accession` — sortable, linkable
-    - [ ] `geneNamePrimary` — sortable
-    - [ ] `proteinFullName` — sortable
-    - [ ] `organismName` — sortable
-    - [ ] `length` — sortable, right-aligned
-    - [ ] `reviewed` — boolean badge renderer (`Reviewed` / `Unreviewed`)
-    - [ ] `evidenceLevel` — badge renderer (1–5 with label)
-    - [ ] `keywords` — chip list renderer (first 3 + overflow)
+- [x] Column definitions:
+  - [x] `accession` — sortable, linkable
+  - [x] `geneNamePrimary` — sortable
+  - [x] `proteinFullName` — sortable
+  - [x] `organismName` — sortable
+  - [x] `length` — sortable, right-aligned
+  - [x] `reviewed` — boolean badge renderer (`Reviewed` / `Unreviewed`)
+  - [x] `evidenceLevel` — badge renderer (1–5 with label)
+  - [~] `keywords` — chip list renderer (first 3 + overflow)
 - [x] Server-side pagination: `datasource` calling `GenesService.search()`
-- [ ] Sort event → update store sort field and direction
+- [x] Sort event → update store sort field and direction
 - [x] Page size options: 50, 100, 200 (validated at 200 max)
-- [ ] Loading overlay (AG Grid built-in + custom skeleton)
-- [ ] Empty overlay "No proteins found"
+- [x] Loading overlay (AG Grid built-in + custom skeleton)
+- [x] Empty overlay "No proteins found"
 - [ ] Error state: catch HTTP errors, display error block with Retry
 
 ### `GenesPageComponent` (`features/genes/genes-page/`)
