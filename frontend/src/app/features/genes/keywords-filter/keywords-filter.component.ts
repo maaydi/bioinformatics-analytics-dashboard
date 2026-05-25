@@ -12,7 +12,8 @@ import {
 import {MatFormField, MatInput} from '@angular/material/input';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {AsyncPipe} from '@angular/common';
-import {Observable} from 'rxjs';
+import {catchError, Observable, of} from 'rxjs';
+import {HttpErrorResponse} from '@angular/common/http';
 
 @Component({
   selector: 'app-keywords-filter',
@@ -119,7 +120,12 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
 
   private loadKeywordsFromBackend(): void {
     this.geneService.loadKeywords()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef),
+        catchError(err => {
+          // catch error inside the pip so it does not crash node
+          console.log('Failed to retrieve keywords: ', (err as HttpErrorResponse).message);
+          return of([]);
+        }))
       .subscribe(k => this.allKeywords.push(...k));
   }
 
