@@ -12,7 +12,11 @@
     <input (input)="onSearchInput($event)"
            [value]="globalSearchValue()"
            matInput
-           placeholder="Search proteins, genes, organisms...">
+           placeholder="Search proteins, genes, organisms..."
+    >
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
+  @if (globalSearchValue().length > MAX_GLOBAL_SEARCH_LEN) {
+    <p class="error-text">{{ errorMessage() }}</p>
+  }
 </div>

@@ -1,3 +1,4 @@
+@use "form-shared" as shared;
 .login-wrapper {
   display: flex;
   justify-content: center;
@@ -18,7 +19,5 @@
 }
 
 .error-text {
-  color: var(--mat-sys-error);
-  font-size: 14px;
-  margin-bottom: 8px;
+  @include shared.error-text;
 }
