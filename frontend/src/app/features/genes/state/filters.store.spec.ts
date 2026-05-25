@@ -19,6 +19,12 @@ describe('GenesStore', () => {
     updateChipsCount: (value: number) => void;
     clearFilters: () => void;
     removeFilter: (key: keyof GeneFilterSnapshot) => void;
+    updatePaginationAndSort: (params: {
+      page?: number;
+      size?: number;
+      sort?: string;
+      direction?: 'asc' | 'desc'
+    }) => void;
     searchGene: (snapshot: GeneFilterSnapshot) => void;
   };
 
@@ -43,7 +49,7 @@ describe('GenesStore', () => {
   const response: PagedResponse<ProteinSummary> = {
     content: [summary],
     page: 0,
-    size: 20,
+    size: 50,
     totalElements: 1,
     totalPages: 1
   };
@@ -109,7 +115,7 @@ describe('GenesStore', () => {
       globalSearch: 'kinase',
       reviewed: true,
       page: 0,
-      size: 20,
+      size: 50,
       sort: 'id',
       direction: 'asc'
     });
@@ -171,6 +177,30 @@ describe('GenesStore', () => {
     expect(searchSpy).toHaveBeenCalledWith({
       keywords: [],
       reviewed: true
+    });
+  });
+
+  it('should update pagination/sort state without searching when no active filters exist', () => {
+    const searchSpy = vi.spyOn(store, 'searchGene');
+
+    store.updatePaginationAndSort({page: 2, size: 100, sort: 'accession', direction: 'desc'});
+
+    expect(searchSpy).not.toHaveBeenCalled();
+  });
+
+  it('should re-trigger search with current filters after pagination/sort update', () => {
+    const snapshot: GeneFilterSnapshot = {globalSearch: 'kinase'};
+    store.searchGene(snapshot);
+    genesServiceMock.searchGenes.mockClear();
+
+    store.updatePaginationAndSort({page: 1, size: 100, sort: 'accession', direction: 'desc'});
+
+    expect(genesServiceMock.searchGenes).toHaveBeenCalledWith({
+      globalSearch: 'kinase',
+      page: 1,
+      size: 100,
+      sort: 'accession',
+      direction: 'desc'
     });
   });
 });
