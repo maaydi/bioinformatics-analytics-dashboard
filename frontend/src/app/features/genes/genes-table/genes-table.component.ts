@@ -20,6 +20,9 @@ import {
   SortDirection,
   SortExchangeEvent
 } from '@shared/components/custom-header-sort/custom-header-sort.component';
+import {MatChip, MatChipSet} from '@angular/material/chips';
+import {SlicePipe} from '@angular/common';
+import {MatTooltip} from '@angular/material/tooltip';
 
 
 /**
@@ -51,7 +54,11 @@ import {
     MatRow,
     MatHeaderRowDef,
     MatRowDef,
-    CustomHeaderSortComponent
+    CustomHeaderSortComponent,
+    MatChipSet,
+    MatChip,
+    SlicePipe,
+    MatTooltip
   ],
   templateUrl: './genes-table.component.html',
   styleUrl: './genes-table.component.scss',

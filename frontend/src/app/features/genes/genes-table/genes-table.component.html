@@ -113,7 +113,25 @@
             label="Keywords">
           </app-custom-header-sort>
         </th>
-        <td *matCellDef="let row" mat-cell>{{ row.keywords }}</td>
+        <td *matCellDef="let row" mat-cell>
+          @if (row.keywords && row.keywords.length > 0) {
+            <mat-chip-set>
+              @for (keyword of row.keywords | slice:0:2; track keyword) {
+                <mat-chip>
+                  {{ keyword }}
+                </mat-chip>
+              }
+              @if (row.keywords.length > 2) {
+                <mat-chip
+                  [matTooltip]="(row.keywords | slice:2).join(', ')"
+                  class="more-counter-chip"
+                  matTooltipPosition="above">
+                  +{{ row.keywords.length - 2 }} more
+                </mat-chip>
+              }
+            </mat-chip-set>
+          }
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">

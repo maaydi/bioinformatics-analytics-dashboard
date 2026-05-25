@@ -157,3 +157,20 @@
     color: #c62828;
   }
 }
+
+.more-counter-chip {
+  background-color: #e0e0e0;
+  font-weight: bold;
+  color: #555;
+}
+
+.add-icon {
+  align-self: center;
+  font-size: 0.75rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  cursor: text;
+  color: var(--mat-sys-outline);
+
+  transition: color 0.2s ease;
+}
