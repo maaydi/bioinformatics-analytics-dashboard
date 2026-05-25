@@ -20,18 +20,6 @@
         class="filters-form"
   >
     <div class="filters-scroll-area">
-    <!--  Global Search -->
-    <app-input
-      [isSearch]="true"
-      formControlName="globalSearch"
-      hintLabel="Search across all indexed fields"
-      placeholder="Search proteins, genes, organisms"
-      title="Global Search"
-    >
-    </app-input>
-    @if (form.controls.globalSearch.touched && form.controls.globalSearch.hasError('maxlength')) {
-      <mat-error class="error-message">Global Search is limited to 200 characters.</mat-error>
-    }
     <!--  Basic fields -->
     <app-input
       formControlName="accession"

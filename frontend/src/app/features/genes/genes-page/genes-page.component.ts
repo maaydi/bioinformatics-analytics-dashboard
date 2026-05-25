@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {MatCard} from '@angular/material/card';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
+import {GlobalSearchComponent} from '@features/genes/global-search/global-search.component';
 import {GenesTableComponent} from '@features/genes/genes-table/genes-table.component';
 import {GenesStore} from '@features/genes/state/filters.store';
 
@@ -17,6 +18,7 @@ import {GenesStore} from '@features/genes/state/filters.store';
   imports: [
     MatCard,
     GeneFilterComponent,
+    GlobalSearchComponent,
     GenesTableComponent
   ],
   templateUrl: './genes-page.component.html',

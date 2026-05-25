@@ -53,7 +53,6 @@ export class GlobalSearchComponent {
   }
 
   errorMessage(): string {
-    console.log(this.globalSearchValue().length > this.MAX_GLOBAL_SEARCH_LEN);
     return `Your search cannot be longer than ${(this.MAX_GLOBAL_SEARCH_LEN)} characters.
       Please shorten your text and try again.`;
   }

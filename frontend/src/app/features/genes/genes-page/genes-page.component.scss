@@ -21,18 +21,31 @@
 }
 
 .result-card {
-  .mat-mdc-card-content {
-    padding-top: 1.5rem;
-    flex: 1 1 auto;
-    display: flex;
-    min-height: 0;
-  }
-
   flex: 1 1 auto;
+  height: calc(100dvh - 90px);
+  max-height: calc(100dvh - 90px);
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  .result-card__search {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 1rem 1rem 0;
+    box-sizing: border-box;
+
+    app-global-search {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  app-genes-table {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+  }
 }
 
 @media (max-width: 1080px) {
@@ -44,11 +57,18 @@
   .filter-card,
   .result-card {
     flex: 1 1 auto;
+    height: auto;
+    max-height: none;
+  }
+
+  .result-card {
+    .result-card__search {
+      padding-block-end: 0.25rem;
+    }
   }
 
   .filter-card {
-    height: auto;
-    max-height: none;
+    min-height: auto;
   }
 }
 

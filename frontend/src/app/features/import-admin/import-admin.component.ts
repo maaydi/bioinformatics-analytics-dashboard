@@ -243,7 +243,6 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (history) => {
-        console.log(history);
         this.jobHistory.set(history.content);
         this.totalJobs.set(history.totalElements);
         this.forceLoadHistory.set(false);

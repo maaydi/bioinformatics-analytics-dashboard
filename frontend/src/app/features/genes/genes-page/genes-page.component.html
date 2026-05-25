@@ -4,6 +4,12 @@
                      [value]="store.activeFilters()"></app-gene-filter>
   </mat-card>
   <mat-card aria-label="Gene search results" class="result-card">
+    <div class="result-card__search">
+      <app-global-search
+        (filterChange)="store.searchGene($event)"
+        [filters]="store.activeFilters()"
+      ></app-global-search>
+    </div>
     <app-genes-table
       (rowClick)="store.selectGeneSummary($event)"
       [data]="store.searchResult()"
