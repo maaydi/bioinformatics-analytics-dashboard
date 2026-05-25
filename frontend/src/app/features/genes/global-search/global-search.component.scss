@@ -1,0 +1,23 @@
+@use "form-shared" as shared;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.table-header-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.global-search-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: 1rem;
+}
+
+
+.label-container {
+  @include shared.table-title;
+}

@@ -1,0 +1,18 @@
+<div class="table-header-actions">
+  <div class="label-container">
+    <label class="section-label">Global Search</label>
+    <mat-icon
+      class="help-icon"
+      matTooltip="Search across all indexed fields"
+      matTooltipPosition="above">
+      help_outline
+    </mat-icon>
+  </div>
+  <mat-form-field appearance="outline" class="global-search-field">
+    <input (input)="onSearchInput($event)"
+           [value]="globalSearchValue()"
+           matInput
+           placeholder="Search proteins, genes, organisms...">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+</div>
