@@ -91,7 +91,8 @@ export const GenesStore = signalStore(
           return v !== null && v !== undefined && v !== '';
         });
       if (!hasRemainingFilters) {
-        this.clearFilters();
+        patchState(store, {page: 0});
+        this.searchGene({});
         return;
       }
       patchState(store, {page: 0});

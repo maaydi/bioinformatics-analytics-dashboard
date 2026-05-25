@@ -146,14 +146,13 @@ describe('GenesStore', () => {
     expect(searchSpy).not.toHaveBeenCalled();
   });
 
-  it('should clear all state when removing the last active filter', () => {
+  it('should reload unfiltered results when removing the last active filter', () => {
     store.searchGene({accession: 'P12345'});
-    const clearSpy = vi.spyOn(store, 'clearFilters');
+    const searchSpy = vi.spyOn(store, 'searchGene');
 
     store.removeFilter('accession');
 
-    expect(clearSpy).toHaveBeenCalledOnce();
-    expect(store.activeFilters()).toBeNull();
+    expect(searchSpy).toHaveBeenCalledWith({});
   });
 
   it('should remove one filter and trigger a refreshed search when filters remain', () => {

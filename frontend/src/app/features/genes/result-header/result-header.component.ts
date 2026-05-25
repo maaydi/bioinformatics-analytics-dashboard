@@ -20,6 +20,7 @@ export class ResultHeaderComponent {
   readonly totalGenes = computed<number>(() => this.data()?.totalElements ?? 0);
   readonly pageSize = computed<number>(() => this.data()?.size ?? 50);
   readonly pageIndex = computed<number>(() => this.data()?.page ?? 0);
+  readonly totalPages = computed<number>(() => this.data()?.totalPages ?? 0);
 
   onPageChange(event: PageEvent) {
     this.updatePage.emit({page: event.pageIndex, size: event.pageSize});

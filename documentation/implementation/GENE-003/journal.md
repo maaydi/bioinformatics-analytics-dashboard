@@ -50,3 +50,57 @@
 - [ ] Quality risk: existing tests are insufficient to cover critical GENE-003 acceptance criteria (
   pagination/sorting/retry/navigation).
 
+## 2026-05-25
+
+### Frontend code review (against `GENE-003/overview.md` acceptance criteria)
+
+#### Passed
+
+- [x] Route `/genes` is lazy-loaded in `frontend/src/app/app.routes.ts`.
+- [x] Sorting cycle is implemented in `custom-header-sort` (asc -> desc -> reset to `id ASC`).
+- [x] Paginator exposes page size options `50/100/200` and total count binding.
+- [x] `ChangeDetectionStrategy.OnPush` is set on `GenesPageComponent`, `GenesTableComponent`, `ResultHeaderComponent`.
+
+#### Failed / Not aligned
+
+- [ ] **Major gap:** `GenesTableComponent` still uses Angular Material table, not AG Grid server-side model.
+- [ ] Row click does not navigate to `/genes/{id}` (it only stores selected row in `GenesStore`).
+- [ ] Empty state text does not match criterion (`"No proteins found"`).
+- [ ] Loading skeleton is missing (only plain loading text is rendered).
+- [ ] Error state has no `Retry` button.
+- [ ] Pagination does not explicitly show "current page / total pages / total pages count" as required.
+
+#### Test coverage remarks
+
+- [ ] `GenesTableComponent` unit tests exist but do not validate GENE-003 critical flows (retry, navigation wiring,
+  server-side AG Grid behavior).
+- [ ] `GenesPageComponent` tests are structural only; no behavior test for row navigation.
+
+#### Decision
+
+- [ ] **GENE-003 is not fully compliant yet**; acceptance criteria remain partially unmet.
+
+### Implementation update (follow-up)
+
+#### Implemented
+
+- [x] `GenesTableComponent` now renders with AG Grid and modern row-selection config (
+  `rowSelection.enableClickSelection = false`).
+- [x] Loading skeleton, empty state (`"No proteins found"`), and error state with `Retry` are implemented in table UI.
+- [x] Row click wiring to `/genes/{id}` is active in `GenesPageComponent` and covered by unit tests.
+- [x] Sort emission tests now cover asc/desc/reset behavior (`id ASC` reset fallback).
+- [x] Pagination summary text now explicitly shows current page, total pages, and total results.
+
+#### Verification run
+
+- [x] Executed:
+  `npm test -- --include src/app/features/genes/genes-table/genes-table.component.spec.ts --include src/app/features/genes/genes-page/genes-page.component.spec.ts`
+- [x] Result: 2/2 files passed, 17/17 tests passed.
+- [~] Coverage gate (>=80%) not yet measured in this run because Angular unit-test builder rejected `--code-coverage` (
+  `Unknown argument: code-coverage`).
+
+#### Current decision
+
+- [~] Functional acceptance criteria are implemented for table/page behavior and UI states.
+- [ ] Coverage evidence for the mandatory >=80% gate remains an open blocker until coverage reporting is wired/executed.
+

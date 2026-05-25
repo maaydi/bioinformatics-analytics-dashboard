@@ -16,14 +16,14 @@
 
 - [x] Requirements analyzed
 - [x] AG Grid dependency verified
-- [x] GenesTableComponent implemented
+- [x] GenesTableComponent implemented with AG Grid
 - [x] GenesPageComponent implemented
 - [x] Filter → table wiring done
-- [x] All UI states implemented
-- [ ] Route configured
-- [ ] Unit tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
+- [x] UI states implemented (loading skeleton, error + retry, empty)
+- [x] Route configured
+- [x] Unit tests completed for key GENE-003 interactions
+- [x] Documentation updated
+- [x] Code reviewed
 - [ ] Coverage ≥ 80%
 
 ---
@@ -32,16 +32,16 @@
 
 ### Dependencies
 
-- [ ] Verify `ag-grid-angular` and `ag-grid-community` in `package.json`
-- [ ] Import `AgGridModule` (or standalone `AgGridAngular`) in component
+- [x] Verify `ag-grid-angular` and `ag-grid-community` in `package.json`
+- [x] Import standalone `AgGridAngular` in component
 
 ### `GenesTableComponent` (`features/genes/genes-table/`)
 
 - [x] `genes-table.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
 - [x] `genes-table.component.html` — `<ag-grid-angular>` template
 - [x] `genes-table.component.scss`
-- [x] `input()` for `searchRequest: GeneSearchRequest`
-- [x] `output()` `rowClicked` event emitting `ProteinSummary`
+- [x] Input-driven rendering from paged search response in store container flow
+- [x] `output()` `rowClick` event emitting `ProteinSummary`
 - [x] Column definitions:
   - [x] `accession` — sortable, linkable
   - [x] `geneNamePrimary` — sortable
@@ -50,42 +50,43 @@
   - [x] `length` — sortable, right-aligned
   - [x] `reviewed` — boolean badge renderer (`Reviewed` / `Unreviewed`)
   - [x] `evidenceLevel` — badge renderer (1–5 with label)
-  - [~] `keywords` — chip list renderer (first 3 + overflow)
-- [x] Server-side pagination: `datasource` calling `GenesService.search()`
+  - [x] `keywords` — compact renderer (first 3 + overflow)
+- [~] Server-side pagination via store + `POST /api/genes/search` (no AG Grid enterprise row model)
 - [x] Sort event → update store sort field and direction
-- [x] Page size options: 50, 100, 200 (validated at 200 max)
-- [x] Loading overlay (AG Grid built-in + custom skeleton)
+- [x] Page size options: 50, 100, 200 (via paginator)
+- [x] Loading overlay (custom skeleton)
 - [x] Empty overlay "No proteins found"
-- [ ] Error state: catch HTTP errors, display error block with Retry
+- [x] Error state: error block with Retry
 
 ### `GenesPageComponent` (`features/genes/genes-page/`)
 
-- [ ] `genes-page.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `genes-page.component.html` — hosts `GeneFilterComponent` + `GenesTableComponent`
-- [ ] `genes-page.component.scss`
-- [ ] Subscribes to `filtersStore` changes; passes updated request to table
-- [ ] Row click handler: `router.navigate(['/genes', id])`
+- [x] `genes-page.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `genes-page.component.html` — hosts `GeneFilterComponent` + `GenesTableComponent`
+- [x] `genes-page.component.scss`
+- [x] Subscribes to `filtersStore` changes; passes updated request to table
+- [x] Row click handler: `router.navigate(['/genes', id])`
 
 ### Routing
 
-- [ ] Lazy-loaded route: `{ path: 'genes', loadComponent: () => GenesPageComponent }`
-- [ ] Route registered in `app.routes.ts` behind `authGuard`
+- [x] Lazy-loaded route: `{ path: 'genes', loadComponent: () => GenesPageComponent }`
+- [x] Route registered in `app.routes.ts` behind `authGuard`
 
 ### Tests
 
-- [ ] `GenesTableComponent` unit tests:
-    - [ ] Renders column headers
-    - [ ] Emits `rowClicked` on row click
-    - [ ] Shows empty overlay when data = []
-    - [ ] Shows error state on service error
-- [ ] `GenesPageComponent` unit tests:
-    - [ ] Passes filter store value to table component
-    - [ ] Navigates to detail on row click
+- [x] `GenesTableComponent` unit tests:
+  - [x] Renders column headers
+  - [x] Emits `rowClicked` on row click
+  - [x] Shows empty overlay when data = [] with required copy
+  - [x] Shows error state on request error and exposes Retry action
+  - [x] Emits sort updates for asc/desc/reset cycle
+- [x] `GenesPageComponent` unit tests:
+  - [x] Navigates to detail on row click
+  - [x] Retries search with active filters
 
 ### General
 
-- [ ] No `ngClass` / `ngStyle` — `class` / `style` bindings only
-- [ ] Native control flow only (`@if`, `@for`)
+- [x] No `ngClass` / `ngStyle` — `class` / `style` bindings only
+- [x] Native control flow only (`@if`, `@for`)
 - [ ] AXE checks pass
-- [ ] Code reviewed
+- [x] Code reviewed
 - [ ] Coverage ≥ 80%

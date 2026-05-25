@@ -1,6 +1,10 @@
 <div class="table-header-actions">
   <div class="label-container">
     <label class="section-label">Results ({{ totalGenes() }})</label>
+    <div class="page-summary">
+      Page {{ pageIndex() + 1 }} / {{ totalPages() }} - Total pages: {{ totalPages() }} - Total
+      results: {{ totalGenes() }}
+    </div>
   </div>
   <mat-paginator
     (page)="onPageChange($event)"

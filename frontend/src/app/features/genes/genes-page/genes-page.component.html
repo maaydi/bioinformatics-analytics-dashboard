@@ -1,12 +1,12 @@
 <div class="page-container">
   <mat-card appearance="outlined" aria-label="Gene search filters" class="filter-card">
-    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"
+    <app-gene-filter (filterChange)="applyFilters($event)" (filterClear)="clearFilters()"
                      [value]="store.activeFilters()"></app-gene-filter>
   </mat-card>
   <mat-card aria-label="Gene search results" class="result-card">
     <div class="result-card__search">
       <app-global-search
-        (filterChange)="store.searchGene($event)"
+        (filterChange)="applyFilters($event)"
         [filters]="store.activeFilters()"
       ></app-global-search>
     </div>
@@ -23,10 +23,10 @@
       </app-result-header>
     </div>
     <app-genes-table
-      (rowClick)="store.selectGeneSummary($event)"
+      (retryClick)="retrySearch()"
+      (rowClick)="openGeneDetails($event)"
       [data]="store.searchResult()"
       [errorMessage]="store.onErrorMessage()"
-      [filters]="store.activeFilters()"
       [loading]="store.loading()"
       [chipsCount]="store.chipsCount()"
       (updateSortDirection)="store.updatePaginationAndSort($event)"

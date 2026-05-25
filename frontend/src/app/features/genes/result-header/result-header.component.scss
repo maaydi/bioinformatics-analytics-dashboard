@@ -17,3 +17,10 @@
 .label-container {
   @include shared.filter-label-container;
 }
+
+.page-summary {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+

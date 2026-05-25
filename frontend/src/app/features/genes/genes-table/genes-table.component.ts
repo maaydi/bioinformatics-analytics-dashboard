@@ -1,28 +1,11 @@
-import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import {AgGridAngular} from 'ag-grid-angular';
+import {AllCommunityModule, ColDef, ModuleRegistry, RowClickedEvent, SortChangedEvent} from 'ag-grid-community';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
-import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable
-} from '@angular/material/table';
-import {MatIcon} from '@angular/material/icon';
-import {
-  CustomHeaderSortComponent,
-  SortDirection,
-  SortExchangeEvent
-} from '@shared/components/custom-header-sort/custom-header-sort.component';
-import {MatChip, MatChipSet} from '@angular/material/chips';
-import {SlicePipe} from '@angular/common';
-import {MatTooltip} from '@angular/material/tooltip';
+import {GeneFilterPageSort} from '@core/models/saved-filter.model';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 
 /**
@@ -42,59 +25,126 @@ import {MatTooltip} from '@angular/material/tooltip';
  */
 @Component({
   selector: 'app-genes-table',
-  imports: [
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCellDef,
-    MatCell,
-    MatIcon,
-    MatHeaderRow,
-    MatRow,
-    MatHeaderRowDef,
-    MatRowDef,
-    CustomHeaderSortComponent,
-    MatChipSet,
-    MatChip,
-    SlicePipe,
-    MatTooltip
-  ],
+  imports: [AgGridAngular],
   templateUrl: './genes-table.component.html',
   styleUrl: './genes-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesTableComponent {
-  currentSortField: string = 'id';
-  currentSortDirection: SortDirection = 'asc';
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
-  readonly chipsCount = input<number>(0);
-  readonly errorMessage = input<String | null>(null);
+  readonly errorMessage = input<string | null>(null);
   readonly loading = input(false);
-  readonly filters = input<GeneFilterSnapshot | null>(null);
-  readonly updateSortDirection = output<GeneFilterPageSort>();
-  readonly displayedColumns = [
-    'accession', 'geneNamePrimary', 'proteinFullName', 'organismName', 'length', 'reviewed', 'evidenceLevel', 'keywords', 'actions'
+  readonly chipsCount = input<number>(0);
+
+  readonly rows = computed(() => this.data()?.content ?? []);
+  readonly hasRows = computed(() => this.rows().length > 0);
+  readonly hasError = computed(() => Boolean(this.errorMessage()));
+
+  readonly columnDefs: ColDef<ProteinSummary>[] = [
+    {
+      field: 'accession',
+      headerName: 'Accession',
+      sortable: true,
+      minWidth: 140,
+      sort: 'asc',
+      sortIndex: 0,
+    },
+    {
+      field: 'geneNamePrimary',
+      headerName: 'Gene Name',
+      sortable: true,
+      minWidth: 160,
+      valueFormatter: ({value}) => value ?? '-',
+    },
+    {
+      field: 'proteinFullName',
+      headerName: 'Protein Name',
+      sortable: true,
+      minWidth: 220,
+      valueFormatter: ({value}) => value ?? '-',
+    },
+    {
+      field: 'organismName',
+      headerName: 'Organism',
+      sortable: true,
+      minWidth: 220,
+    },
+    {
+      field: 'length',
+      headerName: 'Length',
+      sortable: true,
+      minWidth: 110,
+      type: 'numericColumn',
+    },
+    {
+      field: 'reviewed',
+      headerName: 'Reviewed',
+      sortable: true,
+      minWidth: 130,
+      valueFormatter: ({value}) => (value ? 'Reviewed' : 'Unreviewed'),
+    },
+    {
+      field: 'evidenceLevel',
+      headerName: 'Evidence Level',
+      sortable: true,
+      minWidth: 150,
+      type: 'numericColumn',
+    },
+    {
+      field: 'keywords',
+      headerName: 'Keywords',
+      sortable: false,
+      minWidth: 260,
+      valueFormatter: ({value}) => {
+        if (!Array.isArray(value) || value.length === 0) {
+          return '-';
+        }
+        if (value.length <= 3) {
+          return value.join(', ');
+        }
+        return `${value.slice(0, 3).join(', ')} +${value.length - 3} more`;
+      },
+    },
   ];
 
-  readonly sortChange = output<{ field: string; direction: 'asc' | 'desc' }>();
-  readonly pageChange = output<{ page: number; size: number }>();
-  readonly rowClick = output<ProteinSummary>();
-  readonly exportClick = output<void>();
+  readonly defaultColDef: ColDef<ProteinSummary> = {
+    resizable: true,
+    unSortIcon: true,
+    suppressMovable: true,
+    flex: 1,
+  };
 
-  /** Emits the selected row to the container for navigation/details handling. */
-  selectRowSummary(row: ProteinSummary): void {
-    this.rowClick.emit(row);
+  readonly rowSelection = {
+    mode: 'singleRow' as const,
+    enableClickSelection: false,
+  };
+
+  readonly updateSortDirection = output<GeneFilterPageSort>();
+  readonly rowClick = output<ProteinSummary>();
+  readonly retryClick = output<void>();
+
+  onGridRowClicked(event: RowClickedEvent<ProteinSummary>): void {
+    if (event.data) {
+      this.rowClick.emit(event.data);
+    }
   }
 
-  onSortChange(event: SortExchangeEvent): void {
-    this.currentSortField = event.field;
-    this.currentSortDirection = event.direction;
+  onGridSortChanged(event: SortChangedEvent<ProteinSummary>): void {
+    const sortedColumn = event.api.getColumnState().find((state) => state.sort === 'asc' || state.sort === 'desc');
+    if (!sortedColumn?.colId || !sortedColumn.sort) {
+      this.updateSortDirection.emit({sort: 'id', direction: 'asc', page: 0});
+      return;
+    }
+
     this.updateSortDirection.emit({
-      sort: this.currentSortField,
-      direction: this.currentSortDirection === 'desc' ? 'desc' : 'asc'
+      sort: sortedColumn.colId,
+      direction: sortedColumn.sort,
+      page: 0,
     });
   }
 
+  retrySearch(): void {
+    this.retryClick.emit();
+  }
 
 }

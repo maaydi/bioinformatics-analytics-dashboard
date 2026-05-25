@@ -1,176 +1,89 @@
-@use "form-shared" as shared;
-
-
 :host {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+
+.table-wrapper {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.gene-grid {
   width: 100%;
   height: 100%;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 460px;
+
+  --ag-header-height: 44px;
+  --ag-row-height: 44px;
+  --ag-font-size: 13px;
+  --ag-border-color: #d0d7de;
+  --ag-header-background-color: #f5f7fa;
+  --ag-row-hover-color: #f3f4f6;
 }
 
-.gene-table-title {
-  @include shared.table-title;
-}
-
-.error-msg {
-  margin: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--mat-sys-error);
+.state-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1rem;
+  text-align: center;
 }
 
 .table-state {
-  margin: 1rem;
+  margin: 0;
   color: var(--mat-sys-on-surface-variant);
 }
 
-.table-responsive-container {
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  margin-top: 0.75rem;
-  overflow-x: auto;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+.error-msg {
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-weight: 600;
 }
 
-.gene-result-table {
-  width: 100%;
-  min-width: 840px;
-  border-collapse: separate;
-  border-spacing: 0;
-
-  $header-background: #cecece;
-
-  tr.mat-mdc-header-row {
-    background-color: $header-background;
-    z-index: 3;
-  }
-
-  th.mat-mdc-header-cell {
-    position: sticky;
-    background-color: $header-background;
-    font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 0.3px;
-    top: 0;
-    z-index: 4;
-    background-clip: padding-box;
-    opacity: 1;
-  }
-
-  td.mat-mdc-cell,
-  th.mat-mdc-header-cell {
-    padding-inline: 0.75rem;
-  }
-}
-
-.more-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
+.retry-button {
+  border: 1px solid var(--mat-sys-primary);
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
   background: transparent;
+  color: var(--mat-sys-primary);
   cursor: pointer;
-  color: var(--mat-sys-on-surface-variant);
 }
 
-.more-button:hover {
-  color: var(--mat-sys-on-surface);
-}
-
-.more-button:focus-visible {
+.retry-button:focus-visible {
   outline: 2px solid var(--mat-sys-primary);
   outline-offset: 2px;
-  border-radius: 999px;
 }
 
-.accession-col {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--mat-sys-primary);
+.skeleton-title,
+.skeleton-row {
+  width: min(560px, 92%);
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eceff1 25%, #f7f9fa 37%, #eceff1 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.2s ease infinite;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.skeleton-title {
+  height: 16px;
 }
 
-.review-badge {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: 1px solid transparent;
+.skeleton-row {
+  height: 38px;
+}
 
-  &.is-reviewed {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    border-color: rgba(#2e7d32, 0.2);
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
   }
-
-  &.not-reviewed {
-    background-color: #fff3e0;
-    color: #e65100;
-    border-color: rgba(#e65100, 0.2);
+  100% {
+    background-position: 0 50%;
   }
-}
-
-.evidence-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  background-color: #ffffff;
-
-  font-size: 0.85rem;
-  font-weight: 700;
-
-  &.level-1, &.level-2 {
-    border-color: #2e7d32;
-    color: #2e7d32;
-  }
-
-  &.level-3 {
-    border-color: #e65100;
-    color: #e65100;
-  }
-
-  &.level-4, &.level-5 {
-    border-color: #c62828;
-    color: #c62828;
-  }
-}
-
-.more-counter-chip {
-  background-color: #e0e0e0;
-  font-weight: bold;
-  color: #555;
-}
-
-.add-icon {
-  align-self: center;
-  font-size: 0.75rem;
-  width: 0.75rem;
-  height: 0.75rem;
-  cursor: text;
-  color: var(--mat-sys-outline);
-
-  transition: color 0.2s ease;
 }
