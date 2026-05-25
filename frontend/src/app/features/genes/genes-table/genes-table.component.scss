@@ -14,13 +14,6 @@
   @include shared.table-title;
 }
 
-.criteria-chip-set {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.25rem 1rem 0;
-}
-
 .error-msg {
   margin: 1rem;
   font-size: 1rem;

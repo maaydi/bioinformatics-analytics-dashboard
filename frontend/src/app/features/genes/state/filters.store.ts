@@ -10,6 +10,7 @@ import {tapResponse} from '@ngrx/operators';
 
 export interface FilterState {
   activeFilters: GeneFilterSnapshot | null;
+  chipsCount: number;
   searchResult: PagedResponse<ProteinSummary> | null;
   onErrorMessage: string | null;
   selectedGene: ProteinSummary | null;
@@ -18,6 +19,7 @@ export interface FilterState {
 
 const initialState: FilterState = {
   activeFilters: null,
+  chipsCount: 0,
   searchResult: null,
   onErrorMessage: null,
   selectedGene: null,
@@ -31,6 +33,12 @@ export const GenesStore = signalStore(
     /** Stores the row selected in the results table. */
     selectGeneSummary(protein: ProteinSummary): void {
       patchState(store, {selectedGene: protein});
+    },
+
+    updateChipsCount(value: number) {
+      if (value >= 0) {
+        patchState(store, {chipsCount: value});
+      }
     },
 
     /** Clears filters, current result set, selected row, and error state. */

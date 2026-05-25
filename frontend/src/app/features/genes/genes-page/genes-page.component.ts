@@ -4,6 +4,7 @@ import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.compo
 import {GlobalSearchComponent} from '@features/genes/global-search/global-search.component';
 import {GenesTableComponent} from '@features/genes/genes-table/genes-table.component';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {ActiveFiltersComponent} from '@features/genes/active-filters/active-filters.component';
 
 /**
  * Container component for the Genes feature.
@@ -19,7 +20,8 @@ import {GenesStore} from '@features/genes/state/filters.store';
     MatCard,
     GeneFilterComponent,
     GlobalSearchComponent,
-    GenesTableComponent
+    GenesTableComponent,
+    ActiveFiltersComponent
   ],
   templateUrl: './genes-page.component.html',
   styleUrl: './genes-page.component.scss',

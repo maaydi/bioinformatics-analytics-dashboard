@@ -1,20 +1,6 @@
-@if (filtersChips().length > 0) {
-  <div class="gene-table-title">
-    <span>Active Filters</span>
-  </div>
-  <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
-    @for (chip of filtersChips(); track chip.label + chip.value) {
-      <mat-chip (removed)="removeFilter(chip.key)" removable>{{ chip.label }}: {{ chip.value }}
-        <button aria-label="Remove Filter" matChipRemove>
-          <mat-icon>cancel</mat-icon>
-        </button>
-      </mat-chip>
-    }
-  </mat-chip-set>
-}
 @if (loading()) {
   <div aria-live="polite" class="table-state">Loading gene results…</div>
-} @else if ((data()?.content?.length ?? 0) > 0 && filtersChips().length > 0) {
+} @else if ((data()?.content?.length ?? 0) > 0 && chipsCount() > 0) {
   <div class="table-responsive-container">
     <table [dataSource]="data()!.content" class="mat-elevation-z1 gene-result-table"
            mat-table>
