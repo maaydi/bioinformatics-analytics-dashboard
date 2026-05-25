@@ -1,15 +1,37 @@
+@use "design-system" as ds;
+
 .keywords-search-field {
   width: 100%;
   display: block;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    min-height: 40px;
+  }
+
+  ::ng-deep input.mat-mdc-form-field-input {
+    @include ds.text-body-sm;
+    height: 40px;
+    padding: ds.$spacing-sm ds.$spacing-md;
+  }
 }
 
+/**
+ * SELECTED COUNT: Badge showing number of selected keywords
+ */
 .selected-count {
-  font-size: 0.75rem;
-  color: var(--mat-sys-primary, #1976d2);
-  font-weight: 500;
-  margin-right: 0.25rem;
+  @include ds.text-label-sm;
+  color: var(--mat-sys-primary, #3b82f6);
+  font-weight: ds.$font-weight-bold;
+  margin-right: ds.$spacing-xs;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(var(--mat-sys-primary-rgb, 59, 130, 246), 0.1);
+  border-radius: ds.$border-radius-sm;
+  display: inline-block;
 }
 
+/**
+ * KEYWORD OPTION: Custom option styling inside dropdown
+ */
 .keyword-option {
   ::ng-deep(.mat-mdc-option-text) {
     width: 100%;
@@ -18,9 +40,17 @@
   mat-checkbox {
     width: 100%;
     pointer-events: none;
+    display: flex;
+    align-items: center;
 
     ::ng-deep(.mdc-form-field) {
       width: 100%;
+    }
+
+    ::ng-deep(.mat-mdc-checkbox-label) {
+      @include ds.text-body-sm;
+      color: ds.$color-on-surface;
+      margin-left: ds.$spacing-xs;
     }
   }
 }

@@ -1,7 +1,13 @@
+@use "design-system" as ds;
+
+/**
+ * Filter form group styling with unified design system
+ * Ensures consistent sizing and typography across all filter controls
+ */
 @mixin filter-section-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: ds.$spacing-xs;
 
   ::ng-deep .mat-mdc-text-field-wrapper {
     padding-top: 0 !important;
@@ -17,54 +23,84 @@
 
   ::ng-deep input.mat-mdc-form-field-input {
     height: auto !important;
-    line-height: normal !important;
+    line-height: ds.$line-height-normal !important;
+    @include ds.text-body-sm;
+  }
+
+  ::ng-deep .mdc-form-field {
+    font-family: ds.$font-family-base;
   }
 }
 
+/**
+ * Label and icon container for filter sections
+ * Provides consistent layout with optional help icons
+ */
 @mixin filter-label-container {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: ds.$spacing-xs;
 
   .section-label {
-    font-weight: 500;
-    font-size: 0.875rem;
+    @include ds.text-title-sm;
     color: var(--mat-sys-on-surface-variant);
   }
 
   .help-icon {
-    font-size: 1rem;
+    @include ds.text-body-sm;
     width: 1rem;
     height: 1rem;
     cursor: help;
     color: var(--mat-sys-outline);
-
-    transition: color 0.2s ease;
+    flex-shrink: 0;
+    transition: color 0.2s ease, transform 0.2s ease;
 
     &:hover {
       color: var(--mat-sys-primary);
+      transform: scale(1.1);
+    }
+
+    &:focus-visible {
+      @include ds.focus-ring();
+      border-radius: ds.$border-radius-sm;
     }
   }
 }
 
+/**
+ * Error message styling with strict typography and spacing
+ */
 @mixin filter-error-message {
-  font-weight: 400;
-  font-size: 0.75rem;
-  margin-bottom: 0.25rem;
+  @include ds.text-body-sm;
+  font-weight: ds.$font-weight-regular;
+  color: var(--mat-sys-error);
+  margin-bottom: ds.$spacing-xs;
+  display: flex;
+  align-items: flex-start;
+  gap: ds.$spacing-xs;
 }
 
+/**
+ * Table section title styling
+ * Used for labels above gene search results and active filters
+ */
 @mixin table-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 1.05rem;
-  font-weight: 600;
+  gap: ds.$spacing-md;
+  @include ds.text-title-md;
+  color: var(--mat-sys-on-surface);
   width: 100%;
-  margin: 1rem 1rem 0.25rem;
+  margin: ds.$spacing-lg ds.$spacing-lg ds.$spacing-xs;
+  padding: 0;
 }
 
+/**
+ * Error message for table and search contexts
+ */
 @mixin error-text {
+  @include ds.text-body-sm;
   color: var(--mat-sys-error);
-  font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: ds.$spacing-md;
+  font-weight: ds.$font-weight-medium;
 }

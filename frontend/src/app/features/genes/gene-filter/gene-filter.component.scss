@@ -1,10 +1,12 @@
 @use "form-shared" as shared;
+@use "design-system" as ds;
 
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  font-family: ds.$font-family-base;
 }
 
 mat-card-content {
@@ -12,23 +14,33 @@ mat-card-content {
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  gap: ds.$spacing-xs;
 }
 
 .filters-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding-bottom: 0.75rem;
+  gap: ds.$spacing-md;
+  padding-bottom: ds.$spacing-md;
+  border-bottom: 1px solid ds.$color-border-light;
 }
 
 .filter-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  width: auto;
+  gap: ds.$spacing-sm;
+  @include ds.text-title-md;
+  color: ds.$color-on-surface;
+  font-weight: ds.$font-weight-semibold;
+  letter-spacing: -0.25px;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--mat-sys-primary);
+  }
 }
 
 .filters-form {
@@ -36,20 +48,42 @@ mat-card-content {
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  gap: 0.25rem;
-  padding-top: 0.75rem;
+  gap: ds.$spacing-xs;
+  padding-top: ds.$spacing-md;
   overflow: hidden;
-  padding-right: 0.5rem;
+  padding-right: ds.$spacing-xs;
 }
 
 .filters-scroll-area {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: ds.$spacing-md;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding-bottom: 0.75rem;
+  overflow-x: hidden;
+  padding-bottom: ds.$spacing-md;
+  padding-right: ds.$spacing-xs;
+  scrollbar-width: thin;
+  scrollbar-color: ds.$color-border-medium ds.$color-surface-subtle;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: ds.$color-surface-subtle;
+    border-radius: ds.$border-radius-full;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ds.$color-border-medium;
+    border-radius: ds.$border-radius-full;
+
+    &:hover {
+      background: ds.$color-border-strong;
+    }
+  }
 }
 
 .filter-group {
@@ -64,29 +98,71 @@ mat-card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.25rem;
-}
+  gap: ds.$spacing-xs;
+  width: 100%;
 
-.checkbox-flex mat-checkbox {
-  margin-top: 0;
-  margin-bottom: 0;
+  mat-checkbox {
+    margin: 0;
+
+    &:focus-visible {
+      @include ds.focus-ring();
+      border-radius: ds.$border-radius-sm;
+    }
+  }
 }
 
 .group-spacer {
-  margin-bottom: 0.75rem;
+  margin-bottom: ds.$spacing-md;
 }
 
 .filter-actions {
   margin-top: auto;
-  background: var(--mat-sys-surface);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  border-top: 1px solid var(--mat-sys-outline-variant);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-}
+  background: ds.$color-surface;
+  padding: ds.$spacing-lg ds.$spacing-md;
+  border-top: 1px solid ds.$color-border-light;
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-sm;
+  @include ds.shadow-sm;
 
-.filter-actions button {
-  width: 100%;
+  button {
+    width: 100%;
+    @include ds.text-body-sm;
+    padding: ds.$spacing-sm ds.$spacing-md;
+    border-radius: ds.$border-radius-md;
+    font-weight: ds.$font-weight-medium;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @include ds.focus-visible;
+  }
+
+  .apply-btn {
+    background-color: var(--mat-sys-primary);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: var(--mat-sys-primary-container);
+      @include ds.shadow-md;
+    }
+  }
+
+  .clear-btn {
+    background-color: transparent;
+    color: var(--mat-sys-primary);
+    border: 1px solid ds.$color-border-light;
+
+    &:hover:not(:disabled) {
+      background-color: ds.$color-surface-hover;
+      border-color: ds.$color-border-medium;
+    }
+  }
 }
 
 .error-message {

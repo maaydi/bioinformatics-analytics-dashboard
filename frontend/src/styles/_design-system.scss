@@ -1,0 +1,427 @@
+/**
+ * @file _design-system.scss
+ * @description Unified design system for Genes component
+ * Ensures coherent typography, colors, and responsive layout across HD (1366x768) and FHD (1920x1080)
+ */
+
+// ============================================================================
+// TYPOGRAPHY SCALE
+// ============================================================================
+
+// Font families
+$font-family-base: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+$font-family-mono: "Roboto Mono", "Monaco", "Courier New", monospace;
+
+// Base font sizes (rem-based for accessibility)
+$font-size-xs: 0.75rem; // 12px
+$font-size-sm: 0.875rem; // 14px
+$font-size-base: 1rem; // 16px
+$font-size-lg: 1.125rem; // 18px
+$font-size-xl: 1.25rem; // 20px
+
+// Line heights (unitless for better inheritance)
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// Font weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Text styles (mixins for consistent application)
+@mixin text-headline-sm {
+  font-family: $font-family-base;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  letter-spacing: -0.25px;
+}
+
+@mixin text-title-md {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  letter-spacing: 0;
+}
+
+@mixin text-title-sm {
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  letter-spacing: 0.5px;
+}
+
+@mixin text-body-md {
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  letter-spacing: 0.25px;
+}
+
+@mixin text-body-sm {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  letter-spacing: 0.4px;
+}
+
+@mixin text-label-md {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-tight;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+@mixin text-label-sm {
+  font-family: $font-family-base;
+  font-size: 0.6875rem; // 11px
+  font-weight: $font-weight-medium;
+  line-height: $line-height-tight;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+@mixin text-caption {
+  font-family: $font-family-base;
+  font-size: 0.625rem; // 10px
+  font-weight: $font-weight-regular;
+  line-height: $line-height-tight;
+  letter-spacing: 0.3px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@mixin text-mono {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+}
+
+// ============================================================================
+// COLOR SYSTEM
+// ============================================================================
+
+// Semantic colors (tied to Material Design 3 tokens)
+$color-surface: #ffffff;
+$color-surface-subtle: #f9fafb;
+$color-surface-hover: #f3f4f6;
+$color-surface-active: #e5e7eb;
+
+$color-on-surface: #1a1a1a;
+$color-on-surface-variant: #6b7280;
+$color-on-surface-disabled: #d1d5db;
+
+// Border & divider colors
+$color-border-light: #e5e7eb;
+$color-border-medium: #d1d5db;
+$color-border-strong: #9ca3af;
+
+// Semantic state colors
+$color-success: #10b981;
+$color-warning: #f59e0b;
+$color-error: #ef4444;
+$color-info: #3b82f6;
+
+// Special colors (preserved from original spec)
+$color-evidence-green: #2e7d32;
+$color-evidence-orange: #e65100;
+$color-evidence-red: #c62828;
+
+$color-reviewed-bg: #e8f5e9;
+$color-reviewed-text: #2e7d32;
+$color-not-reviewed-bg: #fff3e0;
+$color-not-reviewed-text: #e65100;
+
+$color-keyword-bg: #eef2ff;
+$color-keyword-text: #374151;
+$color-keyword-more-bg: #e0e0e0;
+$color-keyword-more-text: #555;
+
+// ============================================================================
+// SPACING SYSTEM
+// ============================================================================
+
+$spacing-xs: 0.25rem; // 4px
+$spacing-sm: 0.5rem; // 8px
+$spacing-md: 0.75rem; // 12px
+$spacing-lg: 1rem; // 16px
+$spacing-xl: 1.5rem; // 24px
+$spacing-2xl: 2rem; // 32px
+
+@mixin gap-xs {
+  gap: $spacing-xs;
+}
+
+@mixin gap-sm {
+  gap: $spacing-sm;
+}
+
+@mixin gap-md {
+  gap: $spacing-md;
+}
+
+@mixin gap-lg {
+  gap: $spacing-lg;
+}
+
+// ============================================================================
+// BORDER & RADIUS
+// ============================================================================
+
+$border-radius-xs: 2px;
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-full: 999px;
+
+$border-width-thin: 1px;
+$border-width-normal: 2px;
+
+// ============================================================================
+// SHADOWS
+// ============================================================================
+
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+@mixin shadow-xs {
+  box-shadow: $shadow-xs;
+}
+
+@mixin shadow-sm {
+  box-shadow: $shadow-sm;
+}
+
+@mixin shadow-md {
+  box-shadow: $shadow-md;
+}
+
+@mixin shadow-lg {
+  box-shadow: $shadow-lg;
+}
+
+// ============================================================================
+// RESPONSIVE BREAKPOINTS
+// ============================================================================
+
+// Optimized for HD (1366x768) and FHD (1920x1080)
+$breakpoint-sm: 640px; // Mobile
+$breakpoint-md: 1024px; // Tablet
+$breakpoint-lg: 1366px; // HD (1366x768)
+$breakpoint-xl: 1920px; // FHD (1920x1080)
+$breakpoint-2xl: 2560px; // 2K+
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (min-width: $breakpoint-sm) {
+      @content;
+    }
+  } @else if $breakpoint == 'md' {
+    @media (min-width: $breakpoint-md) {
+      @content;
+    }
+  } @else if $breakpoint == 'lg' {
+    @media (min-width: $breakpoint-lg) {
+      @content;
+    }
+  } @else if $breakpoint == 'xl' {
+    @media (min-width: $breakpoint-xl) {
+      @content;
+    }
+  } @else if $breakpoint == '2xl' {
+    @media (min-width: $breakpoint-2xl) {
+      @content;
+    }
+  } @else if $breakpoint == 'max-md' {
+    @media (max-width: ($breakpoint-md - 1px)) {
+      @content;
+    }
+  } @else if $breakpoint == 'max-lg' {
+    @media (max-width: ($breakpoint-lg - 1px)) {
+      @content;
+    }
+  }
+}
+
+@mixin respond-up-to($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (max-width: ($breakpoint-sm - 1px)) {
+      @content;
+    }
+  } @else if $breakpoint == 'md' {
+    @media (max-width: ($breakpoint-md - 1px)) {
+      @content;
+    }
+  }
+}
+
+// ============================================================================
+// FOCUS STYLES (Accessibility)
+// ============================================================================
+
+@mixin focus-ring($color: var(--mat-sys-primary)) {
+  outline: 2px solid $color;
+  outline-offset: 2px;
+}
+
+@mixin focus-visible {
+  &:focus-visible {
+    @include focus-ring();
+  }
+}
+
+// ============================================================================
+// TABLE OPTIMIZATIONS
+// ============================================================================
+
+@mixin table-header-cell {
+  @include text-title-sm;
+  color: $color-on-surface;
+  font-weight: $font-weight-semibold;
+  background-color: $color-surface-subtle;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: $border-width-thin solid $color-border-light;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+@mixin table-body-cell {
+  @include text-body-sm;
+  color: $color-on-surface;
+  padding: $spacing-md $spacing-lg;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border-bottom: $border-width-thin solid $color-border-light;
+  background-color: $color-surface;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: $color-surface-hover;
+  }
+}
+
+// ============================================================================
+// FORM COMPONENTS
+// ============================================================================
+
+@mixin form-field-base {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  label {
+    @include text-title-sm;
+    color: $color-on-surface;
+    margin-bottom: $spacing-xs;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  input,
+  textarea,
+  select {
+    @include text-body-sm;
+    padding: $spacing-sm $spacing-md;
+    border: $border-width-thin solid $color-border-light;
+    border-radius: $border-radius-md;
+    background-color: $color-surface;
+    color: $color-on-surface;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: var(--mat-sys-primary);
+      @include shadow-sm;
+    }
+
+    &:disabled {
+      background-color: $color-surface-subtle;
+      color: $color-on-surface-disabled;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================================================
+// BADGE & CHIP STYLES
+// ============================================================================
+
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem $spacing-sm;
+  border-radius: $border-radius-full;
+  font-weight: $font-weight-medium;
+  @include text-body-sm;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+@mixin chip-base {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $border-radius-full;
+  font-weight: $font-weight-medium;
+  @include text-body-sm;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ============================================================================
+// UTILITY MIXINS
+// ============================================================================
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+

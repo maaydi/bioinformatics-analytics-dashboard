@@ -1,16 +1,25 @@
+@use "design-system" as ds;
+
+/**
+ * Genes page layout: responsive 2-column design optimized for HD and FHD
+ * HD (1366x768): 24vw sidebar + 1fr main content
+ * FHD (1920x1080): stable 2-column with better spacing
+ */
+
 .page-container {
   display: flex;
   flex-direction: row;
-  gap: 1rem;
+  gap: ds.$spacing-lg;
   align-items: flex-start;
   min-height: calc(100dvh - 90px);
+  padding: 0;
 }
 
+/**
+ * FILTER CARD: Sidebar with filter controls
+ * Responsive width: HD wraps at 24vw, maintains min/max constraints
+ */
 .filter-card {
-  .mat-mdc-card-content {
-    padding-top: 1.5rem;
-  }
-
   flex: 0 0 clamp(260px, 24vw, 360px);
   height: calc(100dvh - 90px);
   max-height: calc(100dvh - 90px);
@@ -18,8 +27,23 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  border: 1px solid ds.$color-border-light;
+
+  .mat-mdc-card-content {
+    padding: ds.$spacing-xl ds.$spacing-md ds.$spacing-md;
+  }
+
+  .mat-mdc-card-header {
+    padding: ds.$spacing-lg ds.$spacing-md 0;
+  }
 }
 
+/**
+ * RESULT CARD: Main content area with search and table
+ * Flex: 1 1 auto to fill remaining space
+ */
 .result-card {
   flex: 1 1 auto;
   height: calc(100dvh - 90px);
@@ -28,30 +52,61 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  border: 1px solid ds.$color-border-light;
 
+  /**
+   * Search/filter section headers (Global Search, Active Filters, Result Header)
+   */
   .result-card__search {
     flex: 0 0 auto;
     width: 100%;
-    padding: 1rem 1rem 0;
+    padding: ds.$spacing-lg ds.$spacing-lg 0;
     box-sizing: border-box;
+    min-height: auto;
 
     app-global-search {
       display: block;
       width: 100%;
     }
+
+    app-active-filters {
+      display: block;
+      width: 100%;
+    }
+
+    app-result-header {
+      display: block;
+      width: 100%;
+    }
   }
 
+  /**
+   * Table container: grows to fill remaining vertical space
+   */
   app-genes-table {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
+    width: 100%;
   }
 }
 
-@media (max-width: 1080px) {
+/**
+ * RESPONSIVE BREAKPOINTS
+ */
+
+/**
+ * Tablet + Landscape (up to 1024px)
+ * Switch to single-column layout
+ */
+@include ds.respond-up-to('md') {
   .page-container {
     flex-direction: column;
     min-height: auto;
+    gap: ds.$spacing-md;
+    padding: ds.$spacing-md;
   }
 
   .filter-card,
@@ -59,16 +114,101 @@
     flex: 1 1 auto;
     height: auto;
     max-height: none;
+    min-height: auto;
+  }
+
+  .filter-card {
+    max-width: 100%;
+    flex: 0 0 auto;
   }
 
   .result-card {
     .result-card__search {
-      padding-block-end: 0.25rem;
+      padding: ds.$spacing-md ds.$spacing-md 0;
     }
+  }
+}
+
+/**
+ * Portrait Mobile (max-width: 640px)
+ * Optimized for compact screens
+ */
+@media (max-width: ds.$breakpoint-sm - 1px) {
+  .page-container {
+    gap: ds.$spacing-sm;
+    padding: ds.$spacing-sm;
+  }
+
+  .filter-card,
+  .result-card {
+    border-radius: ds.$border-radius-md;
+  }
+
+  .result-card {
+    .result-card__search {
+      padding: ds.$spacing-sm ds.$spacing-sm 0;
+    }
+  }
+}
+
+/**
+ * HD Display Optimization (1366x768)
+ * Stable 2-column layout with optimized proportions
+ */
+@include ds.respond-to('lg') {
+  .page-container {
+    gap: ds.$spacing-lg;
   }
 
   .filter-card {
-    min-height: auto;
+    flex: 0 0 clamp(280px, 23vw, 340px);
+  }
+
+  .result-card {
+    .result-card__search {
+      padding: ds.$spacing-lg ds.$spacing-lg 0;
+    }
+  }
+}
+
+/**
+ * FHD Display Optimization (1920x1080)
+ * Better space utilization while maintaining visual hierarchy
+ */
+@include ds.respond-to('xl') {
+  .page-container {
+    gap: ds.$spacing-xl;
+    padding: ds.$spacing-lg;
+  }
+
+  .filter-card {
+    flex: 0 0 clamp(300px, 22vw, 380px);
+  }
+
+  .result-card {
+    .result-card__search {
+      padding: ds.$spacing-xl ds.$spacing-xl 0;
+    }
+  }
+}
+
+/**
+ * Ultra-wide displays (2560px+)
+ * Maximum optimal width enforcement
+ */
+@include ds.respond-to('2xl') {
+  .page-container {
+    max-width: 2560px;
+    margin: 0 auto;
+    gap: ds.$spacing-2xl;
+  }
+
+  .filter-card {
+    flex: 0 0 380px;
+  }
+
+  .result-card {
+    max-width: calc(100% - 380px - #{ds.$spacing-2xl});
   }
 }
 

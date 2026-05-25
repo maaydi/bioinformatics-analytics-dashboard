@@ -1,7 +1,10 @@
+@use "design-system" as ds;
+
 :host {
   display: flex;
   width: 100%;
   min-height: 0;
+  font-family: ds.$font-family-base;
 }
 
 .table-wrapper {
@@ -9,162 +12,193 @@
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
+  width: 100%;
 }
 
 .gene-grid {
   width: 100%;
   height: 100%;
   min-height: 460px;
-
+  --ag-font-family: ds.$font-family-base;
+  --ag-font-size: 12px;
   --ag-header-height: 44px;
   --ag-row-height: 40px;
-  --ag-font-size: 12px;
   --ag-cell-horizontal-padding: 10px;
-  --ag-border-color: #d0d7de;
-  --ag-header-background-color: #f5f7fa;
-  --ag-row-hover-color: #f3f4f6;
+  --ag-cell-vertical-padding: 6px;
+  --ag-border-color: ds.$color-border-light;
+  --ag-header-background-color: ds.$color-surface-subtle;
+  --ag-row-hover-color: ds.$color-surface-hover;
+  --ag-text-color: ds.$color-on-surface;
 }
 
-:host ::ng-deep .gene-grid .ag-header-cell-text {
-  font-weight: 600;
+:host ::ng-deep .gene-grid {
+  .ag-header-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 ds.$spacing-md;
+  }
+
+  .ag-header-cell-text {
+    @include ds.text-title-sm;
+    color: ds.$color-on-surface;
+    font-weight: ds.$font-weight-semibold;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .ag-sort-ascending-icon::after,
+  .ag-sort-descending-icon::after {
+    font-size: 0.85rem;
+  }
+
+  .ag-cell {
+    @include ds.text-body-sm;
+    display: flex;
+    align-items: center;
+    color: ds.$color-on-surface;
+    padding: ds.$spacing-md ds.$spacing-lg;
+    background-color: ds.$color-surface;
+    transition: background-color 0.15s ease-out;
+
+    &:hover {
+      background-color: ds.$color-surface-hover;
+    }
+  }
+
+  .text-truncate {
+    white-space: normal;
+    overflow-wrap: break-word;
+    line-height: ds.$line-height-normal;
+    padding-top: (ds.$spacing-xs * 0.5);
+    padding-bottom: (ds.$spacing-xs * 0.5);
+    word-break: break-word;
+  }
+
+  .mono-cell {
+    @include ds.text-mono;
+    color: ds.$color-on-surface;
+  }
+
+  .accession-col {
+    @include ds.text-body-sm;
+    font-weight: ds.$font-weight-bold;
+    color: var(--mat-sys-primary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s ease;
+
+    &:hover {
+      color: var(--mat-sys-primary-container);
+      text-decoration-color: var(--mat-sys-primary);
+    }
+
+    &:focus-visible {
+      @include ds.focus-ring();
+    }
+  }
+
+  .numeric-cell {
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .review-badge {
+    @include ds.badge-base;
+    padding: ds.$spacing-xs (ds.$spacing-sm * 1.2);
+    border-radius: ds.$border-radius-md;
+    @include ds.text-label-sm;
+    font-weight: ds.$font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: ds.$border-width-thin solid transparent;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &.is-reviewed {
+      background-color: ds.$color-reviewed-bg;
+      color: ds.$color-reviewed-text;
+      border-color: rgba(46, 125, 50, 0.2);
+    }
+
+    &.not-reviewed {
+      background-color: ds.$color-not-reviewed-bg;
+      color: ds.$color-not-reviewed-text;
+      border-color: rgba(230, 81, 0, 0.2);
+    }
+  }
+
+  .evidence-badge {
+    @include ds.flex-center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: ds.$border-width-normal solid transparent;
+    background-color: ds.$color-surface;
+    @include ds.text-label-sm;
+    font-weight: ds.$font-weight-bold;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+
+    &.level-1, &.level-2 {
+      border-color: ds.$color-evidence-green;
+      color: ds.$color-evidence-green;
+    }
+
+    &.level-3 {
+      border-color: ds.$color-evidence-orange;
+      color: ds.$color-evidence-orange;
+    }
+
+    &.level-4, &.level-5 {
+      border-color: ds.$color-evidence-red;
+      color: ds.$color-evidence-red;
+    }
+  }
+
+  .keywords-cell {
+    display: flex;
+    align-items: center;
+    gap: ds.$spacing-xs;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: (ds.$spacing-xs * 0.5) ds.$spacing-md;
+  }
+
+  .keyword-chip {
+    @include ds.chip-base;
+    background-color: ds.$color-keyword-bg;
+    color: ds.$color-keyword-text;
+    max-width: 120px;
+    border-radius: ds.$border-radius-full;
+    flex-shrink: 0;
+    border: 1px solid rgba(55, 65, 81, 0.1);
+
+    &:hover {
+      background-color: rgba(238, 242, 255, 0.8);
+      border-color: var(--mat-sys-primary, #3b82f6);
+    }
+  }
+
+  .more-counter-chip {
+    @include ds.chip-base;
+    background-color: ds.$color-keyword-more-bg;
+    color: ds.$color-keyword-more-text;
+    font-weight: ds.$font-weight-bold;
+    max-width: none;
+    border: 1px solid rgba(85, 85, 85, 0.2);
+  }
+
+  .empty-value {
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface-disabled;
+    font-style: italic;
+  }
 }
-
-:host ::ng-deep .gene-grid .ag-cell {
-  display: flex;
-  align-items: center;
-}
-
-:host ::ng-deep .gene-grid .text-truncate {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  line-height: 1.35;
-  padding-top: 0.35rem;
-  padding-bottom: 0.35rem;
-}
-
-:host ::ng-deep .gene-grid .mono-cell {
-  font-family: Inter, "Segoe UI", Roboto, sans-serif;
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
-:host ::ng-deep .gene-grid .accession-col {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--mat-sys-primary);
-}
-
-:host ::ng-deep .gene-grid .numeric-cell {
-  justify-content: flex-end;
-  font-variant-numeric: tabular-nums;
-}
-
-:host ::ng-deep .gene-grid .review-badge {
-  align-items: center;
-  justify-content: center;
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-
-  font-size: 0.75rem;
-  font-weight: 700;
-
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  border: 1px solid transparent;
-  line-height: 1;
-}
-
-:host ::ng-deep .gene-grid .review-badge.is-reviewed {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border-color: rgba(46, 125, 50, 0.2);
-}
-
-:host ::ng-deep .gene-grid .review-badge.not-reviewed {
-  background-color: #fff3e0;
-  color: #e65100;
-  border-color: rgba(230, 81, 0, 0.2);
-}
-
-:host ::ng-deep .gene-grid .evidence-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
-
-  width: 28px;
-  height: 28px;
-
-  border-radius: 50%;
-  border: 2px solid transparent;
-
-  background-color: #ffffff;
-
-  font-size: 0.85rem;
-  font-weight: 700;
-
-  font-variant-numeric: tabular-nums;
-}
-
-:host ::ng-deep .gene-grid .evidence-badge.level-1,
-:host ::ng-deep .gene-grid .evidence-badge.level-2 {
-  border-color: #2e7d32;
-  color: #2e7d32;
-}
-
-:host ::ng-deep .gene-grid .evidence-badge.level-3 {
-  border-color: #e65100;
-  color: #e65100;
-}
-
-:host ::ng-deep .gene-grid .evidence-badge.level-4,
-:host ::ng-deep .gene-grid .evidence-badge.level-5 {
-  border-color: #c62828;
-  color: #c62828;
-}
-
-:host ::ng-deep .gene-grid .keywords-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-:host ::ng-deep .gene-grid .keyword-chip {
-  display: inline-flex;
-  align-items: center;
-
-  max-width: 120px;
-
-  padding: 0.2rem 0.55rem;
-
-  border-radius: 999px;
-
-  background-color: #eef2ff;
-  color: #374151;
-
-  font-size: 0.72rem;
-  font-weight: 500;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-:host ::ng-deep .gene-grid .more-counter-chip {
-  background-color: #e0e0e0;
-  color: #555;
-  font-weight: 700;
-}
-
-:host ::ng-deep .gene-grid .empty-value {
-  color: #9ca3af;
-}
-
 .state-overlay {
   position: absolute;
   inset: 0;
@@ -172,41 +206,53 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 1rem;
+  gap: ds.$spacing-md;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(2px);
+  padding: ds.$spacing-lg;
   text-align: center;
+  z-index: 10;
 }
 
 .table-state {
+  @include ds.text-title-md;
   margin: 0;
   color: var(--mat-sys-on-surface-variant);
 }
 
 .error-msg {
+  @include ds.text-body-md;
   margin: 0;
   color: var(--mat-sys-error);
-  font-weight: 600;
+  font-weight: ds.$font-weight-semibold;
+  max-width: 400px;
 }
 
 .retry-button {
-  border: 1px solid var(--mat-sys-primary);
-  border-radius: 6px;
-  padding: 0.45rem 0.9rem;
+  @include ds.text-body-sm;
+  border: ds.$border-width-thin solid var(--mat-sys-primary);
+  border-radius: ds.$border-radius-md;
+  padding: ds.$spacing-sm (ds.$spacing-md * 1.5);
   background: transparent;
   color: var(--mat-sys-primary);
   cursor: pointer;
+  font-weight: ds.$font-weight-medium;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(var(--mat-sys-primary-rgb), 0.05);
+  }
+
+  @include ds.focus-visible;
 }
 
-.retry-button:focus-visible {
-  outline: 2px solid var(--mat-sys-primary);
-  outline-offset: 2px;
-}
-
+/**
+ * SKELETON LOADING STATE
+ */
 .skeleton-title,
 .skeleton-row {
   width: min(560px, 92%);
-  border-radius: 6px;
+  border-radius: ds.$border-radius-md;
   background: linear-gradient(90deg, #eceff1 25%, #f7f9fa 37%, #eceff1 63%);
   background-size: 400% 100%;
   animation: skeleton-loading 1.2s ease infinite;
@@ -228,3 +274,48 @@
     background-position: 0 50%;
   }
 }
+
+/**
+ * RESPONSIVE OPTIMIZATIONS
+ * HD: 1366x768 maintains 2-column layout
+ * FHD: 1920x1080 optimizes space usage
+ */
+
+@include ds.respond-to('xl') {
+  .gene-grid {
+    min-height: 500px; // Better use of vertical space on FHD
+  }
+
+  :host ::ng-deep .gene-grid .ag-header-cell-text {
+    font-size: 12px; // Maintain readability
+  }
+
+  :host ::ng-deep .gene-grid .keyword-chip {
+    max-width: 140px; // More space for keywords on wider screens
+  }
+}
+
+@include ds.respond-up-to('md') {
+  .gene-grid {
+    min-height: 320px; // Prevent excessive shrinking on mobile
+  }
+
+  :host ::ng-deep .gene-grid {
+    --ag-header-height: 40px;
+    --ag-row-height: 38px;
+    --ag-font-size: 11px;
+    --ag-cell-horizontal-padding: 8px;
+  }
+
+  :host ::ng-deep .gene-grid .keyword-chip {
+    max-width: 100px;
+    font-size: 10px;
+    padding: 0.15rem 0.4rem;
+  }
+
+  :host ::ng-deep .gene-grid .evidence-badge {
+    width: 24px;
+    height: 24px;
+  }
+}
+

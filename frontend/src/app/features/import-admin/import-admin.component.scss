@@ -1,140 +1,316 @@
-.import-container {
-  max-width: 1000px;
-  margin: 1rem auto 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0 1rem;
+@use "design-system" as ds;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PAGE SHELL
+// ─────────────────────────────────────────────────────────────────────────────
+
+:host {
+  display: block;
+  font-family: ds.$font-family-base;
+  color: ds.$color-on-surface;
 }
 
-.upload-card {
+.import-container {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) 1fr;
+  gap: ds.$spacing-lg;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: ds.$spacing-lg;
+  align-items: start;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+
+.upload-card,
+mat-card {
+  border: 1px solid ds.$color-border-light;
+  border-radius: ds.$border-radius-lg;
+  background: ds.$color-surface;
+  box-shadow: ds.$shadow-xs;
+  overflow: hidden;
+
+  .mat-mdc-card-header {
+    padding: ds.$spacing-lg ds.$spacing-lg 0;
+    border-bottom: 1px solid ds.$color-border-light;
+    padding-bottom: ds.$spacing-md;
+    margin-bottom: 0;
+  }
+
   .mat-mdc-card-content {
-    padding-top: 1.5rem;
+    padding: ds.$spacing-lg;
+  }
+
+  .mat-mdc-card-actions {
+    padding: ds.$spacing-md ds.$spacing-lg;
+    border-top: 1px solid ds.$color-border-light;
+  }
+
+  ::ng-deep .mat-mdc-card-title {
+    @include ds.text-title-md;
+    color: ds.$color-on-surface;
+    margin-bottom: ds.$spacing-xs;
+  }
+
+  ::ng-deep .mat-mdc-card-subtitle {
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface-variant;
+    margin: 0;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ERROR BANNER
+// ─────────────────────────────────────────────────────────────────────────────
+
+.error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: ds.$spacing-sm;
+  margin-bottom: ds.$spacing-lg;
+  padding: ds.$spacing-md ds.$spacing-lg;
+  border-radius: ds.$border-radius-md;
+  background-color: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-left: 4px solid var(--mat-sys-error);
+  color: var(--mat-sys-error);
+  @include ds.text-body-sm;
+  font-weight: ds.$font-weight-medium;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 1px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORM SECTION
+// ─────────────────────────────────────────────────────────────────────────────
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: ds.$spacing-lg;
 
   .file-upload-row {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: ds.$spacing-md;
+
+    button {
+      @include ds.text-body-sm;
+      font-weight: ds.$font-weight-medium;
+      border-radius: ds.$border-radius-md;
+
+      &:focus-visible {
+        @include ds.focus-ring();
+      }
+    }
 
     .file-name {
-      font-family: monospace;
-      color: var(--mat-sys-on-surface);
-      font-size: 0.95rem;
+      @include ds.text-body-sm;
+      font-family: ds.$font-family-mono;
+      color: ds.$color-on-surface;
+      font-weight: ds.$font-weight-medium;
       overflow-wrap: anywhere;
+      word-break: break-all;
 
       .file-size {
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
+        @include ds.text-body-sm;
+        color: ds.$color-on-surface-variant;
+        font-family: ds.$font-family-mono;
       }
     }
   }
 
   .strategy-select {
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
   }
 }
 
-.error-banner {
-  background-color: rgba(211, 47, 47, 0.1);
-  color: var(--mat-sys-error);
-  padding: 12px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  border-left: 4px solid var(--mat-sys-error);
-  font-weight: 500;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// PROGRESS
+// ─────────────────────────────────────────────────────────────────────────────
 
 .progress-section {
-  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-sm;
+  padding: ds.$spacing-md;
+  border: 1px solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background: ds.$color-surface-subtle;
 
   .progress-label {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #555;
+    @include ds.text-body-sm;
+    font-weight: ds.$font-weight-medium;
+    color: ds.$color-on-surface-variant;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARD ACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  padding: 1rem 16px;
+
+  button {
+    @include ds.text-body-sm;
+    font-weight: ds.$font-weight-semibold;
+    border-radius: ds.$border-radius-md;
+    min-height: 40px;
+    padding-inline: ds.$spacing-lg;
+
+    &:focus-visible {
+      @include ds.focus-ring();
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HISTORY TABLE
+// ─────────────────────────────────────────────────────────────────────────────
+
+.history-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background: ds.$color-surface;
+
+  scrollbar-width: thin;
+  scrollbar-color: ds.$color-border-medium ds.$color-surface-subtle;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: ds.$color-surface-subtle;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ds.$color-border-medium;
+    border-radius: ds.$border-radius-full;
+  }
 }
 
 .history-table {
   width: 100%;
-  margin-top: 1rem;
   min-width: 720px;
+
+  // Align header cells with design system
+  ::ng-deep th.mat-mdc-header-cell {
+    @include ds.text-title-sm;
+    color: ds.$color-on-surface;
+    background-color: ds.$color-surface-subtle;
+    border-bottom: 1px solid ds.$color-border-light;
+    padding: ds.$spacing-md ds.$spacing-lg;
+    white-space: nowrap;
+  }
+
+  ::ng-deep td.mat-mdc-cell {
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface;
+    padding: ds.$spacing-md ds.$spacing-lg;
+    border-bottom: 1px solid ds.$color-border-light;
+  }
+
+  ::ng-deep tr.mat-mdc-row:hover td {
+    background-color: ds.$color-surface-hover;
+  }
 
   .empty-cell {
     text-align: center;
-    padding: 3rem;
-    color: #666;
+    padding: ds.$spacing-2xl;
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface-variant;
     font-style: italic;
   }
 }
 
-.history-table-wrapper {
-  overflow-x: auto;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// STATUS BADGES  (semantic colors preserved — aligned with genes review badges)
+// ─────────────────────────────────────────────────────────────────────────────
 
-// Status Badges
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: ds.$spacing-xs ds.$spacing-sm;
+  border-radius: ds.$border-radius-full;
+  @include ds.text-label-sm;
+  font-weight: ds.$font-weight-bold;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  white-space: nowrap;
 
   &.pending {
     background-color: #fff3e0;
     color: #e65100;
+    border: 1px solid rgba(230, 81, 0, 0.2);
   }
 
   &.running {
     background-color: #e3f2fd;
     color: #1565c0;
+    border: 1px solid rgba(21, 101, 192, 0.2);
   }
 
   &.completed {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: ds.$color-reviewed-bg;
+    color: ds.$color-reviewed-text;
+    border: 1px solid rgba(46, 125, 50, 0.2);
   }
 
   &.failed {
     background-color: #ffebee;
-    color: #c62828;
+    color: ds.$color-evidence-red;
+    border: 1px solid rgba(198, 40, 40, 0.2);
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ACCESSIBILITY
+// ─────────────────────────────────────────────────────────────────────────────
+
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  @include ds.visually-hidden;
 }
 
-@media (max-width: 768px) {
+// ─────────────────────────────────────────────────────────────────────────────
+// RESPONSIVE  — HD (1366×768) already covered by base; FHD & mobile below
+// ─────────────────────────────────────────────────────────────────────────────
+
+@include ds.respond-to('xl') {
+  .import-container {
+    gap: ds.$spacing-xl;
+    padding: ds.$spacing-xl;
+    grid-template-columns: minmax(0, 480px) 1fr;
+  }
+}
+
+@include ds.respond-up-to('md') {
+  .import-container {
+    grid-template-columns: 1fr;
+    padding: ds.$spacing-md;
+    gap: ds.$spacing-md;
+  }
+
+  .form-section .strategy-select {
+    max-width: 100%;
+  }
+
   .actions {
     justify-content: stretch;
 
