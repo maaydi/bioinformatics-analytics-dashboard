@@ -1,0 +1,60 @@
+@use "form-shared" as shared;
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: ds.$font-family-base;
+}
+
+.table-header-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: ds.$spacing-sm;
+}
+
+/**
+ * LABEL CONTAINER: Section title
+ */
+.label-container {
+  @include shared.table-title;
+}
+
+/**
+ * CRITERIA CHIP SET: Container for active filter chips
+ */
+.criteria-chip-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: ds.$spacing-sm;
+  margin: ds.$spacing-xs ds.$spacing-lg 0;
+  width: 100%;
+
+  mat-chip-set {
+    width: 100%;
+  }
+
+  mat-chip {
+    @include ds.chip-base;
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    border-radius: ds.$border-radius-full;
+    padding: ds.$spacing-xs ds.$spacing-md;
+    height: auto;
+    min-height: 32px;
+    font-weight: ds.$font-weight-medium;
+
+    &:focus-visible {
+      @include ds.focus-ring();
+      outline-offset: 1px;
+    }
+
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+

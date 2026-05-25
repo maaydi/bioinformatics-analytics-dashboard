@@ -1,0 +1,48 @@
+@use "form-shared" as shared;
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: ds.$font-family-base;
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-color: #{ds.$color-on-surface};
+}
+
+/**
+ * TABLE HEADER ACTIONS: Results header with title and pagination
+ */
+.table-header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: ds.$spacing-md;
+}
+
+/**
+ * LABEL CONTAINER: Results title section
+ */
+.label-container {
+  @include shared.filter-label-container;
+  flex-shrink: 0;
+
+  .section-label {
+    @include ds.text-title-md;
+    color: ds.$color-on-surface;
+    font-weight: ds.$font-weight-semibold;
+  }
+}
+
+/**
+ * PAGE SUMMARY: Pagination and results info
+ */
+.page-summary {
+  @include ds.text-body-sm;
+  margin-top: ds.$spacing-xs;
+  color: ds.$color-on-surface-variant;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+

@@ -1,0 +1,18 @@
+<div class="table-header-actions">
+  <div class="label-container">
+    <label class="section-label">Results ({{ totalGenes() }})</label>
+    <div class="page-summary">
+      Page {{ pageIndex() + 1 }} / {{ totalPages() }} - Total pages: {{ totalPages() }} - Total
+      results: {{ totalGenes() }}
+    </div>
+  </div>
+  <mat-paginator
+    (page)="onPageChange($event)"
+    [length]="totalGenes()"
+    [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[50, 100, 200]"
+    [pageSize]="pageSize()"
+    aria-label="Select page of genes"
+  >
+  </mat-paginator>
+</div>

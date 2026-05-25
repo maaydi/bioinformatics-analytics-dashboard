@@ -16,6 +16,7 @@
   <mat-form-field appearance="outline">
     <input
       (blur)="onTouch()"
+      [attr.aria-label]="title() || placeholder()"
       [formControl]="internalControl"
       [placeholder]="placeholder()"
       [title]="title()"

@@ -1,19 +1,96 @@
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.mat-toolbar {
+  display: flex;
+  align-items: center;
+  gap: ds.$spacing-md;
+  min-height: 72px;
+  padding-inline: ds.$spacing-lg;
+  background: linear-gradient(90deg, var(--mat-sys-primary) 0%, color-mix(in srgb, var(--mat-sys-primary) 88%, black 12%) 100%);
+  color: black;
+  box-shadow: ds.$shadow-sm;
+  font-family: ds.$font-family-base;
+}
+
 .spacer {
   flex: 1 1 auto;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ds.$spacing-xs;
+}
+
 .app-title {
-  font-weight: 600;
-  margin-right: 1rem;
+  @include ds.text-title-md;
+  font-weight: ds.$font-weight-semibold;
+  color: inherit;
+  margin-right: ds.$spacing-xs;
+  white-space: nowrap;
 }
 
 .app-logo {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
+  flex-shrink: 0;
+}
+
+.nav-links a {
+  border-radius: ds.$border-radius-full;
+  color: inherit;
+  font-weight: ds.$font-weight-medium;
+  font-size: ds.$font-size-sm;
+  padding-inline: ds.$spacing-md;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  &:focus-visible {
+    @include ds.focus-ring(white);
+  }
 }
 
 a.active {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: ds.$font-weight-semibold;
+}
+
+button[mat-icon-button] {
+  color: inherit;
+
+  &:focus-visible {
+    @include ds.focus-ring(white);
+  }
+}
+
+@include ds.respond-up-to('md') {
+  .mat-toolbar {
+    min-height: 64px;
+    padding-inline: ds.$spacing-md;
+    gap: ds.$spacing-sm;
+  }
+
+  .app-title {
+    display: none;
+  }
+
+  .nav-links {
+    gap: 2px;
+  }
+
+  .nav-links a {
+    padding-inline: ds.$spacing-sm;
+  }
 }

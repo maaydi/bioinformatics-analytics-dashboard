@@ -1,23 +1,20 @@
 import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import {AgGridAngular} from 'ag-grid-angular';
+import {
+  AllCommunityModule,
+  ColDef,
+  GridReadyEvent,
+  GridSizeChangedEvent,
+  ModuleRegistry,
+  RowClickedEvent,
+  SortChangedEvent
+} from 'ag-grid-community';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
-import {MatChip, MatChipRemove, MatChipSet} from '@angular/material/chips';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable
-} from '@angular/material/table';
-import {MatIcon} from '@angular/material/icon';
+import {GeneFilterPageSort} from '@core/models/saved-filter.model';
 
-type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string };
+ModuleRegistry.registerModules([AllCommunityModule]);
+
 
 /**
  * Presentational table component for gene search results.
@@ -36,100 +33,182 @@ type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string 
  */
 @Component({
   selector: 'app-genes-table',
-  imports: [
-    MatChipSet,
-    MatChip,
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCellDef,
-    MatCell,
-    MatIcon,
-    MatHeaderRow,
-    MatRow,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatChipRemove
-  ],
+  imports: [AgGridAngular],
   templateUrl: './genes-table.component.html',
   styleUrl: './genes-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesTableComponent {
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
-  readonly errorMessage = input<String | null>(null);
+  readonly errorMessage = input<string | null>(null);
   readonly loading = input(false);
+  readonly chipsCount = input<number>(0);
 
-  readonly filters = input<GeneFilterSnapshot | null>(null);
-  readonly filterRemoved = output<keyof GeneFilterSnapshot>();
-  readonly filtersChips = computed(() => this.buildFiltersChips(this.filters()));
-  readonly displayedColumns = [
-    'accession', 'entryName', 'proteinFullName', 'organismName', 'length', 'reviewed', 'evidenceLevel', 'actions'
+  readonly rows = computed(() => this.data()?.content ?? []);
+  readonly hasRows = computed(() => this.rows().length > 0);
+  readonly hasError = computed(() => Boolean(this.errorMessage()));
+
+  readonly columnDefs: ColDef<ProteinSummary>[] = [
+    {
+      field: 'accession',
+      headerName: 'Accession',
+      sortable: true,
+      minWidth: 80,
+      sort: 'asc',
+      sortIndex: 0,
+      tooltipField: 'accession',
+      cellRenderer: ({value}: { value: string }) => {
+        return `<span class="accession-col">${value}</span>`;
+      }
+    },
+    {
+      field: 'geneNamePrimary',
+      headerName: 'Gene Name',
+      sortable: true,
+      minWidth: 100,
+      valueFormatter: ({value}) => value ?? '-',
+      tooltipValueGetter: ({value}) => value ?? '-',
+    },
+    {
+      field: 'proteinFullName',
+      headerName: 'Protein Name',
+      sortable: true,
+      minWidth: 100,
+      valueFormatter: ({value}) => value ?? '-',
+      tooltipValueGetter: ({value}) => value ?? '-',
+    },
+    {
+      field: 'organismName',
+      headerName: 'Organism',
+      sortable: true,
+      minWidth: 100,
+      tooltipField: 'organismName',
+    },
+    {
+      field: 'length',
+      headerName: 'Length',
+      sortable: true,
+      minWidth: 80,
+      type: 'numericColumn',
+      cellClass: 'numeric-cell',
+    },
+    {
+      field: 'reviewed',
+      headerName: 'Reviewed',
+      sortable: true,
+      minWidth: 80,
+
+      cellRenderer: ({value}: { value: boolean }) => `
+    <span class="review-badge ${value ? 'is-reviewed' : 'not-reviewed'}">
+      ${value ? 'Yes' : 'No'}
+    </span>
+  `,
+    },
+
+    {
+      field: 'evidenceLevel',
+      headerName: 'Evidence Level',
+      sortable: true,
+      minWidth: 100,
+      type: 'numericColumn',
+
+      cellRenderer: ({value}: { value: number }) => `
+<span class="evidence-badge level-${value}">
+${value ?? '-'}
+    </span>
+  `,
+    },
+    {
+      field: 'keywords',
+      headerName: 'Keywords',
+      sortable: false,
+      minWidth: 150,
+
+      cellRenderer: ({value}: { value: string[] }) => {
+        if (!Array.isArray(value) || value.length === 0) {
+          return '<span class="empty-value">-</span>';
+        }
+
+        const visible = value.slice(0, 2);
+
+        const chips = visible
+          .map(
+            keyword => `
+          <span class="keyword-chip">
+            ${keyword}
+          </span>
+        `
+          )
+          .join('\n');
+
+        const more =
+          value.length > 2
+            ? `
+          <span
+            class="keyword-chip more-counter-chip"
+            title="${value.slice(2).join(', ')}"
+          >
+            +${value.length - 2} more
+          </span>
+        `
+            : '';
+
+        return `
+      <div class="keywords-cell">
+        ${chips}
+        ${more}
+      </div>
+    `;
+      },
+    },
   ];
 
-  readonly sortChange = output<{ field: string; direction: 'asc' | 'desc' }>();
-  readonly pageChange = output<{ page: number; size: number }>();
+  readonly defaultColDef: ColDef<ProteinSummary> = {
+    resizable: true,
+    unSortIcon: true,
+    suppressMovable: true,
+    cellClass: 'text-truncate',
+  };
+
+  readonly rowSelection = {
+    mode: 'singleRow' as const,
+    enableClickSelection: false,
+  };
+
+  readonly updateSortDirection = output<GeneFilterPageSort>();
   readonly rowClick = output<ProteinSummary>();
-  readonly exportClick = output<void>();
+  readonly retryClick = output<void>();
 
-  /** Emits the selected row to the container for navigation/details handling. */
-  selectRowSummary(row: ProteinSummary): void {
-    this.rowClick.emit(row);
-  }
-
-  removeFilter(key: keyof GeneFilterSnapshot): void {
-    this.filterRemoved.emit(key);
-  }
-
-  /** Converts non-empty filter fields into display chips. */
-  private buildFiltersChips(filters: GeneFilterSnapshot | null): FilterChip[] {
-    if (!filters) {
-      return [];
+  onGridRowClicked(event: RowClickedEvent<ProteinSummary>): void {
+    if (event.data) {
+      this.rowClick.emit(event.data);
     }
-    const config: Array<{ key: keyof GeneFilterSnapshot; label: string }> = [
-      {key: 'globalSearch', label: 'Search'},
-      {key: 'accession', label: 'Accession'},
-      {key: 'entryName', label: 'Entry'},
-      {key: 'geneNamePrimary', label: 'Gene '},
-      {key: 'proteinFullName', label: 'Protein'},
-      {key: 'reviewed', label: 'Reviewed'},
-      {key: 'organism', label: 'Organism'},
-      {key: 'taxid', label: 'TaxID'},
-      {key: 'lineage', label: 'Lineage'},
-      {key: 'lengthMin', label: 'Length Min'},
-      {key: 'lengthMax', label: 'Length Max'},
-      {key: 'molecularWeightMin', label: 'Weight Min'},
-      {key: 'molecularWeightMax', label: 'Weight Max'},
-      {key: 'evidenceLevels', label: 'Evidence'},
-      {key: 'keywords', label: 'Keywords'},
-      {key: 'goTermId', label: 'Go ID'},
-      {key: 'goAspect', label: 'Go Aspect'},
-      {key: 'featureType', label: 'Feature'},
-      {key: 'crossRefSource', label: 'CrossRef'},
-
-    ];
-    const chips: FilterChip[] = [];
-    for (const item of config) {
-      const rawValue = filters[item.key];
-      if (rawValue === null || rawValue === undefined || rawValue === '') {
-        continue;
-      }
-      if (Array.isArray(rawValue)) {
-        if (rawValue.length === 0) {
-          continue;
-        }
-        chips.push({key: item.key, label: item.label, value: rawValue.join(', ')});
-        continue;
-      }
-      if (item.key === 'reviewed') {
-        chips.push({key: item.key, label: item.label, value: rawValue ? 'Yes' : 'No'});
-        continue;
-      }
-      chips.push({key: item.key, label: item.label, value: String(rawValue)});
-    }
-    return chips;
   }
 
+  onGridSortChanged(event: SortChangedEvent<ProteinSummary>): void {
+    const sortedColumn = event.api.getColumnState().find((state) => state.sort === 'asc' || state.sort === 'desc');
+    if (!sortedColumn?.colId || !sortedColumn.sort) {
+      this.updateSortDirection.emit({sort: 'id', direction: 'asc', page: 0});
+      return;
+    }
+
+    this.updateSortDirection.emit({
+      sort: sortedColumn.colId,
+      direction: sortedColumn.sort,
+      page: 0,
+    });
+  }
+
+  onGridReady(event: GridReadyEvent<ProteinSummary>): void {
+    event.api.sizeColumnsToFit();
+  }
+
+  onGridSizeChanged(event: GridSizeChangedEvent<ProteinSummary>): void {
+    event.api.sizeColumnsToFit();
+  }
+
+  retrySearch(): void {
+    this.retryClick.emit();
+  }
 
 }

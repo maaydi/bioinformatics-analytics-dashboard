@@ -21,14 +21,14 @@ Implement the Gene Explorer table page in Angular using AG Grid:
 
 ## Acceptance Criteria
 
-- [ ] Table renders with columns: Accession, Gene Name, Protein Name, Organism, Length, Reviewed (badge), Evidence
+- [x] Table renders with columns: Accession, Gene Name, Protein Name, Organism, Length, Reviewed (badge), Evidence
   Level (badge), Keywords.
 - [ ] Default page size is 50; page size can be changed to 100 or 200.
 - [ ] Clicking a column header sorts ascending; clicking again sorts descending; third click resets to default (
   `id ASC`).
 - [ ] Clicking a row navigates to `/genes/{id}`.
 - [ ] Table reacts to filter store changes and re-fetches data.
-- [ ] Empty state "No proteins found" shown when result count = 0.
+- [x] Empty state "No proteins found" shown when result count = 0.
 - [ ] Loading skeleton shown during fetch.
 - [ ] Error state with "Retry" button shown on request failure.
 - [ ] Pagination controls show: current page, total pages, total result count.

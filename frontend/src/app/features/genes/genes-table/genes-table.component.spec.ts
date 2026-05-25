@@ -1,13 +1,29 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it} from 'vitest';
-import {GenesTableComponent} from './genes-table.component';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {AgGridAngular} from 'ag-grid-angular';
+import {SortChangedEvent} from 'ag-grid-community';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
-import {MatTableModule} from '@angular/material/table';
-import {MatChipsModule} from '@angular/material/chips';
-import {MatIconModule} from '@angular/material/icon';
-import {CommonModule} from '@angular/common';
+import {GenesTableComponent} from './genes-table.component';
+
+@Component({
+  selector: 'ag-grid-angular',
+  template: '',
+})
+class MockAgGridAngularComponent {
+  @Input() columnDefs: unknown;
+  @Input() defaultColDef: unknown;
+  @Input() rowData: unknown;
+  @Input() rowSelection: unknown;
+  @Input() animateRows: unknown;
+  @Input() suppressCellFocus: unknown;
+  @Input() suppressRowClickSelection: unknown;
+  @Output() readonly rowClicked = new EventEmitter<unknown>();
+  @Output() readonly sortChanged = new EventEmitter<unknown>();
+  @Output() readonly gridReady = new EventEmitter<unknown>();
+  @Output() readonly gridSizeChanged = new EventEmitter<unknown>();
+}
 
 describe('GenesTableComponent', () => {
   let component: GenesTableComponent;
@@ -26,21 +42,7 @@ describe('GenesTableComponent', () => {
       molecularWeight: 15000,
       reviewed: true,
       evidenceLevel: 1,
-      keywords: ['kinase', 'transferase']
-    },
-    {
-      id: 2,
-      accession: 'Q98765',
-      entryName: 'PROT2_HUMAN',
-      proteinFullName: 'Test Protein 2',
-      geneNamePrimary: 'GENE2',
-      organismName: 'Mus musculus',
-      taxid: 10090,
-      length: 250,
-      molecularWeight: 25000,
-      reviewed: false,
-      evidenceLevel: 2,
-      keywords: ['hydrolase']
+      keywords: ['kinase']
     }
   ];
 
@@ -48,525 +50,178 @@ describe('GenesTableComponent', () => {
     content: mockProteinData,
     page: 0,
     size: 10,
-    totalElements: 2,
+    totalElements: 1,
     totalPages: 1
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        GenesTableComponent,
-        MatTableModule,
-        MatChipsModule,
-        MatIconModule,
-        CommonModule
-      ]
-    }).compileComponents();
+      imports: [GenesTableComponent]
+    })
+      .overrideComponent(GenesTableComponent, {
+        remove: {
+          imports: [AgGridAngular],
+        },
+        add: {
+          imports: [MockAgGridAngularComponent],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(GenesTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  describe('Component Initialization', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
-
-    it('should initialize inputs with default values', () => {
-      expect(component.data()).toBeNull();
-      expect(component.loading()).toBe(false);
-      expect(component.errorMessage()).toBeNull();
-      expect(component.filters()).toBeNull();
-    });
-
-    it('should have all output signals defined', () => {
-      expect(component.sortChange).toBeDefined();
-      expect(component.pageChange).toBeDefined();
-      expect(component.rowClick).toBeDefined();
-      expect(component.exportClick).toBeDefined();
-    });
-
-    it('should have correct displayed columns', () => {
-      expect(component.displayedColumns).toEqual([
-        'accession',
-        'entryName',
-        'proteinFullName',
-        'organismName',
-        'length',
-        'reviewed',
-        'evidenceLevel',
-        'actions'
-      ]);
-    });
+  it('should create with expected defaults', () => {
+    expect(component).toBeTruthy();
+    expect(component.data()).toBeNull();
+    expect(component.loading()).toBe(false);
+    expect(component.errorMessage()).toBeNull();
+    expect(component.rows()).toEqual([]);
   });
 
-  describe('Input Bindings', () => {
-    it('should accept paged data', () => {
-      fixture.componentRef.setInput('data', mockPagedResponse);
-      fixture.detectChanges();
-
-      expect(component.data()).toEqual(mockPagedResponse);
+  it('should emit selected row on grid row click', async () => {
+    let selected: ProteinSummary | undefined;
+    component.rowClick.subscribe((protein) => {
+      selected = protein;
     });
 
-    it('should accept loading state', () => {
-      expect(component.loading()).toBe(false);
-    });
+    component.onGridRowClicked({data: mockProteinData[0]} as never);
 
-    it('should accept error message', () => {
-      expect(component.errorMessage()).toBeNull();
-    });
-
-    it('should accept filter snapshot', () => {
-      expect(component.filters()).toBeNull();
-    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(selected).toEqual(mockProteinData[0]);
   });
 
-  describe('Row Click Output', () => {
-    it('should emit rowClick output with selected protein', async () => {
-      const testProtein = mockProteinData[0];
-      let emittedValue: ProteinSummary | undefined;
+  it('should show loading state while loading is true', () => {
+    fixture.componentRef.setInput('loading', true);
+    fixture.detectChanges();
 
-      component.rowClick.subscribe((protein: ProteinSummary) => {
-        emittedValue = protein;
-      });
-
-      component.selectRowSummary(testProtein);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(emittedValue).toEqual(testProtein);
-    });
-
-    it('should emit rowClick with correct protein data', async () => {
-      const expectedProtein = mockProteinData[1];
-      let receivedProtein: ProteinSummary | undefined;
-
-      component.rowClick.subscribe((protein) => {
-        receivedProtein = protein;
-      });
-
-      component.selectRowSummary(expectedProtein);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(receivedProtein).toEqual(expectedProtein);
-      expect(receivedProtein?.id).toBe(2);
-    });
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.skeleton-row')).toBeTruthy();
   });
 
-  describe('Filter Chips Computed Signal', () => {
-    it('should return empty array when filters is null', () => {
-      fixture.componentRef.setInput('filters', null);
-      fixture.detectChanges();
+  it('should show error state when there is no data and an error message', () => {
+    fixture.componentRef.setInput('loading', false);
+    fixture.componentRef.setInput('errorMessage', 'Search failed');
+    fixture.detectChanges();
 
-      expect(component.filtersChips()).toEqual([]);
-    });
-
-    it('should build chips for string filter values', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: 'kinase',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.length).toBeGreaterThan(0);
-      expect(chips.some((chip) => chip.label === 'Search')).toBe(true);
-    });
-
-    it('should build chips for accession filter', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: 'P12345',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.some((chip) => chip.label === 'Accession')).toBe(true);
-    });
-
-    it('should skip empty string values', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.length).toBe(0);
-    });
-
-    it('should build chips for numeric values', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: 9606,
-        lineage: '',
-        lengthMin: 100,
-        lengthMax: 500,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.some((chip) => chip.label === 'TaxID')).toBe(true);
-      expect(chips.some((chip) => chip.label === 'Length Min')).toBe(true);
-      expect(chips.some((chip) => chip.label === 'Length Max')).toBe(true);
-    });
-
-    it('should handle reviewed boolean as Yes/No', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: true,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      const reviewedChip = chips.find((chip) => chip.label === 'Reviewed');
-      expect(reviewedChip?.value).toBe('Yes');
-    });
-
-    it('should handle array values by joining with comma', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [1, 2, 3],
-        keywords: ['kinase', 'transferase'],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.some((chip) => chip.label === 'Evidence')).toBe(true);
-      expect(chips.some((chip) => chip.label === 'Keywords')).toBe(true);
-    });
-
-    it('should skip empty arrays', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
-
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-
-      const chips = component.filtersChips();
-      expect(chips.length).toBe(0);
-    });
+    const host = fixture.nativeElement as HTMLElement;
+    const error = host.querySelector('.error-msg');
+    expect(error?.textContent).toContain('Search failed');
+    expect(host.textContent).toContain('Retry');
   });
 
-  describe('Edge Cases', () => {
-    it('should handle filters with all properties set', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: 'search term',
-        accession: 'P12345',
-        entryName: 'ENTRY_HUMAN',
-        geneNamePrimary: 'GENE1',
-        proteinFullName: 'Full Protein Name',
-        reviewed: true,
-        organism: 'Homo sapiens',
-        taxid: 9606,
-        lineage: 'Eukaryota',
-        lengthMin: 100,
-        lengthMax: 500,
-        molecularWeightMin: 10000,
-        molecularWeightMax: 50000,
-        evidenceLevels: [1],
-        keywords: ['kinase'],
-        goTermId: 'GO:0005524',
-        goAspect: 'F',
-        featureType: 'disulfide bond',
-        crossRefSource: 'PDB'
-      };
+  it('should show empty state message when no rows are available', () => {
+    fixture.componentRef.setInput('loading', false);
+    fixture.componentRef.setInput('data', {
+      content: [],
+      page: 0,
+      size: 50,
+      totalElements: 0,
+      totalPages: 0
+    } satisfies PagedResponse<ProteinSummary>);
+    fixture.detectChanges();
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.textContent).toContain('No proteins found');
+  });
 
-      const chips = component.filtersChips();
-      expect(chips.length).toBeGreaterThan(0);
+  it('should render AG Grid when data exists', () => {
+    fixture.componentRef.setInput('data', mockPagedResponse);
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('ag-grid-angular')).toBeTruthy();
+  });
+
+  it('should reset sort to id asc when no active sorted column remains', () => {
+    let emitted: { page?: number; size?: number; sort?: string; direction?: 'asc' | 'desc' } | undefined;
+    component.updateSortDirection.subscribe((payload) => {
+      emitted = payload;
     });
 
-    it('should handle reviewed false value', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: false,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
+    const sortEvent = {
+      api: {
+        getColumnState: () => [{colId: 'accession', sort: null}],
+      },
+    } as unknown as SortChangedEvent<ProteinSummary>;
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
+    component.onGridSortChanged(sortEvent);
 
-      const chips = component.filtersChips();
-      const reviewedChip = chips.find((chip) => chip.label === 'Reviewed');
-      expect(reviewedChip?.value).toBe('No');
+    expect(emitted).toEqual({sort: 'id', direction: 'asc', page: 0});
+  });
+
+  it('should emit sort change payload for ascending sort', () => {
+    let emitted: { page?: number; size?: number; sort?: string; direction?: 'asc' | 'desc' } | undefined;
+    component.updateSortDirection.subscribe((payload) => {
+      emitted = payload;
     });
 
-    it('should handle multiple evidence levels', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [1, 2, 3, 4, 5],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
+    const sortEvent = {
+      api: {
+        getColumnState: () => [{colId: 'organismName', sort: 'asc'}],
+      },
+    } as unknown as SortChangedEvent<ProteinSummary>;
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
+    component.onGridSortChanged(sortEvent);
 
-      const chips = component.filtersChips();
-      const evidenceChip = chips.find((chip) => chip.label === 'Evidence');
-      expect(evidenceChip?.value).toContain('1');
-      expect(evidenceChip?.value).toContain('5');
+    expect(emitted).toEqual({sort: 'organismName', direction: 'asc', page: 0});
+  });
+
+  it('should emit sort change payload for descending sort', () => {
+    let emitted: { page?: number; size?: number; sort?: string; direction?: 'asc' | 'desc' } | undefined;
+    component.updateSortDirection.subscribe((payload) => {
+      emitted = payload;
     });
 
-    it('should handle zero values in numeric fields', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: 0,
-        lineage: '',
-        lengthMin: 0,
-        lengthMax: 0,
-        molecularWeightMin: 0,
-        molecularWeightMax: 0,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
+    const sortEvent = {
+      api: {
+        getColumnState: () => [{colId: 'length', sort: 'desc'}],
+      },
+    } as unknown as SortChangedEvent<ProteinSummary>;
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
+    component.onGridSortChanged(sortEvent);
 
-      const chips = component.filtersChips();
-      // Zero values should be included
-      expect(chips.some((chip) => chip.label === 'TaxID')).toBe(true);
+    expect(emitted).toEqual({sort: 'length', direction: 'desc', page: 0});
+  });
+
+  it('should emit retry click when retrySearch is called', () => {
+    let called = false;
+    component.retryClick.subscribe(() => {
+      called = true;
     });
 
-    it('should handle goTermId with valid format', () => {
-      const mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: 'GO:0005524',
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
+    component.retrySearch();
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
+    expect(called).toBe(true);
+  });
 
-      const chips = component.filtersChips();
-      expect(chips.some((chip) => chip.label === 'Go ID')).toBe(true);
-    });
+  it('should size columns to fit when grid is ready', () => {
+    let called = false;
+    component.onGridReady({
+      api: {
+        sizeColumnsToFit: () => {
+          called = true;
+        },
+      },
+    } as never);
 
-    it('should react to filter changes dynamically', () => {
-      let mockFilters: GeneFilterSnapshot = {
-        globalSearch: '',
-        accession: '',
-        entryName: '',
-        geneNamePrimary: '',
-        proteinFullName: '',
-        reviewed: null,
-        organism: '',
-        taxid: null,
-        lineage: '',
-        lengthMin: null,
-        lengthMax: null,
-        molecularWeightMin: null,
-        molecularWeightMax: null,
-        evidenceLevels: [],
-        keywords: [],
-        goTermId: null,
-        goAspect: null,
-        featureType: '',
-        crossRefSource: ''
-      };
+    expect(called).toBe(true);
+  });
 
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-      expect(component.filtersChips().length).toBe(0);
+  it('should size columns to fit when grid size changes', () => {
+    let called = false;
+    component.onGridSizeChanged({
+      api: {
+        sizeColumnsToFit: () => {
+          called = true;
+        },
+      },
+    } as never);
 
-      mockFilters = {...mockFilters, globalSearch: 'test'};
-      fixture.componentRef.setInput('filters', mockFilters);
-      fixture.detectChanges();
-      expect(component.filtersChips().length).toBeGreaterThan(0);
-    });
+    expect(called).toBe(true);
   });
 });
 

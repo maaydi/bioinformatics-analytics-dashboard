@@ -1,11 +1,39 @@
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: ds.$color-surface-subtle;
+  color: ds.$color-on-surface;
+  font-family: ds.$font-family-base;
+}
+
 .layout-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100dvh;
 }
 
 .layout-content {
   flex: 1;
-  padding: 1rem;
+  padding: ds.$spacing-lg;
   overflow: auto;
 }
+
+.layout-content-inner {
+  width: min(100%, 1600px);
+  margin-inline: auto;
+}
+
+@include ds.respond-to('xl') {
+  .layout-content {
+    padding: ds.$spacing-xl;
+  }
+}
+
+@include ds.respond-up-to('md') {
+  .layout-content {
+    padding: ds.$spacing-md;
+  }
+}
+

@@ -1,0 +1,11 @@
+<div (click)="onHeaderClick()" class="sort-header-container"
+     style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+  <span>{{ label() }}</span>
+  @if (isCurrentField()) {
+    @if (activeSortDirection() === 'asc') {
+      <mat-icon>arrow_upward</mat-icon>
+    } @else if (activeSortDirection() === 'desc') {
+      <mat-icon>arrow_downward</mat-icon>
+    }
+  }
+</div>

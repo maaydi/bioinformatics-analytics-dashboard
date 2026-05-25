@@ -86,8 +86,29 @@ describe('GenesService', () => {
     req.flush(response);
   });
 
+  it('listGenes should use default paging and sorting params when omitted', () => {
+    const response: PagedResponse<ProteinSummary> = {
+      content: [],
+      page: 0,
+      size: 50,
+      totalElements: 0,
+      totalPages: 0
+    };
+
+    service.listGenes().subscribe((res) => {
+      expect(res).toEqual(response);
+    });
+
+    const req = httpMock.expectOne((request) => request.method === 'GET' && request.url === baseUrl);
+    expect(req.request.params.get('page')).toBe('0');
+    expect(req.request.params.get('size')).toBe('50');
+    expect(req.request.params.get('sort')).toBe('id');
+    expect(req.request.params.get('direction')).toBe('asc');
+    req.flush(response);
+  });
+
   it('searchGenes should call POST /genes/search with filter payload', () => {
-    const filter: GeneFilterSnapshot & { page: number; size: number; sort: string; direction: string } = {
+    const filter: GeneFilterSnapshot & { page: number; size: number; sort: string; direction: 'asc' | 'desc' } = {
       globalSearch: 'kinase',
       taxid: 9606,
       keywords: ['Kinase'],

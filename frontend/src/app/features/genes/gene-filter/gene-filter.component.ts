@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -13,23 +13,24 @@ import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/list';
-import {debounceTime, distinctUntilChanged} from 'rxjs';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatError, MatFormField, MatInput} from '@angular/material/input';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
-import {EVIDENCE_LEVEL_LABELS, EVIDENCE_LEVELS, EvidenceLevel} from '@core/models/protein.model';
+import {
+  EVIDENCE_LEVEL_LABELS,
+  EVIDENCE_LEVELS,
+  EvidenceLevel,
+  MAX_ACCESSION_LENGTH,
+  MAX_GENE_NAME_PRIMARY_LENGTH,
+  MAX_KEYWORD_LENGTH,
+  MAX_KEYWORDS_COUNT,
+  MAX_ORGANISM_LENGTH
+} from '@core/models/protein.model';
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
 import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
 
-const MAX_GLOBAL_SEARCH_LENGTH = 200;
-const MAX_ACCESSION_LENGTH = 20;
-const MAX_GENE_NAME_PRIMARY_LENGTH = 100;
-const MAX_ORGANISM_LENGTH = 300;
-const MAX_KEYWORDS_COUNT = 10;
-const MAX_KEYWORD_LENGTH = 100;
 
 const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
   const value = control.value;
@@ -72,7 +73,6 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
  *
  * Behavior:
  * - Maintains a reactive form for all supported gene filters.
- * - Debounce global search updates before emitting filters.
  * - Prevents emission while the form is invalid.
  *
  * Outputs:
@@ -88,15 +88,9 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
 })
 export class GeneFilterComponent {
   readonly evidenceLevels = EVIDENCE_LEVELS;
-
-  readonly value = input<GeneFilterSnapshot | null>(null);
-
-  readonly filterChange = output<GeneFilterSnapshot>();
-  readonly filterClear = output<void>();
   readonly form = new FormGroup<GeneFilterFormControls>({
     globalSearch: new FormControl('', {
-      nonNullable: false,
-      validators: [Validators.maxLength(MAX_GLOBAL_SEARCH_LENGTH)]
+      nonNullable: false
     }),
     accession: new FormControl('', {
       nonNullable: false,
@@ -118,7 +112,6 @@ export class GeneFilterComponent {
     }),
     lineage: new FormControl('', {nonNullable: false}),
 
-    // Storing object values cleanly inside single form controls
     length: new FormControl<{ min: number | null; max: number | null }>({min: null, max: null}),
     molecularWeight: new FormControl<{ min: number | null; max: number | null }>({min: null, max: null}),
 
@@ -134,16 +127,28 @@ export class GeneFilterComponent {
     featureType: new FormControl('', {nonNullable: false}),
     crossRefSource: new FormControl('', {nonNullable: false}),
   });
-  private readonly destroyRef = inject(DestroyRef);
+  readonly value = input<GeneFilterSnapshot | null>(null);
+
+  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterClear = output<void>();
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
-    this.listenToGlobalSearch();
     effect(() => {
+      const currentFormValues = this.form.getRawValue();
       const currentFilters = this.value();
       if (currentFilters) {
-        this.form.patchValue(this.toForm(currentFilters), {emitEvent: false});
+        const newFormValues = this.toForm(currentFilters);
+        if (JSON.stringify(newFormValues) !== JSON.stringify(currentFormValues)) {
+          this.form.patchValue(newFormValues, {emitEvent: false});
+          this.cdr.markForCheck();
+        }
       } else {
-        this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
+        const defaultValues = this.getDefaultFormValue();
+        if (JSON.stringify(currentFilters) !== JSON.stringify(defaultValues)) {
+          this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
+          this.cdr.markForCheck();
+        }
       }
     });
   }
@@ -183,23 +188,12 @@ export class GeneFilterComponent {
     return `${level} - ${EVIDENCE_LEVEL_LABELS[level]}`;
   }
 
-  /** Subscribes to global-search changes with debounce and distinct guards. */
-  private listenToGlobalSearch(): void {
-    this.form.controls.globalSearch.valueChanges
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.form.pristine && !this.form.controls.globalSearch.value) {
-          return;
-        }
-        this.applyFilters();
-      });
-  }
-
   /** Maps form raw values to the API-compatible filter snapshot. */
   private toSnapshot(): GeneFilterSnapshot {
     const rawValue = this.form.getRawValue();
     return {
       ...rawValue,
+      globalSearch: rawValue.globalSearch && rawValue.globalSearch !== '' ? rawValue.globalSearch : null,
       lengthMin: rawValue.length ? rawValue.length.min : null,
       lengthMax: rawValue.length ? rawValue.length.max : null,
       molecularWeightMin: rawValue.molecularWeight ? rawValue.molecularWeight.min : null,
@@ -216,16 +210,16 @@ export class GeneFilterComponent {
       entryName: snapshot.entryName ?? '',
       geneNamePrimary: snapshot.geneNamePrimary ?? '',
       proteinFullName: snapshot.proteinFullName ?? '',
-      reviewed: snapshot.reviewed,
+      reviewed: snapshot.reviewed ?? null,
       organism: snapshot.organism ?? '',
-      taxid: snapshot.taxid,
+      taxid: snapshot.taxid ?? null,
       lineage: snapshot.lineage ?? '',
       length: {min: snapshot.lengthMin ?? null, max: snapshot.lengthMax ?? null},
       molecularWeight: {min: snapshot.molecularWeightMin ?? null, max: snapshot.molecularWeightMax ?? null},
       evidenceLevels: snapshot.evidenceLevels ?? [],
       keywords: snapshot.keywords ?? [],
       goTermId: snapshot.goTermId ?? '',
-      goAspect: snapshot.goAspect,
+      goAspect: snapshot.goAspect ?? null,
       featureType: snapshot.featureType ?? '',
       crossRefSource: snapshot.crossRefSource ?? '',
     };

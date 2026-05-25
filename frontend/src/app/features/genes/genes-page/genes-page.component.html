@@ -1,18 +1,35 @@
 <div class="page-container">
-  <!-- Filters side bar -->
-  <mat-card appearance="outlined" class="filter-card">
-    <app-gene-filter (filterChange)="store.searchGene($event)" (filterClear)="store.clearFilters()"
+  <mat-card appearance="outlined" aria-label="Gene search filters" class="filter-card">
+    <app-gene-filter (filterChange)="applyFilters($event)" (filterClear)="clearFilters()"
                      [value]="store.activeFilters()"></app-gene-filter>
   </mat-card>
-  <!--  Result table View  -->
-  <mat-card class="result-card">
+  <mat-card aria-label="Gene search results" class="result-card">
+    <div class="result-card__search">
+      <app-global-search
+        (filterChange)="applyFilters($event)"
+        [filters]="store.activeFilters()"
+      ></app-global-search>
+    </div>
+    <div class="result-card__search">
+      <app-active-filters
+        (filterRemoved)="store.removeFilter($event)"
+        (setChipsCount)="store.updateChipsCount($event)"
+        [filters]="store.activeFilters()"
+      ></app-active-filters>
+    </div>
+    <div class="result-card__search">
+      <app-result-header (updatePage)="store.updatePaginationAndSort($event)"
+                         [data]="store.searchResult()">
+      </app-result-header>
+    </div>
     <app-genes-table
-      (rowClick)="store.selectGeneSummary($event)"
+      (retryClick)="retrySearch()"
+      (rowClick)="openGeneDetails($event)"
       [data]="store.searchResult()"
       [errorMessage]="store.onErrorMessage()"
-      [filters]="store.activeFilters()"
       [loading]="store.loading()"
-      (filterRemoved)="store.removeFilter($event)"
+      [chipsCount]="store.chipsCount()"
+      (updateSortDirection)="store.updatePaginationAndSort($event)"
     >
     </app-genes-table>
   </mat-card>

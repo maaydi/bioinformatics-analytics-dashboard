@@ -1,0 +1,16 @@
+<div class="table-header-actions">
+  @if (filtersChips().length > 0) {
+    <div class="label-container">
+      <label class="section-label">Active Filters</label>
+    </div>
+    <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
+      @for (chip of filtersChips(); track chip.label + chip.value) {
+        <mat-chip (removed)="removeFilter(chip.key)" removable>{{ chip.label }}: {{ chip.value }}
+          <button aria-label="Remove Filter" matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+      }
+    </mat-chip-set>
+  }
+</div>
