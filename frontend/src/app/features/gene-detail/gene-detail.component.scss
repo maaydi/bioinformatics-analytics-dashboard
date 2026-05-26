@@ -311,3 +311,215 @@
   border-radius: ds.$border-radius-md;
   @include ds.text-body-md;
 }
+
+// ============================================================================
+// Features Tab Content
+// ============================================================================
+
+.features-tab-content {
+  padding: ds.$spacing-xl;
+}
+
+.features-table-wrapper {
+  overflow-x: auto;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface;
+}
+
+.features-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: ds.$color-surface-subtle;
+
+    th {
+      @include ds.text-label-md;
+      color: ds.$color-on-surface-variant;
+      text-align: left;
+      padding: ds.$spacing-md ds.$spacing-lg;
+      border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      white-space: nowrap;
+      font-weight: ds.$font-weight-semibold;
+    }
+  }
+
+  tbody {
+    .features-table-row {
+      transition: background-color 0.15s ease;
+
+      &:not(:last-child) td {
+        border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      }
+
+      &:hover {
+        background-color: ds.$color-surface-hover;
+      }
+
+      td {
+        @include ds.text-body-sm;
+        color: ds.$color-on-surface;
+        padding: ds.$spacing-md ds.$spacing-lg;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.features-position {
+  white-space: nowrap;
+}
+
+.position-range {
+  display: inline-flex;
+  align-items: center;
+  gap: ds.$spacing-xs;
+  @include ds.text-mono;
+  font-size: 12px;
+  color: ds.$color-on-surface;
+}
+
+.position-start,
+.position-end {
+  font-weight: ds.$font-weight-semibold;
+}
+
+.position-separator {
+  color: ds.$color-on-surface-variant;
+  font-size: 11px;
+}
+
+.features-note {
+  max-width: 280px;
+  word-break: break-word;
+}
+
+.features-id {
+  @include ds.text-mono;
+  font-size: 12px;
+  color: var(--mat-sys-primary);
+  white-space: nowrap;
+}
+
+.features-evidence {
+  @include ds.text-body-sm;
+  color: ds.$color-on-surface-variant;
+  max-width: 260px;
+  word-break: break-word;
+  font-size: 11px;
+}
+
+.features-empty-value {
+  color: ds.$color-on-surface-variant;
+  opacity: 0.6;
+}
+
+.mono {
+  @include ds.text-mono;
+}
+
+.features-empty-state {
+  padding: ds.$spacing-xl;
+  text-align: center;
+  color: ds.$color-on-surface-variant;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  @include ds.text-body-md;
+}
+
+// Feature type chips — colour-coded per feature type category
+.feature-type-chip {
+  @include ds.text-label-sm;
+  display: inline-block;
+  padding: ds.$spacing-xs ds.$spacing-md;
+  border-radius: ds.$border-radius-full;
+  font-weight: ds.$font-weight-semibold;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 10px;
+
+  // Default / unknown
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface-variant;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+
+  &--chain {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+  }
+
+  &--region {
+    background-color: #dcfce7;
+    color: #15803d;
+    border-color: #86efac;
+  }
+
+  &--compbias {
+    background-color: #fef9c3;
+    color: #854d0e;
+    border-color: #fde047;
+  }
+
+  &--domain {
+    background-color: #ede9fe;
+    color: #6d28d9;
+    border-color: #c4b5fd;
+  }
+
+  &--motif {
+    background-color: #fce7f3;
+    color: #be185d;
+    border-color: #f9a8d4;
+  }
+
+  &--site {
+    background-color: #ffedd5;
+    color: #c2410c;
+    border-color: #fdba74;
+  }
+
+  &--disulfid {
+    background-color: #ecfeff;
+    color: #0e7490;
+    border-color: #67e8f9;
+  }
+
+  &--binding {
+    background-color: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  &--mod_res,
+  &--mod-res {
+    background-color: #fdf4ff;
+    color: #7e22ce;
+    border-color: #e9d5ff;
+  }
+
+  &--signal,
+  &--peptide,
+  &--propep {
+    background-color: #fff1f2;
+    color: #be123c;
+    border-color: #fecdd3;
+  }
+
+  &--transit {
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+  }
+
+  &--act_site,
+  &--act-site {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+  }
+}
+

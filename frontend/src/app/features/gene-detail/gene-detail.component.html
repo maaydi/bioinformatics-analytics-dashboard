@@ -239,7 +239,53 @@
       </mat-tab>
 
       <mat-tab label="Features">
-        <div class="tab-placeholder">Feature annotations will appear here.</div>
+        <div class="features-tab-content">
+          @if (proteinDetails()?.features && proteinDetails()!.features.length > 0) {
+            <div aria-label="Feature annotations" class="features-table-wrapper" role="region">
+              <table aria-label="Protein features" class="features-table">
+                <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Position</th>
+                  <th scope="col">Note</th>
+                  <th scope="col">Feature ID</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (feature of proteinDetails()!.features; track feature.featureType + feature.startPos + feature.endPos) {
+                    <tr class="features-table-row">
+                      <td>
+                        <span [attr.aria-label]="'Feature type: ' + feature.featureType"
+                              [class]="featureTypeClass(feature.featureType)">
+                          {{ feature.featureType }}
+                        </span>
+                      </td>
+                      <td class="features-position">
+                        @if (feature.startPos !== null && feature.endPos !== null) {
+                          <span class="position-range">
+                            <span class="position-start">{{ feature.startPos }}</span>
+                            <span aria-hidden="true" class="position-separator">→</span>
+                            <span class="position-end">{{ feature.endPos }}</span>
+                          </span>
+                        } @else {
+                          <span class="features-empty-value">–</span>
+                        }
+                      </td>
+                      <td class="features-note">{{ stripQuotes(feature.note) }}</td>
+                      <td class="features-id mono">{{ stripQuotes(feature.featureId) }}</td>
+                      <td class="features-evidence">{{ stripQuotes(feature.evidence) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div aria-live="polite" class="features-empty-state" role="status">
+              <span>No feature annotations available for this protein.</span>
+            </div>
+          }
+        </div>
       </mat-tab>
       <mat-tab label="Cross References">
         <div class="tab-placeholder">Cross-reference links will appear here.</div>

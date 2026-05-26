@@ -48,11 +48,12 @@ export interface ProteinDetail extends ProteinSummary {
 }
 
 export interface FeatureItem {
-  type: string;
+  featureType: string;
   startPos: number | null;
   endPos: number | null;
   note: string | null;
   featureId: string | null;
+  evidence: string | null;
 }
 
 export interface GoTermItem {

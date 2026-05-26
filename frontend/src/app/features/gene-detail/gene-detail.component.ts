@@ -137,6 +137,17 @@ export class GeneDetailComponent implements OnInit {
     }) : '–';
   }
 
+  /** Returns a CSS modifier class for a given featureType chip. */
+  featureTypeClass(featureType: string): string {
+    return `feature-type-chip feature-type-chip--${featureType.toLowerCase()}`;
+  }
+
+  /** Strip surrounding quotes from a raw API note/featureId/evidence string. */
+  stripQuotes(value: string | null | undefined): string {
+    if (!value) return '–';
+    return value.replace(/^"|"$/g, '');
+  }
+
   /** Safely parse molecular weight as number with K suffix if > 1000. */
   formatMolecularWeight(): string {
     const weight = this.proteinDetails()?.molecularWeight;
