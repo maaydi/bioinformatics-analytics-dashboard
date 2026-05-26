@@ -2,6 +2,17 @@
   <mat-card appearance="outlined" class="dashboard-placeholder">
     <app-loading-spinner/>
   </mat-card>
+} @else if (notFound()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder not-found-card">
+    <div aria-live="polite" class="not-found-content">
+      <mat-icon aria-hidden="true" class="not-found-icon">search_off</mat-icon>
+      <h2>Protein not found</h2>
+      <p>This protein doesn't exist or is no longer available.</p>
+      <button color="primary" data-testid="back-to-genes" mat-raised-button routerLink="/genes" type="button">
+        Return to Gene Explorer
+      </button>
+    </div>
+  </mat-card>
 } @else if (errorMessage()) {
   <mat-card appearance="outlined" class="dashboard-placeholder">
     <mat-error>{{ errorMessage() }}</mat-error>

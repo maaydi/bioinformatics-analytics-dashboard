@@ -21,6 +21,8 @@ import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MatButtonModule} from '@angular/material/button';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {HttpErrorResponse} from '@angular/common/http';
+import {RouterLink} from '@angular/router';
 
 /**
  * Gene Detail page — Epic 5 (US-15, US-16, US-17).
@@ -44,7 +46,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatError,
     MatIcon,
     MatTooltip,
-    MatButtonModule
+    MatButtonModule,
+    RouterLink
   ],
   templateUrl: './gene-detail.component.html',
   styleUrl: './gene-detail.component.scss',
@@ -54,6 +57,7 @@ export class GeneDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   readonly id = input.required<number>();
   proteinDetails = signal<ProteinDetail | null>(null);
+  notFound = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   readonly copyFeedbackMessage = signal<string | null>(null);
   readonly breadcrumbItems = computed<readonly BreadcrumbItem[]>(() => {
@@ -74,10 +78,21 @@ export class GeneDetailComponent implements OnInit {
       .subscribe({
         next: (result) => {
           this.proteinDetails.set(result);
+          this.notFound.set(false);
           this.errorMessage.set(null);
           this.loading.set(false);
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
+          this.proteinDetails.set(null);
+
+          if (err.status === 404) {
+            this.notFound.set(true);
+            this.errorMessage.set(null);
+            this.loading.set(false);
+            return;
+          }
+
+          this.notFound.set(false);
           this.errorMessage.set('Failed to load protein details.');
           this.loading.set(false);
         }

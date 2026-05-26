@@ -5,6 +5,44 @@
   display: block;
 }
 
+.not-found-card {
+  padding: ds.$spacing-xl;
+}
+
+.not-found-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ds.$spacing-lg;
+  text-align: center;
+  min-height: 300px;
+
+  .not-found-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: ds.$color-on-surface-variant;
+  }
+
+  h2 {
+    margin: 0;
+    @include ds.text-title-md;
+    color: ds.$color-on-surface;
+  }
+
+  p {
+    margin: 0;
+    @include ds.text-body-md;
+    color: ds.$color-on-surface-variant;
+    max-width: 400px;
+  }
+
+  button {
+    margin-top: ds.$spacing-md;
+  }
+}
+
 .gene-detail-page h1 {
   margin: 0;
 }
