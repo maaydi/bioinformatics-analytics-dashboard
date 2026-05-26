@@ -148,6 +148,29 @@ export class GeneDetailComponent implements OnInit {
     return value.replace(/^"|"$/g, '');
   }
 
+  /** Build external URL for known cross-reference providers. */
+  crossReferenceUrl(source: string | null | undefined, identifier: string | null | undefined): string | null {
+    if (!source || !identifier || identifier === '-') {
+      return null;
+    }
+
+    const encodedIdentifier = encodeURIComponent(identifier);
+    switch (source) {
+      case 'RefSeq':
+        return `https://www.ncbi.nlm.nih.gov/protein/${encodedIdentifier}`;
+      case 'KEGG':
+        return `https://www.genome.jp/entry/${encodedIdentifier}`;
+      case 'EMBL':
+        return `https://www.ebi.ac.uk/ena/browser/view/${encodedIdentifier}`;
+      case 'Proteomes':
+        return `https://www.uniprot.org/proteomes/${encodedIdentifier}`;
+      case 'OrthoDB':
+        return `https://www.orthodb.org/?query=${encodedIdentifier}`;
+      default:
+        return null;
+    }
+  }
+
   /** Safely parse molecular weight as number with K suffix if > 1000. */
   formatMolecularWeight(): string {
     const weight = this.proteinDetails()?.molecularWeight;

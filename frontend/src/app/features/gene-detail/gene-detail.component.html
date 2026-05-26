@@ -288,7 +288,52 @@
         </div>
       </mat-tab>
       <mat-tab label="Cross References">
-        <div class="tab-placeholder">Cross-reference links will appear here.</div>
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="xrefs-title" class="xrefs-section">
+            @if (proteinDetails()?.crossReferences && proteinDetails()!.crossReferences.length > 0) {
+              <div aria-label="Cross references" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Cross references table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Source</th>
+                    <th scope="col">Identifier</th>
+                    <th scope="col">Secondary ID</th>
+                    <th scope="col">Tertiary Info</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (xref of proteinDetails()!.crossReferences; track xref.source + xref.identifier + ($index + '')) {
+                      <tr>
+                        <td>
+                          <span class="xref-source-chip">{{ xref.source }}</span>
+                        </td>
+                        <td class="mono">
+                          @if (crossReferenceUrl(xref.source, xref.identifier); as xrefUrl) {
+                            <a [attr.aria-label]="'Open ' + xref.source + ' reference ' + xref.identifier"
+                               [href]="xrefUrl"
+                               class="xref-link"
+                               rel="noopener noreferrer"
+                               target="_blank">
+                              {{ xref.identifier }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(xref.identifier) }}
+                          }
+                        </td>
+                        <td class="mono">{{ getDisplayValue(xref.secondaryId) }}</td>
+                        <td>{{ getDisplayValue(xref.tertiaryInfo) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No cross references available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
       </mat-tab>
       <mat-tab label="Taxonomy">
         <div class="tab-placeholder">Taxonomy information will appear here.</div>

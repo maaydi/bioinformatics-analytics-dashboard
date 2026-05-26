@@ -35,7 +35,14 @@ const proteinDetailFixture: ProteinDetail = {
   sequence: 'AAAA',
   features: [],
   goTerms: [],
-  crossReferences: [],
+  crossReferences: [
+    {
+      source: 'RefSeq',
+      identifier: 'YP_654604.1',
+      secondaryId: 'NC_008187.1',
+      tertiaryInfo: '',
+    },
+  ],
   comments: [],
   publications: [],
   hostOrganisms: [],
@@ -109,6 +116,19 @@ describe('GeneDetailComponent', () => {
 
     expect(failingComponent.errorMessage()).toBe('Failed to load protein details.');
     expect(failingComponent.loading()).toBe(false);
+  });
+
+  it('builds provider-specific external URLs for cross references', () => {
+    expect(component.crossReferenceUrl('RefSeq', 'YP_654604.1'))
+      .toBe('https://www.ncbi.nlm.nih.gov/protein/YP_654604.1');
+    expect(component.crossReferenceUrl('KEGG', 'vg:4156342'))
+      .toBe('https://www.genome.jp/entry/vg%3A4156342');
+  });
+
+  it('returns null URL for unsupported sources or placeholder identifiers', () => {
+    expect(component.crossReferenceUrl('UnknownSource', 'ABC123')).toBeNull();
+    expect(component.crossReferenceUrl('EMBL', '-')).toBeNull();
+    expect(component.crossReferenceUrl('EMBL', null)).toBeNull();
   });
 });
 
