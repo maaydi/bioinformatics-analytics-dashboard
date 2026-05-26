@@ -1,0 +1,120 @@
+@use 'design-system' as ds;
+
+/**
+ * Breadcrumb Navigation Styles
+ * Compliant with application design system: genes-design-system.md
+ * Supports HD (1366×768) and FHD (1920×1080) viewports
+ */
+
+// Container: Navigation semantic wrapper
+.breadcrumbs-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: ds.$spacing-md ds.$spacing-lg;
+
+  @include ds.respond-to('xl') {
+    padding: ds.$spacing-lg ds.$spacing-xl;
+  }
+}
+
+// List: Flex container for breadcrumb items
+.breadcrumbs-list {
+  @include ds.flex-center;
+  gap: ds.$spacing-xs;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Item: Individual breadcrumb entry
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: ds.$spacing-xs;
+}
+
+// Link: Navigable breadcrumb
+.breadcrumb-link {
+  @include ds.text-body-md;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  // Hover state: Subtle background + underline
+  &:hover {
+    color: var(--mat-sys-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  // Focus state: Accessible ring per design system
+  @include ds.focus-ring();
+
+  // Active/disabled state
+  &:disabled {
+    color: ds.$color-on-surface-disabled;
+    cursor: not-allowed;
+  }
+}
+
+// Text: Non-navigable breadcrumb (active page)
+.breadcrumb-text {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+
+  &.breadcrumb-active {
+    @include ds.text-body-md;
+    color: ds.$color-on-surface;
+  }
+}
+
+// Separator: Chevron icon between items
+.breadcrumb-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ds.$color-on-surface-variant;
+}
+
+// Material icon sizing for separator
+.separator-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+// Responsive behavior for mobile
+@include ds.respond-up-to('md') {
+  .breadcrumbs-container {
+    padding: ds.$spacing-sm ds.$spacing-md;
+  }
+
+  .breadcrumbs-list {
+    gap: ds.$spacing-xs;
+  }
+
+  .breadcrumb-item {
+    min-height: 32px;
+  }
+
+  .breadcrumb-link,
+  .breadcrumb-text {
+    @include ds.text-body-sm;
+    word-break: break-word;
+  }
+}
+
+// Enhanced spacing for FHD
+@include ds.respond-to('xl') {
+  .breadcrumbs-list {
+    gap: ds.$spacing-sm;
+  }
+
+  .breadcrumb-link,
+  .breadcrumb-text {
+    @include ds.text-body-md;
+  }
+}
