@@ -354,9 +354,41 @@
           </section>
         </div>
       </mat-tab>
-      <mat-tab label="Taxonomy">
-        <div class="tab-placeholder">Taxonomy information will appear here.</div>
+      <mat-tab label="GO Terms">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="go-terms-title" class="xrefs-section">
+            @if (proteinDetails()?.goTerms && proteinDetails()!.goTerms.length > 0) {
+              <div aria-label="Gene ontology terms" class="xrefs-table-wrapper" role="region">
+                <table aria-label="GO terms table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">GO ID</th>
+                    <th scope="col">Aspect</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Evidence Code</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (goTerm of proteinDetails()!.goTerms; track goTerm.goId + goTerm.aspect) {
+                      <tr>
+                        <td class="mono">{{ goTerm.goId }}</td>
+                        <td>{{ goTerm.aspect }}</td>
+                        <td>{{ goTerm.description }}</td>
+                        <td class="mono">{{ getDisplayValue(goTerm.evidenceCode) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No GO terms available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
       </mat-tab>
+
       <mat-tab label="Publications">
         <div class="tab-placeholder">Related publications will appear here.</div>
       </mat-tab>
