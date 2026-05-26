@@ -1,28 +1,75 @@
-<section aria-label="Gene details" class="gene-detail-page">
-  <h1>Gene Detail</h1>
-  <p class="gene-detail-subtitle">Explore sequence, annotation, references, and related proteins.</p>
+@if (loading()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder">
+    <app-loading-spinner/>
+  </mat-card>
+} @else if (errorMessage()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder">
+    <mat-error>{{ errorMessage() }}</mat-error>
+  </mat-card>
+} @else if (proteinDetails()) {
+  <section aria-label="Gene details" class="gene-detail-page">
+    <app-breadcrumbs [items]="breadcrumbItems()"/>
+    <h1>{{ proteinDetails()?.proteinFullName }}</h1>
+    <div aria-label="Protein metadata" class="detail-metadata">
+      <button
+        (click)="copyAccessionToClipboard()"
+        [attr.aria-label]="'Copy accession ' + proteinDetails()?.accession"
+        [matTooltip]="copyTooltipLabel()"
+        class="accession-chip"
+        matTooltipPosition="above"
+        type="button"
+      >
+        <span class="chip-label">Accession</span>
+        <span class="chip-value">{{ proteinDetails()?.accession }}</span>
+        <mat-icon aria-hidden="true" class="copy-icon">content_copy</mat-icon>
+      </button>
 
-  <mat-tab-group>
-    <mat-tab label="Summary">
-      <div class="tab-placeholder">Summary details will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Sequence">
-      <div class="tab-placeholder">Sequence content will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Features">
-      <div class="tab-placeholder">Feature annotations will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Cross References">
-      <div class="tab-placeholder">Cross-reference links will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Taxonomy">
-      <div class="tab-placeholder">Taxonomy information will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Publications">
-      <div class="tab-placeholder">Related publications will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Similar Proteins">
-      <div class="tab-placeholder">Similar proteins will appear here.</div>
-    </mat-tab>
-  </mat-tab-group>
-</section>
+      <span [attr.aria-label]="'Entry name ' + proteinDetails()?.entryName" class="entry-name-chip">
+        <span class="chip-label">Entry</span>
+        <span class="chip-value">{{ proteinDetails()?.entryName }}</span>
+      </span>
+
+      <span [class]="reviewBadgeClass()">
+        {{ proteinDetails()?.reviewed ? 'Reviewed' : 'Not Reviewed' }}
+      </span>
+
+      <span
+        [attr.aria-label]="evidenceLevelStr()"
+        [class]="evidenceBadgeClass()"
+        [matTooltip]="evidenceLevelStr()"
+        matTooltipPosition="above"
+      >
+        {{ proteinDetails()?.evidenceLevel ?? '-' }}
+      </span>
+
+      @if (copyFeedbackMessage()) {
+        <span aria-live="polite" class="copy-feedback">{{ copyFeedbackMessage() }}</span>
+      }
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Summary">
+        <div class="tab-placeholder">Summary details will appear here.</div>
+      </mat-tab>
+      <mat-tab label="Sequence">
+        <div class="tab-placeholder">Sequence content will appear here.</div>
+      </mat-tab>
+
+      <mat-tab label="Features">
+        <div class="tab-placeholder">Feature annotations will appear here.</div>
+      </mat-tab>
+      <mat-tab label="Cross References">
+        <div class="tab-placeholder">Cross-reference links will appear here.</div>
+      </mat-tab>
+      <mat-tab label="Taxonomy">
+        <div class="tab-placeholder">Taxonomy information will appear here.</div>
+      </mat-tab>
+      <mat-tab label="Publications">
+        <div class="tab-placeholder">Related publications will appear here.</div>
+      </mat-tab>
+      <mat-tab label="Similar Proteins">
+        <div class="tab-placeholder">Similar proteins will appear here.</div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+}

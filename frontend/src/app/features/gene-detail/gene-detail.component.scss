@@ -1,3 +1,6 @@
+@use "design-system" as ds;
+@use "gene-shared" as gs;
+
 :host {
   display: block;
 }
@@ -14,5 +17,70 @@
 .tab-placeholder {
   padding: 1rem;
   color: var(--mat-sys-on-surface-variant);
+}
+
+.detail-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ds.$spacing-sm;
+  margin: ds.$spacing-md 0 ds.$spacing-lg;
+}
+
+.review-badge {
+  @include gs.review-badge;
+}
+
+.evidence-badge {
+  @include gs.evidence-badge;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.accession-chip,
+.entry-name-chip {
+  @include ds.chip-base;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface;
+  min-height: 32px;
+}
+
+.accession-chip {
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--mat-sys-primary);
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 9%, white 91%);
+  }
+
+  &:focus-visible {
+    @include ds.focus-ring();
+  }
+}
+
+.chip-label {
+  @include ds.text-label-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+.chip-value {
+  @include ds.text-mono;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.copy-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--mat-sys-primary);
+}
+
+.copy-feedback {
+  @include ds.text-body-sm;
+  color: ds.$color-success;
+  font-weight: ds.$font-weight-medium;
 }
 
