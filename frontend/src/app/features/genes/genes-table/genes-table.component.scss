@@ -1,4 +1,5 @@
 @use "design-system" as ds;
+@use "gene-shared" as gs;
 
 :host {
   display: flex;
@@ -105,58 +106,14 @@
   }
 
   .review-badge {
-    @include ds.badge-base;
-    padding: ds.$spacing-xs (ds.$spacing-sm * 1.2);
-    border-radius: ds.$border-radius-md;
-    @include ds.text-label-sm;
-    font-weight: ds.$font-weight-bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: ds.$border-width-thin solid transparent;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    &.is-reviewed {
-      background-color: ds.$color-reviewed-bg;
-      color: ds.$color-reviewed-text;
-      border-color: rgba(46, 125, 50, 0.2);
-    }
-
-    &.not-reviewed {
-      background-color: ds.$color-not-reviewed-bg;
-      color: ds.$color-not-reviewed-text;
-      border-color: rgba(230, 81, 0, 0.2);
-    }
+    @include gs.review-badge;
   }
 
   .evidence-badge {
-    @include ds.flex-center;
+    @include gs.evidence-badge;
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    border: ds.$border-width-normal solid transparent;
-    background-color: ds.$color-surface;
-    @include ds.text-label-sm;
-    font-weight: ds.$font-weight-bold;
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-
-    &.level-1, &.level-2 {
-      border-color: ds.$color-evidence-green;
-      color: ds.$color-evidence-green;
-    }
-
-    &.level-3 {
-      border-color: ds.$color-evidence-orange;
-      color: ds.$color-evidence-orange;
-    }
-
-    &.level-4, &.level-5 {
-      border-color: ds.$color-evidence-red;
-      color: ds.$color-evidence-red;
-    }
   }
 
   .keywords-cell {
@@ -199,6 +156,7 @@
     font-style: italic;
   }
 }
+
 .state-overlay {
   position: absolute;
   inset: 0;
