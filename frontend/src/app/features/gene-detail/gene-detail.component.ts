@@ -9,7 +9,7 @@ import {
   PLATFORM_ID,
   signal
 } from '@angular/core';
-import {DOCUMENT, isPlatformBrowser} from '@angular/common';
+import {isPlatformBrowser} from '@angular/common';
 import {MatTabsModule} from '@angular/material/tabs';
 import {GenesService} from '@features/genes/genes.service';
 import {BreadcrumbItem, BreadcrumbsComponent} from '@shared/components/breadcrumbs/breadcrumbs.component';
@@ -65,7 +65,6 @@ export class GeneDetailComponent implements OnInit {
   });
   private readonly service = inject(GenesService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private clearCopyMessageTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -106,15 +105,8 @@ export class GeneDetailComponent implements OnInit {
     if (!accession || !isPlatformBrowser(this.platformId)) {
       return;
     }
-
     try {
-      const clipboard = globalThis.navigator?.clipboard;
-      if (clipboard) {
-        await clipboard.writeText(accession);
-      } else {
-        this.copyUsingSelectionFallback(accession);
-      }
-
+      await navigator.clipboard.writeText(accession);
       this.showCopyFeedback('Accession copied.');
     } catch {
       this.showCopyFeedback('Unable to copy accession.');
@@ -123,18 +115,6 @@ export class GeneDetailComponent implements OnInit {
 
   copyTooltipLabel(): string {
     return this.copyFeedbackMessage() ?? 'Copy accession';
-  }
-
-  private copyUsingSelectionFallback(value: string): void {
-    const tempTextArea = this.document.createElement('textarea');
-    tempTextArea.value = value;
-    tempTextArea.style.position = 'fixed';
-    tempTextArea.style.opacity = '0';
-    this.document.body.append(tempTextArea);
-    tempTextArea.focus();
-    tempTextArea.select();
-    this.document.execCommand('copy');
-    tempTextArea.remove();
   }
 
   private showCopyFeedback(message: string): void {
@@ -146,5 +126,28 @@ export class GeneDetailComponent implements OnInit {
     this.clearCopyMessageTimerId = setTimeout(() => {
       this.copyFeedbackMessage.set(null);
     }, 1800);
+  }
+
+  /** Format a date string (ISO 8601) to human-readable format. */
+  formatDate(dateStr: string | null | undefined): string {
+    return dateStr ? new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }) : '–';
+  }
+
+  /** Safely parse molecular weight as number with K suffix if > 1000. */
+  formatMolecularWeight(): string {
+    const weight = this.proteinDetails()?.molecularWeight;
+    if (!weight) return '–';
+    return weight >= 1000 ? `${(weight / 1000).toFixed(1)}K Da` : `${weight} Da`;
+  }
+
+  /** Get display text for null/empty arrays. */
+  getDisplayValue(value: string | string[] | null | undefined): string {
+    if (!value) return '–';
+    if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '–';
+    return value;
   }
 }

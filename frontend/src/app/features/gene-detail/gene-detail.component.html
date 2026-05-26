@@ -49,7 +49,161 @@
 
     <mat-tab-group>
       <mat-tab label="Summary">
-        <div class="tab-placeholder">Summary details will appear here.</div>
+        <div class="summary-tab-content">
+          <div class="summary-sections-container">
+            <!-- Part 1: Basic Protein Information -->
+            <section aria-labelledby="basic-info-title" class="summary-section">
+              <h3 class="summary-section-title" id="basic-info-title">Basic Information</h3>
+              <div class="summary-grid">
+                <!-- Short Name -->
+                <div class="summary-item">
+                  <label class="summary-label">Short Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.proteinShortName) }}</span>
+                </div>
+
+                <!-- EC Number -->
+                <div class="summary-item">
+                  <label class="summary-label">EC Number</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.proteinEcNumber) }}</span>
+                </div>
+
+                <!-- Primary Gene Name -->
+                <div class="summary-item">
+                  <label class="summary-label">Primary Gene Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.geneNamePrimary) }}</span>
+                </div>
+
+                <!-- Gene Synonyms -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Gene Synonyms</label>
+                  @if (proteinDetails()?.geneNameSynonyms && proteinDetails()!.geneNameSynonyms.length > 0) {
+                    <div class="chip-container">
+                      @for (synonym of proteinDetails()!.geneNameSynonyms; track $index) {
+                        <span class="info-chip">{{ synonym }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Molecular Weight -->
+                <div class="summary-item">
+                  <label class="summary-label">Molecular Weight</label>
+                  <span class="summary-value">{{ formatMolecularWeight() }}</span>
+                </div>
+
+                <!-- Sequence Length -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Length</label>
+                  <span class="summary-value">{{ proteinDetails()?.length ?? '–' }} aa</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Part 2: Taxonomy & Organism -->
+            <section aria-labelledby="taxonomy-title" class="summary-section">
+              <h3 class="summary-section-title" id="taxonomy-title">Taxonomy & Organism</h3>
+              <div class="summary-grid">
+                <!-- Organism Name -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Organism</label>
+                  <span class="summary-value">{{ proteinDetails()?.organismName ?? '–' }}</span>
+                </div>
+
+                <!-- Organism Common Name -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Common Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.organismCommonName) }}</span>
+                </div>
+
+                <!-- ORF Names -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">ORF Names</label>
+                  @if (proteinDetails()?.geneOrfNames && proteinDetails()!.geneOrfNames.length > 0) {
+                    <div class="chip-container">
+                      @for (orf of proteinDetails()!.geneOrfNames; track $index) {
+                        <span class="info-chip">{{ orf }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Taxonomic Lineage -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Taxonomic Lineage</label>
+                  @if (proteinDetails()?.lineage && proteinDetails()!.lineage.length > 0) {
+                    <div class="chip-container taxonomy">
+                      @for (taxon of proteinDetails()!.lineage; track taxon) {
+                        <span class="taxonomy-chip">{{ taxon }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Keywords -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Keywords</label>
+                  @if (proteinDetails()?.keywords && proteinDetails()!.keywords.length > 0) {
+                    <div class="chip-container keywords">
+                      @for (keyword of proteinDetails()!.keywords; track keyword) {
+                        <span class="keyword-chip">{{ keyword }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Part 3: Dates & Versioning -->
+            <section aria-labelledby="dates-title" class="summary-section">
+              <h3 class="summary-section-title" id="dates-title">Dates & Versions</h3>
+              <div class="summary-grid">
+                <!-- Integrated Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Integrated Date</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.integratedDate) }}</span>
+                </div>
+
+                <!-- Sequence Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Date</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.sequenceDate) }}</span>
+                </div>
+
+                <!-- Updated Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Last Updated</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.updatedDate) }}</span>
+                </div>
+
+                <!-- Sequence Version -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Version</label>
+                  <span class="summary-value">{{ proteinDetails()?.sequenceVersion ?? '–' }}</span>
+                </div>
+
+                <!-- Entry Version -->
+                <div class="summary-item">
+                  <label class="summary-label">Entry Version</label>
+                  <span class="summary-value">{{ proteinDetails()?.entryVersion ?? '–' }}</span>
+                </div>
+
+                <!-- Sequence Checksum -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Sequence Checksum</label>
+                  <span class="summary-value mono">{{ getDisplayValue(proteinDetails()?.sequenceChecksum) }}</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
       </mat-tab>
       <mat-tab label="Sequence">
         <div class="tab-placeholder">Sequence content will appear here.</div>
