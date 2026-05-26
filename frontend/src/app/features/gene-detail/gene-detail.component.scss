@@ -214,3 +214,100 @@
   word-break: break-word;
 }
 
+// ============================================================================
+// Sequence Tab Content
+// ============================================================================
+
+.sequence-tab-content {
+  padding: ds.$spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-lg;
+}
+
+.sequence-header {
+  padding: ds.$spacing-lg;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+}
+
+.sequence-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ds.$spacing-md;
+  @include ds.text-body-md;
+}
+
+.metadata-label {
+  @include ds.text-label-md;
+  color: ds.$color-on-surface-variant;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.metadata-value {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+
+  &.mono {
+    @include ds.text-mono;
+    font-weight: ds.$font-weight-semibold;
+  }
+}
+
+.metadata-separator {
+  color: ds.$color-on-surface-variant;
+  opacity: 0.5;
+}
+
+.sequence-viewer {
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface-subtle;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.sequence-text {
+  @include ds.text-mono;
+  padding: ds.$spacing-lg;
+  margin: 0;
+  color: ds.$color-on-surface;
+  line-height: 1.6;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+.sequence-info {
+  display: flex;
+  align-items: center;
+  gap: ds.$spacing-md;
+  padding: ds.$spacing-md;
+  background-color: ds.$color-surface-subtle;
+  border-radius: ds.$border-radius-md;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+}
+
+.info-label {
+  @include ds.text-label-md;
+  color: ds.$color-on-surface-variant;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.info-value {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+}
+
+.sequence-empty {
+  padding: ds.$spacing-xl;
+  text-align: center;
+  color: ds.$color-on-surface-variant;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  @include ds.text-body-md;
+}

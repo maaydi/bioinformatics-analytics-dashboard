@@ -206,7 +206,36 @@
         </div>
       </mat-tab>
       <mat-tab label="Sequence">
-        <div class="tab-placeholder">Sequence content will appear here.</div>
+        @if (proteinDetails()) {
+          <div class="sequence-tab-content">
+            <div class="sequence-header">
+              <div class="sequence-metadata">
+                <span class="metadata-label">Sequence Date:</span>
+                <span class="metadata-value mono">{{ formatDate(proteinDetails()?.sequenceDate) }}</span>
+                <span class="metadata-separator">•</span>
+                <span class="metadata-label">Version:</span>
+                <span class="metadata-value">{{ proteinDetails()?.sequenceVersion ?? '–' }}</span>
+                <span class="metadata-separator">•</span>
+                <span class="metadata-label">Checksum:</span>
+                <span class="metadata-value mono">{{ getDisplayValue(proteinDetails()?.sequenceChecksum) }}</span>
+              </div>
+            </div>
+
+            @if (proteinDetails()?.sequence) {
+              <div class="sequence-viewer">
+                <pre class="sequence-text">{{ proteinDetails()?.sequence }}</pre>
+              </div>
+              <div class="sequence-info">
+                <span class="info-label">Length:</span>
+                <span class="info-value">{{ proteinDetails()?.sequence?.length ?? '–' }} amino acids</span>
+              </div>
+            } @else {
+              <div class="sequence-empty">
+                <span>No sequence data available</span>
+              </div>
+            }
+          </div>
+        }
       </mat-tab>
 
       <mat-tab label="Features">
