@@ -71,7 +71,7 @@ export interface CrossReferenceItem {
 }
 
 export interface CommentItem {
-  type: string;
+  commentType: string;
   text: string;
 }
 

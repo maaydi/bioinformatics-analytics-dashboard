@@ -412,10 +412,10 @@
                   </tr>
                   </thead>
                   <tbody>
-                    @for (comment of proteinDetails()!.comments; track comment.type + comment.text) {
+                    @for (comment of proteinDetails()!.comments; track comment.commentType + comment.text) {
                       <tr>
                         <td>
-                          <span class="comment-type-chip">{{ comment.type }}</span>
+                          <span class="comment-type-chip">{{ comment.commentType }}</span>
                         </td>
                         <td>{{ comment.text }}</td>
                       </tr>

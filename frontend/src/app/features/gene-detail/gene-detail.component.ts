@@ -73,7 +73,7 @@ export class GeneDetailComponent implements OnInit {
   private clearCopyMessageTimerId: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.service.getGeneById(this.id())
+    this.service.getById(this.id())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {

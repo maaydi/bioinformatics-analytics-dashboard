@@ -56,7 +56,7 @@ const proteinDetailFixture: ProteinDetail = {
 describe('GeneDetailComponent', () => {
   let fixture: ComponentFixture<GeneDetailComponent>;
   let component: GeneDetailComponent;
-  let genesServiceMock: Pick<GenesService, 'getGeneById'>;
+  let genesServiceMock: Pick<GenesService, 'getById'>;
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -84,7 +84,7 @@ describe('GeneDetailComponent', () => {
   });
 
   it('loads protein details on init', () => {
-    expect(genesServiceMock.getGeneById).toHaveBeenCalledWith(42);
+    expect(genesServiceMock.getById).toHaveBeenCalledWith(42);
     expect(component.proteinDetails()?.accession).toBe('P12345');
     expect(component.loading()).toBe(false);
   });
@@ -112,7 +112,7 @@ describe('GeneDetailComponent', () => {
   });
 
   it('shows error message when loading fails', () => {
-    genesServiceMock.getGeneById = vi.fn().mockReturnValue(throwError(() => new Error('failed')));
+    genesServiceMock.getById = vi.fn().mockReturnValue(throwError(() => new Error('failed')));
 
     const failingFixture = TestBed.createComponent(GeneDetailComponent);
     failingFixture.componentRef.setInput('id', 42);

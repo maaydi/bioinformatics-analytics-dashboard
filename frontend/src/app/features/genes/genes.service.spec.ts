@@ -137,7 +137,7 @@ describe('GenesService', () => {
   });
 
   it('getGeneById should call GET /genes/:id', () => {
-    service.getGeneById(42).subscribe((res) => {
+    service.getById(42).subscribe((res) => {
       expect(res).toEqual(detailResponse);
     });
 
