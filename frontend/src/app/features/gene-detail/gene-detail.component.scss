@@ -1,5 +1,46 @@
+@use "design-system" as ds;
+@use "gene-shared" as gs;
+
 :host {
   display: block;
+}
+
+.not-found-card {
+  padding: ds.$spacing-xl;
+}
+
+.not-found-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ds.$spacing-lg;
+  text-align: center;
+  min-height: 300px;
+
+  .not-found-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: ds.$color-on-surface-variant;
+  }
+
+  h2 {
+    margin: 0;
+    @include ds.text-title-md;
+    color: ds.$color-on-surface;
+  }
+
+  p {
+    margin: 0;
+    @include ds.text-body-md;
+    color: ds.$color-on-surface-variant;
+    max-width: 400px;
+  }
+
+  button {
+    margin-top: ds.$spacing-md;
+  }
 }
 
 .gene-detail-page h1 {
@@ -14,5 +55,635 @@
 .tab-placeholder {
   padding: 1rem;
   color: var(--mat-sys-on-surface-variant);
+}
+
+.detail-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ds.$spacing-sm;
+  margin: ds.$spacing-md 0 ds.$spacing-lg;
+}
+
+.review-badge {
+  @include gs.review-badge;
+}
+
+.evidence-badge {
+  @include gs.evidence-badge;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.accession-chip,
+.entry-name-chip {
+  @include ds.chip-base;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface;
+  min-height: 32px;
+}
+
+.accession-chip {
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--mat-sys-primary);
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 9%, white 91%);
+  }
+
+  &:focus-visible {
+    @include ds.focus-ring();
+  }
+}
+
+.chip-label {
+  @include ds.text-label-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+.chip-value {
+  @include ds.text-mono;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.copy-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--mat-sys-primary);
+}
+
+.copy-feedback {
+  @include ds.text-body-sm;
+  color: ds.$color-success;
+  font-weight: ds.$font-weight-medium;
+}
+
+// ============================================================================
+// Summary Tab Content
+// ============================================================================
+
+.summary-tab-content {
+  padding: ds.$spacing-xl;
+}
+
+.summary-sections-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ds.$spacing-xl;
+
+  @include ds.respond-up-to('lg') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include ds.respond-up-to('md') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-lg;
+  padding: ds.$spacing-lg;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+}
+
+.summary-section-title {
+  @include ds.text-title-md;
+  color: ds.$color-on-surface;
+  margin: 0;
+  padding: 0;
+}
+
+// Grid layout for summary items within each section
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: ds.$spacing-lg;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-sm;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.summary-label {
+  @include ds.text-label-md;
+  color: ds.$color-on-surface-variant;
+  text-transform: none;
+}
+
+.summary-value {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+  word-break: break-word;
+
+  &.mono {
+    @include ds.text-mono;
+    color: ds.$color-on-surface;
+  }
+}
+
+// ============================================================================
+// Chips & Tags
+// ============================================================================
+
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: ds.$spacing-sm;
+  align-items: center;
+
+  &.taxonomy {
+    gap: ds.$spacing-xs;
+  }
+}
+
+.info-chip {
+  @include ds.chip-base;
+  @include ds.text-label-sm;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  padding: ds.$spacing-xs ds.$spacing-md;
+  border-radius: ds.$border-radius-full;
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.taxonomy-chip {
+  @include ds.text-body-sm;
+  background-color: ds.$color-surface;
+  color: ds.$color-on-surface;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  padding: ds.$spacing-xs ds.$spacing-md;
+  border-radius: ds.$border-radius-md;
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ds.$color-surface-hover;
+    border-color: var(--mat-sys-primary);
+  }
+}
+
+.keyword-chip {
+  @include ds.text-label-sm;
+  @include ds.chip-base;
+  background-color: #eef2ff;
+  color: #374151;
+  padding: ds.$spacing-xs ds.$spacing-md;
+  border-radius: ds.$border-radius-full;
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+// ============================================================================
+// Sequence Tab Content
+// ============================================================================
+
+.sequence-tab-content {
+  padding: ds.$spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-lg;
+}
+
+.sequence-header {
+  padding: ds.$spacing-lg;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+}
+
+.sequence-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ds.$spacing-md;
+  @include ds.text-body-md;
+}
+
+.metadata-label {
+  @include ds.text-label-md;
+  color: ds.$color-on-surface-variant;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.metadata-value {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+
+  &.mono {
+    @include ds.text-mono;
+    font-weight: ds.$font-weight-semibold;
+  }
+}
+
+.metadata-separator {
+  color: ds.$color-on-surface-variant;
+  opacity: 0.5;
+}
+
+.sequence-viewer {
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface-subtle;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.sequence-text {
+  @include ds.text-mono;
+  padding: ds.$spacing-lg;
+  margin: 0;
+  color: ds.$color-on-surface;
+  line-height: 1.6;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+.sequence-info {
+  display: flex;
+  align-items: center;
+  gap: ds.$spacing-md;
+  padding: ds.$spacing-md;
+  background-color: ds.$color-surface-subtle;
+  border-radius: ds.$border-radius-md;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+}
+
+.info-label {
+  @include ds.text-label-md;
+  color: ds.$color-on-surface-variant;
+  font-weight: ds.$font-weight-semibold;
+}
+
+.info-value {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+}
+
+.sequence-empty {
+  padding: ds.$spacing-xl;
+  text-align: center;
+  color: ds.$color-on-surface-variant;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  @include ds.text-body-md;
+}
+
+// ============================================================================
+// Features Tab Content
+// ============================================================================
+
+.features-tab-content {
+  padding: ds.$spacing-xl;
+}
+
+.features-table-wrapper {
+  overflow-x: auto;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface;
+}
+
+.features-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: ds.$color-surface-subtle;
+
+    th {
+      @include ds.text-label-md;
+      color: ds.$color-on-surface-variant;
+      text-align: left;
+      padding: ds.$spacing-md ds.$spacing-lg;
+      border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      white-space: nowrap;
+      font-weight: ds.$font-weight-semibold;
+    }
+  }
+
+  tbody {
+    .features-table-row {
+      transition: background-color 0.15s ease;
+
+      &:not(:last-child) td {
+        border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      }
+
+      &:hover {
+        background-color: ds.$color-surface-hover;
+      }
+
+      td {
+        @include ds.text-body-sm;
+        color: ds.$color-on-surface;
+        padding: ds.$spacing-md ds.$spacing-lg;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.features-position {
+  white-space: nowrap;
+}
+
+.position-range {
+  display: inline-flex;
+  align-items: center;
+  gap: ds.$spacing-xs;
+  @include ds.text-mono;
+  font-size: 12px;
+  color: ds.$color-on-surface;
+}
+
+.position-start,
+.position-end {
+  font-weight: ds.$font-weight-semibold;
+}
+
+.position-separator {
+  color: ds.$color-on-surface-variant;
+  font-size: 11px;
+}
+
+.features-note {
+  max-width: 280px;
+  word-break: break-word;
+}
+
+.features-id {
+  @include ds.text-mono;
+  font-size: 12px;
+  color: var(--mat-sys-primary);
+  white-space: nowrap;
+}
+
+.features-evidence {
+  @include ds.text-body-sm;
+  color: ds.$color-on-surface-variant;
+  max-width: 260px;
+  word-break: break-word;
+  font-size: 11px;
+}
+
+.features-empty-value {
+  color: ds.$color-on-surface-variant;
+  opacity: 0.6;
+}
+
+.mono {
+  @include ds.text-mono;
+}
+
+.features-empty-state {
+  padding: ds.$spacing-xl;
+  text-align: center;
+  color: ds.$color-on-surface-variant;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  @include ds.text-body-md;
+}
+
+// ============================================================================
+// Cross References Tab Content
+// ============================================================================
+
+.xrefs-tab-content {
+  padding: ds.$spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-xl;
+}
+
+.xrefs-section {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-md;
+}
+
+.xrefs-table-wrapper {
+  overflow-x: auto;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface;
+}
+
+.xrefs-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: ds.$color-surface-subtle;
+
+    th {
+      @include ds.text-label-md;
+      color: ds.$color-on-surface-variant;
+      text-align: left;
+      padding: ds.$spacing-md ds.$spacing-lg;
+      border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      font-weight: ds.$font-weight-semibold;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      &:not(:last-child) td {
+        border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      }
+
+      &:hover {
+        background-color: ds.$color-surface-hover;
+      }
+    }
+
+    td {
+      @include ds.text-body-sm;
+      color: ds.$color-on-surface;
+      padding: ds.$spacing-md ds.$spacing-lg;
+      vertical-align: middle;
+      word-break: break-word;
+    }
+  }
+}
+
+.xref-source-chip {
+  @include ds.chip-base;
+  @include ds.text-label-sm;
+  background-color: #e0f2fe;
+  color: #075985;
+  border: ds.$border-width-thin solid #bae6fd;
+  border-radius: ds.$border-radius-full;
+  padding: ds.$spacing-xs ds.$spacing-md;
+}
+
+.xref-link {
+  color: var(--mat-sys-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:focus-visible {
+    @include ds.focus-ring();
+  }
+}
+
+.publication-title {
+  max-width: 360px;
+}
+
+// ============================================================================
+// Taxonomy Tab Content
+// ============================================================================
+
+
+.comment-type-chip {
+  @include ds.chip-base;
+  @include ds.text-label-sm;
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  border: ds.$border-width-thin solid #ddd6fe;
+  border-radius: ds.$border-radius-full;
+  padding: ds.$spacing-xs ds.$spacing-md;
+}
+.host-organism-chip {
+  @include ds.chip-base;
+  display: inline-flex;
+  gap: ds.$spacing-xs;
+  align-items: center;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  color: ds.$color-on-surface;
+  padding: ds.$spacing-xs ds.$spacing-md;
+}
+
+.host-organism-taxid {
+  color: var(--mat-sys-primary);
+  font-weight: ds.$font-weight-semibold;
+}
+
+.xrefs-empty-state {
+  padding: ds.$spacing-lg;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface-variant;
+  @include ds.text-body-md;
+}
+
+// Feature type chips — colour-coded per feature type category
+.feature-type-chip {
+  @include ds.text-label-sm;
+  display: inline-block;
+  padding: ds.$spacing-xs ds.$spacing-md;
+  border-radius: ds.$border-radius-full;
+  font-weight: ds.$font-weight-semibold;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 10px;
+
+  // Default / unknown
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface-variant;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+
+  &--chain {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+  }
+
+  &--region {
+    background-color: #dcfce7;
+    color: #15803d;
+    border-color: #86efac;
+  }
+
+  &--compbias {
+    background-color: #fef9c3;
+    color: #854d0e;
+    border-color: #fde047;
+  }
+
+  &--domain {
+    background-color: #ede9fe;
+    color: #6d28d9;
+    border-color: #c4b5fd;
+  }
+
+  &--motif {
+    background-color: #fce7f3;
+    color: #be185d;
+    border-color: #f9a8d4;
+  }
+
+  &--site {
+    background-color: #ffedd5;
+    color: #c2410c;
+    border-color: #fdba74;
+  }
+
+  &--disulfid {
+    background-color: #ecfeff;
+    color: #0e7490;
+    border-color: #67e8f9;
+  }
+
+  &--binding {
+    background-color: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  &--mod_res,
+  &--mod-res {
+    background-color: #fdf4ff;
+    color: #7e22ce;
+    border-color: #e9d5ff;
+  }
+
+  &--signal,
+  &--peptide,
+  &--propep {
+    background-color: #fff1f2;
+    color: #be123c;
+    border-color: #fecdd3;
+  }
+
+  &--transit {
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+  }
+
+  &--act_site,
+  &--act-site {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+  }
 }
 

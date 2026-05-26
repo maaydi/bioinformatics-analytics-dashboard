@@ -101,7 +101,13 @@ Used in single-entry responses. Extends `ProteinSummary` with all relational dat
 ### `FeatureItem`
 
 ```json
-{ "type": "CHAIN", "startPos": 1, "endPos": 256, "note": "Putative transcription factor 001R", "featureId": "PRO_0000410512" }
+{
+  "featureType": "CHAIN",
+  "startPos": 1,
+  "endPos": 256,
+  "note": "Putative transcription factor 001R",
+  "featureId": "PRO_0000410512"
+}
 ```
 
 ### `GoTermItem`
@@ -119,7 +125,10 @@ Used in single-entry responses. Extends `ProteinSummary` with all relational dat
 ### `CommentItem`
 
 ```json
-{ "type": "FUNCTION", "text": "Transcription activation. {ECO:0000305}." }
+{
+  "commentType": "FUNCTION",
+  "text": "Transcription activation. {ECO:0000305}."
+}
 ```
 
 ### `PublicationItem`

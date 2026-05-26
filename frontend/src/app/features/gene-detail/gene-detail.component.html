@@ -1,28 +1,505 @@
-<section aria-label="Gene details" class="gene-detail-page">
-  <h1>Gene Detail</h1>
-  <p class="gene-detail-subtitle">Explore sequence, annotation, references, and related proteins.</p>
+@if (loading()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder">
+    <app-loading-spinner/>
+  </mat-card>
+} @else if (notFound()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder not-found-card">
+    <div aria-live="polite" class="not-found-content">
+      <mat-icon aria-hidden="true" class="not-found-icon">search_off</mat-icon>
+      <h2>Protein not found</h2>
+      <p>This protein doesn't exist or is no longer available.</p>
+      <button color="primary" data-testid="back-to-genes" mat-raised-button routerLink="/genes" type="button">
+        Return to Gene Explorer
+      </button>
+    </div>
+  </mat-card>
+} @else if (errorMessage()) {
+  <mat-card appearance="outlined" class="dashboard-placeholder">
+    <mat-error>{{ errorMessage() }}</mat-error>
+  </mat-card>
+} @else if (proteinDetails()) {
+  <section aria-label="Gene details" class="gene-detail-page">
+    <app-breadcrumbs [items]="breadcrumbItems()"/>
+    <h1>{{ proteinDetails()?.proteinFullName }}</h1>
+    <div aria-label="Protein metadata" class="detail-metadata">
+      <button
+        (click)="copyAccessionToClipboard()"
+        [attr.aria-label]="'Copy accession ' + proteinDetails()?.accession"
+        [matTooltip]="copyTooltipLabel()"
+        class="accession-chip"
+        matTooltipPosition="above"
+        type="button"
+      >
+        <span class="chip-label">Accession</span>
+        <span class="chip-value">{{ proteinDetails()?.accession }}</span>
+        <mat-icon aria-hidden="true" class="copy-icon">content_copy</mat-icon>
+      </button>
 
-  <mat-tab-group>
-    <mat-tab label="Summary">
-      <div class="tab-placeholder">Summary details will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Sequence">
-      <div class="tab-placeholder">Sequence content will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Features">
-      <div class="tab-placeholder">Feature annotations will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Cross References">
-      <div class="tab-placeholder">Cross-reference links will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Taxonomy">
-      <div class="tab-placeholder">Taxonomy information will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Publications">
-      <div class="tab-placeholder">Related publications will appear here.</div>
-    </mat-tab>
-    <mat-tab label="Similar Proteins">
-      <div class="tab-placeholder">Similar proteins will appear here.</div>
-    </mat-tab>
-  </mat-tab-group>
-</section>
+      <span [attr.aria-label]="'Entry name ' + proteinDetails()?.entryName" class="entry-name-chip">
+        <span class="chip-label">Entry</span>
+        <span class="chip-value">{{ proteinDetails()?.entryName }}</span>
+      </span>
+
+      <span [class]="reviewBadgeClass()">
+        {{ proteinDetails()?.reviewed ? 'Reviewed' : 'Not Reviewed' }}
+      </span>
+
+      <span
+        [attr.aria-label]="evidenceLevelStr()"
+        [class]="evidenceBadgeClass()"
+        [matTooltip]="evidenceLevelStr()"
+        matTooltipPosition="above"
+      >
+        {{ proteinDetails()?.evidenceLevel ?? '-' }}
+      </span>
+
+      @if (copyFeedbackMessage()) {
+        <span aria-live="polite" class="copy-feedback">{{ copyFeedbackMessage() }}</span>
+      }
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Summary">
+        <div class="summary-tab-content">
+          <div class="summary-sections-container">
+            <!-- Part 1: Basic Protein Information -->
+            <section aria-labelledby="basic-info-title" class="summary-section">
+              <h3 class="summary-section-title" id="basic-info-title">Basic Information</h3>
+              <div class="summary-grid">
+                <!-- Short Name -->
+                <div class="summary-item">
+                  <label class="summary-label">Short Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.proteinShortName) }}</span>
+                </div>
+
+                <!-- EC Number -->
+                <div class="summary-item">
+                  <label class="summary-label">EC Number</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.proteinEcNumber) }}</span>
+                </div>
+
+                <!-- Primary Gene Name -->
+                <div class="summary-item">
+                  <label class="summary-label">Primary Gene Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.geneNamePrimary) }}</span>
+                </div>
+
+                <!-- Gene Synonyms -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Gene Synonyms</label>
+                  @if (proteinDetails()?.geneNameSynonyms && proteinDetails()!.geneNameSynonyms.length > 0) {
+                    <div class="chip-container">
+                      @for (synonym of proteinDetails()!.geneNameSynonyms; track $index) {
+                        <span class="info-chip">{{ synonym }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Molecular Weight -->
+                <div class="summary-item">
+                  <label class="summary-label">Molecular Weight</label>
+                  <span class="summary-value">{{ formatMolecularWeight() }}</span>
+                </div>
+
+                <!-- Sequence Length -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Length</label>
+                  <span class="summary-value">{{ proteinDetails()?.length ?? '–' }} aa</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Part 2: Taxonomy & Organism -->
+            <section aria-labelledby="taxonomy-title" class="summary-section">
+              <h3 class="summary-section-title" id="taxonomy-title">Taxonomy & Organism</h3>
+              <div class="summary-grid">
+                <!-- Organism Name -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Organism</label>
+                  <span class="summary-value">{{ proteinDetails()?.organismName ?? '–' }}</span>
+                </div>
+
+                <!-- Organism Common Name -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Common Name</label>
+                  <span class="summary-value">{{ getDisplayValue(proteinDetails()?.organismCommonName) }}</span>
+                </div>
+
+                <!-- ORF Names -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">ORF Names</label>
+                  @if (proteinDetails()?.geneOrfNames && proteinDetails()!.geneOrfNames.length > 0) {
+                    <div class="chip-container">
+                      @for (orf of proteinDetails()!.geneOrfNames; track $index) {
+                        <span class="info-chip">{{ orf }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Taxonomic Lineage -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Taxonomic Lineage</label>
+                  @if (proteinDetails()?.lineage && proteinDetails()!.lineage.length > 0) {
+                    <div class="chip-container taxonomy">
+                      @for (taxon of proteinDetails()!.lineage; track taxon) {
+                        <span class="taxonomy-chip">{{ taxon }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Keywords -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Keywords</label>
+                  @if (proteinDetails()?.keywords && proteinDetails()!.keywords.length > 0) {
+                    <div class="chip-container keywords">
+                      @for (keyword of proteinDetails()!.keywords; track keyword) {
+                        <span class="keyword-chip">{{ keyword }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+
+                <!-- Host Organisms -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Host Organisms</label>
+                  @if (proteinDetails()?.hostOrganisms && proteinDetails()!.hostOrganisms.length > 0) {
+                    <div class="chip-container">
+                      @for (host of proteinDetails()!.hostOrganisms; track host.taxid + host.name) {
+                        <span [attr.aria-label]="'Host organism ' + host.name + ', taxid ' + host.taxid"
+                              class="host-organism-chip">
+                          <span class="host-organism-taxid mono">{{ host.taxid }}</span>
+                          <span aria-hidden="true">-</span>
+                          <span>{{ host.name }}</span>
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Part 3: Dates & Versioning -->
+            <section aria-labelledby="dates-title" class="summary-section">
+              <h3 class="summary-section-title" id="dates-title">Dates & Versions</h3>
+              <div class="summary-grid">
+                <!-- Integrated Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Integrated Date</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.integratedDate) }}</span>
+                </div>
+
+                <!-- Sequence Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Date</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.sequenceDate) }}</span>
+                </div>
+
+                <!-- Updated Date -->
+                <div class="summary-item">
+                  <label class="summary-label">Last Updated</label>
+                  <span class="summary-value mono">{{ formatDate(proteinDetails()?.updatedDate) }}</span>
+                </div>
+
+                <!-- Sequence Version -->
+                <div class="summary-item">
+                  <label class="summary-label">Sequence Version</label>
+                  <span class="summary-value">{{ proteinDetails()?.sequenceVersion ?? '–' }}</span>
+                </div>
+
+                <!-- Entry Version -->
+                <div class="summary-item">
+                  <label class="summary-label">Entry Version</label>
+                  <span class="summary-value">{{ proteinDetails()?.entryVersion ?? '–' }}</span>
+                </div>
+
+                <!-- Sequence Checksum -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Sequence Checksum</label>
+                  <span class="summary-value mono">{{ getDisplayValue(proteinDetails()?.sequenceChecksum) }}</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Sequence">
+        @if (proteinDetails()) {
+          <div class="sequence-tab-content">
+            <div class="sequence-header">
+              <div class="sequence-metadata">
+                <span class="metadata-label">Sequence Date:</span>
+                <span class="metadata-value mono">{{ formatDate(proteinDetails()?.sequenceDate) }}</span>
+                <span class="metadata-separator">•</span>
+                <span class="metadata-label">Version:</span>
+                <span class="metadata-value">{{ proteinDetails()?.sequenceVersion ?? '–' }}</span>
+                <span class="metadata-separator">•</span>
+                <span class="metadata-label">Checksum:</span>
+                <span class="metadata-value mono">{{ getDisplayValue(proteinDetails()?.sequenceChecksum) }}</span>
+              </div>
+            </div>
+
+            @if (proteinDetails()?.sequence) {
+              <div class="sequence-viewer">
+                <pre class="sequence-text">{{ proteinDetails()?.sequence }}</pre>
+              </div>
+              <div class="sequence-info">
+                <span class="info-label">Length:</span>
+                <span class="info-value">{{ proteinDetails()?.sequence?.length ?? '–' }} amino acids</span>
+              </div>
+            } @else {
+              <div class="sequence-empty">
+                <span>No sequence data available</span>
+              </div>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <mat-tab label="Features">
+        <div class="features-tab-content">
+          @if (proteinDetails()?.features && proteinDetails()!.features.length > 0) {
+            <div aria-label="Feature annotations" class="features-table-wrapper" role="region">
+              <table aria-label="Protein features" class="features-table">
+                <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Position</th>
+                  <th scope="col">Note</th>
+                  <th scope="col">Feature ID</th>
+                  <th scope="col">Evidence</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (feature of proteinDetails()!.features; track feature.featureType + feature.startPos + feature.endPos) {
+                    <tr class="features-table-row">
+                      <td>
+                        <span [attr.aria-label]="'Feature type: ' + feature.featureType"
+                              [class]="featureTypeClass(feature.featureType)">
+                          {{ feature.featureType }}
+                        </span>
+                      </td>
+                      <td class="features-position">
+                        @if (feature.startPos !== null && feature.endPos !== null) {
+                          <span class="position-range">
+                            <span class="position-start">{{ feature.startPos }}</span>
+                            <span aria-hidden="true" class="position-separator">→</span>
+                            <span class="position-end">{{ feature.endPos }}</span>
+                          </span>
+                        } @else {
+                          <span class="features-empty-value">–</span>
+                        }
+                      </td>
+                      <td class="features-note">{{ stripQuotes(feature.note) }}</td>
+                      <td class="features-id mono">{{ stripQuotes(feature.featureId) }}</td>
+                      <td class="features-evidence">{{ stripQuotes(feature.evidence) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div aria-live="polite" class="features-empty-state" role="status">
+              <span>No feature annotations available for this protein.</span>
+            </div>
+          }
+        </div>
+      </mat-tab>
+      <mat-tab label="Cross References">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="xrefs-title" class="xrefs-section">
+            @if (proteinDetails()?.crossReferences && proteinDetails()!.crossReferences.length > 0) {
+              <div aria-label="Cross references" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Cross references table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Source</th>
+                    <th scope="col">Identifier</th>
+                    <th scope="col">Secondary ID</th>
+                    <th scope="col">Tertiary Info</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (xref of proteinDetails()!.crossReferences; track xref.source + xref.identifier + ($index + '')) {
+                      <tr>
+                        <td>
+                          <span class="xref-source-chip">{{ xref.source }}</span>
+                        </td>
+                        <td class="mono">
+                          @if (crossReferenceUrl(xref.source, xref.identifier); as xrefUrl) {
+                            <a [attr.aria-label]="'Open ' + xref.source + ' reference ' + xref.identifier"
+                               [href]="xrefUrl"
+                               class="xref-link"
+                               rel="noopener noreferrer"
+                               target="_blank">
+                              {{ xref.identifier }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(xref.identifier) }}
+                          }
+                        </td>
+                        <td class="mono">{{ getDisplayValue(xref.secondaryId) }}</td>
+                        <td>{{ getDisplayValue(xref.tertiaryInfo) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No cross references available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="GO Terms">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="go-terms-title" class="xrefs-section">
+            @if (proteinDetails()?.goTerms && proteinDetails()!.goTerms.length > 0) {
+              <div aria-label="Gene ontology terms" class="xrefs-table-wrapper" role="region">
+                <table aria-label="GO terms table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">GO ID</th>
+                    <th scope="col">Aspect</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Evidence Code</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (goTerm of proteinDetails()!.goTerms; track goTerm.goId + goTerm.aspect) {
+                      <tr>
+                        <td class="mono">{{ goTerm.goId }}</td>
+                        <td>{{ goTerm.aspect }}</td>
+                        <td>{{ goTerm.description }}</td>
+                        <td class="mono">{{ getDisplayValue(goTerm.evidenceCode) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No GO terms available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="Comments">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="comments-title" class="xrefs-section">
+            @if (proteinDetails()?.comments && proteinDetails()!.comments.length > 0) {
+              <div aria-label="Protein comments" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Comments table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Text</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (comment of proteinDetails()!.comments; track comment.commentType + comment.text) {
+                      <tr>
+                        <td>
+                          <span class="comment-type-chip">{{ comment.commentType }}</span>
+                        </td>
+                        <td>{{ comment.text }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No comments available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="Publications">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="publications-title" class="xrefs-section">
+            @if (proteinDetails()?.publications && proteinDetails()!.publications.length > 0) {
+              <div aria-label="Protein publications" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Publications table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Ref #</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Authors</th>
+                    <th scope="col">Journal</th>
+                    <th scope="col">PubMed</th>
+                    <th scope="col">DOI</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (publication of proteinDetails()!.publications; track publication.refNumber + '-' + ($index + '')) {
+                      <tr>
+                        <td class="mono">{{ publication.refNumber }}</td>
+                        <td class="publication-title">{{ getDisplayValue(stripQuotes(publication.title)) }}</td>
+                        <td>{{ getDisplayValue(publication.authors) }}</td>
+                        <td>{{ getDisplayValue(publication.journal) }}</td>
+                        <td class="mono">
+                          @if (publicationPubMedUrl(publication); as pubMedUrl) {
+                            <a
+                              [attr.aria-label]="'Open PubMed entry ' + publication.pubmedId"
+                              [href]="pubMedUrl"
+                              class="xref-link"
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {{ publication.pubmedId }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(publication.pubmedId) }}
+                          }
+                        </td>
+                        <td class="mono">
+                          @if (publicationDoiUrl(publication); as doiUrl) {
+                            <a
+                              [attr.aria-label]="'Open DOI ' + publication.doi"
+                              [href]="doiUrl"
+                              class="xref-link"
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {{ publication.doi }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(publication.doi) }}
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No publications available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </mat-tab>
+      <mat-tab label="Similar Proteins">
+        <div class="tab-placeholder">Similar proteins will appear here.</div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+}

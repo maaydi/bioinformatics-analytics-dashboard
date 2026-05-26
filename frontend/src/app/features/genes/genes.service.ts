@@ -46,7 +46,7 @@ export class GenesService {
    * Fetches the detailed representation of one gene/protein record.
    * @param id Gene identifier.
    */
-  getGeneById(id: number): Observable<ProteinDetail> {
+  getById(id: number): Observable<ProteinDetail> {
     return this.http.get<ProteinDetail>(`${this.baseUrl}/${id}`);
   }
 

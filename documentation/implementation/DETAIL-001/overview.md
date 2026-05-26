@@ -5,7 +5,7 @@
 Implement the Gene Detail page in Angular (`/genes/{id}`):
 
 - Header section with core protein metadata.
-- Tabbed view: Overview, Sequence & Features, GO Terms, Cross References, Comments, Publications.
+- Tabbed view: Overview, Sequence & Features, GO Terms, Cross-References, Comments, Publications.
 - Each tab loads its payload lazily on first activation.
 - External cross-reference links open in new tabs (`rel="noopener noreferrer"`).
 - 404 handling for non-existent protein IDs.

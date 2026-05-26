@@ -1,0 +1,34 @@
+<nav
+  aria-label="breadcrumb"
+  class="breadcrumbs-container"
+  role="navigation"
+>
+  <ol class="breadcrumbs-list">
+    @for (item of items(); track trackByLabel($index, item)) {
+      <li class="breadcrumb-item">
+        @if (!item.isActive && item.routerLink) {
+          <a
+            [routerLink]="item.routerLink"
+            class="breadcrumb-link"
+          >
+            {{ item.label }}
+          </a>
+        } @else {
+          <span
+            [class.breadcrumb-active]="item.isActive"
+            aria-current="page"
+            class="breadcrumb-text"
+          >
+            {{ item.label }}
+          </span>
+        }
+      </li>
+
+      @if ($index < items().length - 1) {
+        <li aria-hidden="true" class="breadcrumb-separator">
+          <mat-icon class="separator-icon">chevron_right</mat-icon>
+        </li>
+      }
+    }
+  </ol>
+</nav>
