@@ -14,13 +14,13 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] Angular models defined
-- [ ] GenesService.getById() implemented
-- [ ] GeneDetailComponent header implemented
+- [x] Requirements analyzed
+- [x] Angular models defined
+- [x] GenesService.getById() implemented
+- [x] GeneDetailComponent header implemented
 - [ ] Tab sections implemented
 - [ ] 404 handling implemented
-- [ ] Route configured
+- [x] Route configured
 - [ ] Unit tests written
 - [ ] Documentation updated
 - [ ] Code reviewed
