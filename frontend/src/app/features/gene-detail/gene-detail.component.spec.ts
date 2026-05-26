@@ -61,7 +61,7 @@ describe('GeneDetailComponent', () => {
   beforeEach(async () => {
     vi.useFakeTimers();
     genesServiceMock = {
-      getGeneById: vi.fn().mockReturnValue(of(proteinDetailFixture)),
+      getById: vi.fn().mockReturnValue(of(proteinDetailFixture)),
     };
 
     await TestBed.configureTestingModule({

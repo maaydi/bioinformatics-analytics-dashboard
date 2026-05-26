@@ -41,7 +41,7 @@ documentation/implementation/
 | `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `done`        |
 | `GENE-002`      | GeneFilter Angular component + reactive form                                 | `done`        |
 | `GENE-003`      | GenesTable AG Grid component                                                 | `done`        |
-| `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `in-progress` |
+| `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `done`        |
 | `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `not-started` |
 | `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `not-started` |
 | `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `not-started` |
@@ -62,7 +62,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 3     | `GENE-001`      | `done`        | Core backend APIs needed by all gene views                   | `/api/genes` list/search/detail/export endpoints become functional                 |
 | 4     | `GENE-002`      | `done`        | Filter UX depends on search contract from `GENE-001`         | Users can apply complex filters and see active filter chips                        |
 | 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs             | Users can browse, sort, paginate, and open gene rows                               |
-| 6     | `DETAIL-001`    | `in-progress` | Detail page depends on gene detail endpoint                  | Users can inspect full protein details, sequence, annotations, and references      |
+| 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                  | Users can inspect full protein details, sequence, annotations, and references      |
 | 7     | `ANALYTICS-001` | `not-started` | Dashboard/charts require analytics data sources              | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets           |
 | 8     | `DASH-001`      | `not-started` | UI layer on top of analytics endpoints                       | Users see dashboard KPI cards and charts with fast load times                      |
 | 9     | `FILTER-001`    | `not-started` | Saved work is useful once filters/table are operational      | Users can save, reload, and delete personal filter presets                         |
