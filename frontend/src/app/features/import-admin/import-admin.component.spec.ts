@@ -13,7 +13,25 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {ImportJobSummary} from '@core/models/import.model';
 import {vi} from 'vitest';
-import {provideHttpClient} from '@angular/common/http';
+import {HttpErrorResponse, provideHttpClient} from '@angular/common/http';
+import {of, throwError} from 'rxjs';
+
+function createFileSelectionEvent(file: File): Event {
+  const input = document.createElement('input');
+  Object.defineProperty(input, 'files', {
+    value: [file] as unknown as FileList,
+    configurable: true,
+  });
+  Object.defineProperty(input, 'value', {
+    value: '',
+    writable: true,
+    configurable: true,
+  });
+
+  const event = new Event('change');
+  Object.defineProperty(event, 'target', {value: input, configurable: true});
+  return event;
+}
 
 describe('ImportAdminComponent', () => {
   let component: ImportAdminComponent;
@@ -102,17 +120,26 @@ describe('ImportAdminComponent', () => {
 
     it('should reject file with invalid extension', () => {
       const file = new File(['content'], 'test.pdf', {type: 'application/pdf'});
-      const event = {
-        target: {
-          files: [file],
-          value: '',
-        } as any,
-      } as Event;
+      const event = createFileSelectionEvent(file);
 
       component.onFileSelected(event);
 
       expect(component.selectedFile()).toBeNull();
       expect(component.errorMessage()).toContain('Unsupported file type');
+    });
+
+    it('should reject file larger than 2 GB', () => {
+      const oversizedFile = new File(['content'], 'too-large.dat', {type: 'text/plain'});
+      Object.defineProperty(oversizedFile, 'size', {
+        value: 2 * 1024 * 1024 * 1024 + 1,
+        configurable: true,
+      });
+      const event = createFileSelectionEvent(oversizedFile);
+
+      component.onFileSelected(event);
+
+      expect(component.selectedFile()).toBeNull();
+      expect(component.errorMessage()).toContain('Payload Too Large');
     });
   });
 
@@ -124,6 +151,42 @@ describe('ImportAdminComponent', () => {
       component.submitImport();
 
       expect(triggerSpy).not.toHaveBeenCalled();
+    });
+
+    it('should start polling when import creation succeeds', () => {
+      const file = new File(['content'], 'proteins.dat', {type: 'text/plain'});
+      const startPollingSpy = vi.spyOn(
+        component as unknown as { startPolling: (jobId: string) => void },
+        'startPolling',
+      );
+      vi.spyOn(importService, 'triggerImport').mockReturnValue(
+        of({
+          id: 'job-123',
+          status: 'RUNNING',
+          createdAt: new Date().toISOString(),
+        }),
+      );
+      component.selectedFile.set(file);
+
+      component.submitImport();
+
+      expect(component.isUploading()).toBe(true);
+      expect(component.currentProgress()).toBe(0);
+      expect(component.errorMessage()).toBeNull();
+      expect(startPollingSpy).toHaveBeenCalledWith('job-123');
+    });
+
+    it('should set conflict message and stop uploading on 409 error', () => {
+      const file = new File(['content'], 'proteins.dat', {type: 'text/plain'});
+      vi.spyOn(importService, 'triggerImport').mockReturnValue(
+        throwError(() => new HttpErrorResponse({status: 409})),
+      );
+      component.selectedFile.set(file);
+
+      component.submitImport();
+
+      expect(component.isUploading()).toBe(false);
+      expect(component.errorMessage()).toBe('Conflict: An import is already running.');
     });
   });
 
