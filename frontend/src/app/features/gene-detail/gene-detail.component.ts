@@ -13,7 +13,7 @@ import {isPlatformBrowser} from '@angular/common';
 import {MatTabsModule} from '@angular/material/tabs';
 import {GenesService} from '@features/genes/genes.service';
 import {BreadcrumbItem, BreadcrumbsComponent} from '@shared/components/breadcrumbs/breadcrumbs.component';
-import {EVIDENCE_LEVEL_LABELS, ProteinDetail} from '@core/models/protein.model';
+import {EVIDENCE_LEVEL_LABELS, ProteinDetail, PublicationItem} from '@core/models/protein.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {MatCard} from '@angular/material/card';
 import {MatError} from '@angular/material/input';
@@ -169,6 +169,24 @@ export class GeneDetailComponent implements OnInit {
       default:
         return null;
     }
+  }
+
+  /** Build external PubMed URL when publication has a valid PubMed ID. */
+  publicationPubMedUrl(publication: PublicationItem): string | null {
+    if (!publication.pubmedId) {
+      return null;
+    }
+
+    return `https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(publication.pubmedId)}`;
+  }
+
+  /** Build canonical DOI URL when publication has a DOI value. */
+  publicationDoiUrl(publication: PublicationItem): string | null {
+    if (!publication.doi) {
+      return null;
+    }
+
+    return `https://doi.org/${encodeURIComponent(publication.doi)}`;
   }
 
   /** Safely parse molecular weight as number with K suffix if > 1000. */

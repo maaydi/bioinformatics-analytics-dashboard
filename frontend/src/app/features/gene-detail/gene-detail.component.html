@@ -421,7 +421,70 @@
         </div>
       </mat-tab>
       <mat-tab label="Publications">
-        <div class="tab-placeholder">Related publications will appear here.</div>
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="publications-title" class="xrefs-section">
+            @if (proteinDetails()?.publications && proteinDetails()!.publications.length > 0) {
+              <div aria-label="Protein publications" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Publications table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Ref #</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Authors</th>
+                    <th scope="col">Journal</th>
+                    <th scope="col">PubMed</th>
+                    <th scope="col">DOI</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (publication of proteinDetails()!.publications; track publication.refNumber + '-' + ($index + '')) {
+                      <tr>
+                        <td class="mono">{{ publication.refNumber }}</td>
+                        <td class="publication-title">{{ getDisplayValue(stripQuotes(publication.title)) }}</td>
+                        <td>{{ getDisplayValue(publication.authors) }}</td>
+                        <td>{{ getDisplayValue(publication.journal) }}</td>
+                        <td class="mono">
+                          @if (publicationPubMedUrl(publication); as pubMedUrl) {
+                            <a
+                              [attr.aria-label]="'Open PubMed entry ' + publication.pubmedId"
+                              [href]="pubMedUrl"
+                              class="xref-link"
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {{ publication.pubmedId }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(publication.pubmedId) }}
+                          }
+                        </td>
+                        <td class="mono">
+                          @if (publicationDoiUrl(publication); as doiUrl) {
+                            <a
+                              [attr.aria-label]="'Open DOI ' + publication.doi"
+                              [href]="doiUrl"
+                              class="xref-link"
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {{ publication.doi }}
+                            </a>
+                          } @else {
+                            {{ getDisplayValue(publication.doi) }}
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No publications available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
       </mat-tab>
       <mat-tab label="Similar Proteins">
         <div class="tab-placeholder">Similar proteins will appear here.</div>

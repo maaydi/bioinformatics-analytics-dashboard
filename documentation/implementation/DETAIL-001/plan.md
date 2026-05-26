@@ -18,7 +18,7 @@
 - [x] Angular models defined
 - [x] GenesService.getById() implemented
 - [x] GeneDetailComponent header implemented
-- [ ] Tab sections implemented
+- [x] Tab sections implemented
 - [ ] 404 handling implemented
 - [x] Route configured
 - [ ] Unit tests written
@@ -62,7 +62,7 @@
     - [ ] **GO Terms tab** — `@for` table over `protein().goTerms`
     - [ ] **Cross References tab** — `@for` table with external anchor `target="_blank" rel="noopener noreferrer"`
     - [ ] **Comments tab** — `@for` list over `protein().comments`
-    - [ ] **Publications tab** — `@for` list over `protein().publications`; PubMed ID linked to
+  - [x] **Publications tab** — `@for` list over `protein().publications`; PubMed ID linked to
       `https://pubmed.ncbi.nlm.nih.gov/{pubmedId}`
 - [ ] Lazy load: fetch all data in one call; lazy-activate tabs (no separate per-tab requests needed for v1 since single
   endpoint returns full detail)

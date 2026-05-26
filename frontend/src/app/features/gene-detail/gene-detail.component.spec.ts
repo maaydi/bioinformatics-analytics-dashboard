@@ -135,5 +135,35 @@ describe('GeneDetailComponent', () => {
     expect(component.crossReferenceUrl('EMBL', '-')).toBeNull();
     expect(component.crossReferenceUrl('EMBL', null)).toBeNull();
   });
+
+  it('builds PubMed and DOI URLs for publication links', () => {
+    const publication = {
+      refNumber: 1,
+      pubmedId: '16912294',
+      doi: '10.1128/jvi.00464-06',
+      authors: null,
+      title: null,
+      journal: null,
+    };
+
+    expect(component.publicationPubMedUrl(publication))
+      .toBe('https://pubmed.ncbi.nlm.nih.gov/16912294');
+    expect(component.publicationDoiUrl(publication))
+      .toBe('https://doi.org/10.1128%2Fjvi.00464-06');
+  });
+
+  it('returns null publication URLs when identifiers are missing', () => {
+    const publication = {
+      refNumber: 1,
+      pubmedId: null,
+      doi: null,
+      authors: null,
+      title: null,
+      journal: null,
+    };
+
+    expect(component.publicationPubMedUrl(publication)).toBeNull();
+    expect(component.publicationDoiUrl(publication)).toBeNull();
+  });
 });
 
