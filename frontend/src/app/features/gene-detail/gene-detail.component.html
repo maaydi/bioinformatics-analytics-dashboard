@@ -388,7 +388,36 @@
           </section>
         </div>
       </mat-tab>
-
+      <mat-tab label="Comments">
+        <div class="xrefs-tab-content">
+          <section aria-labelledby="comments-title" class="xrefs-section">
+            @if (proteinDetails()?.comments && proteinDetails()!.comments.length > 0) {
+              <div aria-label="Protein comments" class="xrefs-table-wrapper" role="region">
+                <table aria-label="Comments table" class="xrefs-table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Text</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    @for (comment of proteinDetails()!.comments; track comment.type + comment.text) {
+                      <tr>
+                        <td>{{ comment.type }}</td>
+                        <td>{{ comment.text }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div aria-live="polite" class="xrefs-empty-state" role="status">
+                <span>No comments available for this protein.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </mat-tab>
       <mat-tab label="Publications">
         <div class="tab-placeholder">Related publications will appear here.</div>
       </mat-tab>
