@@ -517,6 +517,15 @@
 // ============================================================================
 
 
+.comment-type-chip {
+  @include ds.chip-base;
+  @include ds.text-label-sm;
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  border: ds.$border-width-thin solid #ddd6fe;
+  border-radius: ds.$border-radius-full;
+  padding: ds.$spacing-xs ds.$spacing-md;
+}
 .host-organism-chip {
   @include ds.chip-base;
   display: inline-flex;

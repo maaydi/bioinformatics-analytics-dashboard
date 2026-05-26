@@ -403,7 +403,9 @@
                   <tbody>
                     @for (comment of proteinDetails()!.comments; track comment.type + comment.text) {
                       <tr>
-                        <td>{{ comment.type }}</td>
+                        <td>
+                          <span class="comment-type-chip">{{ comment.type }}</span>
+                        </td>
                         <td>{{ comment.text }}</td>
                       </tr>
                     }
