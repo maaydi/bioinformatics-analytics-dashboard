@@ -446,12 +446,6 @@
   gap: ds.$spacing-md;
 }
 
-.xrefs-section-title {
-  margin: 0;
-  @include ds.text-title-md;
-  color: ds.$color-on-surface;
-}
-
 .xrefs-table-wrapper {
   overflow-x: auto;
   border: ds.$border-width-thin solid ds.$color-border-light;
@@ -516,6 +510,36 @@
   &:focus-visible {
     @include ds.focus-ring();
   }
+}
+
+// ============================================================================
+// Taxonomy Tab Content
+// ============================================================================
+
+
+.host-organism-chip {
+  @include ds.chip-base;
+  display: inline-flex;
+  gap: ds.$spacing-xs;
+  align-items: center;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  color: ds.$color-on-surface;
+  padding: ds.$spacing-xs ds.$spacing-md;
+}
+
+.host-organism-taxid {
+  color: var(--mat-sys-primary);
+  font-weight: ds.$font-weight-semibold;
+}
+
+.xrefs-empty-state {
+  padding: ds.$spacing-lg;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface-subtle;
+  color: ds.$color-on-surface-variant;
+  @include ds.text-body-md;
 }
 
 // Feature type chips — colour-coded per feature type category

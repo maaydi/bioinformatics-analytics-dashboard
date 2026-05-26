@@ -158,6 +158,25 @@
                     <span class="summary-value">–</span>
                   }
                 </div>
+
+                <!-- Host Organisms -->
+                <div class="summary-item full-width">
+                  <label class="summary-label">Host Organisms</label>
+                  @if (proteinDetails()?.hostOrganisms && proteinDetails()!.hostOrganisms.length > 0) {
+                    <div class="chip-container">
+                      @for (host of proteinDetails()!.hostOrganisms; track host.taxid + host.name) {
+                        <span [attr.aria-label]="'Host organism ' + host.name + ', taxid ' + host.taxid"
+                              class="host-organism-chip">
+                          <span class="host-organism-taxid mono">{{ host.taxid }}</span>
+                          <span aria-hidden="true">-</span>
+                          <span>{{ host.name }}</span>
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="summary-value">–</span>
+                  }
+                </div>
               </div>
             </section>
 

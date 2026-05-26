@@ -45,7 +45,12 @@ const proteinDetailFixture: ProteinDetail = {
   ],
   comments: [],
   publications: [],
-  hostOrganisms: [],
+  hostOrganisms: [
+    {
+      taxid: 42431,
+      name: 'Culex territans.',
+    },
+  ],
 };
 
 describe('GeneDetailComponent', () => {
