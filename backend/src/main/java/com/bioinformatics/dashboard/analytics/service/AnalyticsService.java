@@ -1,6 +1,10 @@
 package com.bioinformatics.dashboard.analytics.service;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.mapper.DashboardKpisMapper;
+import com.bioinformatics.dashboard.analytics.repository.DashboardKpisRepository;
+import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +20,16 @@ import java.util.List;
  */
 
 @Service
+@RequiredArgsConstructor
 public class AnalyticsService {
 
-    // TODO: define return DTOs matching api-contract.md §2 schemas before implementing
+    private final DashboardKpisRepository dashboardKpisRepository;
+    private final DashboardKpisMapper dashboardKpisMapper;
 
     public DashboardKpisDto getDashboardKpis() {
-        // TODO
-        return null;
+        var entity = dashboardKpisRepository.findFirstBy()
+                .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
+        return dashboardKpisMapper.toDto(entity);
     }
 
     public List<LengthBucketDto> getLengthHistogram() {

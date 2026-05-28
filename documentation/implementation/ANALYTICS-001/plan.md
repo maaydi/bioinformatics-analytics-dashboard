@@ -32,7 +32,7 @@
 
 ### Database Migration (`V4__materialized_views.sql`)
 
-- [ ] `mv_dashboard_kpis` — aggregate: totalProteins, reviewedCount, unreviewedCount, organismCount, avgLength,
+- [x] `mv_dashboard_kpis` — aggregate: totalProteins, reviewedCount, unreviewedCount, organismCount, avgLength,
   avgMolecularWeight, minLength, maxLength
 - [ ] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
 - [ ] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
@@ -55,7 +55,7 @@
 ### Backend — Repository
 
 - [ ] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
-    - [ ] `findDashboardKpis()` → `DashboardKpisDto`
+  - [x] `findDashboardKpis()` → `DashboardKpisDto`
     - [ ] `findLengthHistogram()` → `List<LengthBucketDto>`
     - [ ] `findByOrganism(int limit)` → `List<OrganismCountDto>`
     - [ ] `findReviewedRatio()` → `List<ReviewedRatioDto>`
@@ -64,7 +64,7 @@
 
 ### Backend — Service
 
-- [ ] `AnalyticsService.getDashboardKpis()`
+- [x] `AnalyticsService.getDashboardKpis()`
 - [ ] `AnalyticsService.getLengthHistogram()`
 - [ ] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
 - [ ] `AnalyticsService.getReviewedRatio()`
