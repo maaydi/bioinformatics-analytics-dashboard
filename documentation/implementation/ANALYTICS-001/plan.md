@@ -19,8 +19,7 @@
 - [x] DTOs implemented
 - [ ] AnalyticsRepository implemented
 - [ ] AnalyticsService implemented
-- [ ] AnalyticsController completed
-- [ ] Compare endpoint added
+- [x] AnalyticsController completed
 - [ ] Unit tests written
 - [ ] Integration tests written
 - [ ] Documentation updated
@@ -74,11 +73,10 @@
 
 ### Backend — Controller
 
-- [ ] Remove `UnsupportedOperationException` stubs in `AnalyticsController`
-- [ ] Wire `AnalyticsService`
-- [ ] Add `POST /api/analytics/compare` mapping
-- [ ] Return `400` on invalid `limit` values
-- [ ] Return `401` for all endpoints (covered by `SecurityConfig`)
+- [x] Remove `UnsupportedOperationException` stubs in `AnalyticsController`
+- [x] Wire `AnalyticsService`
+- [x] Return `400` on invalid `limit` values
+- [x] Return `401` for all endpoints (covered by `SecurityConfig`)
 
 ### Tests
 
