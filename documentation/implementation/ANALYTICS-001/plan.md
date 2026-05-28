@@ -6,18 +6,17 @@
 2. Create Flyway migration for all six materialized views
 3. Implement DTOs for each analytics response
 4. Implement `AnalyticsRepository` with native SQL projections
-5. Implement `AnalyticsService` (read from repo, validate params, compute compare)
+5. Implement `AnalyticsService` (read from repo, validate params)
 6. Complete `AnalyticsController` (remove stubs, wire service)
-7. Add `POST /api/analytics/compare` endpoint
-8. Write unit tests for `AnalyticsService`
-9. Write integration tests for all endpoints
-10. Update documentation
+7. Write unit tests for `AnalyticsService`
+8. Write integration tests for all endpoints
+9. Update documentation
 
 ## Status
 
-- [ ] Requirements analyzed
+- [x] Requirements analyzed
 - [ ] DB migration created
-- [ ] DTOs implemented
+- [x] DTOs implemented
 - [ ] AnalyticsRepository implemented
 - [ ] AnalyticsService implemented
 - [ ] AnalyticsController completed
@@ -47,16 +46,12 @@
 
 ### Backend — DTOs
 
-- [ ] `DashboardKpisDto` — nine fields matching API contract
-- [ ] `LengthBucketDto` — `{ bucket, rangeMin, rangeMax, count }`
-- [ ] `OrganismCountDto` — `{ organismName, taxid, total, reviewedCount, unreviewedCount, avgLength }`
-- [ ] `ReviewedRatioDto` — `{ reviewed, count }`
-- [ ] `EvidenceLevelDto` — `{ evidenceLevel, label, count }`
-- [ ] `KeywordFrequencyDto` — `{ keyword, count }`
-- [ ] `CompareRequestDto` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }`
-- [ ] `AnalyticsSubsetDto` —
-  `{ count, avgLength, reviewedCount, reviewedRatio, lengthDistribution, evidenceDistribution }`
-- [ ] `CompareResponseDto` — `{ a: AnalyticsSubsetDto, b: AnalyticsSubsetDto }`
+- [x] `DashboardKpisDto` — nine fields matching API contract
+- [x] `LengthBucketDto` — `{ bucket, rangeMin, rangeMax, count }`
+- [x] `OrganismCountDto` — `{ organismName, taxid, total, reviewedCount, unreviewedCount, avgLength }`
+- [x] `ReviewedRatioDto` — `{ reviewed, count }`
+- [x] `EvidenceLevelDto` — `{ evidenceLevel, label, count }`
+- [x] `KeywordFrequencyDto` — `{ keyword, count }`
 
 ### Backend — Repository
 
@@ -76,8 +71,6 @@
 - [ ] `AnalyticsService.getReviewedRatio()`
 - [ ] `AnalyticsService.getEvidenceLevels()`
 - [ ] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
-- [ ] `AnalyticsService.compare(CompareRequestDto)` — run both filter sets through `GeneSpecification`, compute subset
-  analytics on-the-fly
 
 ### Backend — Controller
 
@@ -92,11 +85,9 @@
 - [ ] `AnalyticsServiceTest` — unit (mock repository):
     - [ ] `getByOrganism` with limit > 200 throws validation exception
     - [ ] `getKeywordFrequency` delegates to repository
-    - [ ] `compare` returns correct a/b structure
 - [ ] `AnalyticsControllerIntegrationTest` — Testcontainers:
     - [ ] Each GET endpoint returns 200 with correct schema
     - [ ] `GET /api/analytics/by-organism?limit=201` returns 400
-    - [ ] `POST /api/analytics/compare` returns 200 with a/b subsets
 
 ### General
 

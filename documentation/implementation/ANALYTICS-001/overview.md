@@ -10,19 +10,18 @@ Implement the full analytics backend powered by PostgreSQL materialized views:
 - `GET /api/analytics/reviewed-ratio` — `mv_reviewed_ratio`
 - `GET /api/analytics/evidence-levels` — `mv_evidence_distribution`
 - `GET /api/analytics/keyword-frequency` — `mv_keyword_frequency` (top N, default 100)
-- `POST /api/analytics/compare` — on-the-fly subset comparison (no materialized view)
 
 All materialized-view endpoints must respond in ≤ 500 ms (NFR §12.1).
 
 ## Scope
 
-| Layer        | Artifact                                                                                                                                       |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| DB migration | `V4__materialized_views.sql` — DDL for all six materialized views + refresh policy                                                             |
-| Repository   | Native SQL `@Query` projections reading from materialized views                                                                                |
-| DTOs         | `DashboardKpisDto`, `LengthBucketDto`, `OrganismCountDto`, `ReviewedRatioDto`, `EvidenceLevelDto`, `KeywordFrequencyDto`, `CompareResponseDto` |
-| Service      | `AnalyticsService` — delegates to repositories, validates query params                                                                         |
-| Controller   | `AnalyticsController` — remove stubs, wire service                                                                                             |
+| Layer        | Artifact                                                                                                                 |
+|--------------|--------------------------------------------------------------------------------------------------------------------------|
+| DB migration | `V4__materialized_views.sql` — DDL for all six materialized views + refresh policy                                       |
+| Repository   | Native SQL `@Query` projections reading from materialized views                                                          |
+| DTOs         | `DashboardKpisDto`, `LengthBucketDto`, `OrganismCountDto`, `ReviewedRatioDto`, `EvidenceLevelDto`, `KeywordFrequencyDto` |
+| Service      | `AnalyticsService` — delegates to repositories, validates query params                                                   |
+| Controller   | `AnalyticsController` — remove stubs, wire service                                                                       |
 
 ## Acceptance Criteria
 
@@ -33,12 +32,10 @@ All materialized-view endpoints must respond in ≤ 500 ms (NFR §12.1).
 - [ ] `GET /api/analytics/reviewed-ratio` returns exactly two items (reviewed true/false).
 - [ ] `GET /api/analytics/evidence-levels` returns exactly five items with labels.
 - [ ] `GET /api/analytics/keyword-frequency?limit=20` returns at most 20 keywords.
-- [ ] `POST /api/analytics/compare` with two valid filter sets returns `{ a: AnalyticsSubset, b: AnalyticsSubset }`.
-- [ ] `POST /api/analytics/compare` with identical filter sets returns `200` (warning surfaced client-side only).
 - [ ] All endpoints return `401` without JWT.
 - [ ] Response time ≤ 500 ms against a populated database (verified in integration test).
 - [ ] Unit tests for `AnalyticsService`.
-- [ ] Integration tests for all six GET endpoints and compare.
+- [ ] Integration tests for all six GET endpoints.
 
 ## References
 
