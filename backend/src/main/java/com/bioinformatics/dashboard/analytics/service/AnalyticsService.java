@@ -2,7 +2,9 @@ package com.bioinformatics.dashboard.analytics.service;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.mapper.DashboardKpisMapper;
+import com.bioinformatics.dashboard.analytics.mapper.LengthHistogramBucketMapper;
 import com.bioinformatics.dashboard.analytics.repository.DashboardKpisRepository;
+import com.bioinformatics.dashboard.analytics.repository.LengthHistogramBucketRepository;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,15 +28,20 @@ public class AnalyticsService {
     private final DashboardKpisRepository dashboardKpisRepository;
     private final DashboardKpisMapper dashboardKpisMapper;
 
+    private final LengthHistogramBucketRepository lengthHistogramBucketRepository;
+    private final LengthHistogramBucketMapper lengthHistogramBucketMapper;
+
     public DashboardKpisDto getDashboardKpis() {
         var entity = dashboardKpisRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
         return dashboardKpisMapper.toDto(entity);
     }
 
-    public List<LengthBucketDto> getLengthHistogram() {
-        // TODO
-        return List.of();
+    public List<LengthHistogramBucketDto> getLengthHistogram() {
+        return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
+                .stream()
+                .map(lengthHistogramBucketMapper::toDto)
+                .toList();
     }
 
     public List<OrganismCountDto> getByOrganism(int limit) {

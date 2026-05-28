@@ -49,7 +49,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/length-histogram")
-    public ResponseEntity<List<LengthBucketDto>> getLengthHistogram() {
+    public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram() {
         var buckets = service.getLengthHistogram();
         return ResponseEntity.ok(buckets);
     }

@@ -34,7 +34,7 @@
 
 - [x] `mv_dashboard_kpis` — aggregate: totalProteins, reviewedCount, unreviewedCount, organismCount, avgLength,
   avgMolecularWeight, minLength, maxLength
-- [ ] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
+- [x] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
 - [ ] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
   unreviewedCount, avgLength; ordered by total DESC
 - [ ] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
@@ -56,7 +56,7 @@
 
 - [ ] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
   - [x] `findDashboardKpis()` → `DashboardKpisDto`
-    - [ ] `findLengthHistogram()` → `List<LengthBucketDto>`
+    - [x] `findLengthHistogram()` → `List<LengthBucketDto>`
     - [ ] `findByOrganism(int limit)` → `List<OrganismCountDto>`
     - [ ] `findReviewedRatio()` → `List<ReviewedRatioDto>`
     - [ ] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
@@ -65,7 +65,7 @@
 ### Backend — Service
 
 - [x] `AnalyticsService.getDashboardKpis()`
-- [ ] `AnalyticsService.getLengthHistogram()`
+- [x] `AnalyticsService.getLengthHistogram()`
 - [ ] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
 - [ ] `AnalyticsService.getReviewedRatio()`
 - [ ] `AnalyticsService.getEvidenceLevels()`
