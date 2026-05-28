@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
  *   <li>Refresh: validates the refresh token type and expiry, then issues a new JWT pair.</li>
  * </ul>
  *
- * @see documentation/api-contract.md §5
- * @see documentation/validation-rules.md §4
+ * @see <a href="{@docRoot}/documentation/api-contract.md">API Contract §5</a>
+ * @see <a href="{@docRoot}/documentation/validation-rules.md">Validation Rules §4</a>
  */
 @Service
 @RequiredArgsConstructor

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
  * bcrypt comparison in the service layer, which returns 401 on mismatch.
  * Password complexity constraints belong on registration, not login.
  *
- * @see documentation/validation-rules.md §4
+ * @see <a href="{@docRoot}/documentation/validation-rules.md">Validation Rules §4</a>
  */
 public record LoginRequest(
 

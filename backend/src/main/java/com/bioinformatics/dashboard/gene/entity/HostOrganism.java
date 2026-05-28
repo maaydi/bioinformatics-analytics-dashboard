@@ -7,7 +7,7 @@ import lombok.*;
  * JPA entity for {@code go_term} table.
  * Gene Ontology terms parsed from DR GO lines.
  *
- * @see documentation/domain-model.md §4
+ * @see <a href="{@docRoot}/documentation/domain-model.md">Domain Model §4</a>
  */
 @Entity
 @Table(name = "host_organism")

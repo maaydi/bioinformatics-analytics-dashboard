@@ -11,9 +11,10 @@ import java.util.List;
  * <p>All methods query pre-computed PostgreSQL materialized views.
  * Views are refreshed post-import by {@code UniProtImportJobConfig}.
  *
- * @see documentation/domain-model.md §11 — Materialized Views
- * @see documentation/api-contract.md §2 — Analytics Endpoints
+ * @see <a href="{@docRoot}/documentation/domain-model.md">Materialized Views</a>
+ * @see <a href="{@docRoot}/documentation/api-contract.md">Analytics Endpoints</a>
  */
+
 @Service
 public class AnalyticsService {
 

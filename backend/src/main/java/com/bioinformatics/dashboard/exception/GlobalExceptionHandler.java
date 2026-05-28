@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  *   <li>Exception (catch-all)           → 500 (message hidden from client)</li>
  * </ul>
  *
- * @see documentation/validation-rules.md §10
+ * @see <a href="{@docRoot}/documentation/validation-rules.md">Validation Rules §10</a>
  */
 @RestControllerAdvice
 @Slf4j

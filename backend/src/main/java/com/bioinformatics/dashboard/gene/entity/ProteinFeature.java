@@ -7,7 +7,7 @@ import lombok.*;
  * JPA entity for {@code protein_feature} table.
  * Annotated sequence regions (CHAIN, DOMAIN, SIGNAL, BINDING …) from FT lines.
  *
- * @see documentation/domain-model.md §7
+ * @see <a href="{@docRoot}/documentation/domain-model.md">Domain Model §7</a>
  */
 @Entity
 @Table(name = "protein_feature")
