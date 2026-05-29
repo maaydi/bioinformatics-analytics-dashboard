@@ -39,6 +39,9 @@ public class AnalyticsService {
     private final EvidenceDistributionRepository evidenceDistributionRepository;
     private final EvidenceDistributionMapper evidenceDistributionMapper;
 
+    private final KeywordFrequencyRepository keywordFrequencyRepository;
+    private final KeywordFrequencyMapper keywordFrequencyMapper;
+
     public DashboardKpisDto getDashboardKpis() {
         var entity = dashboardKpisRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
@@ -74,7 +77,9 @@ public class AnalyticsService {
     }
 
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
-        // TODO
-        return List.of();
+        return keywordFrequencyRepository.findAll(Limit.of(limit))
+                .stream()
+                .map(keywordFrequencyMapper::toDto)
+                .toList();
     }
 }

@@ -39,7 +39,7 @@
   unreviewedCount, avgLength; ordered by total DESC
 - [x] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
 - [x] `mv_evidence_distribution` — five rows: evidenceLevel + count
-- [ ] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
+- [x] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
 - [ ] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
 - [ ] Unique indexes on views for CONCURRENTLY refresh support
 
@@ -54,13 +54,13 @@
 
 ### Backend — Repository
 
-- [ ] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
+- [x] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
   - [x] `findDashboardKpis()` → `DashboardKpisDto`
     - [x] `findLengthHistogram()` → `List<LengthBucketDto>`
     - [x] `findByOrganism(int limit)` → `List<OrganismCountDto>`
     - [x] `findReviewedRatio()` → `List<ReviewedRatioDto>`
     - [x] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
-    - [ ] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
+    - [x] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
 
 ### Backend — Service
 
@@ -69,7 +69,7 @@
 - [x] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
 - [x] `AnalyticsService.getReviewedRatio()`
 - [x] `AnalyticsService.getEvidenceLevels()`
-- [ ] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
+- [x] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
 
 ### Backend — Controller
 
