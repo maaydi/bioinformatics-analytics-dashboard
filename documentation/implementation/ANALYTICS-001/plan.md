@@ -37,7 +37,7 @@
 - [x] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
 - [x] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
   unreviewedCount, avgLength; ordered by total DESC
-- [ ] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
+- [x] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
 - [ ] `mv_evidence_distribution` — five rows: evidenceLevel + count
 - [ ] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
 - [ ] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
@@ -58,7 +58,7 @@
   - [x] `findDashboardKpis()` → `DashboardKpisDto`
     - [x] `findLengthHistogram()` → `List<LengthBucketDto>`
     - [x] `findByOrganism(int limit)` → `List<OrganismCountDto>`
-    - [ ] `findReviewedRatio()` → `List<ReviewedRatioDto>`
+    - [x] `findReviewedRatio()` → `List<ReviewedRatioDto>`
     - [ ] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
     - [ ] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
 
@@ -67,7 +67,7 @@
 - [x] `AnalyticsService.getDashboardKpis()`
 - [x] `AnalyticsService.getLengthHistogram()`
 - [x] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
-- [ ] `AnalyticsService.getReviewedRatio()`
+- [x] `AnalyticsService.getReviewedRatio()`
 - [ ] `AnalyticsService.getEvidenceLevels()`
 - [ ] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
 

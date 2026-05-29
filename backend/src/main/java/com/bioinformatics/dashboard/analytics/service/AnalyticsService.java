@@ -4,9 +4,11 @@ import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.mapper.DashboardKpisMapper;
 import com.bioinformatics.dashboard.analytics.mapper.LengthHistogramBucketMapper;
 import com.bioinformatics.dashboard.analytics.mapper.OrganismCountMapper;
+import com.bioinformatics.dashboard.analytics.mapper.ReviewedRatioMapper;
 import com.bioinformatics.dashboard.analytics.repository.DashboardKpisRepository;
 import com.bioinformatics.dashboard.analytics.repository.LengthHistogramBucketRepository;
 import com.bioinformatics.dashboard.analytics.repository.OrganismCountRepository;
+import com.bioinformatics.dashboard.analytics.repository.ReviewedRatioRepository;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
@@ -37,6 +39,9 @@ public class AnalyticsService {
     private final OrganismCountRepository organismCountRepository;
     private final OrganismCountMapper organismCountMapper;
 
+    private final ReviewedRatioRepository reviewedRatioRepository;
+    private final ReviewedRatioMapper reviewedRatioMapper;
+
     public DashboardKpisDto getDashboardKpis() {
         var entity = dashboardKpisRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
@@ -58,8 +63,10 @@ public class AnalyticsService {
     }
 
     public List<ReviewedRatioDto> getReviewedRatio() {
-        // TODO
-        return List.of();
+        return reviewedRatioRepository.findAll()
+                .stream()
+                .map(reviewedRatioMapper::toDto)
+                .toList();
     }
 
     public List<EvidenceLevelDto> getEvidenceLevels() {
