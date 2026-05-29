@@ -70,7 +70,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/evidence-levels")
-    public ResponseEntity<List<EvidenceLevelDto>> getEvidenceLevels() {
+    public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels() {
         var ev = service.getEvidenceLevels();
         return ResponseEntity.ok(ev);
     }

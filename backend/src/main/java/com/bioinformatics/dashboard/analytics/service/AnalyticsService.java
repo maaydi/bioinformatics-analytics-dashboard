@@ -1,14 +1,8 @@
 package com.bioinformatics.dashboard.analytics.service;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.mapper.DashboardKpisMapper;
-import com.bioinformatics.dashboard.analytics.mapper.LengthHistogramBucketMapper;
-import com.bioinformatics.dashboard.analytics.mapper.OrganismCountMapper;
-import com.bioinformatics.dashboard.analytics.mapper.ReviewedRatioMapper;
-import com.bioinformatics.dashboard.analytics.repository.DashboardKpisRepository;
-import com.bioinformatics.dashboard.analytics.repository.LengthHistogramBucketRepository;
-import com.bioinformatics.dashboard.analytics.repository.OrganismCountRepository;
-import com.bioinformatics.dashboard.analytics.repository.ReviewedRatioRepository;
+import com.bioinformatics.dashboard.analytics.mapper.*;
+import com.bioinformatics.dashboard.analytics.repository.*;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
@@ -42,6 +36,9 @@ public class AnalyticsService {
     private final ReviewedRatioRepository reviewedRatioRepository;
     private final ReviewedRatioMapper reviewedRatioMapper;
 
+    private final EvidenceDistributionRepository evidenceDistributionRepository;
+    private final EvidenceDistributionMapper evidenceDistributionMapper;
+
     public DashboardKpisDto getDashboardKpis() {
         var entity = dashboardKpisRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
@@ -69,9 +66,11 @@ public class AnalyticsService {
                 .toList();
     }
 
-    public List<EvidenceLevelDto> getEvidenceLevels() {
-        // TODO
-        return List.of();
+    public List<EvidenceDistributionDto> getEvidenceLevels() {
+        return evidenceDistributionRepository.findAll()
+                .stream()
+                .map(evidenceDistributionMapper::toDto)
+                .toList();
     }
 
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {

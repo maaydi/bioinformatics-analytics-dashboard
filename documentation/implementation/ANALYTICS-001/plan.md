@@ -38,7 +38,7 @@
 - [x] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
   unreviewedCount, avgLength; ordered by total DESC
 - [x] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
-- [ ] `mv_evidence_distribution` — five rows: evidenceLevel + count
+- [x] `mv_evidence_distribution` — five rows: evidenceLevel + count
 - [ ] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
 - [ ] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
 - [ ] Unique indexes on views for CONCURRENTLY refresh support
@@ -59,7 +59,7 @@
     - [x] `findLengthHistogram()` → `List<LengthBucketDto>`
     - [x] `findByOrganism(int limit)` → `List<OrganismCountDto>`
     - [x] `findReviewedRatio()` → `List<ReviewedRatioDto>`
-    - [ ] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
+    - [x] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
     - [ ] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
 
 ### Backend — Service
@@ -68,7 +68,7 @@
 - [x] `AnalyticsService.getLengthHistogram()`
 - [x] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
 - [x] `AnalyticsService.getReviewedRatio()`
-- [ ] `AnalyticsService.getEvidenceLevels()`
+- [x] `AnalyticsService.getEvidenceLevels()`
 - [ ] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
 
 ### Backend — Controller
