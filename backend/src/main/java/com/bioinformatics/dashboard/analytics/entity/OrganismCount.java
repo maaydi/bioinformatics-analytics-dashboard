@@ -10,19 +10,16 @@ import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-@Table(name = "mv_dashboard_kpis")
+@Table(name = "mv_organism_counts")
 @RequiredArgsConstructor
 @Getter
-public class DashboardKpis {
+public class OrganismCount {
     @Id
-    private Long totalProteins;
-    private Long reviewedCount;
-    private Integer organismCount;
-    private Integer taxonCount;
+    private String organismName;
+    private Integer taxid;
+    private Integer total;
+    private Integer reviewedCount;
+    private Integer unreviewedCount;
     @Column(name = "avg_length", columnDefinition = "NUMERIC")
     private Integer avgLength;
-    @Column(name = "avg_molecular_weight", columnDefinition = "NUMERIC")
-    private Long avgMolecularWeight;
-    private Integer minLength;
-    private Integer maxLength;
 }
