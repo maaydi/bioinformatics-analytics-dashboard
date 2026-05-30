@@ -14,7 +14,7 @@ import org.hibernate.annotations.Immutable;
 @Getter
 public class EvidenceDistribution {
     @Id
-    private Integer evidenceLevel;
+    private Short evidenceLevel;
     private String label;
     private Long count;
 }

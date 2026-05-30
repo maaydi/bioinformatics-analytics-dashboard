@@ -8,6 +8,7 @@
 
 -- ── mv_length_histogram ──────────────────────────────────────
 -- Feeds: Protein Length Histogram (Analytics page)
+DROP MATERIALIZED VIEW IF EXISTS mv_length_histogram CASCADE;
 CREATE MATERIALIZED VIEW mv_length_histogram AS
 SELECT
     width_bucket(length, 0, 10000, 100) AS bucket,
@@ -22,6 +23,7 @@ CREATE UNIQUE INDEX ON mv_length_histogram (bucket);
 
 -- ── mv_organism_counts ───────────────────────────────────────
 -- Feeds: Proteins by Organism bar chart, top organisms KPI
+DROP MATERIALIZED VIEW IF EXISTS mv_organism_counts CASCADE;
 CREATE MATERIALIZED VIEW mv_organism_counts AS
 SELECT
     organism_name,
@@ -31,14 +33,14 @@ SELECT
     COUNT(*) FILTER (WHERE reviewed = FALSE)        AS unreviewed_count,
     ROUND(AVG(length))                              AS avg_length
 FROM protein_entry
-GROUP BY organism_name, taxid
-ORDER BY total DESC;
+GROUP BY organism_name, taxid;
 
-CREATE INDEX ON mv_organism_counts (organism_name);
-CREATE INDEX ON mv_organism_counts (total DESC);
+CREATE UNIQUE INDEX idx_mv_organism_counts_taxid ON mv_organism_counts (organism_name, taxid);
+CREATE INDEX idx_mv_organism_counts_total ON mv_organism_counts (total DESC);
 
 -- ── mv_reviewed_ratio ────────────────────────────────────────
 -- Feeds: Reviewed vs Unreviewed pie chart, Dashboard KPI
+DROP MATERIALIZED VIEW IF EXISTS mv_reviewed_ratio CASCADE;
 CREATE MATERIALIZED VIEW mv_reviewed_ratio AS
 SELECT
     reviewed,
@@ -50,6 +52,8 @@ CREATE UNIQUE INDEX ON mv_reviewed_ratio (reviewed);
 
 -- ── mv_evidence_distribution ─────────────────────────────────
 -- Feeds: Evidence Level Pie Chart (Dashboard)
+DROP MATERIALIZED VIEW IF EXISTS mv_evidence_distribution CASCADE;
+
 CREATE MATERIALIZED VIEW mv_evidence_distribution AS
 SELECT
     evidence_level,
@@ -69,6 +73,8 @@ CREATE UNIQUE INDEX ON mv_evidence_distribution (evidence_level);
 
 -- ── mv_keyword_frequency ─────────────────────────────────────
 -- Feeds: Keyword Frequency word-cloud / bar chart (Analytics page)
+DROP MATERIALIZED VIEW IF EXISTS mv_keyword_frequency CASCADE;
+
 CREATE MATERIALIZED VIEW mv_keyword_frequency AS
 SELECT
     k.name               AS keyword,
@@ -78,10 +84,13 @@ JOIN protein_keyword pk ON pk.keyword_id = k.id
 GROUP BY k.name
 ORDER BY count DESC;
 
+CREATE UNIQUE INDEX ON mv_keyword_frequency (keyword);
 CREATE INDEX ON mv_keyword_frequency (count DESC);
 
 -- ── mv_dashboard_kpis ────────────────────────────────────────
 -- Feeds: all top KPI cards on the Dashboard
+DROP MATERIALIZED VIEW IF EXISTS mv_dashboard_kpis CASCADE;
+
 CREATE MATERIALIZED VIEW mv_dashboard_kpis AS
 SELECT
     COUNT(*)                                    AS total_proteins,
