@@ -3,13 +3,11 @@ package com.bioinformatics.dashboard.batch.processor;
 import com.bioinformatics.dashboard.batch.processor.resolver.KeywordResolver;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @AllArgsConstructor
 public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinEntry> {
@@ -34,7 +32,6 @@ public class ProteinEntryItemProcessor implements ItemProcessor<String, ProteinE
         for (var line : lines) {
             registry.process(line, context);
             if (context.isSkipEntry()) {
-                log.warn("Duplicated accession. Skipping Protein entry.");
                 return null;
             }
         }

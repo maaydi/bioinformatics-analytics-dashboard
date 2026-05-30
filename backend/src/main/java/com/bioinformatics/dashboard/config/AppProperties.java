@@ -29,6 +29,7 @@ public class AppProperties {
     @Setter
     public static class Batch {
         private int chunkSize;
+        private int skipLimit;
 
     }
 
