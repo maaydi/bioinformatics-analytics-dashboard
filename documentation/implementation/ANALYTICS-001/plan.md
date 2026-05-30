@@ -20,11 +20,11 @@
 - [x] AnalyticsRepository implemented
 - [x] AnalyticsService implemented
 - [x] AnalyticsController completed
-- [ ] Unit tests written
-- [ ] Integration tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Unit tests written
+- [x] Integration tests written
+- [x] Documentation updated
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
 
 ---
 
@@ -80,15 +80,18 @@
 
 ### Tests
 
-- [ ] `AnalyticsServiceTest` — unit (mock repository):
-    - [ ] `getByOrganism` with limit > 200 throws validation exception
-    - [ ] `getKeywordFrequency` delegates to repository
-- [ ] `AnalyticsControllerIntegrationTest` — Testcontainers:
-    - [ ] Each GET endpoint returns 200 with correct schema
-    - [ ] `GET /api/analytics/by-organism?limit=201` returns 400
+- [x] `AnalyticsServiceTest` — unit (mock repository):
+  - [x] KPI not-found path raises `ResourceNotFoundException`
+  - [x] KPI/histogram mapping paths return mapped DTOs
+  - [x] `getByOrganism` delegates with requested `Limit`
+  - [x] `getKeywordFrequency` delegates with requested `Limit`
+- [x] `AnalyticsControllerIntegrationTest` — Testcontainers:
+  - [x] All six GET endpoints return `200` and expected response shape
+  - [x] `GET /api/analytics/by-organism?limit=201` returns `400`
+  - [x] `GET /api/analytics/keyword-frequency?limit=501` returns `400`
 
 ### General
 
 - [x] Views use `CONCURRENTLY` refresh (requires unique index on each view)
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
