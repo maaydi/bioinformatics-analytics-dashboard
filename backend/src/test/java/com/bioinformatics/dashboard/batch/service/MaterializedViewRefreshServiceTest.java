@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,14 +116,20 @@ class MaterializedViewRefreshServiceTest {
         appProperties.getViewRefresh().setSequenceSlaMs(1);
 
         var spiedService = spy(service);
-        doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_dashboard_kpis", true))
-                .doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_length_histogram", false))
-                .doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_organism_counts", true))
-                .doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_reviewed_ratio", true))
-                .doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_evidence_distribution", false))
-                .doReturn(new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_keyword_frequency", true))
-                .when(spiedService)
-                .executeAndLogRefresh(eq("job-seq"), any(ViewToRefresh.class));
+        var results = List.of(
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_dashboard_kpis", true),
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_length_histogram", false),
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_organism_counts", true),
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_reviewed_ratio", true),
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_evidence_distribution", false),
+                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_keyword_frequency", true)
+        );
+        var index = new AtomicInteger(0);
+
+        doAnswer(invocation -> {
+            Thread.sleep(2);
+            return results.get(index.getAndIncrement());
+        }).when(spiedService).executeAndLogRefresh(eq("job-seq"), any(ViewToRefresh.class));
 
         spiedService.refreshAllDashboardViews("job-seq");
 
