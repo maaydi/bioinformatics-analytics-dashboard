@@ -16,6 +16,7 @@ public class AppProperties {
     private final Batch batch = new Batch();
     private final ImportConfig importConfig = new ImportConfig();
     private final Export export = new Export();
+    private final ViewRefresh viewRefresh = new ViewRefresh();
 
     @Getter
     @Setter
@@ -60,5 +61,41 @@ public class AppProperties {
     @Setter
     public static class Csv {
         private int maxRows;
+    }
+
+    @Getter
+    public static class ViewRefresh {
+        private int maxAttempts;
+        private long perViewTimeoutMs;
+        private long retryBackoffMs;
+        private long sequenceSlaMs;
+
+        public void setMaxAttempts(int maxAttempts) {
+            if (maxAttempts < 1) {
+                throw new IllegalStateException("app.view-refresh.max-attempts must be >= 1");
+            }
+            this.maxAttempts = maxAttempts;
+        }
+
+        public void setPerViewTimeoutMs(long perViewTimeoutMs) {
+            if (perViewTimeoutMs < 1) {
+                throw new IllegalStateException("app.view-refresh.per-view-timeout-ms must be >= 1");
+            }
+            this.perViewTimeoutMs = perViewTimeoutMs;
+        }
+
+        public void setRetryBackoffMs(long retryBackoffMs) {
+            if (retryBackoffMs < 0) {
+                throw new IllegalStateException("app.view-refresh.retry-backoff-ms must be >= 0");
+            }
+            this.retryBackoffMs = retryBackoffMs;
+        }
+
+        public void setSequenceSlaMs(long sequenceSlaMs) {
+            if (sequenceSlaMs < 1) {
+                throw new IllegalStateException("app.view-refresh.sequence-sla-ms must be >= 1");
+            }
+            this.sequenceSlaMs = sequenceSlaMs;
+        }
     }
 }
