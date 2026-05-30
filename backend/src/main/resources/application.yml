@@ -67,6 +67,7 @@ app:
     refresh-token-expiry-seconds: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:86400}
   batch:
     chunk-size: ${BATCH_CHUNK_SIZE:250}
+    skip-limit: ${BATCH_SKIP_LIMIT:1000}
 
   import-config:
     temp-dir: ${java.io.tmpdir}/bio-import
@@ -79,6 +80,11 @@ app:
   export:
     csv:
       max-rows: 100000
+  view-refresh:
+    max-attempts: ${VIEW_REFRESH_MAX_ATTEMPTS:3}
+    per-view-timeout-ms: ${VIEW_REFRESH_TIMEOUT_MS:45000}
+    retry-backoff-ms: ${VIEW_REFRESH_RETRY_BACKOFF_MS:2000}
+    sequence-sla-ms: ${VIEW_REFRESH_SEQUENCE_SLA_MS:180000}
 
 
 # ── Logging ───────────────────────────────────────────────────────────────────

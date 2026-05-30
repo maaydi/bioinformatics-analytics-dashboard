@@ -7,7 +7,7 @@ import lombok.*;
  * JPA entity for {@code keyword} table.
  * Shared vocabulary mapped from KW lines in UniProt .dat files.
  *
- * @see documentation/domain-model.md §2
+ * @see <a href="{@docRoot}/documentation/domain-model.md">Domain Model §2</a>
  */
 @Entity
 @Table(name = "keyword")

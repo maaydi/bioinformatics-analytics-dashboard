@@ -64,6 +64,6 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
         jobRecord.setCompletedAt(jobExecution.getEndTime().atZone(ZoneId.systemDefault()).toInstant());
 
         importJobRep.save(jobRecord);
-        log.info("uniprot Data for Job <{}> successfully imported", jobId);
+        log.info("Import UniProt data for job <{}> finished with status: {}", jobId, jobRecord.getStatus());
     }
 }

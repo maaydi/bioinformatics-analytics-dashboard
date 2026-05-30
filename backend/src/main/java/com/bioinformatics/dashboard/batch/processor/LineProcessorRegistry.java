@@ -35,8 +35,6 @@ public class LineProcessorRegistry {
         var processor = lineProcessors.get(prefix);
         if (processor != null) {
             processor.process(data, context);
-        } else {
-            log.warn("No processor found for line with prefix <{}> .. SKIP", prefix);
         }
 
     }

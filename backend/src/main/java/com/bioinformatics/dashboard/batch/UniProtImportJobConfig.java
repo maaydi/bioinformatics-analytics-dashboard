@@ -1,7 +1,9 @@
 package com.bioinformatics.dashboard.batch;
 
 import com.bioinformatics.dashboard.batch.listener.ImportJobDatabaseListener;
+import com.bioinformatics.dashboard.batch.listener.ImportJobRefreshViewsListener;
 import com.bioinformatics.dashboard.batch.listener.ImportProgressChunkListener;
+import com.bioinformatics.dashboard.batch.listener.ImportUniprotSkipListener;
 import com.bioinformatics.dashboard.batch.processor.ProteinEntryItemProcessor;
 import com.bioinformatics.dashboard.batch.reader.UniprotDatItemReader;
 import com.bioinformatics.dashboard.batch.writer.ProteinAggregateItemWriter;
@@ -10,6 +12,8 @@ import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -94,15 +98,21 @@ public class UniProtImportJobConfig {
                 .writer(writer)
                 .faultTolerant() // Allows configuring skip policies
                 .skip(MalformedUniprotFileException.class) // skip malformed uniprot
+                .skip(ConstraintViolationException.class) // skip SQL constraint violation
+                .skip(StaleObjectStateException.class) // skip concurrency access
+                .skipLimit(appProperties.getBatch().getSkipLimit())
+                .listener(new ImportUniprotSkipListener())
                 .build();
     }
 
     @Bean
     Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
-                         ImportJobDatabaseListener databaseListener) {
+                         ImportJobDatabaseListener databaseListener,
+                         ImportJobRefreshViewsListener refreshViewsListener) {
         return new JobBuilder(Constants.IMPORT_JOB.getKey(), jobRepository)
                 .start(uniProtImportStep)
                 .listener(databaseListener)
+                .listener(refreshViewsListener)
                 .build();
     }
 

@@ -16,7 +16,7 @@ import java.util.List;
  * <p>Entities must never be returned directly from controllers.
  * This mapper is the only place where entity fields are projected to DTO fields.
  *
- * @see documentation/constitution.md — Backend Standards: "Use DTOs for API contracts"
+ * @see <a href="{@docRoot}/documentation/constitution.md">Backend Standards — DTOs for API contracts</a>
  */
 @Mapper(componentModel = "spring")
 public interface GeneMapper {

@@ -18,7 +18,7 @@ import java.util.Optional;
  * <p>All queries must avoid N+1.  Use {@code @EntityGraph} or JOIN FETCH for
  * detail-page queries that need to load related collections.
  *
- * @see documentation/overview.md §9 — Smart Query Strategy
+ * @see <a href="{@docRoot}/documentation/overview.md">Smart Query Strategy</a>
  */
 public interface ProteinEntryRepository
         extends JpaRepository<ProteinEntry, Long>,

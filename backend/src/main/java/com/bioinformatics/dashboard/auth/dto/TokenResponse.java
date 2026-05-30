@@ -3,7 +3,7 @@ package com.bioinformatics.dashboard.auth.dto;
 /**
  * Response body for login and refresh endpoints.
  *
- * @see documentation/api-contract.md §5
+ * @see <a href="{@docRoot}/documentation/api-contract.md">API Contract §5</a>
  */
 public record TokenResponse(
         String accessToken,

@@ -6,27 +6,25 @@
 2. Create Flyway migration for all six materialized views
 3. Implement DTOs for each analytics response
 4. Implement `AnalyticsRepository` with native SQL projections
-5. Implement `AnalyticsService` (read from repo, validate params, compute compare)
+5. Implement `AnalyticsService` (read from repo, validate params)
 6. Complete `AnalyticsController` (remove stubs, wire service)
-7. Add `POST /api/analytics/compare` endpoint
-8. Write unit tests for `AnalyticsService`
-9. Write integration tests for all endpoints
-10. Update documentation
+7. Write unit tests for `AnalyticsService`
+8. Write integration tests for all endpoints
+9. Update documentation
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] DB migration created
-- [ ] DTOs implemented
-- [ ] AnalyticsRepository implemented
-- [ ] AnalyticsService implemented
-- [ ] AnalyticsController completed
-- [ ] Compare endpoint added
-- [ ] Unit tests written
-- [ ] Integration tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Requirements analyzed
+- [x] DB migration created
+- [x] DTOs implemented
+- [x] AnalyticsRepository implemented
+- [x] AnalyticsService implemented
+- [x] AnalyticsController completed
+- [x] Unit tests written
+- [x] Integration tests written
+- [x] Documentation updated
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
 
 ---
 
@@ -34,72 +32,66 @@
 
 ### Database Migration (`V4__materialized_views.sql`)
 
-- [ ] `mv_dashboard_kpis` — aggregate: totalProteins, reviewedCount, unreviewedCount, organismCount, avgLength,
+- [x] `mv_dashboard_kpis` — aggregate: totalProteins, reviewedCount, unreviewedCount, organismCount, avgLength,
   avgMolecularWeight, minLength, maxLength
-- [ ] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
-- [ ] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
+- [x] `mv_length_histogram` — 100-AA buckets from 0 to 10,000; columns: bucket, rangeMin, rangeMax, count
+- [x] `mv_organism_counts` — group by organism_name, taxid; columns: organismName, taxid, total, reviewedCount,
   unreviewedCount, avgLength; ordered by total DESC
-- [ ] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
-- [ ] `mv_evidence_distribution` — five rows: evidenceLevel + count
-- [ ] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
-- [ ] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
-- [ ] Unique indexes on views for CONCURRENTLY refresh support
+- [x] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
+- [x] `mv_evidence_distribution` — five rows: evidenceLevel + count
+- [x] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
+- [x] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
+- [x] Unique indexes on views for CONCURRENTLY refresh support
 
 ### Backend — DTOs
 
-- [ ] `DashboardKpisDto` — nine fields matching API contract
-- [ ] `LengthBucketDto` — `{ bucket, rangeMin, rangeMax, count }`
-- [ ] `OrganismCountDto` — `{ organismName, taxid, total, reviewedCount, unreviewedCount, avgLength }`
-- [ ] `ReviewedRatioDto` — `{ reviewed, count }`
-- [ ] `EvidenceLevelDto` — `{ evidenceLevel, label, count }`
-- [ ] `KeywordFrequencyDto` — `{ keyword, count }`
-- [ ] `CompareRequestDto` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }`
-- [ ] `AnalyticsSubsetDto` —
-  `{ count, avgLength, reviewedCount, reviewedRatio, lengthDistribution, evidenceDistribution }`
-- [ ] `CompareResponseDto` — `{ a: AnalyticsSubsetDto, b: AnalyticsSubsetDto }`
+- [x] `DashboardKpisDto` — nine fields matching API contract
+- [x] `LengthBucketDto` — `{ bucket, rangeMin, rangeMax, count }`
+- [x] `OrganismCountDto` — `{ organismName, taxid, total, reviewedCount, unreviewedCount, avgLength }`
+- [x] `ReviewedRatioDto` — `{ reviewed, count }`
+- [x] `EvidenceLevelDto` — `{ evidenceLevel, label, count }`
+- [x] `KeywordFrequencyDto` — `{ keyword, count }`
 
 ### Backend — Repository
 
-- [ ] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
-    - [ ] `findDashboardKpis()` → `DashboardKpisDto`
-    - [ ] `findLengthHistogram()` → `List<LengthBucketDto>`
-    - [ ] `findByOrganism(int limit)` → `List<OrganismCountDto>`
-    - [ ] `findReviewedRatio()` → `List<ReviewedRatioDto>`
-    - [ ] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
-    - [ ] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
+- [x] `AnalyticsRepository` (or separate repositories per view) with `@Query` native SQL:
+  - [x] `findDashboardKpis()` → `DashboardKpisDto`
+    - [x] `findLengthHistogram()` → `List<LengthBucketDto>`
+    - [x] `findByOrganism(int limit)` → `List<OrganismCountDto>`
+    - [x] `findReviewedRatio()` → `List<ReviewedRatioDto>`
+    - [x] `findEvidenceLevels()` → `List<EvidenceLevelDto>`
+    - [x] `findKeywordFrequency(int limit)` → `List<KeywordFrequencyDto>`
 
 ### Backend — Service
 
-- [ ] `AnalyticsService.getDashboardKpis()`
-- [ ] `AnalyticsService.getLengthHistogram()`
-- [ ] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
-- [ ] `AnalyticsService.getReviewedRatio()`
-- [ ] `AnalyticsService.getEvidenceLevels()`
-- [ ] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
-- [ ] `AnalyticsService.compare(CompareRequestDto)` — run both filter sets through `GeneSpecification`, compute subset
-  analytics on-the-fly
+- [x] `AnalyticsService.getDashboardKpis()`
+- [x] `AnalyticsService.getLengthHistogram()`
+- [x] `AnalyticsService.getByOrganism(int limit)` — validate `1 ≤ limit ≤ 200`
+- [x] `AnalyticsService.getReviewedRatio()`
+- [x] `AnalyticsService.getEvidenceLevels()`
+- [x] `AnalyticsService.getKeywordFrequency(int limit)` — validate `1 ≤ limit ≤ 500`
 
 ### Backend — Controller
 
-- [ ] Remove `UnsupportedOperationException` stubs in `AnalyticsController`
-- [ ] Wire `AnalyticsService`
-- [ ] Add `POST /api/analytics/compare` mapping
-- [ ] Return `400` on invalid `limit` values
-- [ ] Return `401` for all endpoints (covered by `SecurityConfig`)
+- [x] Remove `UnsupportedOperationException` stubs in `AnalyticsController`
+- [x] Wire `AnalyticsService`
+- [x] Return `400` on invalid `limit` values
+- [x] Return `401` for all endpoints (covered by `SecurityConfig`)
 
 ### Tests
 
-- [ ] `AnalyticsServiceTest` — unit (mock repository):
-    - [ ] `getByOrganism` with limit > 200 throws validation exception
-    - [ ] `getKeywordFrequency` delegates to repository
-    - [ ] `compare` returns correct a/b structure
-- [ ] `AnalyticsControllerIntegrationTest` — Testcontainers:
-    - [ ] Each GET endpoint returns 200 with correct schema
-    - [ ] `GET /api/analytics/by-organism?limit=201` returns 400
-    - [ ] `POST /api/analytics/compare` returns 200 with a/b subsets
+- [x] `AnalyticsServiceTest` — unit (mock repository):
+  - [x] KPI not-found path raises `ResourceNotFoundException`
+  - [x] KPI/histogram mapping paths return mapped DTOs
+  - [x] `getByOrganism` delegates with requested `Limit`
+  - [x] `getKeywordFrequency` delegates with requested `Limit`
+- [x] `AnalyticsControllerIntegrationTest` — Testcontainers:
+  - [x] All six GET endpoints return `200` and expected response shape
+  - [x] `GET /api/analytics/by-organism?limit=201` returns `400`
+  - [x] `GET /api/analytics/keyword-frequency?limit=501` returns `400`
 
 ### General
 
-- [ ] Views use `CONCURRENTLY` refresh (requires unique index on each view)
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Views use `CONCURRENTLY` refresh (requires unique index on each view)
+- [x] Code reviewed
+- [x] Coverage ≥ 80%

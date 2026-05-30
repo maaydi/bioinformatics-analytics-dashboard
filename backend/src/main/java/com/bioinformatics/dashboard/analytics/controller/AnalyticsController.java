@@ -1,8 +1,19 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
+import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * REST controller for analytics chart endpoints.
@@ -23,41 +34,53 @@ import org.springframework.web.bind.annotation.*;
  * Response time target: ≤ 500 ms (NFR §12.1).
  */
 @RestController
+@Validated
 @RequestMapping("/api/analytics")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','USER')")
 public class AnalyticsController {
 
-    // TODO: inject AnalyticsService
+    private final AnalyticsService service;
 
     @GetMapping("/dashboard-kpis")
-    public ResponseEntity<?> getDashboardKpis() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<DashboardKpisDto> getDashboardKpis() {
+        var kpis = service.getDashboardKpis();
+        return ResponseEntity.ok(kpis);
     }
 
     @GetMapping("/length-histogram")
-    public ResponseEntity<?> getLengthHistogram() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram() {
+        var buckets = service.getLengthHistogram();
+        return ResponseEntity.ok(buckets);
     }
 
     @GetMapping("/by-organism")
-    public ResponseEntity<?> getByOrganism(
+    public ResponseEntity<List<OrganismCountDto>> getByOrganism(
+            @Min(value = 1, message = "Limit should be greater than 0")
+            @Max(value = 200, message = "Limit should be lower than 201")
             @RequestParam(defaultValue = "50") int limit) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        var count = service.getByOrganism(limit);
+        return ResponseEntity.ok(count);
     }
 
     @GetMapping("/reviewed-ratio")
-    public ResponseEntity<?> getReviewedRatio() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<List<ReviewedRatioDto>> getReviewedRatio() {
+        var ratios = service.getReviewedRatio();
+        return ResponseEntity.ok(ratios);
     }
 
     @GetMapping("/evidence-levels")
-    public ResponseEntity<?> getEvidenceLevels() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels() {
+        var ev = service.getEvidenceLevels();
+        return ResponseEntity.ok(ev);
     }
 
     @GetMapping("/keyword-frequency")
-    public ResponseEntity<?> getKeywordFrequency(
+    public ResponseEntity<List<KeywordFrequencyDto>> getKeywordFrequency(
+            @Min(value = 1, message = "Limit should be greater than 0")
+            @Max(value = 500, message = "Limit should be lower than 501")
             @RequestParam(defaultValue = "100") int limit) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        var keywords = service.getKeywordFrequency(limit);
+        return ResponseEntity.ok(keywords);
     }
 }
