@@ -15,10 +15,10 @@
 ## Status
 
 - [x] Requirements analyzed
-- [ ] DB migration created
+- [x] DB migration created
 - [x] DTOs implemented
-- [ ] AnalyticsRepository implemented
-- [ ] AnalyticsService implemented
+- [x] AnalyticsRepository implemented
+- [x] AnalyticsService implemented
 - [x] AnalyticsController completed
 - [ ] Unit tests written
 - [ ] Integration tests written
@@ -40,8 +40,8 @@
 - [x] `mv_reviewed_ratio` — two rows: reviewed TRUE/FALSE with count
 - [x] `mv_evidence_distribution` — five rows: evidenceLevel + count
 - [x] `mv_keyword_frequency` — group by keyword name; columns: keyword, count; ordered by count DESC
-- [ ] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
-- [ ] Unique indexes on views for CONCURRENTLY refresh support
+- [x] `REFRESH MATERIALIZED VIEW CONCURRENTLY` trigger / scheduled job post-import (hook in `ImportService`)
+- [x] Unique indexes on views for CONCURRENTLY refresh support
 
 ### Backend — DTOs
 
@@ -89,6 +89,6 @@
 
 ### General
 
-- [ ] Views use `CONCURRENTLY` refresh (requires unique index on each view)
+- [x] Views use `CONCURRENTLY` refresh (requires unique index on each view)
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80%

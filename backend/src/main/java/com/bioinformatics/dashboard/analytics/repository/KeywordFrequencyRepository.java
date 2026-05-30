@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface KeywordFrequencyRepository extends JpaRepository<KeywordFrequency, String> {
-    @Query("select o from KeywordFrequency o")
+    @Query("select o from KeywordFrequency o ORDER BY o.count DESC")
     List<KeywordFrequency> findAll(Limit limit);
 }

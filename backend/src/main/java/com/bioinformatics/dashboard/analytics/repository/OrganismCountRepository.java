@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface OrganismCountRepository extends JpaRepository<OrganismCount, String> {
-    @Query("select o from OrganismCount o")
+    @Query("select o from OrganismCount o ORDER BY o.organismName DESC")
     List<OrganismCount> findAll(Limit limit);
 }
