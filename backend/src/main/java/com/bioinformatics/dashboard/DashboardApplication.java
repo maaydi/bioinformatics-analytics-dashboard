@@ -4,6 +4,7 @@ import com.bioinformatics.dashboard.config.AppProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Entry point for the Bioinformatics Analytics Dashboard backend.
@@ -26,6 +27,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class)
+@EnableAsync
 public class DashboardApplication {
 
     static void main(String[] args) {

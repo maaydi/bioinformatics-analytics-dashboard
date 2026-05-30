@@ -32,8 +32,8 @@ public class AsyncUniprotImportJobExecutor {
     public void execute(JobParameters parameters) {
         try {
             log.info("UniProt import job started asynchronously");
-            operator.start(uniProtImportJob, parameters);
-            log.info("UniProt import job completed");
+            var exec = operator.start(uniProtImportJob, parameters);
+            log.info("UniProt import job completed with status {}", exec.getExitStatus());
         } catch (Exception e) {
             log.error("Failed to start UniProt import job", e);
             throw new ExecuteJobException("Failed to start uniprot import job", e);
