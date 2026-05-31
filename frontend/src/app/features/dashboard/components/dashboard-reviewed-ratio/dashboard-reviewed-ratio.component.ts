@@ -4,10 +4,11 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
+import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
-  imports: [MatCardModule],
+  imports: [MatCardModule, LoadingSpinnerComponent],
   templateUrl: './dashboard-reviewed-ratio.component.html',
   styleUrl: './dashboard-reviewed-ratio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

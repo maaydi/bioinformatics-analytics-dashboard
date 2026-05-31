@@ -5,6 +5,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {OrganismCount} from '@core/models/analytics.model';
+import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 interface OrganismView {
   readonly name: string;
@@ -14,7 +15,7 @@ interface OrganismView {
 
 @Component({
   selector: 'app-dashboard-top-organisms',
-  imports: [MatCardModule, DecimalPipe],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
   templateUrl: './dashboard-top-organisms.component.html',
   styleUrl: './dashboard-top-organisms.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

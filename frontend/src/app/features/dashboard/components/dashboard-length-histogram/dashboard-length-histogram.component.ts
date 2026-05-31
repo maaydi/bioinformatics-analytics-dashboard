@@ -5,6 +5,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
+import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -20,7 +21,7 @@ interface HistogramXAxisTick {
 
 @Component({
   selector: 'app-dashboard-length-histogram',
-  imports: [MatCardModule, DecimalPipe],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
   templateUrl: './dashboard-length-histogram.component.html',
   styleUrl: './dashboard-length-histogram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

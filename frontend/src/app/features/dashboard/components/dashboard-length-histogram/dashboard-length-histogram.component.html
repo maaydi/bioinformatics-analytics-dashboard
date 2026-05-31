@@ -5,7 +5,9 @@
   </header>
 
   @if (loading()) {
-    <p aria-live="polite" class="chart-state">Loading chart data...</p>
+    <div class="chart-state">
+      <app-loading-spinner/>
+    </div>
   } @else if (error()) {
     <p aria-live="assertive" class="chart-state chart-state-error" role="alert">{{ error() }}</p>
   } @else if (!hasData()) {

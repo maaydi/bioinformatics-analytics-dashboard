@@ -5,6 +5,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
+import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 interface EvidenceLevelView {
   readonly level: string;
@@ -16,7 +17,7 @@ interface EvidenceLevelView {
 
 @Component({
   selector: 'app-dashboard-evidence-levels',
-  imports: [MatCardModule, DecimalPipe],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
   templateUrl: './dashboard-evidence-levels.component.html',
   styleUrl: './dashboard-evidence-levels.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

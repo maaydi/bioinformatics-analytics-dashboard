@@ -34,7 +34,7 @@ describe('DashboardLengthHistogramComponent', () => {
 
   it('should show loading state while request is pending', () => {
     setup(new Subject<LengthHistogramBucket[]>().asObservable());
-    expect(fixture.nativeElement.textContent as string).toContain('Loading chart data...');
+    expect(fixture.nativeElement.querySelector('app-loading-spinner')).toBeTruthy();
   });
 
   it('should render histogram bars from API data', () => {
