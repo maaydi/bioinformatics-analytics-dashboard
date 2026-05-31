@@ -24,6 +24,21 @@
   }
 }
 
+.chart-state {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.chart-state-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
 .rows {
   display: grid;
   gap: 0.875rem;
@@ -74,27 +89,27 @@
 }
 
 // Per-level colors from design system (genes-design-system.md)
-.ratio-l1 {
-  width: 95%;
+.level-l1 {
   background: #2e7d32; // Evidence green — established at protein level
 }
 
-.ratio-l2 {
-  width: 78%;
+.level-l2 {
   background: #388e3c; // Evidence green lighter — transcript level
 }
 
-.ratio-l3 {
-  width: 62%;
+.level-l3 {
   background: #e65100; // Evidence orange — inferred from homology
 }
 
-.ratio-l4 {
-  width: 42%;
+.level-l4 {
   background: #c62828; // Evidence red — predicted
 }
 
-.ratio-l5 {
-  width: 28%;
+.level-l5 {
   background: #676767; // Evidence gray — uncertain
 }
+
+.level-other {
+  background: #334155;
+}
+

@@ -4,18 +4,26 @@
     <p>Distribution by UniProt evidence category</p>
   </header>
 
-  <div aria-label="Evidence levels" class="rows" role="list">
-    @for (item of items; track item.level) {
-      <div class="row" role="listitem">
-        <p class="row-label">L{{ item.level }} - {{ item.label }}</p>
+  @if (loading()) {
+    <p aria-live="polite" class="chart-state">Loading chart data...</p>
+  } @else if (error()) {
+    <p aria-live="assertive" class="chart-state chart-state-error" role="alert">{{ error() }}</p>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No evidence level data available.</p>
+  } @else {
+    <div aria-label="Evidence levels" class="rows" role="list">
+      @for (item of items(); track item.level) {
+        <div class="row" role="listitem">
+          <p class="row-label">L{{ item.level }} - {{ item.label }}</p>
 
-        <div class="bar-group">
-          <div aria-hidden="true" class="row-track">
-            <span [class]="item.ratioClass" class="row-fill"></span>
+          <div class="bar-group">
+            <div aria-hidden="true" class="row-track">
+              <span [class]="'row-fill ' + item.colorClass" [style.width.%]="item.ratioPercent"></span>
+            </div>
+            <span class="count">{{ item.count | number }}</span>
           </div>
-          <span class="count">{{ item.count | number }}</span>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
 </mat-card>
