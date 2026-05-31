@@ -24,8 +24,8 @@
 - [x] DashboardComponent shell implemented
 - [x] Length histogram chart implemented
 - [x] Reviewed ratio donut implemented
-- [ ] Evidence levels chart implemented
-- [ ] Top organisms chart implemented
+- [x] Evidence levels chart implemented
+- [x] Top organisms chart implemented
 - [ ] Chart click-to-filter wired
 - [ ] Unit tests written
 - [ ] Documentation updated

@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.chart-card {
+  min-height: 420px;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.chart-header {
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.8125rem;
+  }
+}
+
+.organism-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.625rem;
+}
+
+.organism-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(160px, 3fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.name {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.track {
+  display: block;
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, white);
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mat-sys-primary);
+}
+
+.ratio-100 {
+  width: 100%;
+}
+
+.ratio-82 {
+  width: 82%;
+}
+
+.ratio-70 {
+  width: 70%;
+}
+
+.ratio-64 {
+  width: 64%;
+}
+
+.ratio-59 {
+  width: 59%;
+}
+
+.ratio-53 {
+  width: 53%;
+}
+
+.ratio-49 {
+  width: 49%;
+}
+
+.ratio-45 {
+  width: 45%;
+}
+
+.ratio-42 {
+  width: 42%;
+}
+
+.ratio-38 {
+  width: 38%;
+}
+
+@media (max-width: 860px) {
+  .organism-row {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+}
+

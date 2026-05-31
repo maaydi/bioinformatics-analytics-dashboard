@@ -1,0 +1,17 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Top 10 Organisms by Protein Count</h2>
+  </header>
+
+  <ol aria-label="Top 10 organisms by protein count" class="organism-list">
+    @for (item of organisms; track item.name) {
+      <li class="organism-row">
+        <span class="name">{{ item.name }}</span>
+        <span aria-hidden="true" class="track">
+          <span [class]="'fill ' + item.ratioClass"></span>
+        </span>
+      </li>
+    }
+  </ol>
+</mat-card>
+
