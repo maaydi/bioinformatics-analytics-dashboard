@@ -1,14 +1,18 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Router} from '@angular/router';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
+import {EvidenceLevel} from '@core/models/protein.model';
+import {GenesStore} from '@features/genes/state/filters.store';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 interface EvidenceLevelView {
-  readonly level: string;
+  readonly level: number;
   readonly label: string;
   readonly count: number;
   readonly ratioPercent: number;
@@ -17,7 +21,7 @@ interface EvidenceLevelView {
 
 @Component({
   selector: 'app-dashboard-evidence-levels',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule],
   templateUrl: './dashboard-evidence-levels.component.html',
   styleUrl: './dashboard-evidence-levels.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +38,7 @@ export class DashboardEvidenceLevelsComponent {
     const maxCount = Math.max(...sortedItems.map((item) => item.count), 0);
 
     return sortedItems.map((item) => ({
-      level: String(item.evidenceLevel),
+      level: item.evidenceLevel,
       label: item.label,
       count: item.count,
       ratioPercent: maxCount > 0 ? Math.round((item.count / maxCount) * 100) : 0,
@@ -43,10 +47,25 @@ export class DashboardEvidenceLevelsComponent {
   });
 
   private readonly dashboardService = inject(DashboardService);
+  private readonly genesStore = inject(GenesStore);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.loadEvidenceLevels();
+  }
+
+  protected retry(): void {
+    this.loadEvidenceLevels();
+  }
+
+  protected selectEvidenceLevel(evidenceLevel: number): void {
+    if (!this.isEvidenceLevel(evidenceLevel)) {
+      return;
+    }
+
+    this.genesStore.setActiveFilters({evidenceLevels: [evidenceLevel]});
+    void this.router.navigate(['/genes']);
   }
 
   private loadEvidenceLevels(): void {
@@ -83,5 +102,9 @@ export class DashboardEvidenceLevelsComponent {
       default:
         return 'level-other';
     }
+  }
+
+  private isEvidenceLevel(level: number): level is EvidenceLevel {
+    return level >= 1 && level <= 5;
   }
 }

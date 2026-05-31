@@ -17,6 +17,7 @@ describe('GenesStore', () => {
     loading: () => boolean;
     selectGeneSummary: (protein: ProteinSummary) => void;
     updateChipsCount: (value: number) => void;
+    setActiveFilters: (snapshot: GeneFilterSnapshot) => void;
     clearFilters: () => void;
     removeFilter: (key: keyof GeneFilterSnapshot) => void;
     updatePaginationAndSort: (params: {
@@ -87,6 +88,18 @@ describe('GenesStore', () => {
 
     store.updateChipsCount(-1);
     expect(store.chipsCount()).toBe(4);
+  });
+
+  it('should store active filters without triggering a search request', () => {
+    const snapshot: GeneFilterSnapshot = {evidenceLevels: [1]};
+
+    store.setActiveFilters(snapshot);
+
+    expect(genesServiceMock.searchGenes).not.toHaveBeenCalled();
+    expect(store.activeFilters()).toEqual(snapshot);
+    expect(store.searchResult()).toBeNull();
+    expect(store.onErrorMessage()).toBeNull();
+    expect(store.loading()).toBe(false);
   });
 
   it('should clear filters and result state via clearFilters', () => {

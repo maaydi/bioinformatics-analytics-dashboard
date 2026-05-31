@@ -5,10 +5,19 @@ import {EvidenceLevelItem} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
+import {GenesStore} from '@features/genes/state/filters.store';
+import {Router} from '@angular/router';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+
+interface GenesStoreMock {
+  setActiveFilters(snapshot: GeneFilterSnapshot): void;
+}
 
 describe('DashboardEvidenceLevelsComponent', () => {
   let fixture: ComponentFixture<DashboardEvidenceLevelsComponent>;
   let dashboardServiceMock: Pick<DashboardService, 'getEvidenceLevels'>;
+  let genesStoreMock: GenesStoreMock;
+  let routerMock: Pick<Router, 'navigate'>;
 
   const mockEvidence: EvidenceLevelItem[] = [
     {evidenceLevel: 1, label: 'Protein level', count: 400000},
@@ -26,9 +35,21 @@ describe('DashboardEvidenceLevelsComponent', () => {
       getEvidenceLevels: vi.fn(),
     };
 
+    genesStoreMock = {
+      setActiveFilters: vi.fn(),
+    };
+
+    routerMock = {
+      navigate: vi.fn(() => Promise.resolve(true)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DashboardEvidenceLevelsComponent],
-      providers: [{provide: DashboardService, useValue: dashboardServiceMock}],
+      providers: [
+        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: GenesStore, useValue: genesStoreMock},
+        {provide: Router, useValue: routerMock},
+      ],
     }).compileComponents();
   });
 
@@ -74,6 +95,32 @@ describe('DashboardEvidenceLevelsComponent', () => {
   it('should render error state when API fails', () => {
     setup(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})));
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load evidence level distribution.');
+  });
+
+  it('should retry loading evidence levels when retry is clicked', () => {
+    vi.mocked(dashboardServiceMock.getEvidenceLevels)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
+      .mockReturnValueOnce(of(mockEvidence));
+
+    fixture = TestBed.createComponent(DashboardEvidenceLevelsComponent);
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(dashboardServiceMock.getEvidenceLevels).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('L1 - Protein level');
+  });
+
+  it('should navigate to genes with the selected evidence filter when a row is clicked', () => {
+    setup(of(mockEvidence));
+
+    const firstRowButton = fixture.nativeElement.querySelector('.row-action') as HTMLButtonElement;
+    firstRowButton.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({evidenceLevels: [1]});
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
   });
 });
 
