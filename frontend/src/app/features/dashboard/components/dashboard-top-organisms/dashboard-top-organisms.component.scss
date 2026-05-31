@@ -4,7 +4,7 @@
 
 .chart-card {
   min-height: 420px;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   display: grid;
   gap: 1rem;
 }
@@ -14,11 +14,12 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    color: #1a1a1a;
   }
 
   p {
     margin: 0.25rem 0 0;
-    color: var(--mat-sys-on-surface-variant);
+    color: #6b7280;
     font-size: 0.8125rem;
   }
 }
@@ -29,24 +30,38 @@
   list-style: none;
   display: grid;
   gap: 0.625rem;
+  counter-reset: organism-counter;
 }
 
 .organism-row {
   display: grid;
-  grid-template-columns: minmax(200px, 1fr) minmax(160px, 3fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 3fr);
   align-items: center;
   gap: 0.75rem;
 }
 
 .name {
   font-size: 0.85rem;
-  color: var(--mat-sys-on-surface);
+  color: #1a1a1a;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Bar + count label sit in a flex row
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 .track {
+  flex: 1 1 0;
   display: block;
-  background: color-mix(in srgb, var(--mat-sys-primary) 12%, white);
-  height: 0.75rem;
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  height: 0.875rem;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -55,7 +70,18 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--mat-sys-primary);
+  background: #1565c0;
+}
+
+// Count label — right of bar, fixed width so bars stay aligned
+.count {
+  flex-shrink: 0;
+  width: 52px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .ratio-100 {
@@ -104,4 +130,3 @@
     gap: 0.375rem;
   }
 }
-

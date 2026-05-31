@@ -4,7 +4,7 @@
 
 .chart-card {
   min-height: 280px;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   display: grid;
   gap: 1rem;
 }
@@ -14,35 +14,46 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    color: #1a1a1a;
   }
 
   p {
     margin: 0.25rem 0 0;
-    color: var(--mat-sys-on-surface-variant);
+    color: #6b7280;
     font-size: 0.8125rem;
   }
 }
 
 .rows {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.875rem;
 }
 
 .row {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .row-label {
   margin: 0;
   font-size: 0.8125rem;
-  color: var(--mat-sys-on-surface);
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 .row-track {
-  height: 0.75rem;
+  flex: 1 1 0;
+  height: 0.875rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--mat-sys-primary) 12%, white);
+  // Explicit light background — no color-mix()
+  background: #e8edf7;
+  border: 1px solid #d1d9ef;
   overflow: hidden;
 }
 
@@ -50,26 +61,40 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--mat-sys-primary);
 }
 
+.count {
+  flex-shrink: 0;
+  width: 68px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Per-level colors from design system (genes-design-system.md)
 .ratio-l1 {
   width: 95%;
+  background: #2e7d32; // Evidence green — established at protein level
 }
 
 .ratio-l2 {
   width: 78%;
+  background: #388e3c; // Evidence green lighter — transcript level
 }
 
 .ratio-l3 {
   width: 62%;
+  background: #e65100; // Evidence orange — inferred from homology
 }
 
 .ratio-l4 {
   width: 42%;
+  background: #c62828; // Evidence red — predicted
 }
 
 .ratio-l5 {
   width: 28%;
+  background: #676767; // Evidence gray — uncertain
 }
-

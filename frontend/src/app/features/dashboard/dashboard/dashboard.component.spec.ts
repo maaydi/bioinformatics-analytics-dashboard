@@ -29,9 +29,9 @@ describe('DashboardComponent', () => {
 
     expect(text).toContain('Dashboard');
     expect(text).toContain('Total');
-    expect(text).toContain('Length Histogram');
+    expect(text).toContain('Protein Length Distribution');
     expect(text).toContain('Evidence Levels');
-    expect(text).toContain('Top Organisms');
+    expect(text).toContain('Top 10 Organisms');
   });
 });
 

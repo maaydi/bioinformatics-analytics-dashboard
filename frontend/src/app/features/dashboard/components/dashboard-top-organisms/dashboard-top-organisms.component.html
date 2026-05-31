@@ -7,11 +7,14 @@
     @for (item of organisms; track item.name) {
       <li class="organism-row">
         <span class="name">{{ item.name }}</span>
-        <span aria-hidden="true" class="track">
-          <span [class]="'fill ' + item.ratioClass"></span>
-        </span>
+
+        <div class="bar-group">
+          <span aria-hidden="true" class="track">
+            <span [class]="'fill ' + item.ratioClass"></span>
+          </span>
+          <span class="count">{{ item.count | number }}</span>
+        </div>
       </li>
     }
   </ol>
 </mat-card>
-

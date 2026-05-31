@@ -30,6 +30,7 @@
 .dual-chart-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-items: stretch; // both cells take the height of the tallest sibling
   gap: 1rem;
 }
 

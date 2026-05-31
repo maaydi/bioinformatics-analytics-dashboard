@@ -1,12 +1,15 @@
 :host {
   display: block;
+  height: 100%; // stretch to fill the grid cell set by .dual-chart-grid
 }
 
+// ─── Card shell ────────────────────────────────────────────────────────────
 .chart-card {
-  min-height: 320px;
-  padding: 1rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem 0.75rem;
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .chart-header {
@@ -14,35 +17,169 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    color: #1a1a1a;
   }
 
   p {
     margin: 0.25rem 0 0;
-    color: var(--mat-sys-on-surface-variant);
+    color: #6b7280;
     font-size: 0.8125rem;
   }
 }
 
-.chart-bars {
+// ─── Y-axis spacer width (shared across rows) ──────────────────────────────
+$y-axis-width: 48px;
+
+// ─── Chart area: [Y labels | plot] ─────────────────────────────────────────
+.chart-area {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
   height: 220px;
+  gap: 0;
+}
+
+// Y axis: column of tick labels, top-to-bottom matches grid lines
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: 6px;
+  padding-bottom: 2px; // align baseline with bars bottom
+}
+
+.y-tick {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+// Plot: stacks grid-lines and bars as layers
+.plot {
+  position: relative;
+  overflow: hidden;
+}
+
+// Grid lines: evenly distribute across height
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.grid-line {
+  width: 100%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+// Bars container
+.bars {
+  position: absolute;
+  inset: 0;
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   align-items: end;
-  gap: 0.5rem;
-  padding-top: 0.5rem;
+  gap: 4px;
+  padding: 0 2px;
 }
 
-.bar-slot {
-  background: color-mix(in srgb, var(--mat-sys-primary) 10%, white);
-  border-radius: 6px 6px 0 0;
+.bar-col {
+  position: relative;
   height: 100%;
   display: flex;
   align-items: end;
+
+  // Hover tooltip
+  &:hover .bar-tooltip {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+  margin-bottom: 4px;
 }
 
 .bar-fill {
   width: 100%;
-  background: var(--mat-sys-primary);
-  border-radius: 6px 6px 0 0;
+  background: #1565c0;
+  border-radius: 4px 4px 0 0;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
 }
 
+// X-axis bottom border
+.x-axis-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #374151;
+}
+
+// ─── X-axis labels row ──────────────────────────────────────────────────────
+.x-axis {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
+}
+
+.y-axis-spacer {
+  // intentionally empty — aligns x-labels under plot, not under y-axis
+}
+
+.x-labels {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  padding: 0 2px;
+}
+
+.x-label {
+  font-size: 0.625rem;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ─── Axis captions ──────────────────────────────────────────────────────────
+.axis-captions {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
+}
+
+.x-caption {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}

@@ -1,14 +1,63 @@
 <mat-card appearance="outlined" class="chart-card">
   <header class="chart-header">
-    <h2>Protein Length Distribution (100 AA buckets)</h2>
+    <h2>Protein Length Distribution</h2>
+    <p>Protein count per 100 AA length bucket</p>
   </header>
 
-  <div aria-hidden="true" class="chart-bars">
-    @for (value of buckets; track $index) {
-      <div class="bar-slot">
-        <div [style.height.%]="value" class="bar-fill"></div>
-      </div>
-    }
-  </div>
-</mat-card>
+  <div aria-label="Protein length distribution histogram" class="chart-area" role="img">
 
+    <!-- Y axis -->
+    <div aria-hidden="true" class="y-axis">
+      @for (tick of yTicks(); track tick) {
+        <span class="y-tick">{{ tick | number }}</span>
+      }
+    </div>
+
+    <!-- Plot area -->
+    <div class="plot">
+      <!-- Horizontal grid lines aligned with Y ticks -->
+      <div aria-hidden="true" class="grid-lines">
+        @for (tick of yTicks(); track tick) {
+          <div class="grid-line"></div>
+        }
+      </div>
+
+      <!-- Bars -->
+      <div aria-hidden="true" class="bars">
+        @for (bucket of buckets(); track bucket.rangeLabel) {
+          <div class="bar-col">
+            <span class="bar-tooltip">
+              {{ bucket.rangeLabel }} AA<br>
+              {{ bucket.count | number }} proteins
+            </span>
+            <div
+              [style.height.%]="barHeight(bucket.count)"
+              class="bar-fill"
+            ></div>
+          </div>
+        }
+      </div>
+
+      <!-- X axis line -->
+      <div aria-hidden="true" class="x-axis-line"></div>
+    </div>
+  </div>
+
+  <!-- X axis labels -->
+  <div aria-hidden="true" class="x-axis">
+    <!-- Y-axis spacer aligns labels with bars -->
+    <div class="y-axis-spacer"></div>
+    <div class="x-labels">
+      @for (bucket of buckets(); track bucket.rangeLabel) {
+        <span class="x-label">{{ bucket.rangeLabel }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Axis captions -->
+  <div aria-hidden="true" class="axis-captions">
+    <div class="y-axis-spacer"></div>
+    <p class="x-caption">Sequence Length (AA)</p>
+  </div>
+
+</mat-card>
