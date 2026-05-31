@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.chart-card {
+  min-height: 320px;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.chart-header {
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.8125rem;
+  }
+}
+
+.ratio-layout {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 1rem;
+}
+
+.donut {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: conic-gradient(var(--mat-sys-primary) 0 62%, #c7d6f9 62% 100%);
+  position: relative;
+}
+
+.donut::after {
+  content: '';
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  background: white;
+}
+
+.legend-list {
+  display: grid;
+  gap: 0.5rem;
+  width: min(320px, 100%);
+}
+
+.legend-item {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+
+.reviewed .legend-dot {
+  background: var(--mat-sys-primary);
+}
+
+.unreviewed .legend-dot {
+  background: #c7d6f9;
+}
+

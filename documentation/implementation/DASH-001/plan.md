@@ -23,7 +23,7 @@
 - [x] DashboardService implemented
 - [x] DashboardComponent shell implemented
 - [x] Length histogram chart implemented
-- [ ] Reviewed ratio donut implemented
+- [x] Reviewed ratio donut implemented
 - [ ] Evidence levels chart implemented
 - [ ] Top organisms chart implemented
 - [ ] Chart click-to-filter wired

@@ -1,0 +1,21 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Reviewed vs Unreviewed Proteins</h2>
+  </header>
+
+  <div class="ratio-layout">
+    <div aria-hidden="true" class="donut"></div>
+
+    <div class="legend-list">
+      <p class="legend-item reviewed">
+        <span aria-hidden="true" class="legend-dot"></span>
+        Reviewed: {{ reviewedCount }} ({{ reviewedPercent }}%)
+      </p>
+      <p class="legend-item unreviewed">
+        <span aria-hidden="true" class="legend-dot"></span>
+        Unreviewed: {{ unreviewedCount }} ({{ 100 - reviewedPercent }}%)
+      </p>
+    </div>
+  </div>
+</mat-card>
+
