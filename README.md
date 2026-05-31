@@ -36,6 +36,11 @@
 ### Import Admin — Progress Monitoring
 
 ![Import Admin](documentation/implementation/IMPORT-001/import-admin-screen.png)
+
+### Dashboard
+
+![Dashboard-01](documentation/implementation/DASH-001/dashboard-screen-01.png)
+![Dashboard-02](documentation/implementation/DASH-001/dashboard-screen-02.png)
 ---
 
 ## 🚀 Quick Start
