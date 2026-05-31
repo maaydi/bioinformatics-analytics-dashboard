@@ -1,11 +1,15 @@
 import {DecimalPipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
+import {DashboardService} from '@features/dashboard/dashboard.service';
+import {OrganismCount} from '@core/models/analytics.model';
 
 interface OrganismView {
   readonly name: string;
   readonly count: number;
-  readonly ratioClass: string;
+  readonly ratioPercent: number;
 }
 
 @Component({
@@ -16,16 +20,43 @@ interface OrganismView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardTopOrganismsComponent {
-  protected readonly organisms: ReadonlyArray<OrganismView> = [
-    {name: 'Homo sapiens', count: 82_791, ratioClass: 'ratio-100'},
-    {name: 'Mus musculus', count: 67_884, ratioClass: 'ratio-82'},
-    {name: 'Escherichia coli (strain K12)', count: 57_760, ratioClass: 'ratio-70'},
-    {name: 'Saccharomyces cerevisiae', count: 52_782, ratioClass: 'ratio-64'},
-    {name: 'Arabidopsis thaliana', count: 48_657, ratioClass: 'ratio-59'},
-    {name: 'Danio rerio', count: 43_825, ratioClass: 'ratio-53'},
-    {name: 'Drosophila melanogaster', count: 40_491, ratioClass: 'ratio-49'},
-    {name: 'Rattus norvegicus', count: 37_153, ratioClass: 'ratio-45'},
-    {name: 'Caenorhabditis elegans', count: 34_697, ratioClass: 'ratio-42'},
-    {name: 'Bacillus subtilis', count: 31_413, ratioClass: 'ratio-38'},
-  ];
+  protected readonly loading = signal<boolean>(true);
+  protected readonly error = signal<string | null>(null);
+  private readonly organismsResponse = signal<ReadonlyArray<OrganismCount>>([]);
+
+  protected readonly hasData = computed<boolean>(() => this.organismsResponse().length > 0);
+  protected readonly organisms = computed<ReadonlyArray<OrganismView>>(() => {
+    const maxCount = Math.max(...this.organismsResponse().map((item) => item.total), 0);
+    return this.organismsResponse().map((item) => ({
+      name: item.organismName,
+      count: item.total,
+      ratioPercent: maxCount > 0 ? Math.round((item.total / maxCount) * 100) : 0,
+    }));
+  });
+
+  private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.loadTopOrganisms();
+  }
+
+  private loadTopOrganisms(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.dashboardService.getByOrganism(10)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.organismsResponse.set(response);
+          this.loading.set(false);
+        },
+        error: (_error: HttpErrorResponse) => {
+          this.organismsResponse.set([]);
+          this.error.set('Unable to load top organisms.');
+          this.loading.set(false);
+        }
+      });
+  }
 }

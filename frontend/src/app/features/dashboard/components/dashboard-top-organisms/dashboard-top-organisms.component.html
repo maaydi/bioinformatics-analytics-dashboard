@@ -3,18 +3,26 @@
     <h2>Top 10 Organisms by Protein Count</h2>
   </header>
 
-  <ol aria-label="Top 10 organisms by protein count" class="organism-list">
-    @for (item of organisms; track item.name) {
-      <li class="organism-row">
-        <span class="name">{{ item.name }}</span>
+  @if (loading()) {
+    <p aria-live="polite" class="chart-state">Loading chart data...</p>
+  } @else if (error()) {
+    <p aria-live="assertive" class="chart-state chart-state-error" role="alert">{{ error() }}</p>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No organism distribution data available.</p>
+  } @else {
+    <ol aria-label="Top 10 organisms by protein count" class="organism-list">
+      @for (item of organisms(); track item.name) {
+        <li class="organism-row">
+          <span class="name">{{ item.name }}</span>
 
-        <div class="bar-group">
-          <span aria-hidden="true" class="track">
-            <span [class]="'fill ' + item.ratioClass"></span>
-          </span>
-          <span class="count">{{ item.count | number }}</span>
-        </div>
-      </li>
-    }
-  </ol>
+          <div class="bar-group">
+            <span aria-hidden="true" class="track">
+              <span [style.width.%]="item.ratioPercent" class="fill"></span>
+            </span>
+            <span class="count">{{ item.count | number }}</span>
+          </div>
+        </li>
+      }
+    </ol>
+  }
 </mat-card>
