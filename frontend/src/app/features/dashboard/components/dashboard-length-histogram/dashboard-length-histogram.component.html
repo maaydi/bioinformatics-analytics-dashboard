@@ -37,10 +37,11 @@
         <!-- Bars -->
         <div [style.grid-template-columns]="barGridTemplate()" class="bars">
           @for (bucket of viewBuckets(); track bucket.rangeLabel) {
-            <div
+            <button
+              (click)="selectLengthRange(bucket)"
               [attr.aria-label]="'Protein length bucket ' + bucket.rangeMin + ' to ' + bucket.rangeMax + ' amino acids'"
               class="bar-col"
-              tabindex="0"
+              type="button"
             >
               <span class="bar-tooltip">
                 <span>Bar limit: {{ bucket.rangeMin | number }} - {{ bucket.rangeMax | number }} AA</span>
@@ -51,7 +52,7 @@
                 [style.height.%]="barHeight(bucket.count)"
                 class="bar-fill"
               ></div>
-            </div>
+            </button>
           }
         </div>
 

@@ -5,10 +5,14 @@ import {OrganismCount} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
 
 describe('DashboardTopOrganismsComponent', () => {
   let fixture: ComponentFixture<DashboardTopOrganismsComponent>;
   let dashboardServiceMock: Pick<DashboardService, 'getByOrganism'>;
+  let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   const mockOrganisms: OrganismCount[] = [
     {
@@ -40,9 +44,21 @@ describe('DashboardTopOrganismsComponent', () => {
       getByOrganism: vi.fn(),
     };
 
+    genesStoreMock = {
+      setActiveFilters: vi.fn(),
+    };
+
+    routerMock = {
+      navigate: vi.fn(() => Promise.resolve(true)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DashboardTopOrganismsComponent],
-      providers: [{provide: DashboardService, useValue: dashboardServiceMock}],
+      providers: [
+        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: GenesStore, useValue: genesStoreMock},
+        {provide: Router, useValue: routerMock},
+      ],
     }).compileComponents();
   });
 
@@ -88,6 +104,26 @@ describe('DashboardTopOrganismsComponent', () => {
 
     expect(dashboardServiceMock.getByOrganism).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Homo sapiens');
+  });
+
+  it('should navigate to genes with organism filter when Homo sapiens row is clicked', () => {
+    setup(of(mockOrganisms));
+
+    const firstRow = fixture.nativeElement.querySelector('.organism-row') as HTMLButtonElement;
+    firstRow.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({organism: 'Homo sapiens'});
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
+  });
+
+  it('should navigate to genes with correct organism when Mus musculus row is clicked', () => {
+    setup(of(mockOrganisms));
+
+    const secondRow = fixture.nativeElement.querySelectorAll('.organism-row')[1] as HTMLButtonElement;
+    secondRow.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({organism: 'Mus musculus'});
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
   });
 });
 

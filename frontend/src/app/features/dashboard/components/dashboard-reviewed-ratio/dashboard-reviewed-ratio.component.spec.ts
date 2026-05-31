@@ -5,10 +5,14 @@ import {Observable, of, Subject, throwError} from 'rxjs';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
 
 describe('DashboardReviewedRatioComponent', () => {
   let fixture: ComponentFixture<DashboardReviewedRatioComponent>;
   let dashboardServiceMock: Pick<DashboardService, 'getReviewedRatio'>;
+  let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   const mockRatio: ReviewedRatioItem[] = [
     {reviewed: true, count: 80},
@@ -21,16 +25,31 @@ describe('DashboardReviewedRatioComponent', () => {
     fixture.detectChanges();
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     dashboardServiceMock = {
       getReviewedRatio: vi.fn(),
     };
 
+    genesStoreMock = {
+      setActiveFilters: vi.fn(),
+    };
+
+    routerMock = {
+      navigate: vi.fn(() => Promise.resolve(true)),
+    };
+  });
+
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardReviewedRatioComponent],
-      providers: [{provide: DashboardService, useValue: dashboardServiceMock}],
+      providers: [
+        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: GenesStore, useValue: genesStoreMock},
+        {provide: Router, useValue: routerMock},
+      ],
     }).compileComponents();
   });
+
 
   it('should show loading state while request is pending', () => {
     setup(new Subject<ReviewedRatioItem[]>().asObservable());
@@ -70,6 +89,28 @@ describe('DashboardReviewedRatioComponent', () => {
 
     expect(dashboardServiceMock.getReviewedRatio).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Reviewed: 80 (80%)');
+  });
+
+  it('should navigate to genes with reviewed=true filter when Reviewed legend is clicked', () => {
+    setup(of(mockRatio));
+
+    const reviewedButton = Array.from(fixture.nativeElement.querySelectorAll('button.legend-button'))
+      .find((btn: any) => btn.textContent.includes('Reviewed:')) as HTMLButtonElement;
+    reviewedButton.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({reviewed: true});
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
+  });
+
+  it('should navigate to genes with reviewed=false filter when Unreviewed legend is clicked', () => {
+    setup(of(mockRatio));
+
+    const unreviewedButton = Array.from(fixture.nativeElement.querySelectorAll('button.legend-button'))
+      .find((btn: any) => btn.textContent.includes('Unreviewed:')) as HTMLButtonElement;
+    unreviewedButton.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({reviewed: false});
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
   });
 });
 

@@ -17,7 +17,8 @@
   } @else {
     <ol aria-label="Top 10 organisms by protein count" class="organism-list">
       @for (item of organisms(); track item.name) {
-        <li class="organism-row">
+        <li>
+          <button (click)="selectOrganism(item.name)" class="organism-row" type="button">
           <span class="name">{{ item.name }}</span>
 
           <div class="bar-group">
@@ -26,6 +27,7 @@
             </span>
             <span class="count">{{ item.count | number }}</span>
           </div>
+          </button>
         </li>
       }
     </ol>

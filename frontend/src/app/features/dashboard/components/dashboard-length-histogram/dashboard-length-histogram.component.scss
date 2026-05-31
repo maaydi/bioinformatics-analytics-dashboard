@@ -113,6 +113,11 @@ $y-axis-width: 48px;
   display: flex;
   align-items: end;
   outline: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
 
   // Tooltip visible only when the bar receives keyboard focus.
   &:focus-within .bar-tooltip {

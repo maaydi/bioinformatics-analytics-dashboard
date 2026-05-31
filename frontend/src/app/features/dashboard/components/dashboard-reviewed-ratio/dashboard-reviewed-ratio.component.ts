@@ -6,6 +6,9 @@ import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -41,6 +44,8 @@ export class DashboardReviewedRatioComponent {
   );
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly genesStore = inject(GenesStore);
+  private readonly router = inject(Router);
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
   constructor() {
@@ -53,6 +58,12 @@ export class DashboardReviewedRatioComponent {
 
   protected formatCount(count: number): string {
     return this.numberFormatter.format(count);
+  }
+
+  protected selectReviewedStatus(reviewed: boolean): void {
+    const snapshot: GeneFilterSnapshot = {reviewed};
+    this.genesStore.setActiveFilters(snapshot);
+    void this.router.navigate(['/genes']);
   }
 
   private loadReviewedRatio(): void {

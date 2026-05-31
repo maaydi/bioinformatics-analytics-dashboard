@@ -7,6 +7,8 @@ import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {OrganismCount} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
 
 interface OrganismView {
   readonly name: string;
@@ -38,6 +40,8 @@ export class DashboardTopOrganismsComponent {
 
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly genesStore = inject(GenesStore);
+  private readonly router = inject(Router);
 
   constructor() {
     this.loadTopOrganisms();
@@ -45,6 +49,12 @@ export class DashboardTopOrganismsComponent {
 
   protected retry(): void {
     this.loadTopOrganisms();
+  }
+
+  protected selectOrganism(organismName: string): void {
+    const snapshot = {organism: organismName};
+    this.genesStore.setActiveFilters(snapshot);
+    void this.router.navigate(['/genes']);
   }
 
   private loadTopOrganisms(): void {

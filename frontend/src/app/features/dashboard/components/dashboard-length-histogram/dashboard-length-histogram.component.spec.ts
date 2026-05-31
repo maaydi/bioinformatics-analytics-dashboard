@@ -5,10 +5,14 @@ import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
 
 describe('DashboardLengthHistogramComponent', () => {
   let fixture: ComponentFixture<DashboardLengthHistogramComponent>;
   let dashboardServiceMock: Pick<DashboardService, 'getLengthHistogram'>;
+  let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   const mockHistogram: LengthHistogramBucket[] = [
     {bucket: 1, rangeMin: 0, rangeMax: 99, count: 12000},
@@ -26,9 +30,21 @@ describe('DashboardLengthHistogramComponent', () => {
       getLengthHistogram: vi.fn(),
     };
 
+    genesStoreMock = {
+      setActiveFilters: vi.fn(),
+    };
+
+    routerMock = {
+      navigate: vi.fn(() => Promise.resolve(true)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DashboardLengthHistogramComponent],
-      providers: [{provide: DashboardService, useValue: dashboardServiceMock}],
+      providers: [
+        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: GenesStore, useValue: genesStoreMock},
+        {provide: Router, useValue: routerMock},
+      ],
     }).compileComponents();
   });
 
@@ -69,7 +85,7 @@ describe('DashboardLengthHistogramComponent', () => {
     const bars = fixture.nativeElement.querySelectorAll('.bar-col') as NodeListOf<HTMLElement>;
     expect(bars.length).toBe(2);
     for (const bar of Array.from(bars)) {
-      expect(bar.getAttribute('tabindex')).toBe('0');
+      expect(bar.tagName.toLowerCase()).toBe('button');
     }
   });
 
@@ -92,6 +108,32 @@ describe('DashboardLengthHistogramComponent', () => {
 
     expect(dashboardServiceMock.getLengthHistogram).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Count: 12,000');
+  });
+
+  it('should navigate to genes with length range filter when a bar is clicked', () => {
+    setup(of(mockHistogram));
+
+    const firstBar = fixture.nativeElement.querySelector('.bar-col') as HTMLButtonElement;
+    firstBar.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({
+      lengthMin: 0,
+      lengthMax: 99,
+    });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
+  });
+
+  it('should navigate to genes with correct range when second bar is clicked', () => {
+    setup(of(mockHistogram));
+
+    const secondBar = fixture.nativeElement.querySelectorAll('.bar-col')[1] as HTMLButtonElement;
+    secondBar.click();
+
+    expect(genesStoreMock.setActiveFilters).toHaveBeenCalledWith({
+      lengthMin: 100,
+      lengthMax: 199,
+    });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/genes']);
   });
 });
 

@@ -7,6 +7,8 @@ import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
+import {Router} from '@angular/router';
+import {GenesStore} from '@features/genes/state/filters.store';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -78,6 +80,8 @@ export class DashboardLengthHistogramComponent {
   );
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly genesStore = inject(GenesStore);
+  private readonly router = inject(Router);
 
   constructor() {
     this.loadHistogram();
@@ -96,6 +100,15 @@ export class DashboardLengthHistogramComponent {
   protected barShare(count: number): number {
     const total = this.totalCount();
     return total === 0 ? 0 : (count / total) * 100;
+  }
+
+  protected selectLengthRange(bucket: HistogramBucket): void {
+    const snapshot = {
+      lengthMin: bucket.rangeMin,
+      lengthMax: bucket.rangeMax,
+    };
+    this.genesStore.setActiveFilters(snapshot);
+    void this.router.navigate(['/genes']);
   }
 
   private loadHistogram(): void {
