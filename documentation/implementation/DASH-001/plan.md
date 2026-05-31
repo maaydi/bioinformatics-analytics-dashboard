@@ -17,11 +17,11 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] Chart library verified
-- [ ] Angular models defined
-- [ ] DashboardService implemented
-- [ ] DashboardComponent shell implemented
+- [x] Requirements analyzed
+- [x] Chart library verified
+- [x] Angular models defined
+- [x] DashboardService implemented
+- [x] DashboardComponent shell implemented
 - [ ] Length histogram chart implemented
 - [ ] Reviewed ratio donut implemented
 - [ ] Evidence levels chart implemented
@@ -38,7 +38,7 @@
 
 ### Dependencies
 
-- [ ] Verify chart library in `package.json` (prefer `ngx-echarts` + `echarts`)
+- [x] Verify chart library in `package.json` (prefer `ngx-echarts` + `echarts`)
 - [ ] Import chart module in component (standalone import)
 
 ### Angular Models (`core/models/` or `features/dashboard/models/`)
