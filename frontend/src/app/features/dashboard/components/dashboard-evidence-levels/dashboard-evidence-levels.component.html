@@ -1,0 +1,17 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Evidence Levels</h2>
+  </header>
+
+  <div aria-label="Evidence levels" class="rows" role="list">
+    @for (item of items; track item.level) {
+      <div class="row" role="listitem">
+        <p class="row-label">L{{ item.level }} - {{ item.label }}</p>
+        <div aria-hidden="true" class="row-track">
+          <span [class]="'row-fill ' + item.ratioClass" class="row-fill"></span>
+        </div>
+      </div>
+    }
+  </div>
+</mat-card>
+
