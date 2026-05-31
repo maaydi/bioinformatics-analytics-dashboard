@@ -27,6 +27,21 @@
   gap: 1rem;
 }
 
+.state-message {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.state-message-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
 .dual-chart-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
