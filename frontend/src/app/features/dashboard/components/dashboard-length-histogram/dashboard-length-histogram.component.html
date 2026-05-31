@@ -1,0 +1,14 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Protein Length Distribution (100 AA buckets)</h2>
+  </header>
+
+  <div aria-hidden="true" class="chart-bars">
+    @for (value of buckets; track $index) {
+      <div class="bar-slot">
+        <div [style.height.%]="value" class="bar-fill"></div>
+      </div>
+    }
+  </div>
+</mat-card>
+

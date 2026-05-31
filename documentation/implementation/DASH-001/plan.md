@@ -22,7 +22,7 @@
 - [x] Angular models defined
 - [x] DashboardService implemented
 - [x] DashboardComponent shell implemented
-- [ ] Length histogram chart implemented
+- [x] Length histogram chart implemented
 - [ ] Reviewed ratio donut implemented
 - [ ] Evidence levels chart implemented
 - [ ] Top organisms chart implemented
