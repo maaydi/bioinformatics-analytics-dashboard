@@ -1,6 +1,7 @@
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
@@ -8,7 +9,7 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
-  imports: [MatCardModule, LoadingSpinnerComponent],
+  imports: [MatCardModule, LoadingSpinnerComponent, MatButtonModule],
   templateUrl: './dashboard-reviewed-ratio.component.html',
   styleUrl: './dashboard-reviewed-ratio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +44,10 @@ export class DashboardReviewedRatioComponent {
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
   constructor() {
+    this.loadReviewedRatio();
+  }
+
+  protected retry(): void {
     this.loadReviewedRatio();
   }
 

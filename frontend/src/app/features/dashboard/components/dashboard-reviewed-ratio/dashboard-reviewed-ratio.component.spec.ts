@@ -55,5 +55,21 @@ describe('DashboardReviewedRatioComponent', () => {
     setup(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})));
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load reviewed ratio data.');
   });
+
+  it('should retry loading ratio when retry is clicked', () => {
+    vi.mocked(dashboardServiceMock.getReviewedRatio)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
+      .mockReturnValueOnce(of(mockRatio));
+
+    fixture = TestBed.createComponent(DashboardReviewedRatioComponent);
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(dashboardServiceMock.getReviewedRatio).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('Reviewed: 80 (80%)');
+  });
 });
 
