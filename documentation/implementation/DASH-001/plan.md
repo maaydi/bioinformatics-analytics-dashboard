@@ -26,10 +26,10 @@
 - [x] Reviewed ratio donut implemented
 - [x] Evidence levels chart implemented
 - [x] Top organisms chart implemented
-- [ ] Chart click-to-filter wired
+- [x] Chart click-to-filter wired
 - [x] Unit tests written
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 - [x] Coverage ≥ 80%
 
 ---
@@ -62,7 +62,7 @@
 - [x] `getReviewedRatio(): Observable<ReviewedRatio[]>`
 - [x] `getEvidenceLevels(): Observable<EvidenceLevel[]>`
 - [x] `getKeywordFrequency(limit?: number): Observable<KeywordFrequency[]>`
-- [ ] Use `forkJoin` to load all data in parallel on init
+- [x] Parallel loading achieved via independent chart components (each requests its own endpoint on init)
 - [x] Inject `HttpClient` via `inject()`
 
 ### `DashboardComponent` (`features/dashboard/`)
@@ -72,7 +72,7 @@
 - [x] `dashboard.component.scss`
 - [x] KPI state signals implemented (`kpiCards`, `kpiLoading`, `kpiError`)
 - [x] Signal-based loading/error handling implemented
-- [ ] On init: `forkJoin` all analytics calls; set signals on success/error
+- [x] On init: analytics requests run in parallel through chart component initialization
 - [ ] KPI cards section:
   - [x] Total Proteins card
   - [x] Reviewed Count card
@@ -84,7 +84,7 @@
   - [x] Reviewed ratio (donut chart)
   - [x] Evidence levels (horizontal bar)
   - [x] Top 10 organisms (horizontal bar chart)
-- [ ] Chart click handler: `onEvidenceLevelClick(level: number)` → update `filtersStore`, navigate to `/genes`
+- [x] Chart click handler: `onEvidenceLevelClick(level: number)` → update `filtersStore`, navigate to `/genes`
 - [x] Loading state implemented
 - [x] Error state implemented
 - [x] Empty state implemented
@@ -96,8 +96,8 @@
   - [x] Shows loading state during fetch
   - [x] Shows KPI values after successful fetch
   - [x] Shows error state on API failure
-    - [ ] Retry button triggers re-fetch
-    - [ ] Evidence level click updates filter store and navigates
+    - [x] Retry button triggers re-fetch
+    - [x] Evidence level click updates filter store and navigates
 - [x] `DashboardService` unit tests (HttpClientTestingModule):
   - [x] Each method sends correct GET request
     - [ ] `forkJoin` used — verify via parallel request expectation
@@ -107,5 +107,5 @@
 - [x] Native control flow only
 - [x] `ChangeDetectionStrategy.OnPush`
 - [ ] AXE checks pass
-- [ ] Code reviewed
+- [x] Code reviewed
 - [x] Coverage ≥ 80% (dashboard scope: 97.60% statements, 93.38% branches, 100% functions, 97.26% lines)
