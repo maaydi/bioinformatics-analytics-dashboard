@@ -48,6 +48,24 @@ describe('DashboardEvidenceLevelsComponent', () => {
     expect(rows.length).toBe(2);
   });
 
+  it('should render levels from L1 at top to L5 at bottom', () => {
+    setup(of([
+      {evidenceLevel: 5, label: 'Uncertain', count: 50},
+      {evidenceLevel: 1, label: 'Protein level', count: 400},
+      {evidenceLevel: 3, label: 'Inferred from homology', count: 200},
+    ]));
+
+    const labels = Array.from(
+      fixture.nativeElement.querySelectorAll('.row-label') as NodeListOf<HTMLElement>
+    ).map((element) => element.textContent?.trim() ?? '');
+
+    expect(labels).toEqual([
+      'L1 - Protein level',
+      'L3 - Inferred from homology',
+      'L5 - Uncertain',
+    ]);
+  });
+
   it('should render empty state when API returns no levels', () => {
     setup(of([]));
     expect(fixture.nativeElement.textContent as string).toContain('No evidence level data available.');

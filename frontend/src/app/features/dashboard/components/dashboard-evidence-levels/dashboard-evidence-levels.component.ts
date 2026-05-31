@@ -29,9 +29,11 @@ export class DashboardEvidenceLevelsComponent {
 
   protected readonly hasData = computed<boolean>(() => this.evidenceItems().length > 0);
   protected readonly items = computed<ReadonlyArray<EvidenceLevelView>>(() => {
-    const maxCount = Math.max(...this.evidenceItems().map((item) => item.count), 0);
+    const sortedItems = [...this.evidenceItems()]
+      .sort((left, right) => left.evidenceLevel - right.evidenceLevel);
+    const maxCount = Math.max(...sortedItems.map((item) => item.count), 0);
 
-    return this.evidenceItems().map((item) => ({
+    return sortedItems.map((item) => ({
       level: String(item.evidenceLevel),
       label: item.label,
       count: item.count,
