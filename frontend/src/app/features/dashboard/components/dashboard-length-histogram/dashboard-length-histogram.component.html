@@ -30,12 +30,17 @@
         </div>
 
         <!-- Bars -->
-        <div [style.grid-template-columns]="barGridTemplate()" aria-hidden="true" class="bars">
+        <div [style.grid-template-columns]="barGridTemplate()" class="bars">
           @for (bucket of viewBuckets(); track bucket.rangeLabel) {
-            <div class="bar-col">
+            <div
+              [attr.aria-label]="'Protein length bucket ' + bucket.rangeMin + ' to ' + bucket.rangeMax + ' amino acids'"
+              class="bar-col"
+              tabindex="0"
+            >
               <span class="bar-tooltip">
-                {{ bucket.rangeLabel }} AA<br>
-                {{ bucket.count | number }} proteins
+                <span>Bar limit: {{ bucket.rangeMin | number }} - {{ bucket.rangeMax | number }} AA</span>
+                <span>Count: {{ bucket.count | number }}</span>
+                <span>Percentage: {{ barShare(bucket.count) | number: '1.0-2' }}%</span>
               </span>
               <div
                 [style.height.%]="barHeight(bucket.count)"
@@ -54,9 +59,9 @@
     <div aria-hidden="true" class="x-axis">
       <!-- Y-axis spacer aligns labels with bars -->
       <div class="y-axis-spacer"></div>
-      <div [style.grid-template-columns]="barGridTemplate()" class="x-labels">
-        @for (bucket of viewBuckets(); track bucket.rangeLabel) {
-          <span class="x-label">{{ bucket.rangeLabel }}</span>
+      <div class="x-labels-sparse">
+        @for (tick of xAxisTicks(); track tick.value + '-' + tick.align) {
+          <span [class]="'x-label-sparse x-label-' + tick.align">{{ tick.value | number }}</span>
         }
       </div>
     </div>

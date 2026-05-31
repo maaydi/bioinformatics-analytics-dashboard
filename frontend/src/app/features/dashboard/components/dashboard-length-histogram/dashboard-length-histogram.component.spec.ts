@@ -42,16 +42,35 @@ describe('DashboardLengthHistogramComponent', () => {
 
     const text = fixture.nativeElement.textContent as string;
     const bars = fixture.nativeElement.querySelectorAll('.bar-col');
+    const xAxisLabels = fixture.nativeElement.querySelectorAll('.x-label-sparse');
 
     expect(text).toContain('Protein Length Distribution');
-    expect(text).toContain('0-99');
-    expect(text).toContain('100-199');
+    expect(text).toContain('Bar limit: 0 - 99 AA');
+    expect(text).toContain('Bar limit: 100 - 199 AA');
+    expect(text).toContain('Count: 12,000');
+    expect(text).toContain('Count: 45,000');
+    expect(text).toContain('Percentage: 21.05%');
+    expect(text).toContain('Percentage: 78.95%');
+    expect(xAxisLabels.length).toBe(3);
+    expect(xAxisLabels[0].textContent?.trim()).toBe('0');
+    expect(xAxisLabels[1].textContent?.trim()).toBe('100');
+    expect(xAxisLabels[2].textContent?.trim()).toBe('199');
     expect(bars.length).toBe(2);
   });
 
   it('should render empty state when API returns no buckets', () => {
     setup(of([]));
     expect(fixture.nativeElement.textContent as string).toContain('No histogram data available.');
+  });
+
+  it('should keep bars keyboard-focusable for tooltip access', () => {
+    setup(of(mockHistogram));
+
+    const bars = fixture.nativeElement.querySelectorAll('.bar-col') as NodeListOf<HTMLElement>;
+    expect(bars.length).toBe(2);
+    for (const bar of Array.from(bars)) {
+      expect(bar.getAttribute('tabindex')).toBe('0');
+    }
   });
 
   it('should render error state when API fails', () => {

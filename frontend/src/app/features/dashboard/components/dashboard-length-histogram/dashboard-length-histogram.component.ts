@@ -8,7 +8,14 @@ import {LengthHistogramBucket} from '@core/models/analytics.model';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
+  readonly rangeMin: number;
+  readonly rangeMax: number;
   readonly count: number;       // protein count in that bucket
+}
+
+interface HistogramXAxisTick {
+  readonly value: number;
+  readonly align: 'start' | 'center' | 'end';
 }
 
 @Component({
@@ -40,8 +47,29 @@ export class DashboardLengthHistogramComponent {
   protected readonly viewBuckets = computed<ReadonlyArray<HistogramBucket>>(() => {
     return this.buckets().map((bucket) => ({
       rangeLabel: `${bucket.rangeMin}-${bucket.rangeMax}`,
+      rangeMin: bucket.rangeMin,
+      rangeMax: bucket.rangeMax,
       count: bucket.count,
     }));
+  });
+  protected readonly totalCount = computed<number>(() =>
+    this.buckets().reduce((total, bucket) => total + bucket.count, 0)
+  );
+  protected readonly xAxisTicks = computed<ReadonlyArray<HistogramXAxisTick>>(() => {
+    const buckets = this.buckets();
+    if (buckets.length === 0) {
+      return [];
+    }
+
+    const min = buckets[0].rangeMin;
+    const max = buckets[buckets.length - 1].rangeMax;
+    const median = Math.round((min + max) / 2);
+
+    return [
+      {value: min, align: 'start'},
+      {value: median, align: 'center'},
+      {value: max, align: 'end'},
+    ];
   });
   protected readonly maxCount = computed(() =>
     Math.max(...this.buckets().map((bucket) => bucket.count), 0)
@@ -57,6 +85,11 @@ export class DashboardLengthHistogramComponent {
   protected barHeight(count: number): number {
     const max = this.maxCount();
     return max === 0 ? 0 : Math.round((count / max) * 100);
+  }
+
+  protected barShare(count: number): number {
+    const total = this.totalCount();
+    return total === 0 ? 0 : (count / total) * 100;
   }
 
   private loadHistogram(): void {
