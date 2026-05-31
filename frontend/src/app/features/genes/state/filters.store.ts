@@ -58,6 +58,18 @@ export const GenesStore = signalStore(
       }
     },
 
+    /** Stores filters for the next Genes page load without issuing an immediate API request. */
+    setActiveFilters(snapshot: GeneFilterSnapshot): void {
+      patchState(store, {
+        activeFilters: snapshot,
+        selectedGene: null,
+        searchResult: null,
+        onErrorMessage: null,
+        loading: false,
+        page: 0,
+      });
+    },
+
     /** Clears filters, current result set, selected row, and error state. */
     clearFilters(): void {
       patchState(store, {

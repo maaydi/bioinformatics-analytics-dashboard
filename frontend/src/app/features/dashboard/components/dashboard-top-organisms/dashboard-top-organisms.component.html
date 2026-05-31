@@ -1,0 +1,35 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Top 10 Organisms by Protein Count</h2>
+  </header>
+
+  @if (loading()) {
+    <div class="chart-state">
+      <app-loading-spinner/>
+    </div>
+  } @else if (error()) {
+    <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
+      <p>{{ error() }}</p>
+      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+    </div>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No organism distribution data available.</p>
+  } @else {
+    <ol aria-label="Top 10 organisms by protein count" class="organism-list">
+      @for (item of organisms(); track item.name) {
+        <li>
+          <button (click)="selectOrganism(item.name)" class="organism-row" type="button">
+          <span class="name">{{ item.name }}</span>
+
+          <div class="bar-group">
+            <span aria-hidden="true" class="track">
+              <span [style.width.%]="item.ratioPercent" class="fill"></span>
+            </span>
+            <span class="count">{{ item.count | number }}</span>
+          </div>
+          </button>
+        </li>
+      }
+    </ol>
+  }
+</mat-card>

@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.kpi-card {
+  min-height: 136px;
+  padding: 1rem 1.25rem;
+  display: grid;
+  align-content: center;
+  gap: 0.5rem;
+  border-top: 3px solid #1565c0 !important; // Azure primary accent — overrides mat-card border
+  border-radius: 8px;
+}
+
+.kpi-title {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #1565c0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.kpi-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a1a1a;
+}
+
+.kpi-unit {
+  margin-left: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.kpi-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}

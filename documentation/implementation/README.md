@@ -43,7 +43,7 @@ documentation/implementation/
 | `GENE-003`      | GenesTable AG Grid component                                                 | `done`        |
 | `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `done`        |
 | `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `done`        |
-| `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `not-started` |
+| `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `done`        |
 | `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `not-started` |
 | `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `not-started` |
 | `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `not-started` |
@@ -64,7 +64,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs             | Users can browse, sort, paginate, and open gene rows                               |
 | 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                  | Users can inspect full protein details, sequence, annotations, and references      |
 | 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources              | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets           |
-| 8     | `DASH-001`      | `not-started` | UI layer on top of analytics endpoints                       | Users see dashboard KPI cards and charts with fast load times                      |
+| 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                       | Users see dashboard KPI cards and charts with fast load times                      |
 | 9     | `FILTER-001`    | `not-started` | Saved work is useful once filters/table are operational      | Users can save, reload, and delete personal filter presets                         |
 | 10    | `EXPORT-001`    | `not-started` | Export is meaningful after search/table/charts are stable    | Users can export filtered CSV and chart PNG images                                 |
 | 11    | `COMPARE-001`   | `not-started` | Compare mode reuses filters + analytics foundation           | Users can compare two populations side by side                                     |

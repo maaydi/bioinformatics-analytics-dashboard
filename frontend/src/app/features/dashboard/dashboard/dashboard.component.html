@@ -1,0 +1,41 @@
+<section aria-label="Dashboard overview" class="dashboard-page">
+  <header class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Overview metrics and analytics visualizations.</p>
+  </header>
+
+  <section [attr.aria-busy]="kpiLoading()" aria-label="KPI cards" class="kpi-grid">
+    @if (kpiLoading()) {
+      <p aria-live="polite" class="state-message">Loading KPI cards...</p>
+    } @else if (kpiError()) {
+      <div aria-live="assertive" class="state-message state-message-error" role="alert">
+        <p>{{ kpiError() }}</p>
+        <button (click)="retryKpis()" class="retry-button" type="button">Retry</button>
+      </div>
+    } @else if (!kpiCards().length) {
+      <p aria-live="polite" class="state-message">No KPI data available.</p>
+    } @else {
+      @for (card of kpiCards(); track card.title) {
+        <app-dashboard-kpi-card
+          [label]="card.label"
+          [title]="card.title"
+          [unit]="card.unit ?? ''"
+          [value]="card.value"
+        />
+      }
+    }
+  </section>
+
+  <section aria-label="Distribution charts" class="dual-chart-grid">
+    <app-dashboard-length-histogram/>
+    <app-dashboard-reviewed-ratio/>
+  </section>
+
+  <section aria-label="Evidence levels" class="full-width-row">
+    <app-dashboard-evidence-levels/>
+  </section>
+
+  <section aria-label="Top organisms" class="full-width-row">
+    <app-dashboard-top-organisms/>
+  </section>
+</section>

@@ -1,0 +1,11 @@
+<mat-card appearance="outlined" class="kpi-card">
+  <p class="kpi-title">{{ title() }}</p>
+  <p class="kpi-value">
+    {{ value() }}
+    @if (unit()) {
+      <span class="kpi-unit">{{ unit() }}</span>
+    }
+  </p>
+  <p class="kpi-label">{{ label() }}</p>
+</mat-card>
+

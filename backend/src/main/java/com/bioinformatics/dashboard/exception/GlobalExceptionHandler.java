@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -9,9 +10,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -92,10 +95,37 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+        if (isClientAbort(ex)) {
+            log.debug("Client disconnected before the response was fully written: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
         log.warn("Handle Unexpected Exception: {}", ex.getMessage(), ex);
         // Do NOT expose internal details to clients (OWASP A05)
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please contact support.");
+    }
+
+    private boolean isClientAbort(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof AsyncRequestNotUsableException || current instanceof ClientAbortException) {
+                return true;
+            }
+
+            var message = current.getMessage();
+            if (message != null) {
+                var normalizedMessage = message.toLowerCase(Locale.ROOT);
+                if (normalizedMessage.contains("broken pipe")
+                        || normalizedMessage.contains("relais brisé")
+                        || normalizedMessage.contains("servletoutputstream failed to write")) {
+                    return true;
+                }
+            }
+
+            current = current.getCause();
+        }
+        return false;
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {

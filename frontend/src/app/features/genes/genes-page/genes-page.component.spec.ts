@@ -3,6 +3,8 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {GenesPageComponent} from './genes-page.component';
 import {Router} from '@angular/router';
 import {ProteinSummary} from '@core/models/protein.model';
+import {GenesStore} from '@features/genes/state/filters.store';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
 describe('GenesPageComponent', () => {
   let component: GenesPageComponent;
@@ -59,6 +61,18 @@ describe('GenesPageComponent', () => {
     localFixture.detectChanges();
 
     expect(searchSpy).toHaveBeenCalledWith({});
+  });
+
+  it('should trigger initial search with preloaded active filters on creation', () => {
+    const filters: GeneFilterSnapshot = {evidenceLevels: [1]};
+    const localStore = TestBed.inject(GenesStore);
+    vi.spyOn(localStore, 'activeFilters').mockReturnValue(filters);
+    const searchSpy = vi.spyOn(localStore, 'searchGene');
+
+    const localFixture = TestBed.createComponent(GenesPageComponent);
+    localFixture.detectChanges();
+
+    expect(searchSpy).toHaveBeenCalledWith(filters);
   });
 
   it('should navigate to gene detail when a row is clicked', () => {
