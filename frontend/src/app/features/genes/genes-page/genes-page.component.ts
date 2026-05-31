@@ -37,7 +37,7 @@ export class GenesPageComponent {
   private readonly router = inject(Router);
 
   constructor() {
-    this.store.searchGene({});
+    this.store.searchGene(this.store.activeFilters() ?? {});
   }
 
   applyFilters(snapshot: GeneFilterSnapshot): void {

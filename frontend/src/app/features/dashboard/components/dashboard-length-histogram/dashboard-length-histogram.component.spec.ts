@@ -77,5 +77,21 @@ describe('DashboardLengthHistogramComponent', () => {
     setup(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})));
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load protein length distribution.');
   });
+
+  it('should retry loading histogram when retry is clicked', () => {
+    vi.mocked(dashboardServiceMock.getLengthHistogram)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
+      .mockReturnValueOnce(of(mockHistogram));
+
+    fixture = TestBed.createComponent(DashboardLengthHistogramComponent);
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(dashboardServiceMock.getLengthHistogram).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('Count: 12,000');
+  });
 });
 

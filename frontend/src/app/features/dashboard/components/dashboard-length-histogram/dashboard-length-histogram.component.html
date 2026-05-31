@@ -9,7 +9,10 @@
       <app-loading-spinner/>
     </div>
   } @else if (error()) {
-    <p aria-live="assertive" class="chart-state chart-state-error" role="alert">{{ error() }}</p>
+    <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
+      <p>{{ error() }}</p>
+      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+    </div>
   } @else if (!hasData()) {
     <p aria-live="polite" class="chart-state">No histogram data available.</p>
   } @else {

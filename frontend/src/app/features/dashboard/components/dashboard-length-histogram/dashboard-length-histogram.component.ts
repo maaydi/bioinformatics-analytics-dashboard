@@ -2,6 +2,7 @@ import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
@@ -21,7 +22,7 @@ interface HistogramXAxisTick {
 
 @Component({
   selector: 'app-dashboard-length-histogram',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule],
   templateUrl: './dashboard-length-histogram.component.html',
   styleUrl: './dashboard-length-histogram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,6 +80,10 @@ export class DashboardLengthHistogramComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    this.loadHistogram();
+  }
+
+  protected retry(): void {
     this.loadHistogram();
   }
 
