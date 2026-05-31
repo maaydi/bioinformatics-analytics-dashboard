@@ -2,6 +2,7 @@ import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {DashboardService} from '@features/dashboard/dashboard.service';
 import {OrganismCount} from '@core/models/analytics.model';
@@ -15,7 +16,7 @@ interface OrganismView {
 
 @Component({
   selector: 'app-dashboard-top-organisms',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule],
   templateUrl: './dashboard-top-organisms.component.html',
   styleUrl: './dashboard-top-organisms.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,10 @@ export class DashboardTopOrganismsComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    this.loadTopOrganisms();
+  }
+
+  protected retry(): void {
     this.loadTopOrganisms();
   }
 

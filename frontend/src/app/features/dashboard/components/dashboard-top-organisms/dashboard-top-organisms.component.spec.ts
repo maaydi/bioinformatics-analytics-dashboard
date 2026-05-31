@@ -73,5 +73,21 @@ describe('DashboardTopOrganismsComponent', () => {
     setup(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})));
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load top organisms.');
   });
+
+  it('should retry loading top organisms when retry is clicked', () => {
+    vi.mocked(dashboardServiceMock.getByOrganism)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
+      .mockReturnValueOnce(of(mockOrganisms));
+
+    fixture = TestBed.createComponent(DashboardTopOrganismsComponent);
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('button[mat-stroked-button]') as HTMLButtonElement;
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(dashboardServiceMock.getByOrganism).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('Homo sapiens');
+  });
 });
 
