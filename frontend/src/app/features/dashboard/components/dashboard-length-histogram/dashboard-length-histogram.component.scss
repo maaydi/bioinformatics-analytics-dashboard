@@ -27,6 +27,21 @@
   }
 }
 
+.chart-state {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.chart-state-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
 // ─── Y-axis spacer width (shared across rows) ──────────────────────────────
 $y-axis-width: 48px;
 

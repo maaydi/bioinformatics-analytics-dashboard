@@ -1,6 +1,10 @@
 import {DecimalPipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, signal} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatCardModule} from '@angular/material/card';
+import {DashboardService} from '@features/dashboard/dashboard.service';
+import {LengthHistogramBucket} from '@core/models/analytics.model';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -15,33 +19,62 @@ interface HistogramBucket {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardLengthHistogramComponent {
-
-  // Placeholder data — will be replaced by real API data in DASH-001 service wiring
-  protected readonly buckets = signal<ReadonlyArray<HistogramBucket>>([
-    {rangeLabel: '0–100', count: 18400},
-    {rangeLabel: '100–200', count: 32700},
-    {rangeLabel: '200–300', count: 41500},
-    {rangeLabel: '300–400', count: 52800},
-    {rangeLabel: '400–500', count: 46200},
-    {rangeLabel: '500–600', count: 34100},
-    {rangeLabel: '600–700', count: 24300},
-    {rangeLabel: '700+', count: 15600},
-  ]);
-
-  protected readonly maxCount = computed(() =>
-    Math.max(...this.buckets().map(b => b.count))
-  );
-
+  protected readonly loading = signal<boolean>(true);
+  protected readonly error = signal<string | null>(null);
   /** 5 evenly-spaced Y-axis tick labels from 0 to maxCount */
   protected readonly yTicks = computed<ReadonlyArray<number>>(() => {
     const max = this.maxCount();
-    const step = Math.ceil(max / 4 / 1000) * 1000;
+    if (max <= 0) {
+      return [0, 0, 0, 0, 0];
+    }
+
+    const step = Math.ceil(max / 4);
     return [step * 4, step * 3, step * 2, step, 0];
   });
+  private readonly buckets = signal<ReadonlyArray<LengthHistogramBucket>>([]);
+  protected readonly hasData = computed<boolean>(() => this.buckets().length > 0);
+  protected readonly barGridTemplate = computed<string>(() => {
+    const bucketCount = this.buckets().length;
+    return `repeat(${Math.max(bucketCount, 1)}, minmax(0, 1fr))`;
+  });
+  protected readonly viewBuckets = computed<ReadonlyArray<HistogramBucket>>(() => {
+    return this.buckets().map((bucket) => ({
+      rangeLabel: `${bucket.rangeMin}-${bucket.rangeMax}`,
+      count: bucket.count,
+    }));
+  });
+  protected readonly maxCount = computed(() =>
+    Math.max(...this.buckets().map((bucket) => bucket.count), 0)
+  );
+  private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.loadHistogram();
+  }
 
   /** Height % of each bar relative to maxCount */
   protected barHeight(count: number): number {
     const max = this.maxCount();
     return max === 0 ? 0 : Math.round((count / max) * 100);
+  }
+
+  private loadHistogram(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.dashboardService.getLengthHistogram()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.buckets.set(response);
+          this.loading.set(false);
+        },
+        error: (_error: HttpErrorResponse) => {
+          this.buckets.set([]);
+          this.error.set('Unable to load protein length distribution.');
+          this.loading.set(false);
+        }
+      });
   }
 }

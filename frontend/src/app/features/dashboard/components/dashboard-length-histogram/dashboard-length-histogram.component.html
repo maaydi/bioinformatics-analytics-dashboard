@@ -4,60 +4,68 @@
     <p>Protein count per 100 AA length bucket</p>
   </header>
 
-  <div aria-label="Protein length distribution histogram" class="chart-area" role="img">
+  @if (loading()) {
+    <p aria-live="polite" class="chart-state">Loading chart data...</p>
+  } @else if (error()) {
+    <p aria-live="assertive" class="chart-state chart-state-error" role="alert">{{ error() }}</p>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No histogram data available.</p>
+  } @else {
+    <div aria-label="Protein length distribution histogram" class="chart-area" role="img">
 
-    <!-- Y axis -->
-    <div aria-hidden="true" class="y-axis">
-      @for (tick of yTicks(); track tick) {
-        <span class="y-tick">{{ tick | number }}</span>
-      }
-    </div>
-
-    <!-- Plot area -->
-    <div class="plot">
-      <!-- Horizontal grid lines aligned with Y ticks -->
-      <div aria-hidden="true" class="grid-lines">
-        @for (tick of yTicks(); track tick) {
-          <div class="grid-line"></div>
+      <!-- Y axis -->
+      <div aria-hidden="true" class="y-axis">
+        @for (tick of yTicks(); track tick + '-' + $index) {
+          <span class="y-tick">{{ tick | number }}</span>
         }
       </div>
 
-      <!-- Bars -->
-      <div aria-hidden="true" class="bars">
-        @for (bucket of buckets(); track bucket.rangeLabel) {
-          <div class="bar-col">
-            <span class="bar-tooltip">
-              {{ bucket.rangeLabel }} AA<br>
-              {{ bucket.count | number }} proteins
-            </span>
-            <div
-              [style.height.%]="barHeight(bucket.count)"
-              class="bar-fill"
-            ></div>
-          </div>
+      <!-- Plot area -->
+      <div class="plot">
+        <!-- Horizontal grid lines aligned with Y ticks -->
+        <div aria-hidden="true" class="grid-lines">
+          @for (tick of yTicks(); track tick + '-' + $index) {
+            <div class="grid-line"></div>
+          }
+        </div>
+
+        <!-- Bars -->
+        <div [style.grid-template-columns]="barGridTemplate()" aria-hidden="true" class="bars">
+          @for (bucket of viewBuckets(); track bucket.rangeLabel) {
+            <div class="bar-col">
+              <span class="bar-tooltip">
+                {{ bucket.rangeLabel }} AA<br>
+                {{ bucket.count | number }} proteins
+              </span>
+              <div
+                [style.height.%]="barHeight(bucket.count)"
+                class="bar-fill"
+              ></div>
+            </div>
+          }
+        </div>
+
+        <!-- X axis line -->
+        <div aria-hidden="true" class="x-axis-line"></div>
+      </div>
+    </div>
+
+    <!-- X axis labels -->
+    <div aria-hidden="true" class="x-axis">
+      <!-- Y-axis spacer aligns labels with bars -->
+      <div class="y-axis-spacer"></div>
+      <div [style.grid-template-columns]="barGridTemplate()" class="x-labels">
+        @for (bucket of viewBuckets(); track bucket.rangeLabel) {
+          <span class="x-label">{{ bucket.rangeLabel }}</span>
         }
       </div>
-
-      <!-- X axis line -->
-      <div aria-hidden="true" class="x-axis-line"></div>
     </div>
-  </div>
 
-  <!-- X axis labels -->
-  <div aria-hidden="true" class="x-axis">
-    <!-- Y-axis spacer aligns labels with bars -->
-    <div class="y-axis-spacer"></div>
-    <div class="x-labels">
-      @for (bucket of buckets(); track bucket.rangeLabel) {
-        <span class="x-label">{{ bucket.rangeLabel }}</span>
-      }
+    <!-- Axis captions -->
+    <div aria-hidden="true" class="axis-captions">
+      <div class="y-axis-spacer"></div>
+      <p class="x-caption">Sequence Length (AA)</p>
     </div>
-  </div>
-
-  <!-- Axis captions -->
-  <div aria-hidden="true" class="axis-captions">
-    <div class="y-axis-spacer"></div>
-    <p class="x-caption">Sequence Length (AA)</p>
-  </div>
+  }
 
 </mat-card>
