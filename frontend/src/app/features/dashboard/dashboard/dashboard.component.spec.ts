@@ -106,6 +106,24 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load dashboard KPIs.');
   });
 
+  it('should retry KPI loading when retry is clicked', () => {
+    vi.mocked(dashboardServiceMock.getDashboardKpis)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
+      .mockReturnValueOnce(of(mockKpis));
+
+    fixture = TestBed.createComponent(DashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('.retry-button') as HTMLButtonElement;
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(dashboardServiceMock.getDashboardKpis).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('570,000');
+  });
+
+
   it('should render KPI empty state when service returns no values', () => {
     const emptyKpis: DashboardKpis = {
       ...mockKpis,

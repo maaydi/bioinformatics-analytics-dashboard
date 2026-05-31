@@ -8,7 +8,10 @@
     @if (kpiLoading()) {
       <p aria-live="polite" class="state-message">Loading KPI cards...</p>
     } @else if (kpiError()) {
-      <p aria-live="assertive" class="state-message state-message-error" role="alert">{{ kpiError() }}</p>
+      <div aria-live="assertive" class="state-message state-message-error" role="alert">
+        <p>{{ kpiError() }}</p>
+        <button (click)="retryKpis()" class="retry-button" type="button">Retry</button>
+      </div>
     } @else if (!kpiCards().length) {
       <p aria-live="polite" class="state-message">No KPI data available.</p>
     } @else {

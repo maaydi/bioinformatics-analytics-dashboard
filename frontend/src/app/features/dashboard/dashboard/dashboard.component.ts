@@ -38,6 +38,7 @@ import {DashboardKpis} from '@core/models/analytics.model';
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class DashboardComponent {
   protected readonly kpiCards = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
   protected readonly kpiLoading = signal<boolean>(true);
@@ -50,6 +51,11 @@ export class DashboardComponent {
   constructor() {
     this.loadKpis();
   }
+
+  protected retryKpis(): void {
+    this.loadKpis();
+  }
+
 
   private loadKpis(): void {
     this.kpiLoading.set(true);
