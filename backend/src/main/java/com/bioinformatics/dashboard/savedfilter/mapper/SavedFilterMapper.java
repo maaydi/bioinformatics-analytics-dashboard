@@ -15,6 +15,6 @@ public interface SavedFilterMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "user", source = "owner")
+    @Mapping(target = "owner", source = "owner")
     SavedFilter toEntity(SavedFilterCreateRequest request, AppUser owner);
 }
