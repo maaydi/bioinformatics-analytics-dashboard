@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.entity;
 
 import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -36,7 +37,7 @@ public class SavedFilter {
 
     @Column(name = "filter_json", columnDefinition = "jsonb", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
-    private String filterJson;
+    private GeneSearchRequest filterJson;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

@@ -20,7 +20,7 @@
 - [x] Requirements analyzed
 - [x] DB migration created
 - [x] Entity and repository implemented
-- [ ] DTOs and mapper implemented
+- [x] DTOs and mapper implemented
 - [ ] SavedFilterService implemented
 - [ ] SavedFilterController completed
 - [ ] Angular service implemented
@@ -57,12 +57,12 @@
 
 ### Backend — DTOs
 
-- [ ] `SavedFilterDto` — `{ id, name, filterJson, createdAt }`
-- [ ] `SavedFilterCreateRequest` — `{ @NotBlank @Size(max=100) name, @NotNull @Valid filterJson: GeneSearchRequest }`
+- [x] `SavedFilterDto` — `{ id, name, filterJson, createdAt }`
+- [x] `SavedFilterCreateRequest` — `{ @NotBlank @Size(max=100) name, @NotNull @Valid filterJson: GeneSearchRequest }`
 
 ### Backend — Mapper
 
-- [ ] `SavedFilterMapper` (MapStruct): `toDto(SavedFilter)`, `toEntity(SavedFilterCreateRequest, AppUser owner)`
+- [x] `SavedFilterMapper` (MapStruct): `toDto(SavedFilter)`, `toEntity(SavedFilterCreateRequest, AppUser owner)`
 
 ### Backend — Service
 
