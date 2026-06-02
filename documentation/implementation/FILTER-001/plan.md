@@ -17,9 +17,9 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] DB migration created
-- [ ] Entity and repository implemented
+- [x] Requirements analyzed
+- [x] DB migration created
+- [x] Entity and repository implemented
 - [ ] DTOs and mapper implemented
 - [ ] SavedFilterService implemented
 - [ ] SavedFilterController completed
@@ -39,21 +39,21 @@
 
 ### Database Migration (`V5__saved_filter.sql`)
 
-- [ ] `saved_filter` table: `id BIGSERIAL PK`, `user_id BIGINT FK → app_user(id)`, `name VARCHAR(100) NOT NULL`,
+- [x] `saved_filter` table: `id BIGSERIAL PK`, `user_id BIGINT FK → app_user(id)`, `name VARCHAR(100) NOT NULL`,
   `filter_json JSONB NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()`
-- [ ] Unique constraint `ux_saved_filter_user_name (user_id, name)`
-- [ ] Index on `user_id` for listing queries
+- [x] Unique constraint `ux_saved_filter_user_name (user_id, name)`
+- [x] Index on `user_id` for listing queries
 
 ### Backend — Entity
 
-- [ ] `SavedFilter` entity with `@ManyToOne AppUser owner`, `name`, `filterJson` (`@JdbcTypeCode(SqlTypes.JSON)`),
+- [x] `SavedFilter` entity with `@ManyToOne AppUser owner`, `name`, `filterJson` (`@JdbcTypeCode(SqlTypes.JSON)`),
   `createdAt`
 
 ### Backend — Repository
 
-- [ ] `SavedFilterRepository extends JpaRepository`
-- [ ] `findByOwnerOrderByCreatedAtDesc(AppUser owner): List<SavedFilter>`
-- [ ] `existsByOwnerAndName(AppUser owner, String name): boolean`
+- [x] `SavedFilterRepository extends JpaRepository`
+- [x] `findByOwnerOrderByCreatedAtDesc(AppUser owner): List<SavedFilter>`
+- [x] `existsByOwnerAndName(AppUser owner, String name): boolean`
 
 ### Backend — DTOs
 
