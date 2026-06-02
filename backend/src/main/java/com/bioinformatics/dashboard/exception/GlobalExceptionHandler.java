@@ -106,6 +106,18 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred. Please contact support.");
     }
 
+    @ExceptionHandler(DuplicateFilterNameException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicatedFilterName(DuplicateFilterNameException ex) {
+        log.warn("Handle Duplicate Filter Name Exception: {}", ex.getMessage(), ex);
+        return buildResponse(HttpStatus.CONFLICT, "Duplicate filter name");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Handle Access Denied Exception: {}", ex.getMessage(), ex);
+        return buildResponse(HttpStatus.FORBIDDEN, "Access Denied");
+    }
+
     private boolean isClientAbort(Throwable throwable) {
         Throwable current = throwable;
         while (current != null) {

@@ -1,7 +1,9 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
+import com.bioinformatics.dashboard.auth.entity.AppUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -24,17 +26,17 @@ public class SavedFilterController {
     // TODO: inject SavedFilterService
 
     @GetMapping
-    public ResponseEntity<?> listSavedFilters() {
+    public ResponseEntity<?> listSavedFilters(@AuthenticationPrincipal AppUser currentUser) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @PostMapping
-    public ResponseEntity<?> createSavedFilter(@RequestBody Object request) {
+    public ResponseEntity<?> createSavedFilter(@RequestBody Object request, @AuthenticationPrincipal AppUser currentUser) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @AuthenticationPrincipal AppUser currentUser) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }

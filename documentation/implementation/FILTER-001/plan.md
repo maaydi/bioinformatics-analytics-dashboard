@@ -21,7 +21,7 @@
 - [x] DB migration created
 - [x] Entity and repository implemented
 - [x] DTOs and mapper implemented
-- [ ] SavedFilterService implemented
+- [x] SavedFilterService implemented
 - [ ] SavedFilterController completed
 - [ ] Angular service implemented
 - [ ] SavedFiltersComponent implemented
@@ -66,10 +66,10 @@
 
 ### Backend — Service
 
-- [ ] `SavedFilterService.listForCurrentUser()` — resolve `AppUser` from security context
-- [ ] `SavedFilterService.create(SavedFilterCreateRequest)` — check uniqueness → throw `DuplicateFilterNameException` (
+- [x] `SavedFilterService.listForCurrentUser()` — resolve `AppUser` from security context
+- [x] `SavedFilterService.create(SavedFilterCreateRequest)` — check uniqueness → throw `DuplicateFilterNameException` (
   409) if duplicate
-- [ ] `SavedFilterService.delete(Long id)` — check ownership; throw `AccessDeniedException` (403) for non-owner
+- [x] `SavedFilterService.delete(Long id)` — check ownership; throw `AccessDeniedException` (403) for non-owner
   non-admin; throw `SavedFilterNotFoundException` (404) if absent
 
 ### Backend — Controller
