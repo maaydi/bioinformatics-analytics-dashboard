@@ -22,7 +22,7 @@
 - [x] Entity and repository implemented
 - [x] DTOs and mapper implemented
 - [x] SavedFilterService implemented
-- [ ] SavedFilterController completed
+- [x] SavedFilterController completed
 - [ ] Angular service implemented
 - [ ] SavedFiltersComponent implemented
 - [ ] Save dialog implemented
@@ -74,27 +74,27 @@
 
 ### Backend — Controller
 
-- [ ] Remove stubs in `SavedFilterController`
-- [ ] Wire `SavedFilterService`
-- [ ] `GET /api/saved-filters` → `200 List<SavedFilterDto>`
-- [ ] `POST /api/saved-filters` → `201 SavedFilterDto`
-- [ ] `DELETE /api/saved-filters/{id}` → `204 No Content`
-- [ ] Exception mapping in `GlobalExceptionHandler`: `DuplicateFilterNameException → 409`,
+- [x] Remove stubs in `SavedFilterController`
+- [x] Wire `SavedFilterService`
+- [x] `GET /api/saved-filters` → `200 List<SavedFilterDto>`
+- [x] `POST /api/saved-filters` → `201 SavedFilterDto`
+- [x] `DELETE /api/saved-filters/{id}` → `204 No Content`
+- [x] Exception mapping in `GlobalExceptionHandler`: `DuplicateFilterNameException → 409`,
   `SavedFilterNotFoundException → 404`, `AccessDeniedException → 403`
 
 ### Backend — Tests
 
-- [ ] `SavedFilterServiceTest` — unit:
-    - [ ] `listForCurrentUser` returns only current user's filters
-    - [ ] `create` with duplicate name throws exception
-    - [ ] `delete` own filter succeeds
-    - [ ] `delete` other user's filter by non-admin throws `AccessDeniedException`
-- [ ] `SavedFilterControllerIntegrationTest` — Testcontainers:
-    - [ ] `GET /api/saved-filters` — 200 with user's filters
-    - [ ] `POST /api/saved-filters` — 201
-    - [ ] `POST /api/saved-filters` duplicate — 409
-    - [ ] `DELETE /api/saved-filters/{id}` own — 204
-    - [ ] `DELETE /api/saved-filters/{id}` other user — 403
+- [x] `SavedFilterServiceTest` — unit:
+  - [x] `listForCurrentUser` returns only current user's filters
+  - [x] `create` with duplicate name throws exception
+  - [x] `delete` own filter succeeds
+  - [x] `delete` other user's filter by non-admin throws `AccessDeniedException`
+- [x] `SavedFilterControllerIntegrationTest` — Testcontainers:
+  - [x] `GET /api/saved-filters` — 200 with user's filters
+  - [x] `POST /api/saved-filters` — 201
+  - [x] `POST /api/saved-filters` duplicate — 409
+  - [x] `DELETE /api/saved-filters/{id}` own — 204
+  - [x] `DELETE /api/saved-filters/{id}` other user — 403
 
 ### Frontend — Models
 

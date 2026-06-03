@@ -51,7 +51,8 @@ class SavedFilterServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertSame(dto, result.getFirst());
+        // Use get(0) because the service returns a List
+        assertSame(dto, result.get(0));
         verify(repository).findByOwnerOrderByCreatedAtDesc(user);
         verify(mapper).toDto(entity);
     }
@@ -106,39 +107,42 @@ class SavedFilterServiceTest {
 
     @Test
     void delete_forbidden_throwsAccessDeniedException() {
-        var owner = mock(AppUser.class);
-        when(owner.getUsername()).thenReturn("owner-user");
+        AppUser storedOwner = new AppUser();
+        storedOwner.setUsername("other-user");
 
-        var storedOwner = mock(AppUser.class);
-        when(storedOwner.getUsername()).thenReturn("other-user");
+        SavedFilter entity = new SavedFilter();
+        entity.setOwner(storedOwner);
 
-        var entity = mock(SavedFilter.class);
-        when(entity.getOwner()).thenReturn(storedOwner);
+        AppUser currentUser = new AppUser();
+        currentUser.setUsername("owner-user");
+        currentUser.setRole("ADMIN");
 
         when(repository.findById(7L)).thenReturn(Optional.of(entity));
 
-        assertThrows(AccessDeniedException.class, () -> service.delete(7L, owner));
+        assertThrows(AccessDeniedException.class, () -> service.delete(7L, currentUser));
+
         verify(repository).findById(7L);
         verify(repository, never()).delete(any());
     }
 
+
     @Test
     void delete_success_deletesEntity() {
-        var user = mock(AppUser.class);
-        when(user.getUsername()).thenReturn("same-user");
+        var currentUser = new AppUser();
+        currentUser.setUsername("same-user");
 
-        var storedOwner = mock(AppUser.class);
-        when(storedOwner.getUsername()).thenReturn("same-user");
+        var storedOwner = new AppUser();
+        storedOwner.setUsername("same-user");
 
-        var entity = mock(SavedFilter.class);
-        when(entity.getOwner()).thenReturn(storedOwner);
+        var entity = new SavedFilter();
+        entity.setOwner(storedOwner);
 
         when(repository.findById(99L)).thenReturn(Optional.of(entity));
-
-        service.delete(99L, user);
+        service.delete(99L, currentUser);
 
         verify(repository).findById(99L);
         verify(repository).delete(entity);
     }
+
 }
 
