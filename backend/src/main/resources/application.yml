@@ -5,6 +5,10 @@ spring:
     livereload:
       enabled: true
 
+application:
+  title: BioInformatics Analytics Dashboard
+  version: 1.0
+
   # ── DataSource ──────────────────────────────────────────────────────────────
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}
