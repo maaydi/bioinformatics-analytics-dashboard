@@ -45,14 +45,13 @@ public class SavedFilterService {
     }
 
     public void delete(Long id, AppUser currentUser) {
-        var filter = repository.findById(id);
-        if (filter.isEmpty()) {
-            throw ResourceNotFoundException.forSavedFilter(id);
-        } else if (!filter.get().getOwner().getUsername().equals(currentUser.getUsername())) {
+        var filter = repository.findById(id)
+                .orElseThrow(() -> ResourceNotFoundException.forSavedFilter(id));
+        var isOwner = filter.getOwner().getUsername().equals(currentUser.getUsername());
+        if (!isOwner && !currentUser.isAdmin()) {
             throw new AccessDeniedException("You don't have permission to delete this filter");
-        } else {
-            repository.delete(filter.get());
         }
+        repository.delete(filter);
     }
 
 
