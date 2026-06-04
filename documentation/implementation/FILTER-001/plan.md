@@ -113,10 +113,10 @@
 - [x] `saved-filters.component.html` — external template
 - [x] `saved-filters.component.scss`
 - [x] Signal `filters = signal<SavedFilter[]>([])`
-- [ ] Load list on init via `SavedFiltersService.list()`
+- [x] Load list on init via `SavedFiltersService.list()`
 - [x] `@for` list: name, creation date, filter summary (derived from `filterJson`)
-- [ ] "Apply" button: update `filtersStore` with `filterJson`, navigate to `/genes`
-- [ ] "Delete" button: call `delete(id)`, update signal list immediately (optimistic)
+- [x] "Apply" button: update `filtersStore` with `filterJson`, navigate to `/genes`
+- [x] "Delete" button: call `delete(id)`, update signal list immediately (optimistic)
 - [x] Loading, error, empty states
 
 ### Frontend — `SaveFilterDialogComponent`
