@@ -15,14 +15,23 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-dialog.component';
 
 /**
- * Saved Filters page — Epic 7 (US-20, US-21).
+ * SavedFiltersComponent — Manage persisted gene filter snapshots.
  *
- * Features:
- * - List saved filter sets (GET /api/saved-filters)
- * - Click a saved filter → applies to Gene Explorer table
- * - Delete a saved filter (DELETE /api/saved-filters/{id})
+ * Responsibilities:
+ * - Load and display list of saved filter sets
+ * - Apply a saved filter to the Gene Explorer
+ * - Delete a saved filter with confirmation
+ * - Handle loading, error, and empty states
  *
- * TODO: implement in ticket FILTER-001
+ * State signals:
+ * - loading: API request in flight
+ * - filters: Loaded saved filter list
+ * - errors: User-facing error message
+ *
+ * Integration:
+ * - Calls SavedFiltersService for CRUD operations
+ * - Updates GenesStore to apply selected filter snapshot
+ * - Uses MatDialog for delete confirmation
  */
 @Component({
   selector: 'app-saved-filters',
@@ -41,9 +50,15 @@ import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavedFiltersComponent implements OnInit {
+  /** True while loading saved filters from API. */
   loading = signal<boolean>(true);
+
+  /** Array of user's saved filter sets. */
   filters = signal<SavedFilter[]>([]);
+
+  /** User-facing error message, or null if no error. */
   errors = signal<string | null>(null);
+
   protected readonly buildFiltersChips = buildFiltersChips;
   protected readonly formatDate = formatDate;
   private readonly service = inject(SavedFiltersService);
@@ -53,6 +68,9 @@ export class SavedFiltersComponent implements OnInit {
   constructor(private dialog: MatDialog) {
   }
 
+  /**
+   * Load saved filters on component init.
+   */
   ngOnInit(): void {
     this.service.listSavedFilters().subscribe({
       next: sf => {
@@ -67,7 +85,11 @@ export class SavedFiltersComponent implements OnInit {
     });
   }
 
-  promptDelete(filter: any): void {
+  /**
+   * Prompt user for delete confirmation before removing a filter.
+   * @param filter — The SavedFilter to delete
+   */
+  promptDelete(filter: SavedFilter): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '350px',
       data: {
@@ -85,14 +107,21 @@ export class SavedFiltersComponent implements OnInit {
     });
   }
 
-  protected onApply(filter: SavedFilter) {
+  /**
+   * Apply filter to gene explorer and navigate to genes page.
+   * @param filter — The SavedFilter to activate
+   */
+  protected onApply(filter: SavedFilter): void {
     const snapshot = filter.filterJson;
     this.genesStore.setActiveFilters(snapshot);
     void this.router.navigate(['/genes']);
-
   }
 
-  private onDelete(filter: SavedFilter) {
+  /**
+   * Delete a saved filter and update local state.
+   * @param filter — The SavedFilter to delete
+   */
+  private onDelete(filter: SavedFilter): void {
     this.service.deleteSavedFilter(filter.id).subscribe({
       next: () => {
         this.filters.update((currentFilters) =>
