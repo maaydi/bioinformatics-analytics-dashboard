@@ -23,6 +23,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {RouterLink} from '@angular/router';
+import {formatDate} from '@shared/utils/date-formatter';
 
 /**
  * Gene Detail page — Epic 5 (US-15, US-16, US-17).
@@ -143,15 +144,6 @@ export class GeneDetailComponent implements OnInit {
     }, 1800);
   }
 
-  /** Format a date string (ISO 8601) to human-readable format. */
-  formatDate(dateStr: string | null | undefined): string {
-    return dateStr ? new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }) : '–';
-  }
-
   /** Returns a CSS modifier class for a given featureType chip. */
   featureTypeClass(featureType: string): string {
     return `feature-type-chip feature-type-chip--${featureType.toLowerCase()}`;
@@ -217,4 +209,6 @@ export class GeneDetailComponent implements OnInit {
     if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '–';
     return value;
   }
+
+  protected readonly formatDate = formatDate;
 }
