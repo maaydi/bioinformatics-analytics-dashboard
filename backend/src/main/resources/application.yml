@@ -1,13 +1,15 @@
+# ── Application metadata ───────────────────────────────────────────────────────
+application:
+  title: BioInformatics Analytics Dashboard
+  version: 1.0
+
+# ── Spring configurations ──────────────────────────────────────────────────────
 spring:
   application:
     name: bioinformatics-dashboard
   devtools:
     livereload:
       enabled: true
-
-application:
-  title: BioInformatics Analytics Dashboard
-  version: 1.0
 
   # ── DataSource ──────────────────────────────────────────────────────────────
   datasource:
