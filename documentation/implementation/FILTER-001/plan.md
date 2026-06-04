@@ -98,26 +98,26 @@
 
 ### Frontend — Models
 
-- [ ] `saved-filter.model.ts` — `{ id, name, filterJson: GeneSearchRequest, createdAt: string }`
-- [ ] `saved-filter-create-request.model.ts` — `{ name: string, filterJson: GeneSearchRequest }`
+- [x] `saved-filter.model.ts` — `{ id, name, filterJson: GeneSearchRequest, createdAt: string }`
+- [x] `saved-filter-create-request.model.ts` — `{ name: string, filterJson: GeneSearchRequest }`
 
 ### Frontend — Service (`features/saved-filters/saved-filters.service.ts`)
 
-- [ ] `list(): Observable<SavedFilter[]>`
-- [ ] `create(request: SavedFilterCreateRequest): Observable<SavedFilter>`
-- [ ] `delete(id: number): Observable<void>`
+- [x] `listSavedFilters(): Observable<SavedFilter[]>`
+- [x] `createSavedFilter(request: SavedFilterCreateRequest): Observable<SavedFilter>`
+- [x] `deleteSavedFilter(id: number): Observable<void>`
 
 ### Frontend — `SavedFiltersComponent` (`features/saved-filters/`)
 
-- [ ] `saved-filters.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `saved-filters.component.html` — external template
-- [ ] `saved-filters.component.scss`
-- [ ] Signal `filters = signal<SavedFilter[]>([])`
+- [x] `saved-filters.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `saved-filters.component.html` — external template
+- [x] `saved-filters.component.scss`
+- [x] Signal `filters = signal<SavedFilter[]>([])`
 - [ ] Load list on init via `SavedFiltersService.list()`
-- [ ] `@for` list: name, creation date, filter summary (derived from `filterJson`)
+- [x] `@for` list: name, creation date, filter summary (derived from `filterJson`)
 - [ ] "Apply" button: update `filtersStore` with `filterJson`, navigate to `/genes`
 - [ ] "Delete" button: call `delete(id)`, update signal list immediately (optimistic)
-- [ ] Loading, error, empty states
+- [x] Loading, error, empty states
 
 ### Frontend — `SaveFilterDialogComponent`
 
