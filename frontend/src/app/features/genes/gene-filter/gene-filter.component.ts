@@ -1,4 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output} from '@angular/core';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {
   AbstractControl,
   FormControl,
@@ -12,8 +14,9 @@ import {GeneFilterFormControls, GeneFilterFormValue, GeneFilterSnapshot} from '@
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
-import {MatDivider} from '@angular/material/list';
-import {MatError, MatFormField, MatInput} from '@angular/material/input';
+import {MatDivider} from '@angular/material/divider';
+import {MatInput} from '@angular/material/input';
+import {MatError, MatFormField} from '@angular/material/form-field';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
@@ -30,6 +33,8 @@ import {
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
 import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
+import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
+import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 
 
 const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
@@ -81,9 +86,27 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
  */
 @Component({
   selector: 'app-gene-filter',
-  imports: [ReactiveFormsModule, MatCardHeader, MatIcon, MatButton, MatDivider, MatCardContent, MatFormField, MatInput, MatButtonToggleGroup, MatButtonToggle, MatCheckbox, MatError, MatSelect, MatOption, InputComponent, RangeInputComponent, KeywordsFilterComponent],
+  imports: [ReactiveFormsModule,
+    MatCardHeader,
+    MatIcon,
+    MatButton,
+    MatDivider,
+    MatCardContent,
+    MatFormField,
+    MatInput,
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatCheckbox,
+    MatError,
+    MatSelect,
+    MatOption,
+    InputComponent,
+    RangeInputComponent,
+    KeywordsFilterComponent,
+    MatDialogModule,
+    MatSnackBarModule],
   templateUrl: './gene-filter.component.html',
-  styleUrl: './gene-filter.component.scss',
+  styleUrls: ['./gene-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
@@ -132,6 +155,10 @@ export class GeneFilterComponent {
   readonly filterChange = output<GeneFilterSnapshot>();
   readonly filterClear = output<void>();
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+
+  private readonly savedFiltersService = inject(SavedFiltersService);
 
   constructor() {
     effect(() => {
@@ -179,12 +206,44 @@ export class GeneFilterComponent {
     this.filterClear.emit();
   }
 
+  /** Opens the Save Filters dialog. The dialog handles submit/cancel logging. */
+  protected openSaveFiltersDialog(): void {
+    const dialogRef = this.dialog.open(SaveFiltersDialogComponent, {
+      width: '420px'
+    });
+
+    dialogRef.afterClosed().subscribe((response: { name: string } | null) => {
+      const filters = this.value();
+      if (response && filters) {
+        this.savedFiltersService.createSavedFilter({name: response.name, filterJson: filters})
+          .subscribe({
+            next: _saved => {
+              this.snackBar.open(`Saved filter "${response.name}"`, 'Close', {
+                duration: 4000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top',
+                panelClass: ['success-snackbar']
+              });
+            },
+            error: _err => {
+              this.snackBar.open(`Failed to save filter "${response?.name}"`, 'Retry', {
+                duration: 6000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top',
+                panelClass: ['error-snackbar']
+              });
+            }
+          });
+      }
+    });
+  }
+
   protected isEvidenceSelected(level: EvidenceLevel): boolean | undefined {
     return this.form.controls.evidenceLevels.value?.includes(level);
   }
 
   /** Returns the display label for one evidence option. */
-  protected getEvidenceLevel(level: EvidenceLevel): String {
+  protected getEvidenceLevel(level: EvidenceLevel): string {
     return `${level} - ${EVIDENCE_LEVEL_LABELS[level]}`;
   }
 

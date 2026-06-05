@@ -122,24 +122,24 @@
 ### Frontend — `SaveFilterDialogComponent`
 
 - [x] Dialog/modal triggered from `GeneFilterComponent` "Save Filters" button
-- [ ] Reactive form: `name` (required, maxLength 100)
-- [ ] On submit: call `SavedFiltersService.create()`, close dialog, show success toast
+- [x] Reactive form: `name` (required, maxLength 100)
+- [x] On submit: call `SavedFiltersService.create()`, close dialog, show success toast
 
 ### Tests
 
-- [ ] `SavedFiltersComponent` unit tests:
-    - [ ] Lists filters from service
-    - [ ] Apply updates store and navigates
-    - [ ] Delete removes item from list
-- [ ] `SavedFiltersService` unit tests (HttpClientTestingModule):
-    - [ ] `list()` sends `GET /api/saved-filters`
-    - [ ] `create()` sends `POST /api/saved-filters`
-    - [ ] `delete()` sends `DELETE /api/saved-filters/1`
+- [x] `SavedFiltersComponent` unit tests:
+  - [x] Lists filters from service
+  - [x] Apply updates store and navigates
+  - [x] Delete removes item from list
+- [x] `SavedFiltersService` unit tests (HttpClientTestingModule):
+  - [x] `list()` sends `GET /api/saved-filters`
+  - [x] `create()` sends `POST /api/saved-filters`
+  - [x] `delete()` sends `DELETE /api/saved-filters/1`
 
 ### General
 
-- [ ] Security: users can only see/delete their own filters (enforced backend — not just frontend)
-- [ ] Native control flow only
-- [ ] AXE checks pass
+- [x] Security: users can only see/delete their own filters (enforced backend — not just frontend)
+- [x] Native control flow only
+- [x] AXE checks pass
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80%

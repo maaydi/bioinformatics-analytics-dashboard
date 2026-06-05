@@ -13,6 +13,7 @@ import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-dialog.component';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 
 /**
  * SavedFiltersComponent — Manage persisted gene filter snapshots.
@@ -43,7 +44,8 @@ import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-
     MatChipSet,
     MatIcon,
     MatButton,
-    MatIconButton
+    MatIconButton,
+    MatSnackBarModule
   ],
   templateUrl: './saved-filters.component.html',
   styleUrl: './saved-filters.component.scss',
@@ -64,6 +66,7 @@ export class SavedFiltersComponent implements OnInit {
   private readonly service = inject(SavedFiltersService);
   private readonly router = inject(Router);
   private readonly genesStore = inject(GenesStore);
+  private readonly snackBar = inject(MatSnackBar);
 
   constructor(private dialog: MatDialog) {
   }
@@ -127,8 +130,22 @@ export class SavedFiltersComponent implements OnInit {
         this.filters.update((currentFilters) =>
           currentFilters.filter(f => f.id !== filter.id)
         );
+        this.snackBar.open(`Deleted filter "${filter.name}"`, 'Close', {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        });
       },
-      error: _ => this.errors.set('Failed to delete Filter ' + filter.name)
+      error: _ => {
+        this.errors.set('Failed to delete Filter ' + filter.name);
+        this.snackBar.open(`Failed to save filter "${filter.name}"`, 'Close', {
+          duration: 6000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 

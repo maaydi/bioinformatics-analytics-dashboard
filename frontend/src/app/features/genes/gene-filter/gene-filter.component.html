@@ -3,6 +3,14 @@
     <mat-icon>filter_list</mat-icon>
     <span>Filters</span>
   </div>
+  <button (click)="openSaveFiltersDialog()"
+          color="primary"
+          mat-button
+          title="Save filters"
+          type="button">
+    <mat-icon>save</mat-icon>
+    Save Filters
+  </button>
   <button (click)="clearAll()"
           color="primary"
           mat-button
