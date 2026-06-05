@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Save Filters</h2>
+<form (ngSubmit)="onSubmit()" [formGroup]="form" aria-label="Save filters form">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" style="width:100%">
+      <mat-label>Name</mat-label>
+      <input formControlName="name" matInput placeholder="Enter a name (max 100 chars)" title="Name"/>
+      @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+        <mat-error>Name is required.</mat-error>
+      } @else if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
+        <mat-error>Name cannot exceed 100 characters.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button (click)="onCancel()" mat-button type="button">Cancel</button>
+    <button color="primary" mat-flat-button type="submit">Save</button>
+  </mat-dialog-actions>
+</form>
+

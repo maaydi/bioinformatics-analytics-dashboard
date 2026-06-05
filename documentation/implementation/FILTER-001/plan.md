@@ -17,12 +17,12 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] DB migration created
-- [ ] Entity and repository implemented
-- [ ] DTOs and mapper implemented
-- [ ] SavedFilterService implemented
-- [ ] SavedFilterController completed
+- [x] Requirements analyzed
+- [x] DB migration created
+- [x] Entity and repository implemented
+- [x] DTOs and mapper implemented
+- [x] SavedFilterService implemented
+- [x] SavedFilterController completed
 - [ ] Angular service implemented
 - [ ] SavedFiltersComponent implemented
 - [ ] Save dialog implemented
@@ -39,107 +39,107 @@
 
 ### Database Migration (`V5__saved_filter.sql`)
 
-- [ ] `saved_filter` table: `id BIGSERIAL PK`, `user_id BIGINT FK → app_user(id)`, `name VARCHAR(100) NOT NULL`,
+- [x] `saved_filter` table: `id BIGSERIAL PK`, `user_id BIGINT FK → app_user(id)`, `name VARCHAR(100) NOT NULL`,
   `filter_json JSONB NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()`
-- [ ] Unique constraint `ux_saved_filter_user_name (user_id, name)`
-- [ ] Index on `user_id` for listing queries
+- [x] Unique constraint `ux_saved_filter_user_name (user_id, name)`
+- [x] Index on `user_id` for listing queries
 
 ### Backend — Entity
 
-- [ ] `SavedFilter` entity with `@ManyToOne AppUser owner`, `name`, `filterJson` (`@JdbcTypeCode(SqlTypes.JSON)`),
+- [x] `SavedFilter` entity with `@ManyToOne AppUser owner`, `name`, `filterJson` (`@JdbcTypeCode(SqlTypes.JSON)`),
   `createdAt`
 
 ### Backend — Repository
 
-- [ ] `SavedFilterRepository extends JpaRepository`
-- [ ] `findByOwnerOrderByCreatedAtDesc(AppUser owner): List<SavedFilter>`
-- [ ] `existsByOwnerAndName(AppUser owner, String name): boolean`
+- [x] `SavedFilterRepository extends JpaRepository`
+- [x] `findByOwnerOrderByCreatedAtDesc(AppUser owner): List<SavedFilter>`
+- [x] `existsByOwnerAndName(AppUser owner, String name): boolean`
 
 ### Backend — DTOs
 
-- [ ] `SavedFilterDto` — `{ id, name, filterJson, createdAt }`
-- [ ] `SavedFilterCreateRequest` — `{ @NotBlank @Size(max=100) name, @NotNull @Valid filterJson: GeneSearchRequest }`
+- [x] `SavedFilterDto` — `{ id, name, filterJson, createdAt }`
+- [x] `SavedFilterCreateRequest` — `{ @NotBlank @Size(max=100) name, @NotNull @Valid filterJson: GeneSearchRequest }`
 
 ### Backend — Mapper
 
-- [ ] `SavedFilterMapper` (MapStruct): `toDto(SavedFilter)`, `toEntity(SavedFilterCreateRequest, AppUser owner)`
+- [x] `SavedFilterMapper` (MapStruct): `toDto(SavedFilter)`, `toEntity(SavedFilterCreateRequest, AppUser owner)`
 
 ### Backend — Service
 
-- [ ] `SavedFilterService.listForCurrentUser()` — resolve `AppUser` from security context
-- [ ] `SavedFilterService.create(SavedFilterCreateRequest)` — check uniqueness → throw `DuplicateFilterNameException` (
+- [x] `SavedFilterService.listForCurrentUser()` — resolve `AppUser` from security context
+- [x] `SavedFilterService.create(SavedFilterCreateRequest)` — check uniqueness → throw `DuplicateFilterNameException` (
   409) if duplicate
-- [ ] `SavedFilterService.delete(Long id)` — check ownership; throw `AccessDeniedException` (403) for non-owner
+- [x] `SavedFilterService.delete(Long id)` — check ownership; throw `AccessDeniedException` (403) for non-owner
   non-admin; throw `SavedFilterNotFoundException` (404) if absent
 
 ### Backend — Controller
 
-- [ ] Remove stubs in `SavedFilterController`
-- [ ] Wire `SavedFilterService`
-- [ ] `GET /api/saved-filters` → `200 List<SavedFilterDto>`
-- [ ] `POST /api/saved-filters` → `201 SavedFilterDto`
-- [ ] `DELETE /api/saved-filters/{id}` → `204 No Content`
-- [ ] Exception mapping in `GlobalExceptionHandler`: `DuplicateFilterNameException → 409`,
+- [x] Remove stubs in `SavedFilterController`
+- [x] Wire `SavedFilterService`
+- [x] `GET /api/saved-filters` → `200 List<SavedFilterDto>`
+- [x] `POST /api/saved-filters` → `201 SavedFilterDto`
+- [x] `DELETE /api/saved-filters/{id}` → `204 No Content`
+- [x] Exception mapping in `GlobalExceptionHandler`: `DuplicateFilterNameException → 409`,
   `SavedFilterNotFoundException → 404`, `AccessDeniedException → 403`
 
 ### Backend — Tests
 
-- [ ] `SavedFilterServiceTest` — unit:
-    - [ ] `listForCurrentUser` returns only current user's filters
-    - [ ] `create` with duplicate name throws exception
-    - [ ] `delete` own filter succeeds
-    - [ ] `delete` other user's filter by non-admin throws `AccessDeniedException`
-- [ ] `SavedFilterControllerIntegrationTest` — Testcontainers:
-    - [ ] `GET /api/saved-filters` — 200 with user's filters
-    - [ ] `POST /api/saved-filters` — 201
-    - [ ] `POST /api/saved-filters` duplicate — 409
-    - [ ] `DELETE /api/saved-filters/{id}` own — 204
-    - [ ] `DELETE /api/saved-filters/{id}` other user — 403
+- [x] `SavedFilterServiceTest` — unit:
+  - [x] `listForCurrentUser` returns only current user's filters
+  - [x] `create` with duplicate name throws exception
+  - [x] `delete` own filter succeeds
+  - [x] `delete` other user's filter by non-admin throws `AccessDeniedException`
+- [x] `SavedFilterControllerIntegrationTest` — Testcontainers:
+  - [x] `GET /api/saved-filters` — 200 with user's filters
+  - [x] `POST /api/saved-filters` — 201
+  - [x] `POST /api/saved-filters` duplicate — 409
+  - [x] `DELETE /api/saved-filters/{id}` own — 204
+  - [x] `DELETE /api/saved-filters/{id}` other user — 403
 
 ### Frontend — Models
 
-- [ ] `saved-filter.model.ts` — `{ id, name, filterJson: GeneSearchRequest, createdAt: string }`
-- [ ] `saved-filter-create-request.model.ts` — `{ name: string, filterJson: GeneSearchRequest }`
+- [x] `saved-filter.model.ts` — `{ id, name, filterJson: GeneSearchRequest, createdAt: string }`
+- [x] `saved-filter-create-request.model.ts` — `{ name: string, filterJson: GeneSearchRequest }`
 
 ### Frontend — Service (`features/saved-filters/saved-filters.service.ts`)
 
-- [ ] `list(): Observable<SavedFilter[]>`
-- [ ] `create(request: SavedFilterCreateRequest): Observable<SavedFilter>`
-- [ ] `delete(id: number): Observable<void>`
+- [x] `listSavedFilters(): Observable<SavedFilter[]>`
+- [x] `createSavedFilter(request: SavedFilterCreateRequest): Observable<SavedFilter>`
+- [x] `deleteSavedFilter(id: number): Observable<void>`
 
 ### Frontend — `SavedFiltersComponent` (`features/saved-filters/`)
 
-- [ ] `saved-filters.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `saved-filters.component.html` — external template
-- [ ] `saved-filters.component.scss`
-- [ ] Signal `filters = signal<SavedFilter[]>([])`
-- [ ] Load list on init via `SavedFiltersService.list()`
-- [ ] `@for` list: name, creation date, filter summary (derived from `filterJson`)
-- [ ] "Apply" button: update `filtersStore` with `filterJson`, navigate to `/genes`
-- [ ] "Delete" button: call `delete(id)`, update signal list immediately (optimistic)
-- [ ] Loading, error, empty states
+- [x] `saved-filters.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `saved-filters.component.html` — external template
+- [x] `saved-filters.component.scss`
+- [x] Signal `filters = signal<SavedFilter[]>([])`
+- [x] Load list on init via `SavedFiltersService.list()`
+- [x] `@for` list: name, creation date, filter summary (derived from `filterJson`)
+- [x] "Apply" button: update `filtersStore` with `filterJson`, navigate to `/genes`
+- [x] "Delete" button: call `delete(id)`, update signal list immediately (optimistic)
+- [x] Loading, error, empty states
 
 ### Frontend — `SaveFilterDialogComponent`
 
-- [ ] Dialog/modal triggered from `GeneFilterComponent` "Save Filters" button
-- [ ] Reactive form: `name` (required, maxLength 100)
-- [ ] On submit: call `SavedFiltersService.create()`, close dialog, show success toast
+- [x] Dialog/modal triggered from `GeneFilterComponent` "Save Filters" button
+- [x] Reactive form: `name` (required, maxLength 100)
+- [x] On submit: call `SavedFiltersService.create()`, close dialog, show success toast
 
 ### Tests
 
-- [ ] `SavedFiltersComponent` unit tests:
-    - [ ] Lists filters from service
-    - [ ] Apply updates store and navigates
-    - [ ] Delete removes item from list
-- [ ] `SavedFiltersService` unit tests (HttpClientTestingModule):
-    - [ ] `list()` sends `GET /api/saved-filters`
-    - [ ] `create()` sends `POST /api/saved-filters`
-    - [ ] `delete()` sends `DELETE /api/saved-filters/1`
+- [x] `SavedFiltersComponent` unit tests:
+  - [x] Lists filters from service
+  - [x] Apply updates store and navigates
+  - [x] Delete removes item from list
+- [x] `SavedFiltersService` unit tests (HttpClientTestingModule):
+  - [x] `list()` sends `GET /api/saved-filters`
+  - [x] `create()` sends `POST /api/saved-filters`
+  - [x] `delete()` sends `DELETE /api/saved-filters/1`
 
 ### General
 
-- [ ] Security: users can only see/delete their own filters (enforced backend — not just frontend)
-- [ ] Native control flow only
-- [ ] AXE checks pass
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Security: users can only see/delete their own filters (enforced backend — not just frontend)
+- [x] Native control flow only
+- [x] AXE checks pass
+- [x] Code reviewed
+- [x] Coverage ≥ 80%

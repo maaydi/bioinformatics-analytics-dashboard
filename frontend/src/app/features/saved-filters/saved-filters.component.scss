@@ -1,3 +1,6 @@
+@use "design-system" as ds;
+@use "gene-shared" as gs;
+
 :host {
   display: block;
 }
@@ -9,5 +12,114 @@
 .saved-filters-description {
   margin-top: 0.5rem;
   color: var(--mat-sys-on-surface-variant);
+}
+
+// ============================================================================
+// Table styles — align with global application / features tab table
+// ============================================================================
+
+.filters-table-wrapper {
+  overflow-x: auto;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background-color: ds.$color-surface;
+}
+
+.filters-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: ds.$color-surface-subtle;
+
+    th {
+      @include ds.text-label-md;
+      color: ds.$color-on-surface-variant;
+      text-align: left;
+      padding: ds.$spacing-md ds.$spacing-lg;
+      border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      white-space: nowrap;
+      font-weight: ds.$font-weight-semibold;
+    }
+  }
+
+  tbody {
+    .filters-table-row {
+      transition: background-color 0.15s ease;
+
+      &:not(:last-child) td {
+        border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+      }
+
+      &:hover {
+        background-color: ds.$color-surface-hover;
+      }
+
+      td {
+        @include ds.text-body-sm;
+        color: ds.$color-on-surface;
+        padding: ds.$spacing-md ds.$spacing-lg;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.filter-name {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface;
+  display: inline-block;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-summary {
+  max-width: 480px;
+  word-break: break-word;
+}
+
+.criteria-chip-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: ds.$spacing-xs;
+}
+
+.filter-empty-value {
+  color: ds.$color-on-surface-variant;
+  opacity: 0.7;
+}
+
+.filter-date .summary-value {
+  @include ds.text-mono;
+  color: ds.$color-on-surface-variant;
+}
+
+.filter-actions .action-container {
+  display: flex;
+  gap: ds.$spacing-sm;
+  align-items: center;
+}
+
+.loading-spinner {
+  padding: ds.$spacing-xl;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-message {
+  padding: ds.$spacing-lg;
+}
+
+.saved-empty-state {
+  padding: ds.$spacing-xl;
+  text-align: center;
+  color: ds.$color-on-surface-variant;
+  background-color: ds.$color-surface-subtle;
+  border: ds.$border-width-thin dashed ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  @include ds.text-body-md;
 }
 

@@ -50,7 +50,48 @@ body {
 }
 
 /* ── Utility classes ───────────────────────────────────────────────────────── */
-.full-width  { width: 100%; }
-.text-center { text-align: center; }
-.mt-16       { margin-top: 16px; }
-.mb-16       { margin-bottom: 16px; }
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+/* ── Snackbar toast ─────────────────────────────────────────────────────────  */
+
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #2e7d32 !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #ffffff !important;
+  }
+}
+
+.error-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #d32f2f !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #ffffff !important;
+  }
+}

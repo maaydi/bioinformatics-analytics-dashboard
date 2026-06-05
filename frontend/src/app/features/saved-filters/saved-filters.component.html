@@ -1,6 +1,67 @@
 <section aria-label="Saved filters" class="saved-filters-page">
   <h1>Saved Filters</h1>
-  <p class="saved-filters-description">
-    Your reusable gene-filter presets will be listed here for quick application and management.
-  </p>
+  @if (loading()) {
+    <mat-card appearance="outlined" class="loading-spinner">
+      <app-loading-spinner/>
+    </mat-card>
+  } @else if (errors()) {
+    <mat-card appearance="outlined" class="error-message">
+      <mat-error>{{ errors() }}</mat-error>
+    </mat-card>
+  } @else if (filters().length > 0) {
+    <div aria-label="Saved Filters" class="filters-table-wrapper" role="region">
+      <table aria-label="Saved Filters Table" class="filters-table">
+        <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Filter Summary</th>
+          <th scope="col">Created At</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (filter of filters(); track filter.id) {
+            <tr class="filters-table-row">
+              <td>
+                        <span [attr.aria-label]="'Filter Name: ' + filter.name"
+                              class="filter-name">
+                          {{ filter.name }}
+                        </span>
+              </td>
+              <td class="filter-summary">
+                @if (buildFiltersChips(filter.filterJson); as chips) {
+                  @if (chips.length > 0) {
+                    <mat-chip-set aria-label="Saved Filter criteria" class="criteria-chip-set">
+                      @for (chip of chips; track chip.label + chip.value) {
+                        <mat-chip>{{ chip.label }}: {{ chip.value }}</mat-chip>
+                      }
+                    </mat-chip-set>
+                  } @else {
+                    <span class="filter-empty-value">–</span>
+                  }
+                }
+              </td>
+              <td class="filter-date"><span class="summary-value mono">{{ formatDate(filter.createdAt) }}</span></td>
+              <td class="filter-actions">
+                <div class="action-container">
+                  <button (click)="onApply(filter)" color="primary" mat-flat-button>
+                    <mat-icon>play_arrow</mat-icon>
+                    Apply
+                  </button>
+
+                  <button (click)="promptDelete(filter)" aria-label="Delete filter" color="warn" mat-icon-button>
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div aria-live="polite" class="saved-empty-state" role="status">
+      <span>No saved filters yet. Create and save filter snapshots from the Genes Explorer to see them listed here.</span>
+    </div>
+  }
 </section>

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * JPA entity for the {@code app_user} table.
@@ -49,6 +50,11 @@ public class AppUser implements UserDetails {
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
+    }
+
+    public boolean isAdmin() {
+        return getAuthorities().stream()
+                .anyMatch(auth -> Objects.equals(auth.getAuthority(), "ROLE_ADMIN"));
     }
 
 }
