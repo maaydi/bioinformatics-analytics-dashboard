@@ -141,5 +141,5 @@
 - [x] Security: users can only see/delete their own filters (enforced backend — not just frontend)
 - [x] Native control flow only
 - [x] AXE checks pass
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
