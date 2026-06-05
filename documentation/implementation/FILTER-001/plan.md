@@ -121,7 +121,7 @@
 
 ### Frontend — `SaveFilterDialogComponent`
 
-- [ ] Dialog/modal triggered from `GeneFilterComponent` "Save Filters" button
+- [x] Dialog/modal triggered from `GeneFilterComponent` "Save Filters" button
 - [ ] Reactive form: `name` (required, maxLength 100)
 - [ ] On submit: call `SavedFiltersService.create()`, close dialog, show success toast
 

@@ -184,7 +184,7 @@ describe('SavedFiltersComponent', () => {
 
         const deleteButton = fixture.debugElement.query(By.css('.action-container button[color="warn"]'));
         deleteButton.triggerEventHandler('click', null);
-        fixture.whenStable();
+        await fixture.whenStable();
         fixture.detectChanges();
 
         expect(mockService.deleteSavedFilter).toHaveBeenCalledWith('1');
