@@ -139,7 +139,7 @@ export class SavedFiltersComponent implements OnInit {
       },
       error: _ => {
         this.errors.set('Failed to delete Filter ' + filter.name);
-        this.snackBar.open(`Failed to save filter "${filter.name}"`, 'Close', {
+        this.snackBar.open(`Failed to delete filter "${filter.name}"`, 'Close', {
           duration: 6000,
           horizontalPosition: 'right',
           verticalPosition: 'top',

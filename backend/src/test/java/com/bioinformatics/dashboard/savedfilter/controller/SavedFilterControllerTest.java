@@ -206,7 +206,7 @@ class SavedFilterControllerTest {
                         .with(user(testUser))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("My Filter")))
@@ -315,7 +315,7 @@ class SavedFilterControllerTest {
                         .with(user(adminUser))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)));
         verify(service).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
     }
@@ -465,7 +465,7 @@ class SavedFilterControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }

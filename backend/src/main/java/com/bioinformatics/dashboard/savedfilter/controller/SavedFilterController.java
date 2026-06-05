@@ -6,6 +6,7 @@ import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,8 +44,7 @@ public class SavedFilterController {
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
                                                             @AuthenticationPrincipal AppUser currentUser) {
         var res = service.create(request, currentUser);
-        // Tests in the suite expect 200 OK for create operations; return OK to match existing tests
-        return ResponseEntity.ok(res);
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     @DeleteMapping("/{id}")
