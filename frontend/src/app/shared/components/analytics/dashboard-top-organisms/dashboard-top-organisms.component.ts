@@ -9,6 +9,7 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {LimitSelectorComponent} from '@shared/components/limit-selector/limit-selector.component';
 
 interface OrganismView {
   readonly name: string;
@@ -18,7 +19,7 @@ interface OrganismView {
 
 @Component({
   selector: 'app-dashboard-top-organisms',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, LimitSelectorComponent],
   templateUrl: './dashboard-top-organisms.component.html',
   styleUrl: './dashboard-top-organisms.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +38,9 @@ export class DashboardTopOrganismsComponent {
       ratioPercent: maxCount > 0 ? Math.round((item.total / maxCount) * 100) : 0,
     }));
   });
+
+  private readonly _limit = signal<number>(50);
+  public readonly limit = this._limit.asReadonly();
 
   private readonly analyticProvider = inject(AnalyticsProvider);
   private readonly destroyRef = inject(DestroyRef);
@@ -57,11 +61,18 @@ export class DashboardTopOrganismsComponent {
     void this.router.navigate(['/genes']);
   }
 
+  protected onLimitChanged(newLimit: number): void {
+    if (this._limit() === newLimit) return;
+
+    this._limit.set(newLimit);
+    this.loadTopOrganisms();
+  }
+
   private loadTopOrganisms(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getByOrganism(10)
+    this.analyticProvider.getByOrganism(this._limit())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

@@ -1,6 +1,12 @@
 <mat-card appearance="outlined" class="chart-card">
   <header class="chart-header">
-    <h2>Top 10 Organisms by Protein Count</h2>
+    <h2>Top {{ limit() }} Organisms by Protein Count</h2>
+    <app-limit-selector
+      (limitChange)="onLimitChanged($event)"
+      [defaultValue]="limit()"
+      [max]="200"
+      [min]="1"
+    />
   </header>
 
   @if (loading()) {
@@ -15,18 +21,17 @@
   } @else if (!hasData()) {
     <p aria-live="polite" class="chart-state">No organism distribution data available.</p>
   } @else {
-    <ol aria-label="Top 10 organisms by protein count" class="organism-list">
+    <ol [aria-label]="'Top '+ limit() +' organisms by protein count'" class="organism-list">
       @for (item of organisms(); track item.name) {
         <li>
           <button (click)="selectOrganism(item.name)" class="organism-row" type="button">
-          <span class="name">{{ item.name }}</span>
-
-          <div class="bar-group">
+            <span class="name">{{ item.name }}</span>
+            <div class="bar-group">
             <span aria-hidden="true" class="track">
               <span [style.width.%]="item.ratioPercent" class="fill"></span>
             </span>
-            <span class="count">{{ item.count | number }}</span>
-          </div>
+              <span class="count">{{ item.count | number }}</span>
+            </div>
           </button>
         </li>
       }

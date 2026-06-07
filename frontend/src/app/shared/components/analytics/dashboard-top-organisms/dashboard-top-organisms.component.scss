@@ -10,6 +10,13 @@
 }
 
 .chart-header {
+  /* Align title and controls on a single horizontal row, respecting spacing
+     and baseline alignment used by the application design system. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
   h2 {
     margin: 0;
     font-size: 1rem;
@@ -17,10 +24,31 @@
     color: #1a1a1a;
   }
 
+  /* Keep the small helper/description style if present */
   p {
     margin: 0.25rem 0 0;
     color: #6b7280;
     font-size: 0.8125rem;
+  }
+
+  /* Ensure the limit selector sits to the right and is vertically centered. */
+  app-limit-selector {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    app-limit-selector {
+      margin-left: 0;
+      width: 100%;
+    }
   }
 }
 
