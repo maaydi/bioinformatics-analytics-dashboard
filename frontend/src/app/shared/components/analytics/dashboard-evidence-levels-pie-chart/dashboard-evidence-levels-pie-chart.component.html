@@ -1,0 +1,49 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header">
+    <h2>Evidence Levels</h2>
+    <p>Distribution by UniProt evidence category</p>
+  </header>
+
+  @if (loading()) {
+    <div class="chart-state">
+      <app-loading-spinner/>
+    </div>
+  } @else if (error()) {
+    <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
+      <p>{{ error() }}</p>
+      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+    </div>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No evidence level data available.</p>
+  } @else {
+    <div class="chart-layout">
+      <div
+        [style.background]="pieGradient()"
+        aria-hidden="true"
+        class="pie-chart"
+      ></div>
+
+      <div aria-label="Evidence levels" class="legend-list" role="list">
+        @for (item of items(); track item.level) {
+          <button
+            (click)="selectEvidenceLevel(item.level)"
+            [attr.aria-label]="'Filter by evidence level ' + item.level + ', ' + item.label"
+            class="legend-row"
+            role="menuitem"
+            type="button"
+          >
+            <div class="legend-indicator-group">
+              <span [class]="'color-badge ' + item.colorClass"></span>
+              <span class="row-label">L{{ item.level }} - {{ item.label }}</span>
+            </div>
+
+            <div class="value-group">
+              <span class="count">{{ item.count | number }}</span>
+              <span class="percentage">({{ item.ratioPercent }}%)</span>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  }
+</mat-card>
