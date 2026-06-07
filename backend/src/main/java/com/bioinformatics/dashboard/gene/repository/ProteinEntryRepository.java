@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.repository;
 
+import com.bioinformatics.dashboard.analytics.repository.AnalyticsProteinRepository;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -22,7 +23,7 @@ import java.util.Optional;
  */
 public interface ProteinEntryRepository
         extends JpaRepository<ProteinEntry, Long>,
-        JpaSpecificationExecutor<ProteinEntry> {
+        JpaSpecificationExecutor<ProteinEntry>, AnalyticsProteinRepository {
 
     Optional<ProteinEntry> findByAccession(String accession);
 
