@@ -1,9 +1,10 @@
 :host {
   display: block;
+  height: 100%;
 }
 
 .chart-card {
-  min-height: 280px;
+  height: 100%;
   padding: 1rem 1.25rem;
   display: grid;
   gap: 1rem;

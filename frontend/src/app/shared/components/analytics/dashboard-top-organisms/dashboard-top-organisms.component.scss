@@ -10,8 +10,6 @@
 }
 
 .chart-header {
-  /* Align title and controls on a single horizontal row, respecting spacing
-     and baseline alignment used by the application design system. */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,14 +22,12 @@
     color: #1a1a1a;
   }
 
-  /* Keep the small helper/description style if present */
   p {
     margin: 0.25rem 0 0;
     color: #6b7280;
     font-size: 0.8125rem;
   }
 
-  /* Ensure the limit selector sits to the right and is vertically centered. */
   app-limit-selector {
     margin-left: auto;
     display: inline-flex;

@@ -16,6 +16,9 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {
   DashboardKpiCardListComponent
 } from '@shared/components/analytics/dashboard-kpi-card-list/dashboard-kpi-card-list.component';
+import {
+  DashboardKeywordFrequencyHistogramComponent
+} from '@shared/components/analytics/dashboard-keyword-frequency-histogram/dashboard-keyword-frequency-histogram.component';
 
 /**
  * Dashboard layout container for DASH-001.
@@ -31,6 +34,7 @@ import {
     DashboardEvidenceLevelsComponent,
     DashboardTopOrganismsComponent,
     DashboardKpiCardListComponent,
+    DashboardKeywordFrequencyHistogramComponent,
   ],
   providers: [
     {provide: AnalyticsProvider, useExisting: DashboardService}
@@ -42,6 +46,6 @@ import {
 
 export class DashboardComponent {
 
-  protected readonly dashboardKpiCardLoading = signal<boolean>(true);
+  protected dashboardKpiCardLoading = signal<boolean>(true);
 }
 
