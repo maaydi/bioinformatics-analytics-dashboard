@@ -77,7 +77,7 @@ describe('DashboardTopOrganismsComponent', () => {
     expect(text).toContain('20,581');
     expect(text).toContain('Mus musculus');
     expect(rows.length).toBe(2);
-    expect(analyticProviderMock.getByOrganism).toHaveBeenCalledWith(10);
+    expect(analyticProviderMock.getByOrganism).toHaveBeenCalledWith(50);
   });
 
   it('should render empty state when API returns no organisms', () => {
