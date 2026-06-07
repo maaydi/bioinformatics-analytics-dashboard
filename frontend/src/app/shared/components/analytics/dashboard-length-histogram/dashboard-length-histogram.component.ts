@@ -4,11 +4,11 @@ import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -78,7 +78,7 @@ export class DashboardLengthHistogramComponent {
   protected readonly maxCount = computed(() =>
     Math.max(...this.buckets().map((bucket) => bucket.count), 0)
   );
-  private readonly dashboardService = inject(DashboardService);
+  private readonly analyticProvider = inject(AnalyticsProvider);
   private readonly destroyRef = inject(DestroyRef);
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
@@ -115,7 +115,7 @@ export class DashboardLengthHistogramComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.dashboardService.getLengthHistogram()
+    this.analyticProvider.getLengthHistogram()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

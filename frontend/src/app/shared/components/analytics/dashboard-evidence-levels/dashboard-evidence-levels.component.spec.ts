@@ -1,6 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {DashboardEvidenceLevelsComponent} from './dashboard-evidence-levels.component';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
@@ -8,6 +7,7 @@ import {vi} from 'vitest';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {Router} from '@angular/router';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 interface GenesStoreMock {
   setActiveFilters(snapshot: GeneFilterSnapshot): void;
@@ -15,7 +15,7 @@ interface GenesStoreMock {
 
 describe('DashboardEvidenceLevelsComponent', () => {
   let fixture: ComponentFixture<DashboardEvidenceLevelsComponent>;
-  let dashboardServiceMock: Pick<DashboardService, 'getEvidenceLevels'>;
+  let AnalyticsProviderMock: Pick<AnalyticsProvider, 'getEvidenceLevels'>;
   let genesStoreMock: GenesStoreMock;
   let routerMock: Pick<Router, 'navigate'>;
 
@@ -25,13 +25,13 @@ describe('DashboardEvidenceLevelsComponent', () => {
   ];
 
   const setup = (response$: Observable<EvidenceLevelItem[]>) => {
-    vi.mocked(dashboardServiceMock.getEvidenceLevels).mockReturnValue(response$);
+    vi.mocked(AnalyticsProviderMock.getEvidenceLevels).mockReturnValue(response$);
     fixture = TestBed.createComponent(DashboardEvidenceLevelsComponent);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
-    dashboardServiceMock = {
+    AnalyticsProviderMock = {
       getEvidenceLevels: vi.fn(),
     };
 
@@ -46,7 +46,7 @@ describe('DashboardEvidenceLevelsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardEvidenceLevelsComponent],
       providers: [
-        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: AnalyticsProvider, useValue: AnalyticsProviderMock},
         {provide: GenesStore, useValue: genesStoreMock},
         {provide: Router, useValue: routerMock},
       ],
@@ -98,7 +98,7 @@ describe('DashboardEvidenceLevelsComponent', () => {
   });
 
   it('should retry loading evidence levels when retry is clicked', () => {
-    vi.mocked(dashboardServiceMock.getEvidenceLevels)
+    vi.mocked(AnalyticsProviderMock.getEvidenceLevels)
       .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
       .mockReturnValueOnce(of(mockEvidence));
 
@@ -109,7 +109,7 @@ describe('DashboardEvidenceLevelsComponent', () => {
     retryButton.click();
     fixture.detectChanges();
 
-    expect(dashboardServiceMock.getEvidenceLevels).toHaveBeenCalledTimes(2);
+    expect(AnalyticsProviderMock.getEvidenceLevels).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('L1 - Protein level');
   });
 

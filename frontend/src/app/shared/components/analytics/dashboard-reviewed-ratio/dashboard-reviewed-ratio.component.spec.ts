@@ -1,16 +1,16 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {DashboardReviewedRatioComponent} from './dashboard-reviewed-ratio.component';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 describe('DashboardReviewedRatioComponent', () => {
   let fixture: ComponentFixture<DashboardReviewedRatioComponent>;
-  let dashboardServiceMock: Pick<DashboardService, 'getReviewedRatio'>;
+  let analyticProviderMock: Pick<AnalyticsProvider, 'getReviewedRatio'>;
   let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
@@ -20,13 +20,13 @@ describe('DashboardReviewedRatioComponent', () => {
   ];
 
   const setup = (response$: Observable<ReviewedRatioItem[]>) => {
-    vi.mocked(dashboardServiceMock.getReviewedRatio).mockReturnValue(response$);
+    vi.mocked(analyticProviderMock.getReviewedRatio).mockReturnValue(response$);
     fixture = TestBed.createComponent(DashboardReviewedRatioComponent);
     fixture.detectChanges();
   };
 
   beforeEach(() => {
-    dashboardServiceMock = {
+    analyticProviderMock = {
       getReviewedRatio: vi.fn(),
     };
 
@@ -43,7 +43,7 @@ describe('DashboardReviewedRatioComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardReviewedRatioComponent],
       providers: [
-        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: AnalyticsProvider, useValue: analyticProviderMock},
         {provide: GenesStore, useValue: genesStoreMock},
         {provide: Router, useValue: routerMock},
       ],
@@ -76,7 +76,7 @@ describe('DashboardReviewedRatioComponent', () => {
   });
 
   it('should retry loading ratio when retry is clicked', () => {
-    vi.mocked(dashboardServiceMock.getReviewedRatio)
+    vi.mocked(analyticProviderMock.getReviewedRatio)
       .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
       .mockReturnValueOnce(of(mockRatio));
 
@@ -87,7 +87,7 @@ describe('DashboardReviewedRatioComponent', () => {
     retryButton.click();
     fixture.detectChanges();
 
-    expect(dashboardServiceMock.getReviewedRatio).toHaveBeenCalledTimes(2);
+    expect(analyticProviderMock.getReviewedRatio).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Reviewed: 80 (80%)');
   });
 

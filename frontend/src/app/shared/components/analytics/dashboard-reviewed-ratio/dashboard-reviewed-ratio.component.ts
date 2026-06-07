@@ -3,12 +3,12 @@ import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {ReviewedRatioItem} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -42,7 +42,7 @@ export class DashboardReviewedRatioComponent {
   protected readonly unreviewedCount = computed<number>(() =>
     this.data().find((item) => !item.reviewed)?.count ?? 0
   );
-  private readonly dashboardService = inject(DashboardService);
+  private readonly analyticProvider = inject(AnalyticsProvider);
   private readonly destroyRef = inject(DestroyRef);
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
@@ -70,7 +70,7 @@ export class DashboardReviewedRatioComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.dashboardService.getReviewedRatio()
+    this.analyticProvider.getReviewedRatio()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

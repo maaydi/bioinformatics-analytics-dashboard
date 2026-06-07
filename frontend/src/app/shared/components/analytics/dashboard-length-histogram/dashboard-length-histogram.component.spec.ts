@@ -1,16 +1,16 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {DashboardLengthHistogramComponent} from './dashboard-length-histogram.component';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 describe('DashboardLengthHistogramComponent', () => {
   let fixture: ComponentFixture<DashboardLengthHistogramComponent>;
-  let dashboardServiceMock: Pick<DashboardService, 'getLengthHistogram'>;
+  let analyticsProviderMock: Pick<AnalyticsProvider, 'getLengthHistogram'>;
   let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
@@ -20,13 +20,13 @@ describe('DashboardLengthHistogramComponent', () => {
   ];
 
   const setup = (response$: Observable<LengthHistogramBucket[]>) => {
-    vi.mocked(dashboardServiceMock.getLengthHistogram).mockReturnValue(response$);
+    vi.mocked(analyticsProviderMock.getLengthHistogram).mockReturnValue(response$);
     fixture = TestBed.createComponent(DashboardLengthHistogramComponent);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
-    dashboardServiceMock = {
+    analyticsProviderMock = {
       getLengthHistogram: vi.fn(),
     };
 
@@ -41,7 +41,7 @@ describe('DashboardLengthHistogramComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardLengthHistogramComponent],
       providers: [
-        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: AnalyticsProvider, useValue: analyticsProviderMock},
         {provide: GenesStore, useValue: genesStoreMock},
         {provide: Router, useValue: routerMock},
       ],
@@ -95,7 +95,7 @@ describe('DashboardLengthHistogramComponent', () => {
   });
 
   it('should retry loading histogram when retry is clicked', () => {
-    vi.mocked(dashboardServiceMock.getLengthHistogram)
+    vi.mocked(analyticsProviderMock.getLengthHistogram)
       .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
       .mockReturnValueOnce(of(mockHistogram));
 
@@ -106,7 +106,7 @@ describe('DashboardLengthHistogramComponent', () => {
     retryButton.click();
     fixture.detectChanges();
 
-    expect(dashboardServiceMock.getLengthHistogram).toHaveBeenCalledTimes(2);
+    expect(analyticsProviderMock.getLengthHistogram).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Count: 12,000');
   });
 

@@ -5,11 +5,11 @@ import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
 import {EvidenceLevel} from '@core/models/protein.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 interface EvidenceLevelView {
   readonly level: number;
@@ -46,7 +46,7 @@ export class DashboardEvidenceLevelsComponent {
     }));
   });
 
-  private readonly dashboardService = inject(DashboardService);
+  private readonly analyticProvider = inject(AnalyticsProvider);
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -72,7 +72,7 @@ export class DashboardEvidenceLevelsComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.dashboardService.getEvidenceLevels()
+    this.analyticProvider.getEvidenceLevels()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

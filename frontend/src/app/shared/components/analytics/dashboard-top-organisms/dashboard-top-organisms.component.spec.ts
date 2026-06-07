@@ -1,16 +1,16 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {DashboardTopOrganismsComponent} from './dashboard-top-organisms.component';
-import {DashboardService} from '@features/dashboard/dashboard.service';
 import {OrganismCount} from '@core/models/analytics.model';
 import {Observable, of, Subject, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 describe('DashboardTopOrganismsComponent', () => {
   let fixture: ComponentFixture<DashboardTopOrganismsComponent>;
-  let dashboardServiceMock: Pick<DashboardService, 'getByOrganism'>;
+  let analyticProviderMock: Pick<AnalyticsProvider, 'getByOrganism'>;
   let genesStoreMock: { setActiveFilters: ReturnType<typeof vi.fn> };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
@@ -34,13 +34,13 @@ describe('DashboardTopOrganismsComponent', () => {
   ];
 
   const setup = (response$: Observable<OrganismCount[]>) => {
-    vi.mocked(dashboardServiceMock.getByOrganism).mockReturnValue(response$);
+    vi.mocked(analyticProviderMock.getByOrganism).mockReturnValue(response$);
     fixture = TestBed.createComponent(DashboardTopOrganismsComponent);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
-    dashboardServiceMock = {
+    analyticProviderMock = {
       getByOrganism: vi.fn(),
     };
 
@@ -55,7 +55,7 @@ describe('DashboardTopOrganismsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardTopOrganismsComponent],
       providers: [
-        {provide: DashboardService, useValue: dashboardServiceMock},
+        {provide: AnalyticsProvider, useValue: analyticProviderMock},
         {provide: GenesStore, useValue: genesStoreMock},
         {provide: Router, useValue: routerMock},
       ],
@@ -77,7 +77,7 @@ describe('DashboardTopOrganismsComponent', () => {
     expect(text).toContain('20,581');
     expect(text).toContain('Mus musculus');
     expect(rows.length).toBe(2);
-    expect(dashboardServiceMock.getByOrganism).toHaveBeenCalledWith(10);
+    expect(analyticProviderMock.getByOrganism).toHaveBeenCalledWith(10);
   });
 
   it('should render empty state when API returns no organisms', () => {
@@ -91,7 +91,7 @@ describe('DashboardTopOrganismsComponent', () => {
   });
 
   it('should retry loading top organisms when retry is clicked', () => {
-    vi.mocked(dashboardServiceMock.getByOrganism)
+    vi.mocked(analyticProviderMock.getByOrganism)
       .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})))
       .mockReturnValueOnce(of(mockOrganisms));
 
@@ -102,7 +102,7 @@ describe('DashboardTopOrganismsComponent', () => {
     retryButton.click();
     fixture.detectChanges();
 
-    expect(dashboardServiceMock.getByOrganism).toHaveBeenCalledTimes(2);
+    expect(analyticProviderMock.getByOrganism).toHaveBeenCalledTimes(2);
     expect(fixture.nativeElement.textContent as string).toContain('Homo sapiens');
   });
 

@@ -10,6 +10,7 @@ import {
   ReviewedRatioItem,
 } from '@core/models/analytics.model';
 import {environment} from '@env/environment';
+import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 /**
  * Service for analytics chart data.
@@ -17,10 +18,10 @@ import {environment} from '@env/environment';
  *
  * @see documentation/api-contract.md §2 — Analytics Endpoints
  */
-@Injectable({ providedIn: 'root' })
-export class DashboardService {
+@Injectable({providedIn: 'root'})
+export class DashboardService extends AnalyticsProvider {
 
-  private readonly http    = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/analytics`;
 
   getDashboardKpis(): Observable<DashboardKpis> {
@@ -32,7 +33,7 @@ export class DashboardService {
   }
 
   getByOrganism(limit = 50): Observable<OrganismCount[]> {
-    return this.http.get<OrganismCount[]>(`${this.baseUrl}/by-organism`, { params: { limit } });
+    return this.http.get<OrganismCount[]>(`${this.baseUrl}/by-organism`, {params: {limit}});
   }
 
   getReviewedRatio(): Observable<ReviewedRatioItem[]> {
@@ -44,6 +45,6 @@ export class DashboardService {
   }
 
   getKeywordFrequency(limit = 100): Observable<KeywordFrequencyItem[]> {
-    return this.http.get<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, { params: { limit } });
+    return this.http.get<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, {params: {limit}});
   }
 }
