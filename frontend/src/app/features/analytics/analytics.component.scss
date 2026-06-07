@@ -3,15 +3,53 @@
 }
 
 .analytics-page {
-  max-width: 960px;
+  display: grid;
+  gap: 1rem;
 }
 
-.analytics-page h1 {
-  margin: 0;
+.analytics-header {
+  display: grid;
+  gap: 0.375rem;
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
 }
 
-.analytics-description {
-  margin-top: 0.5rem;
-  color: var(--mat-sys-on-surface-variant);
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
 }
 
+.dual-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.full-width-row {
+  display: block;
+}
+
+@media (min-width: 760px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .dual-chart-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}

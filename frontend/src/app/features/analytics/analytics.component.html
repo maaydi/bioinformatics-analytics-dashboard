@@ -1,6 +1,30 @@
 <section aria-label="Analytics workspace" class="analytics-page">
-  <h1>Analytics</h1>
-  <p class="analytics-description">
-    Interactive analytics visualizations and comparative insights will be available in this workspace.
-  </p>
+  <header class="analytics-header">
+    <h1>Analytics</h1>
+    <p class="analytics-description">
+      Interactive analytics visualizations and comparative insights will be available in this workspace.
+    </p>
+  </header>
+  <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+    <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"/>
+  </section>
+
+  <section aria-label="Distribution charts" class="dual-chart-grid">
+    <app-dashboard-length-histogram/>
+    <app-dashboard-reviewed-ratio/>
+  </section>
+
+  <section aria-label="Evidence levels" class="dual-chart-grid">
+    <app-dashboard-evidence-levels-pie-chart/>
+    <app-dashboard-keyword-frequency-histogram/>
+  </section>
+
+  <section aria-label="Keyword frequency" class="full-width-row">
+  </section>
+
+  <section aria-label="Top organisms" class="full-width-row">
+    <app-dashboard-top-organisms/>
+  </section>
 </section>
+
+
