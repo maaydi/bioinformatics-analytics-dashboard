@@ -1,6 +1,6 @@
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -10,6 +10,8 @@ import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {LimitSelectorComponent} from '@shared/components/limit-selector/limit-selector.component';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {Subscription} from 'rxjs';
 
 interface OrganismView {
   readonly name: string;
@@ -25,6 +27,9 @@ interface OrganismView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardTopOrganismsComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  private topOrgSub?: Subscription;
+
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   private readonly organismsResponse = signal<ReadonlyArray<OrganismCount>>([]);
@@ -48,7 +53,9 @@ export class DashboardTopOrganismsComponent {
   private readonly router = inject(Router);
 
   constructor() {
-    this.loadTopOrganisms();
+    effect(() => {
+      this.loadTopOrganisms();
+    });
   }
 
   protected retry(): void {
@@ -69,10 +76,11 @@ export class DashboardTopOrganismsComponent {
   }
 
   private loadTopOrganisms(): void {
+    this.topOrgSub?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getByOrganism(this._limit())
+    this.topOrgSub = this.analyticProvider.getByOrganism(this._limit(), this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

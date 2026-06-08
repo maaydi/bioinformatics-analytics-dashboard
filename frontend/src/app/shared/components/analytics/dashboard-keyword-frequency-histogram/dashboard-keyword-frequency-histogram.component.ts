@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
@@ -10,6 +10,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {GenesStore} from '@features/genes/state/filters.store';
+import {Subscription} from 'rxjs';
 
 interface KeywordBucket {
   readonly keyword: string;
@@ -24,6 +25,8 @@ interface KeywordBucket {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardKeywordFrequencyHistogramComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  private keywordSub?: Subscription;
   protected readonly Math = Math;
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
@@ -50,7 +53,9 @@ export class DashboardKeywordFrequencyHistogramComponent {
   private readonly router = inject(Router);
 
   constructor() {
-    this.loadKeywordFrequency();
+    effect(() => {
+      this.loadKeywordFrequency();
+    });
   }
 
   protected retry(): void {
@@ -80,10 +85,11 @@ export class DashboardKeywordFrequencyHistogramComponent {
   }
 
   private loadKeywordFrequency(): void {
+    this.keywordSub?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getKeywordFrequency(this._limit())
+    this.keywordSub = this.analyticProvider.getKeywordFrequency(this._limit(), this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

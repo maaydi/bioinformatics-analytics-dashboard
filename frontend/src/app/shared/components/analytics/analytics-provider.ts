@@ -7,18 +7,19 @@ import {
   OrganismCount,
   ReviewedRatioItem
 } from '@core/models/analytics.model';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
 export abstract class AnalyticsProvider {
 
-  abstract getDashboardKpis(): Observable<DashboardKpis> ;
+  abstract getDashboardKpis(filter?: GeneFilterSnapshot): Observable<DashboardKpis> ;
 
-  abstract getLengthHistogram(): Observable<LengthHistogramBucket[]> ;
+  abstract getLengthHistogram(filter?: GeneFilterSnapshot): Observable<LengthHistogramBucket[]> ;
 
-  abstract getByOrganism(limit?: number): Observable<OrganismCount[]> ;
+  abstract getByOrganism(limit?: number, filter?: GeneFilterSnapshot): Observable<OrganismCount[]> ;
 
-  abstract getReviewedRatio(): Observable<ReviewedRatioItem[]> ;
+  abstract getReviewedRatio(filter?: GeneFilterSnapshot): Observable<ReviewedRatioItem[]> ;
 
-  abstract getEvidenceLevels(): Observable<EvidenceLevelItem[]> ;
+  abstract getEvidenceLevels(filter?: GeneFilterSnapshot): Observable<EvidenceLevelItem[]> ;
 
-  abstract getKeywordFrequency(limit?: number): Observable<KeywordFrequencyItem[]> ;
+  abstract getKeywordFrequency(limit?: number, filter?: GeneFilterSnapshot): Observable<KeywordFrequencyItem[]> ;
 }

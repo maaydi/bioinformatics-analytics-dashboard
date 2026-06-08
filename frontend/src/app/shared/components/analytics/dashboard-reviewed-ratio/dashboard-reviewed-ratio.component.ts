@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -9,6 +9,7 @@ import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -18,6 +19,9 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardReviewedRatioComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  private reviewedSub?: Subscription;
+
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   protected readonly totalCount = computed<number>(() => this.reviewedCount() + this.unreviewedCount());
@@ -49,7 +53,9 @@ export class DashboardReviewedRatioComponent {
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
   constructor() {
-    this.loadReviewedRatio();
+    effect(() => {
+      this.loadReviewedRatio();
+    });
   }
 
   protected retry(): void {
@@ -67,10 +73,11 @@ export class DashboardReviewedRatioComponent {
   }
 
   private loadReviewedRatio(): void {
+    this.reviewedSub?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getReviewedRatio()
+    this.reviewedSub = this.analyticProvider.getReviewedRatio(this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

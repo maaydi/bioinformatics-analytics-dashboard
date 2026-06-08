@@ -1,9 +1,11 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, model, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, model, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DashboardKpiCardComponent} from '@shared/components/analytics/dashboard-kpi-card/dashboard-kpi-card.component';
 import {DashboardKpis} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {Subscription} from 'rxjs';
 
 interface DashboardKpiViewModel {
   readonly title: string;
@@ -29,6 +31,7 @@ interface DashboardKpiViewModel {
 })
 
 export class DashboardKpiCardListComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
   public readonly kpiLoading = model<boolean>(true);
   protected readonly kpiCards = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
   protected readonly kpiError = signal<string | null>(null);
@@ -37,8 +40,12 @@ export class DashboardKpiCardListComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
+  private kpiSub?: Subscription;
+
   constructor() {
-    this.loadKpis();
+    effect(() => {
+      this.loadKpis();
+    });
   }
 
   protected retryKpis(): void {
@@ -47,10 +54,11 @@ export class DashboardKpiCardListComponent {
 
 
   private loadKpis(): void {
+    this.kpiSub?.unsubscribe();
     this.kpiLoading.set(true);
     this.kpiError.set(null);
 
-    this.analyticProvider.getDashboardKpis()
+    this.kpiSub = this.analyticProvider.getDashboardKpis(this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (kpis) => {

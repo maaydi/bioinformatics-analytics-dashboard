@@ -1,6 +1,6 @@
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -9,6 +9,8 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {Subscription} from 'rxjs';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -30,6 +32,8 @@ interface HistogramXAxisTick {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardLengthHistogramComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  private lenHistogramSub?: Subscription;
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   /** 5 evenly-spaced Y-axis tick labels from 0 to maxCount */
@@ -84,7 +88,9 @@ export class DashboardLengthHistogramComponent {
   private readonly router = inject(Router);
 
   constructor() {
-    this.loadHistogram();
+    effect(() => {
+      this.loadHistogram();
+    });
   }
 
   protected retry(): void {
@@ -112,10 +118,11 @@ export class DashboardLengthHistogramComponent {
   }
 
   private loadHistogram(): void {
+    this.lenHistogramSub?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getLengthHistogram()
+    this.lenHistogramSub = this.analyticProvider.getLengthHistogram(this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

@@ -11,6 +11,7 @@ import {
 } from '@core/models/analytics.model';
 import {environment} from '@env/environment';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
 /**
  * Service for analytics chart data.
@@ -23,29 +24,29 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 export class AnalyticsService extends AnalyticsProvider {
 
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/analytics/filters`; // TODO add backend controller
+  private readonly baseUrl = `${environment.apiBaseUrl}/analytics/filters`;
 
-  getDashboardKpis(): Observable<DashboardKpis> {
-    return this.http.get<DashboardKpis>(`${this.baseUrl}/dashboard-kpis`);
+  getDashboardKpis(filter: GeneFilterSnapshot): Observable<DashboardKpis> {
+    return this.http.post<DashboardKpis>(`${this.baseUrl}/dashboard-kpis`, filter);
   }
 
-  getLengthHistogram(): Observable<LengthHistogramBucket[]> {
-    return this.http.get<LengthHistogramBucket[]>(`${this.baseUrl}/length-histogram`);
+  getLengthHistogram(filter: GeneFilterSnapshot): Observable<LengthHistogramBucket[]> {
+    return this.http.post<LengthHistogramBucket[]>(`${this.baseUrl}/length-histogram`, filter);
   }
 
-  getByOrganism(limit = 50): Observable<OrganismCount[]> {
-    return this.http.get<OrganismCount[]>(`${this.baseUrl}/by-organism`, {params: {limit}});
+  getByOrganism(limit = 50, filter: GeneFilterSnapshot): Observable<OrganismCount[]> {
+    return this.http.post<OrganismCount[]>(`${this.baseUrl}/by-organism`, filter, {params: {limit}});
   }
 
-  getReviewedRatio(): Observable<ReviewedRatioItem[]> {
-    return this.http.get<ReviewedRatioItem[]>(`${this.baseUrl}/reviewed-ratio`);
+  getReviewedRatio(filter: GeneFilterSnapshot): Observable<ReviewedRatioItem[]> {
+    return this.http.post<ReviewedRatioItem[]>(`${this.baseUrl}/reviewed-ratio`, filter);
   }
 
-  getEvidenceLevels(): Observable<EvidenceLevelItem[]> {
-    return this.http.get<EvidenceLevelItem[]>(`${this.baseUrl}/evidence-levels`);
+  getEvidenceLevels(filter: GeneFilterSnapshot): Observable<EvidenceLevelItem[]> {
+    return this.http.post<EvidenceLevelItem[]>(`${this.baseUrl}/evidence-levels`, filter);
   }
 
-  getKeywordFrequency(limit = 100): Observable<KeywordFrequencyItem[]> {
-    return this.http.get<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, {params: {limit}});
+  getKeywordFrequency(limit = 100, filter: GeneFilterSnapshot): Observable<KeywordFrequencyItem[]> {
+    return this.http.post<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, filter, {params: {limit}});
   }
 }

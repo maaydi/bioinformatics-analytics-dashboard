@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {DecimalPipe} from '@angular/common';
@@ -10,6 +10,8 @@ import {EvidenceLevel} from '@core/models/protein.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {Subscription} from 'rxjs';
 
 interface EvidenceLevelView {
   readonly level: number;
@@ -27,6 +29,8 @@ interface EvidenceLevelView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardEvidenceLevelsComponent {
+  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  private evidenceSub?: Subscription;
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   private readonly evidenceItems = signal<ReadonlyArray<EvidenceLevelItem>>([]);
@@ -52,7 +56,9 @@ export class DashboardEvidenceLevelsComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    this.loadEvidenceLevels();
+    effect(() => {
+      this.loadEvidenceLevels();
+    });
   }
 
   protected retry(): void {
@@ -69,10 +75,11 @@ export class DashboardEvidenceLevelsComponent {
   }
 
   private loadEvidenceLevels(): void {
+    this.evidenceSub?.unsubscribe();
     this.loading.set(true);
     this.error.set(null);
 
-    this.analyticProvider.getEvidenceLevels()
+    this.evidenceSub = this.analyticProvider.getEvidenceLevels(this.filter())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
