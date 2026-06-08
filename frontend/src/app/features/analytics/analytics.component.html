@@ -6,24 +6,24 @@
     </p>
   </header>
   <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
-    <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"/>
+    <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading" [filter]="filters"/>
   </section>
 
   <section aria-label="Distribution charts" class="dual-chart-grid">
-    <app-dashboard-length-histogram/>
-    <app-dashboard-reviewed-ratio/>
+    <app-dashboard-length-histogram [filter]="filters"/>
+    <app-dashboard-reviewed-ratio [filter]="filters"/>
   </section>
 
   <section aria-label="Evidence levels" class="dual-chart-grid">
-    <app-dashboard-evidence-levels-pie-chart/>
-    <app-dashboard-keyword-frequency-histogram/>
+    <app-dashboard-keyword-frequency-histogram [filter]="filters"/>
+    <app-dashboard-evidence-levels-pie-chart [filter]="filters"/>
   </section>
 
   <section aria-label="Keyword frequency" class="full-width-row">
   </section>
 
   <section aria-label="Top organisms" class="full-width-row">
-    <app-dashboard-top-organisms/>
+    <app-dashboard-top-organisms [filter]="filters"/>
   </section>
 </section>
 

@@ -19,6 +19,7 @@ import {
 import {
   DashboardKeywordFrequencyHistogramComponent
 } from '@shared/components/analytics/dashboard-keyword-frequency-histogram/dashboard-keyword-frequency-histogram.component';
+import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
 /**
  * Analytics page — Epic 4 full view.
@@ -53,4 +54,7 @@ import {
 })
 export class AnalyticsComponent {
   protected dashboardKpiCardLoading = signal<boolean>(true);
+
+  // TODO add component to choose filter from saved filters and fix backend endpoints
+  protected readonly filters: GeneFilterSnapshot = {reviewed: true};
 }
