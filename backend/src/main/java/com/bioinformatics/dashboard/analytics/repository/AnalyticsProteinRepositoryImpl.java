@@ -163,6 +163,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
             }
         }
         query.groupBy(organismNameExpr, taxidExpr);
+        query.orderBy(cb.desc(totalExpr));
 
         return entityManager.createQuery(query).setMaxResults(limit).getResultList();
 
