@@ -31,7 +31,6 @@ import {of} from 'rxjs';
  */
 @Component({
   selector: 'app-dashboard-kpi-card-list',
-  standalone: true,
   template: '',
 })
 class DashboardKpiCardListStubComponent {
@@ -44,7 +43,6 @@ class DashboardKpiCardListStubComponent {
  */
 @Component({
   selector: 'app-dashboard-length-histogram',
-  standalone: true,
   template: '',
 })
 class DashboardLengthHistogramStubComponent {
@@ -52,7 +50,6 @@ class DashboardLengthHistogramStubComponent {
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
-  standalone: true,
   template: '',
 })
 class DashboardReviewedRatioStubComponent {
@@ -60,7 +57,6 @@ class DashboardReviewedRatioStubComponent {
 
 @Component({
   selector: 'app-dashboard-evidence-levels',
-  standalone: true,
   template: '',
 })
 class DashboardEvidenceLevelsStubComponent {
@@ -68,7 +64,6 @@ class DashboardEvidenceLevelsStubComponent {
 
 @Component({
   selector: 'app-dashboard-top-organisms',
-  standalone: true,
   template: '',
 })
 class DashboardTopOrganismsStubComponent {
@@ -76,7 +71,6 @@ class DashboardTopOrganismsStubComponent {
 
 @Component({
   selector: 'app-dashboard-keyword-frequency-histogram',
-  standalone: true,
   template: '',
 })
 class DashboardKeywordFrequencyHistogramStubComponent {

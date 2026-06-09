@@ -56,7 +56,7 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
     {provide: AnalyticsProvider, useExisting: AnalyticsService}
   ],
   templateUrl: './analytics.component.html',
-  styleUrl: './analytics.component.scss',
+  styleUrls: ['./analytics.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyticsComponent implements OnInit {
