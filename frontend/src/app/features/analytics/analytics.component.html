@@ -1,30 +1,68 @@
 <section aria-label="Analytics workspace" class="analytics-page">
   <header class="analytics-header">
-    <h1>Analytics</h1>
-    <p class="analytics-description">
-      Interactive analytics visualizations and comparative insights will be available in this workspace.
-    </p>
+    <div>
+      <h1>Analytics</h1>
+    </div>
+
+    @if (errors()) {
+      <div class="error-banner" role="alert">
+        <p class="text-danger">{{ errors() }}</p>
+      </div>
+    }
+
+    @if (!loading() && !errors() && filters().length > 0) {
+      <div aria-label="Analytics description and filter selector" class="analytics-description" role="region">
+        <div class="select-wrapper">
+          <mat-icon class="icon-filter">filter_list</mat-icon>
+          <select (change)="onFilterSelect($event)" aria-label="Analytics filter selector"
+                  class="filter-select"
+                  id="analytics-filter-select">
+            <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+            @for (filter of filters(); track filter.id) {
+              <option [value]="filter.id">{{ filter.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    }
   </header>
-  <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
-    <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading" [filter]="filters"/>
-  </section>
 
-  <section aria-label="Distribution charts" class="dual-chart-grid">
-    <app-dashboard-length-histogram [filter]="filters"/>
-    <app-dashboard-reviewed-ratio [filter]="filters"/>
-  </section>
+  @if (loading()) {
+    <mat-card appearance="outlined" class="loading-spinner">
+      <app-loading-spinner/>
+    </mat-card>
+  } @else if (!errors()) {
 
-  <section aria-label="Evidence levels" class="dual-chart-grid">
-    <app-dashboard-keyword-frequency-histogram [filter]="filters"/>
-    <app-dashboard-evidence-levels-pie-chart [filter]="filters"/>
-  </section>
+    @if (filters().length === 0) {
+      <div class="empty-state">
+        <p>You should save filters to view visualization.</p>
+      </div>
+    } @else {
 
-  <section aria-label="Keyword frequency" class="full-width-row">
-  </section>
+      @if (!selectedFilter()) {
+        <div class="placeholder-notice">
+          <p>Please select a saved filter from the dropdown to load the dashboard visualizations.</p>
+        </div>
+      } @else {
+        <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+          <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
+                                       [filter]="selectedFilter()!.filterJson"/>
+        </section>
 
-  <section aria-label="Top organisms" class="full-width-row">
-    <app-dashboard-top-organisms [filter]="filters"/>
-  </section>
+        <section aria-label="Distribution charts" class="dual-chart-grid">
+          <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
+          <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
+        </section>
+
+        <section aria-label="Evidence levels" class="dual-chart-grid">
+          <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
+          <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
+        </section>
+
+        <section aria-label="Top organisms" class="full-width-row">
+          <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
+        </section>
+      }
+    }
+  }
 </section>
-
-

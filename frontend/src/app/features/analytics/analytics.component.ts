@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {
   DashboardKpiCardListComponent
 } from '@shared/components/analytics/dashboard-kpi-card-list/dashboard-kpi-card-list.component';
@@ -19,7 +19,11 @@ import {
 import {
   DashboardKeywordFrequencyHistogramComponent
 } from '@shared/components/analytics/dashboard-keyword-frequency-histogram/dashboard-keyword-frequency-histogram.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {SavedFilter} from '@core/models/saved-filter.model';
+import {MatIcon} from '@angular/material/icon';
+import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
+import {MatCard} from '@angular/material/card';
+import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 
 /**
  * Analytics page — Epic 4 full view.
@@ -43,7 +47,10 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
     DashboardReviewedRatioComponent,
     DashboardTopOrganismsComponent,
     DashboardEvidenceLevelsPieChartComponent,
-    DashboardKeywordFrequencyHistogramComponent
+    DashboardKeywordFrequencyHistogramComponent,
+    MatIcon,
+    MatCard,
+    LoadingSpinnerComponent
   ],
   providers: [
     {provide: AnalyticsProvider, useExisting: AnalyticsService}
@@ -52,9 +59,52 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
   styleUrl: './analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AnalyticsComponent {
+export class AnalyticsComponent implements OnInit {
   protected dashboardKpiCardLoading = signal<boolean>(true);
 
-  // TODO add component to choose filter from saved filters and fix backend endpoints
-  protected readonly filters: GeneFilterSnapshot = {reviewed: true};
+  /** True while loading saved filters from API. */
+  protected loading = signal<boolean>(true);
+
+  /** Array of user's saved filter sets. */
+  protected filters = signal<SavedFilter[]>([]);
+
+  protected selectedFilter = signal<SavedFilter | null>(null);
+
+  /** User-facing error message, or null if no error. */
+  protected errors = signal<string | null>(null);
+
+  private readonly service = inject(SavedFiltersService);
+
+  /**
+   * Load saved filters on component init.
+   */
+  ngOnInit(): void {
+    this.service.listSavedFilters().subscribe({
+      next: sf => {
+        this.filters.set(sf || []);
+        this.errors.set(null);
+        this.loading.set(false);
+      },
+      error: _ => {
+        this.errors.set('Failed to load saved filters');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  protected onFilterSelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const filterId = Number(selectElement.value);
+
+    if (!filterId) {
+      this.selectedFilter.set(null);
+      return;
+    }
+
+    const matchedFilter = this.filters().find(f => f.id === filterId);
+    console.log(matchedFilter?.filterJson);
+    this.selectedFilter.set(matchedFilter ?? null);
+
+    console.log('Selected analytics filter:', this.selectedFilter());
+  }
 }
