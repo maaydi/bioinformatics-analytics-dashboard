@@ -7,6 +7,7 @@ import {
   KeywordFrequencyItem,
   LengthHistogramBucket,
   OrganismCount,
+  RawMolecule,
   ReviewedRatioItem,
 } from '@core/models/analytics.model';
 import {environment} from '@env/environment';
@@ -48,5 +49,10 @@ export class AnalyticsService extends AnalyticsProvider {
 
   getKeywordFrequency(limit = 100, filter: GeneFilterSnapshot): Observable<KeywordFrequencyItem[]> {
     return this.http.post<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, filter, {params: {limit}});
+  }
+
+  // TODO implement backend filtered service and controller
+  getRawMolecules(filter?: GeneFilterSnapshot): Observable<RawMolecule[]> {
+    return this.http.post<RawMolecule[]>(`${this.baseUrl}/raw-molecule`, filter);
   }
 }

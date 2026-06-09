@@ -1,0 +1,30 @@
+@use "design-system" as ds;
+
+:host {
+  display: block;
+}
+
+.plot-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+  padding: ds.$spacing-md;
+  background: ds.$color-surface;
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  // subtle elevation consistent with other dashboard cards
+  box-shadow: ds.$shadow-sm;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 450px;
+  min-height: 220px;
+  display: block;
+}
+
+// Responsive tuning: reduce height on smaller viewports to avoid overflow
+@include ds.respond-up-to('md') {
+  .chart-canvas {
+    height: 320px;
+  }
+}

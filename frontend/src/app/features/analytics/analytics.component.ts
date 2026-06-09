@@ -24,19 +24,22 @@ import {MatIcon} from '@angular/material/icon';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 import {MatCard} from '@angular/material/card';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
+import {
+  DashboardScatterLengthWeightComponent
+} from '@features/analytics/dashboard/dashboard-scatter-length-weight/dashboard-scatter-length-weight.component';
 
 /**
  * Analytics page — Epic 4 full view.
  *
  * Interactive charts:
- * - Protein length histogram (US-11) OK
- * - Evidence level pie chart (US-12) OK
+ * - Protein length histogram (US-11) DONE
+ * - Evidence level pie chart (US-12) DONE
  * - Chart-to-table drill-down (US-13)
- * - Dual-subset comparison (US-14)
- * - Proteins by organism bar chart
- * - Reviewed/unreviewed ratio OK
- * - Keyword frequency chart
- * - Length vs Molecular Weight scatter
+ * - Dual-subset comparison (US-14) TODO in COMPARE-001
+ * - Proteins by organism bar chart DONE
+ * - Reviewed/unreviewed ratio DONE
+ * - Keyword frequency chart DONE
+ * - Length vs Molecular Weight scatter DONE frontend TODO backend
  *
  */
 @Component({
@@ -50,7 +53,8 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
     DashboardKeywordFrequencyHistogramComponent,
     MatIcon,
     MatCard,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    DashboardScatterLengthWeightComponent
   ],
   providers: [
     {provide: AnalyticsProvider, useExisting: AnalyticsService}
@@ -104,7 +108,5 @@ export class AnalyticsComponent implements OnInit {
     const matchedFilter = this.filters().find(f => f.id === filterId);
     console.log(matchedFilter?.filterJson);
     this.selectedFilter.set(matchedFilter ?? null);
-
-    console.log('Selected analytics filter:', this.selectedFilter());
   }
 }

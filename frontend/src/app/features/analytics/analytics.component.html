@@ -54,8 +54,12 @@
           <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
         </section>
 
-        <section aria-label="Evidence levels" class="dual-chart-grid">
+        <section aria-label="Top organisms" class="full-width-row">
           <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
+        </section>
+
+        <section aria-label="Evidence levels" class="dual-chart-grid">
+          <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
           <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
         </section>
 

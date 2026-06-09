@@ -1,0 +1,14 @@
+@if (rawLoading()) {
+  <p aria-live="polite" class="state-message">Loading scatter plot...</p>
+} @else if (chartError()) {
+  <div aria-live="assertive" class="state-message state-message-error" role="alert">
+    <p>{{ chartError() }}</p>
+    <button (click)="retryChart()" class="retry-button" type="button">Retry</button>
+  </div>
+} @else if (!scatterData().length) {
+  <p aria-live="polite" class="state-message">No molecular data available for plotting.</p>
+} @else {
+  <div class="plot-wrapper">
+    <div [options]="chartOptions()" class="chart-canvas" echarts></div>
+  </div>
+}
