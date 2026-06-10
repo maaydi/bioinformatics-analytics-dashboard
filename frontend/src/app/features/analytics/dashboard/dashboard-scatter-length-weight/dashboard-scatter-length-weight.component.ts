@@ -27,7 +27,12 @@ export class DashboardScatterLengthWeightComponent {
 
   protected readonly scatterData = signal<ReadonlyArray<[number, number, number]>>([]);
   protected readonly chartError = signal<string | null>(null);
+
   protected readonly chartOptions = computed<EChartsOption>(() => {
+    const data = this.scatterData();
+    const counts = data.map((item) => item[2]);
+    const maxCount =
+      counts.length > 0 ? counts.reduce((max, current) => Math.max(max, current), -Infinity) : 10;
     return {
       title: {
         text: 'Molecular Weight vs. Sequence Length',
@@ -39,7 +44,26 @@ export class DashboardScatterLengthWeightComponent {
         top: 60,
         bottom: 60,
         left: 60,
-        right: 40,
+        right: 80,
+      },
+      visualMap: {
+        show: true,
+        dimension: 2,
+        min: 1,
+        max: maxCount,
+        itemHeight: 120,
+        calculable: true,
+        orient: 'vertical',
+        right: 10,
+        top: 'center',
+        text: ['High', 'Low'],
+        inRange: {
+          color: ['#a5b4fc', '#080117'],
+        },
+        outOfRange: {
+          color: '#d1d5db',
+          opacity: 0.1,
+        },
       },
       tooltip: {
         trigger: 'item',
@@ -70,10 +94,9 @@ export class DashboardScatterLengthWeightComponent {
       series: [
         {
           type: 'scatter',
-          data: this.scatterData() as Array<[number, number, number]>,
+          data: data as Array<[number, number, number]>,
           symbolSize: 10,
           itemStyle: {
-            color: '#4f46e5',
             opacity: 0.85,
           },
           emphasis: {
@@ -86,6 +109,7 @@ export class DashboardScatterLengthWeightComponent {
       ],
     };
   });
+
   private readonly analyticsService = inject(AnalyticsService);
   private readonly destroyRef = inject(DestroyRef);
   private chartSub?: Subscription;
