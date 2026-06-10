@@ -19,4 +19,6 @@ public interface AnalyticsProteinRepository {
 
     List<KeywordFrequencyDto> getKeywordFrequency(int limit, Specification<ProteinEntry> spec);
 
+    List<ProteinLengthWeightCount> getProteinLengthWeightCount(Specification<ProteinEntry> spec);
+
 }

@@ -55,8 +55,9 @@ export interface KeywordFrequencyItem {
   count: number;
 }
 
-/** GET /api/analytics/raw-molecule */
-export interface RawMolecule {
+/** GET /api/analytics/length-weight */
+export interface ProteinLengthWeightCount {
   length: number;
-  molecularWeight: number;
+  moleculeWeight: number;
+  count: number;
 }

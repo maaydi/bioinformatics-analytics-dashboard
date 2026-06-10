@@ -7,7 +7,7 @@ import {
   KeywordFrequencyItem,
   LengthHistogramBucket,
   OrganismCount,
-  RawMolecule,
+  ProteinLengthWeightCount,
   ReviewedRatioItem,
 } from '@core/models/analytics.model';
 import {environment} from '@env/environment';
@@ -23,7 +23,6 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
  */
 @Injectable({providedIn: 'root'})
 export class AnalyticsService extends AnalyticsProvider {
-
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/analytics/filters`;
 
@@ -36,7 +35,9 @@ export class AnalyticsService extends AnalyticsProvider {
   }
 
   getByOrganism(limit = 50, filter: GeneFilterSnapshot): Observable<OrganismCount[]> {
-    return this.http.post<OrganismCount[]>(`${this.baseUrl}/by-organism`, filter, {params: {limit}});
+    return this.http.post<OrganismCount[]>(`${this.baseUrl}/by-organism`, filter, {
+      params: {limit},
+    });
   }
 
   getReviewedRatio(filter: GeneFilterSnapshot): Observable<ReviewedRatioItem[]> {
@@ -48,11 +49,12 @@ export class AnalyticsService extends AnalyticsProvider {
   }
 
   getKeywordFrequency(limit = 100, filter: GeneFilterSnapshot): Observable<KeywordFrequencyItem[]> {
-    return this.http.post<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, filter, {params: {limit}});
+    return this.http.post<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, filter, {
+      params: {limit},
+    });
   }
 
-  // TODO implement backend filtered service and controller
-  getRawMolecules(filter?: GeneFilterSnapshot): Observable<RawMolecule[]> {
-    return this.http.post<RawMolecule[]>(`${this.baseUrl}/raw-molecule`, filter);
+  getProteinLengthWeightCount(filter?: GeneFilterSnapshot): Observable<ProteinLengthWeightCount[]> {
+    return this.http.post<ProteinLengthWeightCount[]>(`${this.baseUrl}/length-weight`, filter);
   }
 }

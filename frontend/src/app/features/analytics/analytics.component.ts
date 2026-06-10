@@ -39,7 +39,7 @@ import {
  * - Proteins by organism bar chart DONE
  * - Reviewed/unreviewed ratio DONE
  * - Keyword frequency chart DONE
- * - Length vs Molecular Weight scatter DONE frontend TODO backend
+ * - Length vs Molecular Weight scatter DONE frontend
  *
  */
 @Component({
@@ -106,7 +106,6 @@ export class AnalyticsComponent implements OnInit {
     }
 
     const matchedFilter = this.filters().find(f => f.id === filterId);
-    console.log(matchedFilter?.filterJson);
     this.selectedFilter.set(matchedFilter ?? null);
   }
 }

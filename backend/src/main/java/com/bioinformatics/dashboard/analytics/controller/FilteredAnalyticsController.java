@@ -84,4 +84,11 @@ public class FilteredAnalyticsController {
         var keywords = service.getKeywordFrequency(limit, request);
         return ResponseEntity.ok(keywords);
     }
+
+    @PostMapping("/length-weight")
+    public ResponseEntity<List<ProteinLengthWeightCount>> getProteinLengthWeightCount(
+            @RequestBody @Valid GeneSearchRequest request) {
+        var raws = service.getProteinLengthWeightCount(request);
+        return ResponseEntity.ok(raws);
+    }
 }

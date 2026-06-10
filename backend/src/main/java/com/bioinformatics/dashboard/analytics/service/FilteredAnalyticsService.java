@@ -55,4 +55,9 @@ public class FilteredAnalyticsService {
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getKeywordFrequency(limit, spec);
     }
+
+    public List<ProteinLengthWeightCount> getProteinLengthWeightCount(GeneSearchRequest request) {
+        var spec = GeneSpecification.fromRequest(request);
+        return proteinEntryRepository.getProteinLengthWeightCount(spec);
+    }
 }

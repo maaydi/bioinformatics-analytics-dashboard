@@ -266,6 +266,44 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 .getResultList();
     }
 
+    /**
+     * Raw query to get count of proteins by length and molecular weight.
+     * select length, molecular_weight, count(*) as protein_count
+     * from protein_entry
+     * group by length, molecular_weight
+     *
+     * @param spec Specification to filter proteins before grouping. Can be null for no filtering.
+     * @return List of ProteinLengthWeightCount containing length, molecular weight and count of proteins for each combination.
+     *
+     */
+    @Override
+    public List<ProteinLengthWeightCount> getProteinLengthWeightCount(Specification<ProteinEntry> spec) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(ProteinLengthWeightCount.class);
+        var root = query.from(ProteinEntry.class);
+
+        var lengthExpr = root.get("length").as(Integer.class);
+        var molecularWeightExpr = root.get("molecularWeight").as(Integer.class);
+
+        var countExpr = cb.count(root);
+        query.select(cb.construct(
+                ProteinLengthWeightCount.class,
+                lengthExpr,
+                molecularWeightExpr,
+                countExpr));
+
+        if (spec != null) {
+            var predicate = spec.toPredicate(root, query, cb);
+            if (predicate != null) {
+                query.where(predicate);
+            }
+        }
+        query.groupBy(lengthExpr, molecularWeightExpr);
+
+        return entityManager.createQuery(query).getResultList();
+    }
+
+
     private long safeLong(Object val) {
         return val instanceof Number ? ((Number) val).longValue() : 0L;
     }

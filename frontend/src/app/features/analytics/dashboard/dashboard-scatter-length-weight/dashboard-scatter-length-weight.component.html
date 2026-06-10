@@ -9,6 +9,6 @@
   <p aria-live="polite" class="state-message">No molecular data available for plotting.</p>
 } @else {
   <div class="plot-wrapper">
-    <div [options]="chartOptions()" class="chart-canvas" echarts></div>
+    <div (chartClick)="onChartClick($event)" [options]="chartOptions()" class="chart-canvas" echarts></div>
   </div>
 }
