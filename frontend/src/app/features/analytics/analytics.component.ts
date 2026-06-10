@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {
   DashboardKpiCardListComponent
 } from '@shared/components/analytics/dashboard-kpi-card-list/dashboard-kpi-card-list.component';
@@ -27,6 +27,8 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 import {
   DashboardScatterLengthWeightComponent
 } from '@features/analytics/dashboard/dashboard-scatter-length-weight/dashboard-scatter-length-weight.component';
+import {MatButton} from '@angular/material/button';
+import html2canvas from 'html2canvas';
 
 /**
  * Analytics page — Epic 4 full view.
@@ -39,7 +41,7 @@ import {
  * - Proteins by organism bar chart DONE
  * - Reviewed/unreviewed ratio DONE
  * - Keyword frequency chart DONE
- * - Length vs Molecular Weight scatter DONE frontend
+ * - Length vs Molecular Weight scatter DONE frontend TODO backend
  *
  */
 @Component({
@@ -54,16 +56,18 @@ import {
     MatIcon,
     MatCard,
     LoadingSpinnerComponent,
-    DashboardScatterLengthWeightComponent
+    DashboardScatterLengthWeightComponent,
+    MatButton,
   ],
-  providers: [
-    {provide: AnalyticsProvider, useExisting: AnalyticsService}
-  ],
+  providers: [{provide: AnalyticsProvider, useExisting: AnalyticsService}],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyticsComponent implements OnInit {
+  @ViewChild('captureArea')
+  captureArea!: ElementRef;
+
   protected dashboardKpiCardLoading = signal<boolean>(true);
 
   /** True while loading saved filters from API. */
@@ -84,15 +88,15 @@ export class AnalyticsComponent implements OnInit {
    */
   ngOnInit(): void {
     this.service.listSavedFilters().subscribe({
-      next: sf => {
+      next: (sf) => {
         this.filters.set(sf || []);
         this.errors.set(null);
         this.loading.set(false);
       },
-      error: _ => {
+      error: (_) => {
         this.errors.set('Failed to load saved filters');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -105,7 +109,21 @@ export class AnalyticsComponent implements OnInit {
       return;
     }
 
-    const matchedFilter = this.filters().find(f => f.id === filterId);
+    const matchedFilter = this.filters().find((f) => f.id === filterId);
     this.selectedFilter.set(matchedFilter ?? null);
+  }
+
+  protected async exportDashboardAsImage() {
+    const canvas = await html2canvas(this.captureArea.nativeElement, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+    });
+
+    const image = canvas.toDataURL('image/png');
+
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `analytics-dashboard-${this.selectedFilter()?.name.replaceAll(' ', '_')}-${new Date().toISOString()}.png`;
+    link.click();
   }
 }

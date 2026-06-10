@@ -13,11 +13,11 @@
 
 ## Status
 
-- [ ] Requirements analyzed
+- [x] Requirements analyzed
 - [ ] CsvExportService implemented
 - [ ] GeneController.exportCsv() completed
 - [ ] Export CSV button implemented in frontend
-- [ ] Export PNG buttons implemented
+- [x] Export PNG buttons implemented
 - [ ] Unit tests written
 - [ ] Integration test written
 - [ ] Documentation updated
@@ -71,11 +71,11 @@
 
 ### Frontend — "Export PNG" buttons (charts)
 
-- [ ] Each chart component exposes a `downloadPng()` method using the chart library's API (e.g.,
+- [x] Each chart component exposes a `downloadPng()` method using the chart library's API (e.g.,
   `echartsInstance.getDataURL({ type: 'png', pixelRatio: 2 })`)
-- [ ] Minimum resolution: `pixelRatio: 2` (ensures ≥ 1200×600 on a 600×300 canvas)
-- [ ] Filename derived from chart title (e.g., `length_histogram.png`)
-- [ ] Export icon button added to each chart card header (accessible, aria-label "Export chart as PNG")
+- [x] Minimum resolution: `pixelRatio: 2` (ensures ≥ 1200×600 on a 600×300 canvas)
+- [x] Filename derived from chart title (e.g., `length_histogram.png`)
+- [x] Export icon button added to each chart card header (accessible, aria-label "Export chart as PNG")
 
 ### General
 

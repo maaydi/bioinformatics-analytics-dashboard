@@ -11,41 +11,6 @@
   gap: 0.5rem;
 }
 
-.chart-header {
-  /* Align title block and selector on a single row; title block remains vertical */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-
-  .heading {
-    display: flex;
-    flex-direction: column;
-    min-width: 0; /* allow text truncation if needed */
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1a1a1a;
-    line-height: 1.1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-
-  p {
-    margin: 0.25rem 0 0;
-    color: #6b7280;
-    font-size: 0.8125rem;
-    line-height: 1.1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-}
-
 /* On small screens stack the selector under the heading */
 @media (max-width: 520px) {
   .chart-header {

@@ -1,5 +1,16 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -10,10 +21,12 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {Subscription} from 'rxjs';
+import {MatIcon} from '@angular/material/icon';
+import {ImageExportService} from '@shared/directive/image-export-service';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
-  imports: [MatCardModule, LoadingSpinnerComponent, MatButtonModule],
+  imports: [MatCardModule, LoadingSpinnerComponent, MatButtonModule, MatIcon],
   templateUrl: './dashboard-reviewed-ratio.component.html',
   styleUrl: './dashboard-reviewed-ratio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +64,11 @@ export class DashboardReviewedRatioComponent {
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
+
+  @ViewChild('chartCard', {read: ElementRef})
+  chartCard!: ElementRef<HTMLElement>;
+
+  private readonly imageExportService = inject(ImageExportService);
 
   constructor() {
     effect(() => {
@@ -90,6 +108,18 @@ export class DashboardReviewedRatioComponent {
           this.loading.set(false);
         }
       });
+  }
+
+  protected async exportAsImage(): Promise<void> {
+    if (!this.chartCard) return;
+
+    if (!this.chartCard) return;
+
+    await this.imageExportService.exportElement(
+      this.chartCard.nativeElement,
+      'evidence-levels-dashboard.png',
+      '.no-export'
+    );
   }
 }
 

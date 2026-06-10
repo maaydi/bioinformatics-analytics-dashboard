@@ -1,6 +1,17 @@
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -11,6 +22,8 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
+import {MatIcon} from '@angular/material/icon';
+import {ImageExportService} from '@shared/directive/image-export-service';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -26,12 +39,16 @@ interface HistogramXAxisTick {
 
 @Component({
   selector: 'app-dashboard-length-histogram',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, MatIcon],
   templateUrl: './dashboard-length-histogram.component.html',
   styleUrl: './dashboard-length-histogram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardLengthHistogramComponent {
+  @ViewChild('chartCard', {read: ElementRef})
+  chartCard!: ElementRef<HTMLElement>;
+
+  private readonly imageExportService = inject(ImageExportService);
   public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
   private lenHistogramSub?: Subscription;
   protected readonly loading = signal<boolean>(true);
@@ -135,5 +152,17 @@ export class DashboardLengthHistogramComponent {
           this.loading.set(false);
         }
       });
+  }
+
+  protected async exportAsImage(): Promise<void> {
+    if (!this.chartCard) return;
+
+    if (!this.chartCard) return;
+
+    await this.imageExportService.exportElement(
+      this.chartCard.nativeElement,
+      'length-histogram-dashboard.png',
+      '.no-export'
+    );
   }
 }

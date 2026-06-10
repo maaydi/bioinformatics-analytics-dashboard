@@ -1,6 +1,21 @@
-<mat-card appearance="outlined" class="chart-card">
-  <header class="chart-header">
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
     <h2>Reviewed vs Unreviewed Proteins</h2>
+    </div>
+
+    <div aria-hidden="false" class="header-actions">
+      <button
+        (click)="exportAsImage()"
+        aria-label="Export chart as image"
+        class="no-export"
+        mat-icon-button
+        title="Export as Image"
+        type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
   </header>
 
   @if (loading()) {

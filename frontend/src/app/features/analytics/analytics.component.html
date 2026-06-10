@@ -23,6 +23,14 @@
             }
           </select>
         </div>
+
+        <div aria-hidden="false" class="actions">
+          <button (click)="exportDashboardAsImage()" [disabled]="!selectedFilter()" class="export-btn" color="primary"
+                  mat-raised-button>
+            <mat-icon aria-hidden="true">image</mat-icon>
+            <span>Export as Image</span>
+          </button>
+        </div>
       </div>
     }
   </header>
@@ -44,28 +52,30 @@
           <p>Please select a saved filter from the dropdown to load the dashboard visualizations.</p>
         </div>
       } @else {
-        <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
-          <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
-                                       [filter]="selectedFilter()!.filterJson"/>
-        </section>
+        <div #captureArea class="analytics-page">
+          <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+            <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
+                                         [filter]="selectedFilter()!.filterJson"/>
+          </section>
 
-        <section aria-label="Distribution charts" class="dual-chart-grid">
-          <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
-          <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
-        </section>
+          <section aria-label="Distribution charts" class="dual-chart-grid">
+            <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
+            <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
+          </section>
 
-        <section aria-label="Top organisms" class="full-width-row">
-          <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
-        </section>
+          <section aria-label="Top organisms" class="full-width-row">
+            <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
+          </section>
 
-        <section aria-label="Evidence levels" class="dual-chart-grid">
-          <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
-          <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
-        </section>
+          <section aria-label="Evidence levels" class="dual-chart-grid">
+            <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
+            <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
+          </section>
 
-        <section aria-label="Top organisms" class="full-width-row">
-          <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
-        </section>
+          <section aria-label="Top organisms" class="full-width-row">
+            <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
+          </section>
+        </div>
       }
     }
   }

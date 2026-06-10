@@ -50,13 +50,52 @@
     font: inherit;
     font-size: 0.95rem;
     color: var(--mat-sys-on-surface, #111);
-    min-width: 220px;
+    min-width: 250px;
   }
 
   .filter-select:focus {
     outline: none;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary, #6200ee) 12%, transparent);
     border-radius: 6px;
+  }
+}
+
+
+.analytics-description {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  width: 60%;
+  justify-content: flex-end;
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: box-shadow 120ms ease, transform 120ms ease;
+    color: var(--mat-sys-on-primary, #6200ee);
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--mat-sys-primary, #6200ee) 14%, transparent);
+      border-radius: 8px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
   }
 }
 

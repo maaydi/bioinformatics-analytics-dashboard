@@ -1,7 +1,21 @@
-<mat-card appearance="outlined" class="chart-card">
-  <header class="chart-header">
-    <h2>Protein Length Distribution</h2>
-    <p>Protein count per 100 AA length bucket</p>
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
+      <h2>Protein Length Distribution</h2>
+      <p>Protein count per 100 AA length bucket</p>
+    </div>
+
+    <div aria-hidden="false" class="header-actions">
+      <button (click)="exportAsImage()"
+              aria-label="Export chart as image"
+              class="no-export"
+              mat-icon-button
+              title="Export as Image"
+              type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
   </header>
 
   @if (loading()) {

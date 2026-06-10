@@ -1,5 +1,16 @@
 import {DecimalPipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
@@ -11,6 +22,8 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {Subscription} from 'rxjs';
+import {MatIcon} from '@angular/material/icon';
+import {ImageExportService} from '@shared/directive/image-export-service';
 
 interface KeywordBucket {
   readonly keyword: string;
@@ -19,7 +32,7 @@ interface KeywordBucket {
 
 @Component({
   selector: 'app-dashboard-keyword-frequency-histogram',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, LimitSelectorComponent],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, LimitSelectorComponent, MatIcon],
   templateUrl: './dashboard-keyword-frequency-histogram.component.html',
   styleUrl: './dashboard-keyword-frequency-histogram.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +64,11 @@ export class DashboardKeywordFrequencyHistogramComponent {
   private readonly analyticProvider = inject(AnalyticsProvider);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+
+  @ViewChild('chartCard', {read: ElementRef})
+  chartCard!: ElementRef<HTMLElement>;
+
+  private readonly imageExportService = inject(ImageExportService);
 
   constructor() {
     effect(() => {
@@ -102,6 +120,18 @@ export class DashboardKeywordFrequencyHistogramComponent {
           this.loading.set(false);
         }
       });
+  }
+
+  protected async exportAsImage(): Promise<void> {
+    if (!this.chartCard) return;
+
+    if (!this.chartCard) return;
+
+    await this.imageExportService.exportElement(
+      this.chartCard.nativeElement,
+      'keyword-frequency-dashboard.png',
+      '.no-export'
+    );
   }
 }
 

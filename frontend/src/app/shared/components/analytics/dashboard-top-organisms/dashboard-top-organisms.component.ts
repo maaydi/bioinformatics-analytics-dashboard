@@ -1,6 +1,17 @@
 import {DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -12,6 +23,8 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {LimitSelectorComponent} from '@shared/components/limit-selector/limit-selector.component';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
+import {MatIcon} from '@angular/material/icon';
+import {ImageExportService} from '@shared/directive/image-export-service';
 
 interface OrganismView {
   readonly name: string;
@@ -21,7 +34,7 @@ interface OrganismView {
 
 @Component({
   selector: 'app-dashboard-top-organisms',
-  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, LimitSelectorComponent],
+  imports: [MatCardModule, DecimalPipe, LoadingSpinnerComponent, MatButtonModule, LimitSelectorComponent, MatIcon],
   templateUrl: './dashboard-top-organisms.component.html',
   styleUrl: './dashboard-top-organisms.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +64,11 @@ export class DashboardTopOrganismsComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
+
+  @ViewChild('chartCard', {read: ElementRef})
+  chartCard!: ElementRef<HTMLElement>;
+
+  private readonly imageExportService = inject(ImageExportService);
 
   constructor() {
     effect(() => {
@@ -93,5 +111,17 @@ export class DashboardTopOrganismsComponent {
           this.loading.set(false);
         }
       });
+  }
+
+  protected async exportAsImage(): Promise<void> {
+    if (!this.chartCard) return;
+
+    if (!this.chartCard) return;
+
+    await this.imageExportService.exportElement(
+      this.chartCard.nativeElement,
+      'evidence-levels-dashboard.png',
+      '.no-export'
+    );
   }
 }

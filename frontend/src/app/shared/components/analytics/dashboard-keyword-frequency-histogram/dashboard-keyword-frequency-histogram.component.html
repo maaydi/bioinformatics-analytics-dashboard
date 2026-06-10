@@ -1,16 +1,29 @@
-<mat-card appearance="outlined" class="chart-card">
-  <header class="chart-header">
-    <div class="heading">
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
       <h2>Keyword Frequency</h2>
       <p>Top keywords by protein occurrence</p>
     </div>
 
-    <app-limit-selector
-      (limitChange)="onLimitChanged($event)"
-      [defaultValue]="limit()"
-      [max]="500"
-      [min]="1"
-    />
+
+    <div aria-hidden="false" class="header-actions">
+      <app-limit-selector
+        (limitChange)="onLimitChanged($event)"
+        [defaultValue]="limit()"
+        [max]="500"
+        [min]="1"
+      />
+      <button
+        (click)="exportAsImage()"
+        aria-label="Export chart as image"
+        class="no-export"
+        mat-icon-button
+        title="Export as Image"
+        type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
   </header>
 
   @if (loading()) {

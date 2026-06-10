@@ -95,3 +95,77 @@ body {
     color: #ffffff !important;
   }
 }
+
+/* ── Chart header/export button style ──────────────────────────────────  */
+
+.chart-header-export-png {
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  .header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    > button.mat-icon-button {
+      background: transparent;
+      border-radius: 0.5rem;
+      padding: 0.25rem;
+
+      &:hover {
+        background-color: rgba(17, 24, 39, 0.04);
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+        border-radius: 0.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    .header-main {
+      width: 100%;
+    }
+
+    .header-actions {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 0.5rem;
+      justify-content: flex-end;
+
+      > button.mat-icon-button {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 0.75rem;
+      }
+    }
+  }
+}
+
