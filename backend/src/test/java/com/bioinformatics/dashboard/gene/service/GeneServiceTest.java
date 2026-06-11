@@ -144,15 +144,25 @@ class GeneServiceTest {
 
     @Test
     void assertWithinExportLimit_exceedsLimit_throws() {
-        // set small max rows to trigger limit
-        appProperties.getExport().getCsv().setMaxRows(1);
+        appProperties.getExport().getCsv().setMaxRows(4);
 
         var request = buildRequest(null, null, null, 10, null);
 
-        var page = new PageImpl<>(List.of(new ProteinEntry(), new ProteinEntry()), PageRequest.of(0, 1), 2);
-        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(5L);
 
         assertThrows(ExportRowCapExceededException.class, () -> service.assertWithinExportLimit(request));
+    }
+
+    @Test
+    void assertWithinExportLimit_return_size() {
+        appProperties.getExport().getCsv().setMaxRows(4);
+
+        var request = buildRequest(null, null, null, 10, null);
+
+        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(3L);
+
+        var count = service.assertWithinExportLimit(request);
+        assertEquals(3L, count);
     }
 
     @Test
