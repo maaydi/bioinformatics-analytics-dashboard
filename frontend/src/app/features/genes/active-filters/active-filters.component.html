@@ -2,6 +2,13 @@
   @if (filtersChips().length > 0) {
     <div class="label-container">
       <label class="section-label">Active Filters</label>
+      <div aria-hidden="false" class="actions">
+        <button (click)="exportResultCsv()" [disabled]="filtersChips().length === 0" class="export-btn" color="primary"
+                mat-raised-button>
+          <mat-icon aria-hidden="true">image</mat-icon>
+          <span>Export CSV</span>
+        </button>
+      </div>
     </div>
     <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
       @for (chip of filtersChips(); track chip.label + chip.value) {

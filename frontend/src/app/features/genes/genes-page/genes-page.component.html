@@ -15,6 +15,7 @@
         (filterRemoved)="store.removeFilter($event)"
         (setChipsCount)="store.updateChipsCount($event)"
         [filters]="store.activeFilters()"
+        (exportCsv)="exportResultCsv()"
       ></app-active-filters>
     </div>
     <div class="result-card__search">

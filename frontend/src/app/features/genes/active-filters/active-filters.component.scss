@@ -19,6 +19,7 @@
  */
 .label-container {
   @include shared.table-title;
+  justify-content: space-between;
 }
 
 /**

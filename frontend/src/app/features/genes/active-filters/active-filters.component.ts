@@ -3,6 +3,7 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatChip, MatChipRemove, MatChipSet} from '@angular/material/chips';
 import {MatIcon} from '@angular/material/icon';
 import {buildFiltersChips, FilterChip} from '@shared/utils/filter-chips-builder';
+import {MatButton} from '@angular/material/button';
 
 
 @Component({
@@ -11,18 +12,21 @@ import {buildFiltersChips, FilterChip} from '@shared/utils/filter-chips-builder'
     MatChipSet,
     MatChip,
     MatIcon,
-    MatChipRemove
+    MatChipRemove,
+    MatButton
   ],
   templateUrl: './active-filters.component.html',
   styleUrl: './active-filters.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActiveFiltersComponent {
+  readonly exportCsv = output<void>();
   readonly filterRemoved = output<keyof GeneFilterSnapshot>();
   readonly setChipsCount = output<number>();
   readonly filters = input<GeneFilterSnapshot | null>(null);
 
   readonly filtersChips = computed(() => this.buildChips(this.filters()));
+
 
   removeFilter(key: keyof GeneFilterSnapshot): void {
     this.filterRemoved.emit(key);
@@ -35,4 +39,7 @@ export class ActiveFiltersComponent {
     return chips;
   }
 
+  protected exportResultCsv() {
+    this.exportCsv.emit();
+  }
 }
