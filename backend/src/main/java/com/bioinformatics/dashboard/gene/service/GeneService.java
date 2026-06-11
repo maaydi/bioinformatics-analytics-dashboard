@@ -85,18 +85,25 @@ public class GeneService {
      * Page configuration is ignored and all data are returned
      *
      */
-    public void exportCsv(GeneSearchRequest request, Writer writer) throws IOException {
-        var maxSize = appProperties.getExport().getCsv().getMaxRows();
+    public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
         request.getRequestPage(SORT_WHITELIST, "id");
-        var page = PageRequest.of(0, maxSize);
+        var page = PageRequest.of(0, (int) totalRows);
         var spec = GeneSpecification.fromRequest(request);
         var genes = proteinService.findAll(spec, page);
-        if (genes.getTotalElements() > maxSize) {
-            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
-                    .formatted(genes.getTotalElements(), maxSize));
-        }
         var csvWriter = new CsvWriter();
         csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
+
+    }
+
+    public long assertWithinExportLimit(GeneSearchRequest request) {
+        var maxSize = appProperties.getExport().getCsv().getMaxRows();
+        var spec = GeneSpecification.fromRequest(request);
+        var totalRows = proteinService.count(spec);
+        if (totalRows > maxSize) {
+            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
+                    .formatted(totalRows, maxSize));
+        }
+        return totalRows;
 
     }
 

@@ -143,7 +143,7 @@ class GeneServiceTest {
     }
 
     @Test
-    void exportCsv_exceedsLimit_throws() {
+    void assertWithinExportLimit_exceedsLimit_throws() {
         // set small max rows to trigger limit
         appProperties.getExport().getCsv().setMaxRows(1);
 
@@ -152,7 +152,7 @@ class GeneServiceTest {
         var page = new PageImpl<>(List.of(new ProteinEntry(), new ProteinEntry()), PageRequest.of(0, 1), 2);
         when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
-        assertThrows(ExportRowCapExceededException.class, () -> service.exportCsv(request, new StringWriter()));
+        assertThrows(ExportRowCapExceededException.class, () -> service.assertWithinExportLimit(request));
     }
 
     @Test
@@ -227,7 +227,7 @@ class GeneServiceTest {
 
         var request = buildRequest(null, null, null, 2, null);
         var writer = new StringWriter();
-        service.exportCsv(request, writer);
+        service.exportCsv(request, writer, 2);
         var output = writer.toString();
         assertNotNull(output);
         assertTrue(output.contains("accession") || output.contains("ACC21"));

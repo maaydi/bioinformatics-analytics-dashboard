@@ -60,13 +60,13 @@
 
 ### Frontend — "Export CSV" button (`features/genes/genes-page/`)
 
-- [ ] Add "Export CSV" button to `GenesPageComponent`
-- [ ] Button `[disabled]` binding: `filtersStore().totalElements === 0`
-- [ ] Tooltip `"No data to export"` when disabled (using `title` attribute for simplicity)
-- [ ] Click handler: call `GenesService.exportCsv(currentFilters)`, trigger browser download via `<a>` element +
+- [x] Add "Export CSV" button to `GenesPageComponent`
+- [x] Button `[disabled]` binding: `filtersStore().totalElements === 0`
+- [x] Tooltip `"No data to export"` when disabled (using `title` attribute for simplicity)
+- [x] Click handler: call `GenesService.exportCsv(currentFilters)`, trigger browser download via `<a>` element +
   `URL.createObjectURL(blob)`
 - [ ] Show loading indicator on button during download
-- [ ] Handle 413 error: show toast "Export limit exceeded. Please refine your filter."
+- [x] Handle 413 error: show toast "Export limit exceeded. Please refine your filter."
 
 ### Frontend — "Export PNG" buttons (charts)
 
@@ -78,7 +78,6 @@
 
 ### General
 
-- [ ] CSV is RFC 4180 compliant
-- [ ] `StreamingResponseBody` used — no OOM risk for large exports
+- [x] CSV is RFC 4180 compliant
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80%

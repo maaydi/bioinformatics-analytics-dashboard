@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        log.warn("Handle Validation Exception {}", ex.getMessage(), ex);
+        log.warn("Handle Validation Exception {}", ex.getMessage());
         var message = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.joining("; "));
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
-        log.warn("Handle Constraint Violation {}", ex.getMessage(), ex);
+        log.warn("Handle Constraint Violation {}", ex.getMessage());
         var message = ex.getConstraintViolations().stream()
                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
                 .collect(Collectors.joining("; "));
@@ -58,44 +58,44 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        log.warn("Handle notFound Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle notFound Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ImportAlreadyRunningException.class)
     public ResponseEntity<ErrorResponse> handleImportConflict(ImportAlreadyRunningException ex) {
-        log.warn("Handle ImportAlreadyRunning Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle ImportAlreadyRunning Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleFileTooLarge(MaxUploadSizeExceededException ex) {
-        log.warn("Handle MaxUploadSizeExceeded Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle MaxUploadSizeExceeded Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONTENT_TOO_LARGE,
                 "File exceeds maximum allowed size of 2 GB");
     }
 
     @ExceptionHandler(ExportRowCapExceededException.class)
-    public ResponseEntity<ErrorResponse> handleExportRowCapExceeded(MaxUploadSizeExceededException ex) {
-        log.warn("Handle ExportRowCapExceeded Exception: {}", ex.getMessage(), ex);
+    public ResponseEntity<ErrorResponse> handleExportRowCapExceeded(ExportRowCapExceededException ex) {
+        log.warn("Handle ExportRowCapExceeded Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONTENT_TOO_LARGE, ex.getMessage());
     }
 
     @ExceptionHandler(UnsupportedFileTypeException.class)
     public ResponseEntity<Object> handleUnsupportedFileTypeException(UnsupportedFileTypeException ex) {
-        log.warn("Handle UnsupportedFileTypeException Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle UnsupportedFileTypeException Exception: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn("Handle IllegalArgumentException Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle IllegalArgumentException Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
     }
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handleAuthentication(RuntimeException ex) {
-        log.warn("Handle Authentication Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Authentication Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
@@ -106,7 +106,7 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        log.warn("Handle Unexpected Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Unexpected Exception: {}", ex.getMessage());
         // Do NOT expose internal details to clients (OWASP A05)
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please contact support.");
@@ -114,13 +114,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateFilterNameException.class)
     public ResponseEntity<ErrorResponse> handleDuplicatedFilterName(DuplicateFilterNameException ex) {
-        log.warn("Handle Duplicate Filter Name Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Duplicate Filter Name Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.CONFLICT, "Duplicate filter name");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-        log.warn("Handle Access Denied Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Access Denied Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, "Access Denied");
     }
 
