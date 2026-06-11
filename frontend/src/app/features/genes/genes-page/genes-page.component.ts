@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatCard} from '@angular/material/card';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
@@ -39,6 +39,7 @@ export class GenesPageComponent {
   private readonly router = inject(Router);
   private geneService = inject(GenesService);
   private notify = inject(NotificationService);
+  protected isExportinProgress = signal<boolean>(false);
 
   constructor() {
     this.store.searchGene(this.store.activeFilters() ?? {});
@@ -69,6 +70,7 @@ export class GenesPageComponent {
     } else {
       const _filters = this.store.activeFilters();
       if (_filters) {
+        this.isExportinProgress.set(true);
         this.geneService.exportCsv({
           ..._filters,
           page: 0,
@@ -77,23 +79,20 @@ export class GenesPageComponent {
         }).subscribe({
           next: (blob: Blob) => {
             const url = window.URL.createObjectURL(blob);
-
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-
             a.download = `proteins_${new Date().toISOString().split('T')[0]}.csv`;
-
             document.body.appendChild(a);
             a.click();
-
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-
+            this.isExportinProgress.set(false);
             this.notify.success('Search result was exported successfully');
           },
           error: err => {
             const message = err.error?.message || 'Export failed due to an error';
+            this.isExportinProgress.set(false);
             this.notify.error(message);
           }
         });

@@ -4,6 +4,7 @@ import {MatChip, MatChipRemove, MatChipSet} from '@angular/material/chips';
 import {MatIcon} from '@angular/material/icon';
 import {buildFiltersChips, FilterChip} from '@shared/utils/filter-chips-builder';
 import {MatButton} from '@angular/material/button';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 
 @Component({
@@ -13,7 +14,8 @@ import {MatButton} from '@angular/material/button';
     MatChip,
     MatIcon,
     MatChipRemove,
-    MatButton
+    MatButton,
+    MatProgressSpinner
   ],
   templateUrl: './active-filters.component.html',
   styleUrl: './active-filters.component.scss',
@@ -24,6 +26,7 @@ export class ActiveFiltersComponent {
   readonly filterRemoved = output<keyof GeneFilterSnapshot>();
   readonly setChipsCount = output<number>();
   readonly filters = input<GeneFilterSnapshot | null>(null);
+  readonly isExportinProgress = input<boolean>(false);
 
   readonly filtersChips = computed(() => this.buildChips(this.filters()));
 

@@ -65,7 +65,7 @@
 - [x] Tooltip `"No data to export"` when disabled (using `title` attribute for simplicity)
 - [x] Click handler: call `GenesService.exportCsv(currentFilters)`, trigger browser download via `<a>` element +
   `URL.createObjectURL(blob)`
-- [ ] Show loading indicator on button during download
+- [x] Show loading indicator on button during download
 - [x] Handle 413 error: show toast "Export limit exceeded. Please refine your filter."
 
 ### Frontend — "Export PNG" buttons (charts)

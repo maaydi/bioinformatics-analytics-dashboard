@@ -3,9 +3,16 @@
     <div class="label-container">
       <label class="section-label">Active Filters</label>
       <div aria-hidden="false" class="actions">
-        <button (click)="exportResultCsv()" [disabled]="filtersChips().length === 0" class="export-btn" color="primary"
+        <button (click)="exportResultCsv()" [disabled]="filtersChips().length === 0 || isExportinProgress()"
+                class="export-btn" color="primary"
                 mat-raised-button>
-          <mat-icon aria-hidden="true">image</mat-icon>
+          @if (isExportinProgress()) {
+            <!-- Use explicit diameter and strokeWidth so spinner visually matches the mat-icon (24px size, thin stroke) -->
+            <mat-spinner aria-hidden="true" class="mat-spinner" diameter="24" mode="indeterminate"
+                         strokeWidth="2"></mat-spinner>
+          } @else {
+            <mat-icon aria-hidden="true">image</mat-icon>
+          }
           <span>Export CSV</span>
         </button>
       </div>

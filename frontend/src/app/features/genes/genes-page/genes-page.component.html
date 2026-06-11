@@ -16,6 +16,7 @@
         (setChipsCount)="store.updateChipsCount($event)"
         [filters]="store.activeFilters()"
         (exportCsv)="exportResultCsv()"
+        [isExportinProgress]="isExportinProgress()"
       ></app-active-filters>
     </div>
     <div class="result-card__search">
