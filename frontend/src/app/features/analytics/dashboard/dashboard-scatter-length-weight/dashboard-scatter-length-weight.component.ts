@@ -1,18 +1,33 @@
-import {Component, computed, DestroyRef, effect, inject, input, model, signal,} from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  model,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Subscription} from 'rxjs';
-import {ECElementEvent, EChartsOption} from 'echarts';
+import {ECElementEvent, ECharts, EChartsOption} from 'echarts';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {NGX_ECHARTS_CONFIG, NgxEchartsDirective} from 'ngx-echarts';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {Router} from '@angular/router';
+import {MatIcon} from '@angular/material/icon';
+import {MatCard, MatCardContent} from '@angular/material/card';
+import {MatIconButton} from '@angular/material/button';
+import {ImageExportService} from '@shared/directive/image-export-service';
 
 @Component({
   selector: 'app-dashboard-scatter-length-weight',
   templateUrl: './dashboard-scatter-length-weight.component.html',
-  imports: [NgxEchartsDirective],
+  imports: [NgxEchartsDirective, MatIcon, MatCard, MatIconButton, MatCardContent],
   providers: [
     {
       provide: NGX_ECHARTS_CONFIG,
@@ -22,26 +37,22 @@ import {Router} from '@angular/router';
   styleUrls: ['./dashboard-scatter-length-weight.component.scss'],
 })
 export class DashboardScatterLengthWeightComponent {
+  @ViewChild('chartCard', {read: ElementRef})
+  chartCard!: ElementRef<HTMLElement>;
+
   public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
   public readonly rawLoading = model<boolean>(true);
 
   protected readonly scatterData = signal<ReadonlyArray<[number, number, number]>>([]);
   protected readonly chartError = signal<string | null>(null);
-
   protected readonly chartOptions = computed<EChartsOption>(() => {
     const data = this.scatterData();
     const counts = data.map((item) => item[2]);
     const maxCount =
       counts.length > 0 ? counts.reduce((max, current) => Math.max(max, current), -Infinity) : 10;
     return {
-      title: {
-        text: 'Molecular Weight vs. Sequence Length',
-        subtext: 'Click a point for detailed analysis in Gene Explorer',
-        left: 'center',
-        textStyle: {fontSize: 16, color: '#333'},
-      },
       grid: {
-        top: 60,
+        top: 20,
         bottom: 60,
         left: 60,
         right: 80,
@@ -109,6 +120,8 @@ export class DashboardScatterLengthWeightComponent {
       ],
     };
   });
+  private echartsInstance!: ECharts;
+  private readonly imageExportService = inject(ImageExportService);
 
   private readonly analyticsService = inject(AnalyticsService);
   private readonly destroyRef = inject(DestroyRef);
@@ -120,6 +133,10 @@ export class DashboardScatterLengthWeightComponent {
     effect(() => {
       this.loadChartData();
     });
+  }
+
+  onChartInit(ec: any) {
+    this.echartsInstance = ec as ECharts;
   }
 
   protected retryChart(): void {
@@ -158,5 +175,16 @@ export class DashboardScatterLengthWeightComponent {
           this.rawLoading.set(false);
         },
       });
+  }
+
+
+  protected async exportAsImage(): Promise<void> {
+    if (!this.echartsInstance) return;
+    await this.imageExportService.exportEChart(
+      this.chartCard.nativeElement,
+      this.echartsInstance,
+      'protein-length-weight',
+      '.no-export'
+    );
   }
 }

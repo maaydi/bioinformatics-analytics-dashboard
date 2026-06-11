@@ -1,14 +1,44 @@
-@if (rawLoading()) {
-  <p aria-live="polite" class="state-message">Loading scatter plot...</p>
-} @else if (chartError()) {
-  <div aria-live="assertive" class="state-message state-message-error" role="alert">
-    <p>{{ chartError() }}</p>
-    <button (click)="retryChart()" class="retry-button" type="button">Retry</button>
-  </div>
-} @else if (!scatterData().length) {
-  <p aria-live="polite" class="state-message">No molecular data available for plotting.</p>
-} @else {
-  <div class="plot-wrapper">
-    <div (chartClick)="onChartClick($event)" [options]="chartOptions()" class="chart-canvas" echarts></div>
-  </div>
-}
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header aria-labelledby="scatter-title" class="chart-header-export-png" role="group">
+    <div class="header-main">
+      <h2 id="scatter-title">Molecular Weight vs. Sequence Length</h2>
+      <p>Click a point for detailed analysis in Gene Explorer</p>
+    </div>
+
+    <div aria-hidden="false" class="header-actions">
+      <button
+        (click)="exportAsImage()"
+        aria-label="Export chart as image"
+        class="no-export"
+        mat-icon-button
+        title="Export as Image"
+        type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <mat-card-content>
+    @if (rawLoading()) {
+      <p aria-live="polite" class="state-message">Loading scatter plot...</p>
+    } @else if (chartError()) {
+      <div aria-live="assertive" class="state-message state-message-error" role="alert">
+        <p>{{ chartError() }}</p>
+        <button (click)="retryChart()" class="retry-button" type="button">Retry</button>
+      </div>
+    } @else if (!scatterData().length) {
+      <p aria-live="polite" class="state-message">No molecular data available for plotting.</p>
+    } @else {
+      <div class="plot-wrapper">
+        <div
+          (chartClick)="onChartClick($event)"
+          (chartInit)="onChartInit($event)"
+          [options]="chartOptions()"
+          class="chart-canvas"
+          echarts>
+        </div>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

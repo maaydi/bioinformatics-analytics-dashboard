@@ -44,8 +44,6 @@ export class DashboardEvidenceLevelsComponent extends AbstractDashboardEvidenceL
   protected async exportAsImage(): Promise<void> {
     if (!this.chartCard) return;
 
-    if (!this.chartCard) return;
-
     await this.imageExportService.exportElement(
       this.chartCard.nativeElement,
       'evidence-levels-dashboard.png',
