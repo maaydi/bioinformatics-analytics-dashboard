@@ -96,7 +96,8 @@ export class GenesPageComponent {
             this.notify.error(message);
           }
         });
-
+      } else {
+        this.notify.error('No active filters to export.');
       }
     }
 
