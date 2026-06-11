@@ -46,7 +46,7 @@ export class DashboardEvidenceLevelsComponent extends AbstractDashboardEvidenceL
 
     await this.imageExportService.exportElement(
       this.chartCard.nativeElement,
-      'evidence-levels-dashboard.png',
+      'evidence-levels-dashboard',
       '.no-export'
     );
   }

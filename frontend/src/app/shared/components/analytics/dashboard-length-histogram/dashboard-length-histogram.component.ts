@@ -161,7 +161,7 @@ export class DashboardLengthHistogramComponent {
 
     await this.imageExportService.exportElement(
       this.chartCard.nativeElement,
-      'length-histogram-dashboard.png',
+      'length-histogram',
       '.no-export'
     );
   }

@@ -32,7 +32,6 @@
   color: #991b1b;
 }
 
-// Fills the flexible content row and centres its children
 .ratio-layout {
   display: flex;
   flex-direction: column;
@@ -41,22 +40,8 @@
   gap: 1.5rem;
 }
 
-.donut {
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  // Primary azure blue for reviewed, muted blue-gray for unreviewed
-  background: conic-gradient(#1565c0 0 62%, #93c5fd 62% 100%);
-  position: relative;
-  box-shadow: 0 2px 8px rgba(21, 101, 192, 0.25);
-}
-
-.donut::after {
-  content: '';
-  position: absolute;
-  inset: 24px;
-  border-radius: 50%;
-  background: white;
+.donut-svg {
+  filter: drop-shadow(0 2px 8px rgba(21, 101, 192, 0.25));
 }
 
 .legend-list {

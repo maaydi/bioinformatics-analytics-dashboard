@@ -31,7 +31,24 @@
     <p aria-live="polite" class="chart-state">No reviewed ratio data available.</p>
   } @else {
     <div class="ratio-layout">
-      <div [style.background]="donutBackground()" aria-hidden="true" class="donut"></div>
+      <svg class="donut-svg" height="180" viewBox="0 -4 36 44" width="180">
+        <path class="donut-ring"
+              d="M18 2.0845
+        a 15.9155 15.9155 0 0 1 0 31.831
+        a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none"
+              stroke="#93c5fd"
+              stroke-width="8"/>
+
+        <path [attr.stroke-dasharray]="reviewedPercent() + ', 100'"
+              class="donut-segment"
+              d="M18 2.0845
+        a 15.9155 15.9155 0 0 1 0 31.831
+        a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none"
+              stroke="#1565c0"
+              stroke-width="8"/>
+      </svg>
 
       <div class="legend-list">
         <button (click)="selectReviewedStatus(true)" class="legend-item reviewed legend-button" type="button">

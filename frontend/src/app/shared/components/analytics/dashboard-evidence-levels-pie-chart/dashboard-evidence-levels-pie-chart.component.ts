@@ -71,7 +71,7 @@ export class DashboardEvidenceLevelsPieChartComponent extends AbstractDashboardE
 
     await this.imageExportService.exportElement(
       this.chartCard.nativeElement,
-      'evidence-levels-dashboard.png',
+      'evidence-levels-pie-chart',
       '.no-export'
     );
   }
