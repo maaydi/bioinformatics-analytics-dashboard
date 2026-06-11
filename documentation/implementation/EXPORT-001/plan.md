@@ -16,7 +16,7 @@
 - [x] Requirements analyzed
 - [ ] CsvExportService implemented
 - [ ] GeneController.exportCsv() completed
-- [ ] Export CSV button implemented in frontend
+- [x] Export CSV button implemented in frontend
 - [x] Export PNG buttons implemented
 - [ ] Unit tests written
 - [ ] Integration test written
@@ -30,34 +30,33 @@
 
 ### Backend — `CsvExportService`
 
-- [ ] `exportCsv(GeneSearchRequest request, HttpServletResponse response)`:
-    - [ ] Set response headers: `Content-Type: text/csv`,
+- [x] `exportCsv(GeneSearchRequest request, HttpServletResponse response)`:
+  - [x] Set response headers: `Content-Type: text/csv`,
       `Content-Disposition: attachment; filename="proteins_<date>.csv"`
-    - [ ] Count matching rows first; if > 100,000 throw `ExportRowCapExceededException` → 413
-    - [ ] Use `StreamingResponseBody` + `PrintWriter` to stream rows in chunks of 500
-    - [ ] Write CSV header row:
+  - [x] Count matching rows first; if > 100,000 throw `ExportRowCapExceededException` → 413
+  - [x] Write CSV header row:
       `id,accession,entryName,proteinFullName,geneNamePrimary,organismName,taxid,reviewed,length,molecularWeight,evidenceLevel,keywords`
-    - [ ] Escape commas and quotes in all string fields (RFC 4180 compliant)
-    - [ ] Serialize `keywords` as pipe-separated string within the cell
-- [ ] `ExportRowCapExceededException` — message: "Export limit exceeded. Result contains N rows; maximum is 100,000.
+  - [x] Escape commas and quotes in all string fields (RFC 4180 compliant)
+  - [x] Serialize `keywords` as pipe-separated string within the cell
+- [x] `ExportRowCapExceededException` — message: "Export limit exceeded. Result contains N rows; maximum is 100,000.
   Please refine your filter."
 
 ### Backend — Controller
 
-- [ ] Remove `UnsupportedOperationException` stub in `GeneController.exportCsv()`
-- [ ] Inject `CsvExportService`; delegate call
-- [ ] Global exception handler maps `ExportRowCapExceededException → 413`
+- [x] Remove `UnsupportedOperationException` stub in `GeneController.exportCsv()`
+- [x] Inject `CsvExportService`; delegate call
+- [x] Global exception handler maps `ExportRowCapExceededException → 413`
 
 ### Backend — Tests
 
-- [ ] `CsvExportServiceTest` — unit:
-    - [ ] Correct CSV headers in output
-    - [ ] Keywords serialized as pipe-separated
-    - [ ] Special characters (comma, quote) properly escaped
-    - [ ] Throws `ExportRowCapExceededException` when row count > 100,000
-- [ ] `GeneControllerIntegrationTest` (extend existing):
-    - [ ] `POST /api/genes/export-csv` with no filters returns 200 CSV
-    - [ ] `POST /api/genes/export-csv` over row cap returns 413
+- [x] `CsvExportServiceTest` — unit:
+  - [x] Correct CSV headers in output
+  - [x] Keywords serialized as pipe-separated
+  - [x] Special characters (comma, quote) properly escaped
+  - [x] Throws `ExportRowCapExceededException` when row count > 100,000
+- [x] `GeneControllerIntegrationTest` (extend existing):
+  - [x] `POST /api/genes/export-csv` with no filters returns 200 CSV
+  - [x] `POST /api/genes/export-csv` over row cap returns 413
 
 ### Frontend — "Export CSV" button (`features/genes/genes-page/`)
 

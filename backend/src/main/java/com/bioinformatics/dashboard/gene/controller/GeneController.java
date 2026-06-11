@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.gene.controller;
 
-import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
+import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
@@ -82,7 +82,6 @@ public class GeneController {
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
-        // 2. Set headers
         response.setContentType("text/csv");
         response.setCharacterEncoding("UTF-8");
         var filename = String.format("proteins_%s.csv", LocalDate.now());
@@ -90,7 +89,7 @@ public class GeneController {
         try (var writer = response.getWriter()) {
             geneService.exportCsv(request, writer);
         } catch (Exception e) {
-            if (e instanceof PayloadTooLargeException pex) {
+            if (e instanceof ExportRowCapExceededException pex) {
                 response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Failed to export csv " + pex.getMessage());
             }
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to export csv " + e.getMessage());

@@ -2,7 +2,7 @@ package com.bioinformatics.dashboard.gene.service;
 
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
-import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
+import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -87,12 +87,13 @@ public class GeneService {
      */
     public void exportCsv(GeneSearchRequest request, Writer writer) throws IOException {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
-        request.getRequestPage(SORT_WHITELIST, "id"); // to validate sort field or use default one if null
+        request.getRequestPage(SORT_WHITELIST, "id");
         var page = PageRequest.of(0, maxSize);
         var spec = GeneSpecification.fromRequest(request);
         var genes = proteinService.findAll(spec, page);
         if (genes.getTotalElements() > maxSize) {
-            throw new PayloadTooLargeException("Export limit exceeded. Maximum allowed rows: " + maxSize);
+            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
+                    .formatted(genes.getTotalElements(), maxSize));
         }
         var csvWriter = new CsvWriter();
         csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());

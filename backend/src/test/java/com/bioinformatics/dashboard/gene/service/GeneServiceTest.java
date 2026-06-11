@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.gene.service;
 
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
+import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -10,7 +10,6 @@ import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -153,7 +152,7 @@ class GeneServiceTest {
         var page = new PageImpl<>(List.of(new ProteinEntry(), new ProteinEntry()), PageRequest.of(0, 1), 2);
         when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
 
-        assertThrows(PayloadTooLargeException.class, () -> service.exportCsv(request, new StringWriter()));
+        assertThrows(ExportRowCapExceededException.class, () -> service.exportCsv(request, new StringWriter()));
     }
 
     @Test
