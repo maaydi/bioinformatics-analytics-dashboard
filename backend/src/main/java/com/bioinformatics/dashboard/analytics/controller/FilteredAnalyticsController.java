@@ -1,6 +1,8 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.dto.compare.CompareRequestDto;
+import com.bioinformatics.dashboard.analytics.dto.compare.CompareResponseDto;
 import com.bioinformatics.dashboard.analytics.service.FilteredAnalyticsService;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import jakarta.validation.Valid;
@@ -90,5 +92,11 @@ public class FilteredAnalyticsController {
             @RequestBody @Valid GeneSearchRequest request) {
         var raws = service.getProteinLengthWeightCount(request);
         return ResponseEntity.ok(raws);
+    }
+
+    @PostMapping("/compare")
+    public ResponseEntity<CompareResponseDto> compare(@RequestBody @Valid CompareRequestDto request) {
+        var result = service.compare(request);
+        return ResponseEntity.ok(result);
     }
 }

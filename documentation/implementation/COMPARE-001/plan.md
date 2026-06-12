@@ -17,7 +17,7 @@
 - [x] Requirements analyzed
 - [x] Backend DTOs implemented
 - [x] AnalyticsService.compare() implemented
-- [ ] Controller endpoint added
+- [x] Controller endpoint added
 - [ ] Angular models defined
 - [ ] Angular service method implemented
 - [ ] CompareComponent implemented
@@ -49,11 +49,11 @@
 
 ### Backend — Controller
 
-- [ ] `@PostMapping("/compare")` in `AnalyticsController`
-- [ ] Delegates to `AnalyticsService.compare()`
-- [ ] Returns `200 OK` with `CompareResponseDto`
-- [ ] Returns `400` on `@Valid` failure
-- [ ] Returns `401` without JWT
+- [x] `@PostMapping("/compare")` in `AnalyticsController`
+- [x] Delegates to `AnalyticsService.compare()`
+- [x] Returns `200 OK` with `CompareResponseDto`
+- [x] Returns `400` on `@Valid` failure
+- [x] Returns `401` without JWT
 
 ### Backend — Tests
 

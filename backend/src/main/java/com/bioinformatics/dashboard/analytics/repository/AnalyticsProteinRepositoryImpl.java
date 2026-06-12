@@ -5,6 +5,9 @@ import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -13,6 +16,15 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private static <T> void injectSpecification(Specification<ProteinEntry> spec, Root<ProteinEntry> root, CriteriaQuery<T> query, CriteriaBuilder cb) {
+        if (spec != null) {
+            var predicate = spec.toPredicate(root, query, cb);
+            if (predicate != null) {
+                query.where(predicate);
+            }
+        }
+    }
 
     @Override
     public DashboardKpisDto getDashboardKpis(Specification<ProteinEntry> spec) {
@@ -55,14 +67,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 )
 
         );
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         var result = entityManager.createQuery(query).getSingleResult();
 
         long total = safeLong(result.get(0));
@@ -83,7 +88,6 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         );
     }
 
-
     @Override
     public List<LengthHistogramBucketDto> getLengthHistogram(Specification<ProteinEntry> spec) {
         var cb = entityManager.getCriteriaBuilder();
@@ -102,14 +106,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         var countExpr = cb.count(root);
 
         query.select(cb.construct(LengthHistogramBucketDto.class, bucketExpr, countExpr));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(bucketExpr);
         query.orderBy(cb.asc(bucketExpr));
 
@@ -156,13 +153,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 unreviewedCountExpr,
                 avgLengthExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
         query.groupBy(organismNameExpr, taxidExpr);
         query.orderBy(cb.desc(totalExpr));
 
@@ -184,14 +175,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 reviewedExpr,
                 countExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(reviewedExpr);
         return entityManager.createQuery(query).getResultList();
     }
@@ -221,12 +205,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 countExpr
         ));
 
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
 
         query.groupBy(evidenceLevelExpr);
         query.orderBy(cb.asc(evidenceLevelExpr));
@@ -251,14 +230,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 keywordNameExpr,
                 countExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(keywordNameExpr);
         query.orderBy(cb.desc(countExpr));
 
@@ -293,15 +265,19 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 molecularWeightExpr,
                 countExpr));
 
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
         query.groupBy(lengthExpr, molecularWeightExpr);
 
         return entityManager.createQuery(query).getResultList();
+    }
+
+
+    private long safeLong(Object val) {
+        return val instanceof Number ? ((Number) val).longValue() : 0L;
+    }
+
+    private int safeInt(Object val) {
+        return val instanceof Number ? ((Number) val).intValue() : 0;
     }
 
     @Override
@@ -320,12 +296,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 avgLengthExpr,
                 reviewedCountExpr
         ));
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
         var result = entityManager.createQuery(query).getSingleResult();
         var count = safeLong(result.get(0));
         if (count == 0) {
@@ -344,14 +315,5 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 lengthDist,
                 evidenceDist
         );
-    }
-
-
-    private long safeLong(Object val) {
-        return val instanceof Number ? ((Number) val).longValue() : 0L;
-    }
-
-    private int safeInt(Object val) {
-        return val instanceof Number ? ((Number) val).intValue() : 0;
     }
 }
