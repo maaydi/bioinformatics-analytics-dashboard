@@ -14,14 +14,14 @@
 ## Status
 
 - [x] Requirements analyzed
-- [ ] CsvExportService implemented
-- [ ] GeneController.exportCsv() completed
+- [x] CsvExportService implemented
+- [x] GeneController.exportCsv() completed
 - [x] Export CSV button implemented in frontend
 - [x] Export PNG buttons implemented
-- [ ] Unit tests written
-- [ ] Integration test written
-- [ ] Documentation updated
-- [ ] Code reviewed
+- [x] Unit tests written
+- [x] Integration test written
+- [x] Documentation updated
+- [x] Code reviewed
 - [ ] Coverage ≥ 80%
 
 ---
@@ -79,5 +79,5 @@
 ### General
 
 - [x] CSV is RFC 4180 compliant
-- [ ] Code reviewed
+- [x] Code reviewed
 - [ ] Coverage ≥ 80%

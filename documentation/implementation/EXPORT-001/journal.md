@@ -30,6 +30,8 @@
 - Added analytics improvements: Length vs Molecular Weight scatter chart, filter propagation to analytics, and unit
   tests for analytics components/services.
 
+## 2026-06-12
 
+- Add Unit tests.
 
 

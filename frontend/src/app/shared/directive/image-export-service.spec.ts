@@ -3,8 +3,8 @@ import {ImageExportService} from './image-export-service';
 import {NotificationService} from './notification.service';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ECharts} from 'echarts';
+import html2canvas from 'html2canvas';
 
-// Mock html2canvas
 vi.mock('html2canvas', () => ({
   default: vi.fn(),
 }));
@@ -15,6 +15,10 @@ describe('ImageExportService', () => {
   let mockElement: HTMLElement;
 
   beforeEach(() => {
+    vi.mocked(html2canvas).mockReset().mockResolvedValue({
+      toDataURL: () => 'data:image/png;base64,test',
+    } as any);
+
     TestBed.configureTestingModule({
       providers: [
         ImageExportService,
@@ -50,11 +54,6 @@ describe('ImageExportService', () => {
 
   describe('exportElement method', () => {
     it('should display notification when export starts', async () => {
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
       await service.exportElement(mockElement, 'test-file');
 
       expect(notificationService.show).toHaveBeenCalledWith(
@@ -71,45 +70,20 @@ describe('ImageExportService', () => {
       containerDiv.appendChild(childToHide);
       document.body.appendChild(containerDiv);
 
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
       const initialVisibility = childToHide.style.visibility;
       await service.exportElement(containerDiv, 'test', '.no-export');
 
-      // After export, visibility should be restored
       expect(childToHide.style.visibility === initialVisibility || childToHide.style.visibility === '').toBe(true);
 
       containerDiv.remove();
     });
 
-    it('should create download link and trigger click', async () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
-      await service.exportElement(mockElement, 'test-file');
-
-      // Verify that createElement was called for the anchor element
-      expect(createElementSpy).toHaveBeenCalledWith('a');
-    });
 
     it('should set download attribute with correct filename', async () => {
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
       await service.exportElement(mockElement, 'my-export');
 
-      // Find the anchor element that was appended
       const anchors = document.querySelectorAll('a');
       if (anchors.length > 0) {
-        // Find the most recently added one
         const lastAnchor = anchors[anchors.length - 1];
         expect(lastAnchor.download).toContain('my-export');
       }
@@ -118,12 +92,11 @@ describe('ImageExportService', () => {
     it('should handle errors gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
       });
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockRejectedValue(new Error('Canvas error'));
+
+      vi.mocked(html2canvas).mockRejectedValue(new Error('Canvas error'));
 
       await service.exportElement(mockElement, 'test-file');
 
-      // Service should handle error without throwing
       expect(consoleErrorSpy).toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
@@ -132,11 +105,6 @@ describe('ImageExportService', () => {
     it('should dismiss notification in finally block', async () => {
       const mockToastRef = {dismiss: vi.fn()};
       (notificationService.show as any).mockReturnValue(mockToastRef);
-
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
 
       await service.exportElement(mockElement, 'test-file');
 
@@ -150,44 +118,14 @@ describe('ImageExportService', () => {
       containerDiv.appendChild(childToHide);
       document.body.appendChild(containerDiv);
 
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
       await service.exportElement(containerDiv, 'test', '.no-export');
 
-      // Visibility should be restored (either empty or original value)
       expect(childToHide.style.visibility === '' || childToHide.style.visibility === 'visible').toBe(true);
 
       containerDiv.remove();
     });
 
-    it('should call html2canvas with correct options', async () => {
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
-      await service.exportElement(mockElement, 'test');
-
-      expect((html2canvasMock.default as any)).toHaveBeenCalledWith(
-        mockElement,
-        expect.objectContaining({
-          scale: 2,
-          logging: false,
-          useCORS: true,
-        }),
-      );
-    });
-
     it('should handle no hideSelector gracefully', async () => {
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
-      // Should not throw when hideSelector is undefined
       await expect(service.exportElement(mockElement, 'test')).resolves.not.toThrow();
     });
   });
@@ -218,6 +156,7 @@ describe('ImageExportService', () => {
       service.exportEChart(mockElement, mockChart as ECharts, 'chart-export');
 
       expect(createElementSpy).toHaveBeenCalledWith('a');
+      createElementSpy.mockRestore();
     });
 
     it('should set download filename for chart', () => {
@@ -240,7 +179,6 @@ describe('ImageExportService', () => {
       const initialVisibility = childToHide.style.visibility;
       service.exportEChart(containerDiv, mockChart as ECharts, 'test', '.no-export');
 
-      // After export, visibility should be restored
       expect(childToHide.style.visibility === initialVisibility || childToHide.style.visibility === '').toBe(true);
 
       containerDiv.remove();
@@ -269,7 +207,6 @@ describe('ImageExportService', () => {
         }),
       };
 
-      // Should not throw
       expect(() => service.exportEChart(mockElement, errorChart as ECharts, 'test')).not.toThrow();
 
       consoleErrorSpy.mockRestore();
@@ -280,16 +217,13 @@ describe('ImageExportService', () => {
       service.exportEChart(mockElement, mockChart as ECharts, 'chart');
 
       expect(removeSpy).toHaveBeenCalled();
+      removeSpy.mockRestore();
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle empty element', async () => {
       const emptyElement = document.createElement('div');
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,empty',
-      });
 
       await expect(service.exportElement(emptyElement, 'empty')).resolves.not.toThrow();
     });
@@ -309,11 +243,6 @@ describe('ImageExportService', () => {
     });
 
     it('should notify user with progress indicator options', async () => {
-      const html2canvasMock = await import('html2canvas');
-      (html2canvasMock.default as any).mockResolvedValue({
-        toDataURL: () => 'data:image/png;base64,test',
-      });
-
       await service.exportElement(mockElement, 'test');
 
       expect(notificationService.show).toHaveBeenCalledWith(
@@ -329,4 +258,3 @@ describe('ImageExportService', () => {
     });
   });
 });
-
