@@ -271,15 +271,6 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         return entityManager.createQuery(query).getResultList();
     }
 
-
-    private long safeLong(Object val) {
-        return val instanceof Number ? ((Number) val).longValue() : 0L;
-    }
-
-    private int safeInt(Object val) {
-        return val instanceof Number ? ((Number) val).intValue() : 0;
-    }
-
     @Override
     public AnalyticsSubsetDto getAnalyticsSubset(Specification<ProteinEntry> spec) {
         var cb = entityManager.getCriteriaBuilder();
@@ -316,4 +307,14 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 evidenceDist
         );
     }
+
+
+    private long safeLong(Object val) {
+        return val instanceof Number ? ((Number) val).longValue() : 0L;
+    }
+
+    private int safeInt(Object val) {
+        return val instanceof Number ? ((Number) val).intValue() : 0;
+    }
+
 }

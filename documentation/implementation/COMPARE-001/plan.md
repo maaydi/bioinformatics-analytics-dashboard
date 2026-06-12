@@ -21,7 +21,7 @@
 - [ ] Angular models defined
 - [ ] Angular service method implemented
 - [ ] CompareComponent implemented
-- [ ] Unit tests written
+- [-] Unit tests written
 - [ ] Documentation updated
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80%
@@ -57,12 +57,12 @@
 
 ### Backend — Tests
 
-- [ ] `AnalyticsServiceTest`:
-    - [ ] `compare` with two distinct filters returns non-null a and b
-    - [ ] `compare` with empty filter set A returns total dataset subset
-- [ ] `AnalyticsControllerIntegrationTest`:
-    - [ ] `POST /api/analytics/compare` valid body → 200 with a/b
-    - [ ] `POST /api/analytics/compare` invalid body → 400
+- [x] `AnalyticsServiceTest`:
+  - [x] `compare` with two distinct filters returns non-null a and b
+  - [x] `compare` with empty filter set A returns total dataset subset
+- [x] `AnalyticsControllerIntegrationTest`:
+  - [x] `POST /api/analytics/compare` valid body → 200 with a/b
+  - [x] `POST /api/analytics/compare` invalid body → 400
 
 ### Frontend — Models
 
