@@ -1,0 +1,20 @@
+<mat-form-field appearance="outline" class="limit-field">
+  <input
+    [formControl]="limitControl"
+    [matAutocomplete]="auto"
+    [max]="max()"
+    [min]="min()"
+    aria-label="Number of items to display"
+    matInput
+    type="number"
+  />
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
+    @for (preset of presets(); track preset) {
+      <mat-option [value]="preset">{{ preset }}</mat-option>
+    }
+  </mat-autocomplete>
+
+  @if (limitControl.hasError('min') || limitControl.hasError('max')) {
+    <mat-error>Enter a value between {{ min() }} and {{ max() }}</mat-error>
+  }
+</mat-form-field>

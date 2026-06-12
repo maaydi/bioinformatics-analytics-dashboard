@@ -1,0 +1,88 @@
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
+      <h2>Keyword Frequency</h2>
+      <p>Top keywords by protein occurrence</p>
+    </div>
+
+
+    <div aria-hidden="false" class="header-actions">
+      <app-limit-selector
+        (limitChange)="onLimitChanged($event)"
+        [defaultValue]="limit()"
+        [max]="500"
+        [min]="1"
+      />
+      <button
+        (click)="exportAsImage()"
+        aria-label="Export chart as image"
+        class="no-export"
+        mat-icon-button
+        title="Export as Image"
+        type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="chart-state">
+      <app-loading-spinner/>
+    </div>
+  } @else if (error()) {
+    <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
+      <p>{{ error() }}</p>
+      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+    </div>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No keyword data available.</p>
+  } @else {
+    <div aria-label="Keyword frequency histogram" class="chart-area" role="img">
+
+      <!-- Y axis labels -->
+      <div aria-hidden="true" class="y-axis">
+        @for (tick of [maxCount(), Math.round(maxCount() * 0.75), Math.round(maxCount() * 0.5), Math.round(maxCount() * 0.25), 0]; track tick + '-' + $index) {
+          <span class="y-tick">{{ tick | number }}</span>
+        }
+      </div>
+
+      <!-- Plot area -->
+      <div class="plot">
+        <div aria-hidden="true" class="grid-lines">
+          @for (tick of [0, 1, 2, 3, 4]; track tick + '-' + $index) {
+            <div class="grid-line"></div>
+          }
+        </div>
+
+        <div [style.grid-template-columns]="barGridTemplate()" class="bars">
+          @for (bucket of visibleBuckets(); track bucket.keyword) {
+            <button
+              (click)="selectKeyword(bucket)"
+              [attr.aria-label]="'Keyword ' + bucket.keyword + ', count ' + bucket.count"
+              class="bar-col"
+              type="button"
+            >
+              <span class="bar-tooltip">
+                <span>Keyword: {{ bucket.keyword }}</span>
+                <span>Count: {{ bucket.count | number }}</span>
+                <span>Share: {{ barShare(bucket.count) | number:'1.0-2' }}%</span>
+              </span>
+
+              <div
+                [style.height.%]="barHeight(bucket.count)"
+                class="bar-fill"
+              ></div>
+
+              <!-- keyword label under the bar -->
+              <span aria-hidden="true" class="bar-label">{{ bucket.keyword }}</span>
+            </button>
+          }
+        </div>
+
+        <div aria-hidden="true" class="x-axis-line"></div>
+      </div>
+    </div>
+  }
+</mat-card>
+

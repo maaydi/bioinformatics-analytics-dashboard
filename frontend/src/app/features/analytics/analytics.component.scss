@@ -3,15 +3,115 @@
 }
 
 .analytics-page {
-  max-width: 960px;
+  display: grid;
+  gap: 1rem;
 }
 
-.analytics-page h1 {
-  margin: 0;
+.analytics-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .select-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--mat-sys-outline, rgba(0, 0, 0, 0.12));
+    background: var(--mat-sys-surface, #fff);
+    color: var(--mat-sys-on-surface, #111);
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
+
+  .icon-filter {
+    color: var(--mat-sys-on-surface-variant, #666);
+    display: inline-block;
+    line-height: 1;
+  }
+
+  .filter-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--mat-sys-on-surface, #111);
+    min-width: 250px;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary, #6200ee) 12%, transparent);
+    border-radius: 6px;
+  }
 }
+
 
 .analytics-description {
-  margin-top: 0.5rem;
-  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  width: 60%;
+  justify-content: flex-end;
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
 }
 
+@media (min-width: 760px) {
+  .analytics-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dual-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.full-width-row {
+  display: block;
+}
+
+@media (min-width: 760px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .dual-chart-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}

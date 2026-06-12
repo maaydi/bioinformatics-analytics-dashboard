@@ -7,50 +7,57 @@
 
 /** GET /api/analytics/dashboard-kpis */
 export interface DashboardKpis {
-  totalProteins:      number;
-  reviewedCount:      number;
-  unreviewedCount:    number;
-  organismCount:      number;
-  taxonCount:         number;
-  avgLength:          number;
+  totalProteins: number;
+  reviewedCount: number;
+  unreviewedCount: number;
+  organismCount: number;
+  taxonCount: number;
+  avgLength: number;
   avgMolecularWeight: number;
-  minLength:          number;
-  maxLength:          number;
+  minLength: number;
+  maxLength: number;
 }
 
 /** GET /api/analytics/length-histogram — one bucket entry */
 export interface LengthHistogramBucket {
-  bucket:   number;
+  bucket: number;
   rangeMin: number;
   rangeMax: number;
-  count:    number;
+  count: number;
 }
 
 /** GET /api/analytics/by-organism — one organism row */
 export interface OrganismCount {
-  organismName:    string;
-  taxid:           number;
-  total:           number;
-  reviewedCount:   number;
+  organismName: string;
+  taxid: number;
+  total: number;
+  reviewedCount: number;
   unreviewedCount: number;
-  avgLength:       number;
+  avgLength: number;
 }
 
 /** GET /api/analytics/reviewed-ratio */
 export interface ReviewedRatioItem {
   reviewed: boolean;
-  count:    number;
+  count: number;
 }
 
 /** GET /api/analytics/evidence-levels */
 export interface EvidenceLevelItem {
   evidenceLevel: number;
-  label:         string;
-  count:         number;
+  label: string;
+  count: number;
 }
 
 /** GET /api/analytics/keyword-frequency */
 export interface KeywordFrequencyItem {
   keyword: string;
-  count:   number;
+  count: number;
+}
+
+/** GET /api/analytics/length-weight */
+export interface ProteinLengthWeightCount {
+  length: number;
+  moleculeWeight: number;
+  count: number;
 }

@@ -93,4 +93,8 @@ public class ProteinEntryService {
     public Page<ProteinEntry> findAll(Specification<ProteinEntry> spec, Pageable pageable) {
         return proteinEntryRepository.findAll(spec, pageable);
     }
+
+    public long count(Specification<ProteinEntry> spec) {
+        return proteinEntryRepository.count(spec);
+    }
 }

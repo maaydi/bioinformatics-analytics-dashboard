@@ -45,7 +45,7 @@ public interface CsvSerializable extends Serializable {
             return "";
         }
 
-        return String.join(" | ", values);
+        return String.join("|", values);
     }
 
     default String joinList(List<String> values) {
@@ -53,6 +53,6 @@ public interface CsvSerializable extends Serializable {
             return "";
         }
 
-        return String.join(" | ", values);
+        return String.join("|", values);
     }
 }

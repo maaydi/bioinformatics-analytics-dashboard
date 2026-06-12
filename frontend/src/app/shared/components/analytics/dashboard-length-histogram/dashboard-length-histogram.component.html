@@ -1,0 +1,96 @@
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
+      <h2>Protein Length Distribution</h2>
+      <p>Protein count per 100 AA length bucket</p>
+    </div>
+
+    <div aria-hidden="false" class="header-actions">
+      <button (click)="exportAsImage()"
+              aria-label="Export chart as image"
+              class="no-export"
+              mat-icon-button
+              title="Export as Image"
+              type="button"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="chart-state">
+      <app-loading-spinner/>
+    </div>
+  } @else if (error()) {
+    <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
+      <p>{{ error() }}</p>
+      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+    </div>
+  } @else if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No histogram data available.</p>
+  } @else {
+    <div aria-label="Protein length distribution histogram" class="chart-area" role="img">
+
+      <!-- Y axis -->
+      <div aria-hidden="true" class="y-axis">
+        @for (tick of yTicks(); track tick + '-' + $index) {
+          <span class="y-tick">{{ tick | number }}</span>
+        }
+      </div>
+
+      <!-- Plot area -->
+      <div class="plot">
+        <!-- Horizontal grid lines aligned with Y ticks -->
+        <div aria-hidden="true" class="grid-lines">
+          @for (tick of yTicks(); track tick + '-' + $index) {
+            <div class="grid-line"></div>
+          }
+        </div>
+
+        <!-- Bars -->
+        <div [style.grid-template-columns]="barGridTemplate()" class="bars">
+          @for (bucket of viewBuckets(); track bucket.rangeLabel) {
+            <button
+              (click)="selectLengthRange(bucket)"
+              [attr.aria-label]="'Protein length bucket ' + bucket.rangeMin + ' to ' + bucket.rangeMax + ' amino acids'"
+              class="bar-col"
+              type="button"
+            >
+              <span class="bar-tooltip">
+                <span>Bar limit: {{ bucket.rangeMin | number }} - {{ bucket.rangeMax | number }} AA</span>
+                <span>Count: {{ bucket.count | number }}</span>
+                <span>Percentage: {{ barShare(bucket.count) | number: '1.0-2' }}%</span>
+              </span>
+              <div
+                [style.height.%]="barHeight(bucket.count)"
+                class="bar-fill"
+              ></div>
+            </button>
+          }
+        </div>
+
+        <!-- X axis line -->
+        <div aria-hidden="true" class="x-axis-line"></div>
+      </div>
+    </div>
+
+    <!-- X axis labels -->
+    <div aria-hidden="true" class="x-axis">
+      <!-- Y-axis spacer aligns labels with bars -->
+      <div class="y-axis-spacer"></div>
+      <div class="x-labels-sparse">
+        @for (tick of xAxisTicks(); track tick.value + '-' + tick.align) {
+          <span [class]="'x-label-sparse x-label-' + tick.align">{{ tick.value | number }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Axis captions -->
+    <div aria-hidden="true" class="axis-captions">
+      <div class="y-axis-spacer"></div>
+      <p class="x-caption">Sequence Length (AA)</p>
+    </div>
+  }
+
+</mat-card>

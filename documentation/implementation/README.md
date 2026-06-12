@@ -45,7 +45,7 @@ documentation/implementation/
 | `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `done`        |
 | `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `done`        |
 | `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `done`        |
-| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `not-started` |
+| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `in-progress` |
 | `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `not-started` |
 | `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `not-started` |
 | `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `not-started` |
@@ -66,7 +66,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources              | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets           |
 | 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                       | Users see dashboard KPI cards and charts with fast load times                      |
 | 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational      | Users can save, reload, and delete personal filter presets                         |
-| 10    | `EXPORT-001`    | `not-started` | Export is meaningful after search/table/charts are stable    | Users can export filtered CSV and chart PNG images                                 |
+| 10    | `EXPORT-001`    | `in-progress` | Export is meaningful after search/table/charts are stable    | Users can export filtered CSV and chart PNG images                                 |
 | 11    | `COMPARE-001`   | `not-started` | Compare mode reuses filters + analytics foundation           | Users can compare two populations side by side                                     |
 | 12    | `OPS-001`       | `not-started` | Hardening after core features are in place                   | Better reliability: health probes, throttling, auditability, safe page-size limits |
 | 13    | `A11Y-001`      | `not-started` | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |

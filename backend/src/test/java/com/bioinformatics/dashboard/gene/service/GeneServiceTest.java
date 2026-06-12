@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.gene.service;
 
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.PayloadTooLargeException;
+import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -10,7 +10,6 @@ import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -144,16 +143,26 @@ class GeneServiceTest {
     }
 
     @Test
-    void exportCsv_exceedsLimit_throws() {
-        // set small max rows to trigger limit
-        appProperties.getExport().getCsv().setMaxRows(1);
+    void assertWithinExportLimit_exceedsLimit_throws() {
+        appProperties.getExport().getCsv().setMaxRows(4);
 
         var request = buildRequest(null, null, null, 10, null);
 
-        var page = new PageImpl<>(List.of(new ProteinEntry(), new ProteinEntry()), PageRequest.of(0, 1), 2);
-        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(5L);
 
-        assertThrows(PayloadTooLargeException.class, () -> service.exportCsv(request, new StringWriter()));
+        assertThrows(ExportRowCapExceededException.class, () -> service.assertWithinExportLimit(request));
+    }
+
+    @Test
+    void assertWithinExportLimit_return_size() {
+        appProperties.getExport().getCsv().setMaxRows(4);
+
+        var request = buildRequest(null, null, null, 10, null);
+
+        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(3L);
+
+        var count = service.assertWithinExportLimit(request);
+        assertEquals(3L, count);
     }
 
     @Test
@@ -228,7 +237,7 @@ class GeneServiceTest {
 
         var request = buildRequest(null, null, null, 2, null);
         var writer = new StringWriter();
-        service.exportCsv(request, writer);
+        service.exportCsv(request, writer, 2);
         var output = writer.toString();
         assertNotNull(output);
         assertTrue(output.contains("accession") || output.contains("ACC21"));

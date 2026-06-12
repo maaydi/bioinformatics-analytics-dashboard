@@ -95,3 +95,119 @@ body {
     color: #ffffff !important;
   }
 }
+
+/* ── Chart header/export button style ──────────────────────────────────  */
+
+.chart-header-export-png {
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  .header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    > button.mat-icon-button {
+      background: transparent;
+      border-radius: 0.5rem;
+      padding: 0.25rem;
+
+      &:hover {
+        background-color: rgba(17, 24, 39, 0.04);
+      }
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+        border-radius: 0.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    .header-main {
+      width: 100%;
+    }
+
+    .header-actions {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 0.5rem;
+      justify-content: flex-end;
+
+      > button.mat-icon-button {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 0.75rem;
+      }
+    }
+  }
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+  color: var(--mat-sys-on-primary, #6200ee);
+  margin-right: 1rem;
+
+  mat-spinner {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+    /* make spinner inherit the button color so it visually matches the icon */
+    color: inherit;
+  }
+
+  /* Ensure the SVG circle uses the current color and a thin stroke so it visually matches mat-icon line weight */
+  mat-spinner .mat-progress-spinner-circle,
+  mat-spinner circle {
+    stroke: currentColor !important;
+    stroke-width: 2 !important;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mat-sys-primary, #6200ee) 14%, transparent);
+    border-radius: 8px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+}

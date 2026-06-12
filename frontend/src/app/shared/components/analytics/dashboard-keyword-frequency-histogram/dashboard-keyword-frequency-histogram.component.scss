@@ -1,0 +1,197 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.chart-card {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* On small screens stack the selector under the heading */
+@media (max-width: 520px) {
+  .chart-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chart-header .heading {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.chart-state {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.chart-state p {
+  margin: 0 0 0.75rem;
+}
+
+.chart-state-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+$y-axis-width: 56px;
+
+.chart-area {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
+  height: 220px;
+  gap: 0;
+}
+
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: 6px;
+  padding-bottom: 2px;
+}
+
+.y-tick {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.plot {
+  position: relative;
+  overflow: visible;
+}
+
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.grid-line {
+  width: 100%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.bars {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-items: end;
+  gap: 6px;
+  padding: 0 6px;
+}
+
+.bar-col {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  outline: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+}
+
+.bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+  margin-bottom: 4px;
+
+  span {
+    display: block;
+  }
+}
+
+.bar-col:focus-within .bar-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.bar-fill {
+  width: 100%;
+  background: #1565c0;
+  border-radius: 4px 4px 0 0;
+  transition: opacity 0.2s ease;
+}
+
+.bar-fill:hover {
+  opacity: 0.85;
+}
+
+.bar-label {
+  margin-top: 8px;
+  font-size: 0.625rem;
+  color: #374151;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.x-axis-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #374151;
+}
+
+// axis captions
+.x-axis {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
+}
+
+.y-axis-spacer {
+}
+
+.axis-captions {
+  display: grid;
+  grid-template-columns: $y-axis-width 1fr;
+}
+
+.x-caption {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+

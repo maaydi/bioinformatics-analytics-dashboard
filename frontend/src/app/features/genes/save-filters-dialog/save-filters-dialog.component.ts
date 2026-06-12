@@ -8,7 +8,6 @@ import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 /** Dialog used to collect the name for a saved filter set. */
 @Component({
   selector: 'app-save-filters-dialog',
-  standalone: true,
   templateUrl: './save-filters-dialog.component.html',
   styleUrls: ['./save-filters-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,19 @@
+@if (kpiLoading()) {
+  <p aria-live="polite" class="state-message">Loading KPI cards...</p>
+} @else if (kpiError()) {
+  <div aria-live="assertive" class="state-message state-message-error" role="alert">
+    <p>{{ kpiError() }}</p>
+    <button (click)="retryKpis()" class="retry-button" type="button">Retry</button>
+  </div>
+} @else if (!kpiCards().length) {
+  <p aria-live="polite" class="state-message">No KPI data available.</p>
+} @else {
+  @for (card of kpiCards(); track card.title) {
+    <app-dashboard-kpi-card
+      [label]="card.label"
+      [title]="card.title"
+      [unit]="card.unit ?? ''"
+      [value]="card.value"
+    />
+  }
+}

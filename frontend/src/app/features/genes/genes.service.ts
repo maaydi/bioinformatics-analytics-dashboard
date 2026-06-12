@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {catchError, from, Observable, switchMap, throwError} from 'rxjs';
 import {ProteinDetail, ProteinSummary} from '@core/models/protein.model';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
@@ -54,8 +54,24 @@ export class GenesService {
    * Exports the current filtered result set as CSV.
    * @param filter Filter payload applied to the export.
    */
-  exportCsv(filter: GeneFilterSnapshot): Observable<Blob> {
-    return this.http.post(`${this.baseUrl}/export-csv`, filter, {responseType: 'blob'});
+  exportCsv(filter: GeneFilterSnapshot & GeneFilterPageSort): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/export-csv`, filter, {responseType: 'blob'})
+      .pipe(catchError((err) => {
+          if (err.error instanceof Blob) {
+            return from(err.error.text()).pipe(
+              switchMap((errorText) => {
+                try {
+                  err.error = JSON.parse(errorText as string);
+                } catch (e) {
+                  err.error = {message: 'An unexpected error occurred during export.'};
+                }
+                return throwError(() => err);
+              })
+            );
+          }
+          return throwError(() => err);
+        }
+      ));
   }
 
   /** Loads keyword suggestions for the keywords filter control. */
