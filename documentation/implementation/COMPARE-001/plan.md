@@ -14,8 +14,8 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] Backend DTOs implemented
+- [x] Requirements analyzed
+- [x] Backend DTOs implemented
 - [ ] AnalyticsService.compare() implemented
 - [ ] Controller endpoint added
 - [ ] Angular models defined
@@ -32,10 +32,10 @@
 
 ### Backend — DTOs
 
-- [ ] `CompareRequestDto` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }` with `@Valid` on both sets
-- [ ] `AnalyticsSubsetDto` —
+- [x] `CompareRequestDto` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }` with `@Valid` on both sets
+- [x] `AnalyticsSubsetDto` —
   `{ count, avgLength, reviewedCount, reviewedRatio, lengthDistribution: List<LengthBucketDto>, evidenceDistribution: List<EvidenceLevelDto> }`
-- [ ] `CompareResponseDto` — `{ a: AnalyticsSubsetDto, b: AnalyticsSubsetDto }`
+- [x] `CompareResponseDto` — `{ a: AnalyticsSubsetDto, b: AnalyticsSubsetDto }`
 
 ### Backend — Service
 

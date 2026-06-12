@@ -36,12 +36,12 @@ import html2canvas from 'html2canvas';
  * Interactive charts:
  * - Protein length histogram (US-11) DONE
  * - Evidence level pie chart (US-12) DONE
- * - Chart-to-table drill-down (US-13)
- * - Dual-subset comparison (US-14) TODO in COMPARE-001
+ * - Chart-to-table drill-down (US-13) DONE
+ * - Dual-subset comparison (US-14)
  * - Proteins by organism bar chart DONE
  * - Reviewed/unreviewed ratio DONE
  * - Keyword frequency chart DONE
- * - Length vs Molecular Weight scatter DONE frontend TODO backend
+ * - Length vs Molecular Weight scatter DONE
  *
  */
 @Component({
