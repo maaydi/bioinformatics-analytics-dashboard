@@ -29,6 +29,7 @@ import {
 } from '@features/analytics/dashboard/dashboard-scatter-length-weight/dashboard-scatter-length-weight.component';
 import {MatButton} from '@angular/material/button';
 import html2canvas from 'html2canvas';
+import {CompareComponent} from '@features/analytics/compare/compare.component';
 
 /**
  * Analytics page — Epic 4 full view.
@@ -58,6 +59,7 @@ import html2canvas from 'html2canvas';
     LoadingSpinnerComponent,
     DashboardScatterLengthWeightComponent,
     MatButton,
+    CompareComponent,
   ],
   providers: [{provide: AnalyticsProvider, useExisting: AnalyticsService}],
   templateUrl: './analytics.component.html',
