@@ -16,7 +16,7 @@
 
 - [x] Requirements analyzed
 - [x] Backend DTOs implemented
-- [ ] AnalyticsService.compare() implemented
+- [x] AnalyticsService.compare() implemented
 - [ ] Controller endpoint added
 - [ ] Angular models defined
 - [ ] Angular service method implemented
@@ -39,13 +39,13 @@
 
 ### Backend — Service
 
-- [ ] `AnalyticsService.compare(CompareRequestDto request)`:
-    - [ ] Build `Specification` for Set A and Set B using `GeneSpecification`
-    - [ ] For each set: count rows, compute avg length, reviewed count, reviewed ratio
-    - [ ] For each set: compute length distribution (re-use `mv_length_histogram` bucket boundaries, query against
+- [x] `AnalyticsService.compare(CompareRequestDto request)`:
+  - [x] Build `Specification` for Set A and Set B using `GeneSpecification`
+  - [x] For each set: count rows, compute avg length, reviewed count, reviewed ratio
+  - [x] For each set: compute length distribution (re-use `mv_length_histogram` bucket boundaries, query against
       filtered set)
-    - [ ] For each set: compute evidence distribution (group-by query on filtered set)
-    - [ ] Return `CompareResponseDto`
+  - [x] For each set: compute evidence distribution (group-by query on filtered set)
+  - [x] Return `CompareResponseDto`
 
 ### Backend — Controller
 

@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.analytics.repository;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -301,6 +302,48 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         query.groupBy(lengthExpr, molecularWeightExpr);
 
         return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public AnalyticsSubsetDto getAnalyticsSubset(Specification<ProteinEntry> spec) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createTupleQuery();
+        var root = query.from(ProteinEntry.class);
+        var countExpr = cb.count(root);
+        var avgLengthExpr = cb.function("round", Long.class, cb.avg(root.get("length")));
+        var reviewedCountExpr = cb.sum(
+                cb.selectCase().when(cb.isTrue(root.get("reviewed")), 1L).otherwise(0L)
+                        .as(Long.class)
+        );
+        query.select(cb.tuple(
+                countExpr,
+                avgLengthExpr,
+                reviewedCountExpr
+        ));
+        if (spec != null) {
+            var predicate = spec.toPredicate(root, query, cb);
+            if (predicate != null) {
+                query.where(predicate);
+            }
+        }
+        var result = entityManager.createQuery(query).getSingleResult();
+        var count = safeLong(result.get(0));
+        if (count == 0) {
+            return new AnalyticsSubsetDto(0L, 0L, 0L, 0L, List.of(), List.of());
+        }
+        var avgLength = safeLong(result.get(1));
+        var reviewedCount = safeLong(result.get(2));
+        var reviewedRatio = reviewedCount * 100 / count;
+        var lengthDist = getLengthHistogram(spec);
+        var evidenceDist = getEvidenceLevels(spec);
+        return new AnalyticsSubsetDto(
+                count,
+                avgLength,
+                reviewedCount,
+                reviewedRatio,
+                lengthDist,
+                evidenceDist
+        );
     }
 
 

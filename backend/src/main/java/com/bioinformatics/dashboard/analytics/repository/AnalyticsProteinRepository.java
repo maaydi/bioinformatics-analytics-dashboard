@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.analytics.repository;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -20,5 +21,7 @@ public interface AnalyticsProteinRepository {
     List<KeywordFrequencyDto> getKeywordFrequency(int limit, Specification<ProteinEntry> spec);
 
     List<ProteinLengthWeightCount> getProteinLengthWeightCount(Specification<ProteinEntry> spec);
+
+    AnalyticsSubsetDto getAnalyticsSubset(Specification<ProteinEntry> spec);
 
 }
