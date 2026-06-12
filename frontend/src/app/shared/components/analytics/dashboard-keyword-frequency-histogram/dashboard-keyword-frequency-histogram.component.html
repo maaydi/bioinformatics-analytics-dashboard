@@ -56,7 +56,7 @@
         </div>
 
         <div [style.grid-template-columns]="barGridTemplate()" class="bars">
-          @for (bucket of buckets(); track bucket.keyword) {
+          @for (bucket of visibleBuckets(); track bucket.keyword) {
             <button
               (click)="selectKeyword(bucket)"
               [attr.aria-label]="'Keyword ' + bucket.keyword + ', count ' + bucket.count"
