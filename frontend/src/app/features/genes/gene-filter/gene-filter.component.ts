@@ -71,7 +71,12 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
 
   return null;
 };
-
+/**
+ * Visual display mode for the filter panel.
+ * - 'sidebar' = stacked vertical fields (default)
+ * - 'grid' = compact multi-column layout (used by comparison view)
+ */
+export type DisplayMode = 'sidebar' | 'grid'
 
 /**
  * Presentational filter panel for gene search criteria.
@@ -110,6 +115,10 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
+
+  displayMode = input<DisplayMode>('sidebar');
+  /** Title shown in the header. Parent may override it */
+  title = input<string>('Filters');
   readonly evidenceLevels = EVIDENCE_LEVELS;
   readonly form = new FormGroup<GeneFilterFormControls>({
     globalSearch: new FormControl('', {

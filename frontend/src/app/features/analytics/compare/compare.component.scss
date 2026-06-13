@@ -26,6 +26,19 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-left: 4px solid #1976d2;
 
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  app-gene-filter {
+    display: flex;
+    flex-direction: column;
+    height: 50vh;
+    min-height: 180px;
+    max-height: 60vh;
+    overflow: hidden;
+  }
+
   .panel-title {
     margin: 0 0 1.5rem 0;
     font-size: 1.25rem;
@@ -37,7 +50,6 @@
   }
 }
 
-// Row 2: Dashboards
 .dashboards-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -252,6 +264,16 @@
       td {
         padding: 0.5rem;
       }
+    }
+  }
+
+  .filter-panel {
+    app-gene-filter {
+      display: flex;
+      flex-direction: column;
+      height: 50vh;
+      min-height: 140px;
+      overflow: hidden;
     }
   }
 }

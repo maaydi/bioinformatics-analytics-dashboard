@@ -26,6 +26,15 @@ mat-card-content {
   border-bottom: 1px solid ds.$color-border-light;
 }
 
+.filters-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: ds.$color-surface;
+  padding-top: ds.$spacing-sm;
+  padding-bottom: ds.$spacing-sm;
+}
+
 .filter-title {
   display: flex;
   align-items: center;
@@ -86,6 +95,28 @@ mat-card-content {
   }
 }
 
+.filters-form.mode-grid .filters-scroll-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: ds.$spacing-md;
+  align-items: start;
+  overflow-y: auto;
+  padding-bottom: ds.$spacing-md;
+}
+
+.filters-form.mode-grid .filter-actions {
+  grid-column: 1 / -1;
+  margin-top: ds.$spacing-sm;
+  padding-top: ds.$spacing-md;
+}
+
+.filters-form.mode-grid .filter-group {
+}
+
+.filters-form.mode-grid .filter-group.full-width {
+  grid-column: 1 / -1;
+}
+
 .filter-group {
   @include shared.filter-section-group;
 }
@@ -116,7 +147,10 @@ mat-card-content {
 }
 
 .filter-actions {
-  margin-top: auto;
+  margin-top: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   background: ds.$color-surface;
   padding: ds.$spacing-lg ds.$spacing-md;
   border-top: 1px solid ds.$color-border-light;

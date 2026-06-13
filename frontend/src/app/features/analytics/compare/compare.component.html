@@ -1,30 +1,27 @@
 <div class="compare-container">
-  <!-- Row 1: Two Filter Panels -->
   <div class="filters-row">
-    <!-- Filter A Panel -->
     <div class="filter-panel">
-      <h2 class="panel-title">🔍 Filter A</h2>
       <app-gene-filter
         (filterChange)="applyFilterA($event)"
         (filterClear)="clearFilterA()"
+        [displayMode]="'grid'"
+        [title]="'Filters A'"
         [value]="filterA()">
       </app-gene-filter>
     </div>
 
-    <!-- Filter B Panel -->
     <div class="filter-panel">
-      <h2 class="panel-title">🔍 Filter B</h2>
       <app-gene-filter
         (filterChange)="applyFilterB($event)"
         (filterClear)="clearFilterB()"
+        [displayMode]="'grid'"
+        [title]="'Filters B'"
         [value]="filterB()">
       </app-gene-filter>
     </div>
   </div>
 
-  <!-- Row 2: Two Dashboard Sections -->
   <div class="dashboards-row">
-    <!-- Dashboard A -->
     <div class="dashboard-panel">
       <div class="dashboard-header">
         <h3>📊 Results A</h3>
@@ -36,7 +33,6 @@
       </div>
 
       <div class="dashboard-content">
-        <!-- Loading State -->
         @if (loadingA()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
@@ -44,7 +40,6 @@
           </div>
         }
 
-        <!-- Error State -->
         @if (errorA()) {
           <div class="error-state">
             <p class="error-message">⚠️ {{ errorA() }}</p>
@@ -54,7 +49,6 @@
           </div>
         }
 
-        <!-- Empty State -->
         @if (!loadingA() && !errorA() && !resultsA()) {
           <div class="empty-state">
             <p>Apply Filter A to see results</p>
@@ -62,7 +56,6 @@
         }
 
 
-        <!-- Results Display -->
         @if (!loadingA() && !errorA() && resultsA()) {
           <div class="results-summary">
             <mat-card>
@@ -73,7 +66,6 @@
               </mat-card-content>
             </mat-card>
 
-            <!-- Sample Results Table -->
             @if (resultsA()?.content?.length) {
 
               <div class="results-preview">
@@ -103,7 +95,6 @@
       </div>
     </div>
 
-    <!-- Dashboard B -->
     <div class="dashboard-panel">
       <div class="dashboard-header">
         <h3>📊 Results B</h3>
@@ -115,7 +106,6 @@
       </div>
 
       <div class="dashboard-content">
-        <!-- Loading State -->
         @if (loadingB()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
@@ -123,7 +113,6 @@
           </div>
         }
 
-        <!-- Error State -->
         @if (errorB()) {
           <div class="error-state">
             <p class="error-message">⚠️ {{ errorB() }}</p>
@@ -133,7 +122,6 @@
           </div>
         }
 
-        <!-- Empty State -->
         @if (!loadingB() && !errorB() && !resultsB()) {
           <div class="empty-state">
             <p>Apply Filter B to see results</p>
@@ -141,7 +129,6 @@
         }
 
 
-        <!-- Results Display -->
         @if (!loadingB() && !errorB() && resultsB()) {
           <div class="results-summary">
             <mat-card>
@@ -152,7 +139,6 @@
               </mat-card-content>
             </mat-card>
 
-            <!-- Sample Results Table -->
             @if (resultsB()?.content?.length) {
               <div class="results-preview">
                 <table>
