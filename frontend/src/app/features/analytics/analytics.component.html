@@ -13,7 +13,23 @@
 
 
     <div aria-label="Analytics description and filter selector" class="analytics-description" role="region">
-      @if (!isCompareMode() && !loading() && !errors() && filters().length > 0) {
+      @if (isCompareMode()) {
+        <div aria-hidden="false" class="actions">
+          <button (click)="compareComp().triggerCompare()" [disabled]="!compareComp().isValid" class="export-btn"
+                  color="accent"
+                  mat-raised-button>
+            <mat-icon aria-hidden="true">compare</mat-icon>
+            <span>Compare</span>
+          </button>
+        </div>
+        <div aria-hidden="false" class="actions">
+          <button (click)="compareComp().reset()" class="export-btn" color="primary"
+                  mat-raised-button>
+            <mat-icon aria-hidden="true">settings_backup_restore</mat-icon>
+            <span>Reset</span>
+          </button>
+        </div>
+      } @else if (!loading() && !errors() && filters().length > 0) {
         <!-- Filter Selection Row: Only active in Analytics Dashboard Mode -->
         <div class="select-wrapper">
           <mat-icon class="icon-filter">filter_list</mat-icon>
@@ -51,7 +67,7 @@
     <div class="placeholder-notice">
       <p>Compare two filter sets to analyse and contrast gene subsets side by side.</p>
     </div>
-    <app-compare/>
+    <app-compare #compareComp/>
   } @else {
     <!-- Analytics Dashboard Mode Content Layout -->
     @if (loading()) {

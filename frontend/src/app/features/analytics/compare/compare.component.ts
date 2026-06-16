@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatCardModule} from '@angular/material/card';
@@ -40,6 +40,9 @@ import {ProteinSummary} from '@core/models/protein.model';
 })
 export class CompareComponent {
 
+  readonly filterAComp = viewChild.required(GeneFilterComponent);
+  readonly filterBComp = viewChild.required(GeneFilterComponent);
+
   // Filter state: Current filter snapshots for A and B
   readonly filterA = signal<GeneFilterSnapshot | null>(null);
   readonly filterB = signal<GeneFilterSnapshot | null>(null);
@@ -56,10 +59,25 @@ export class CompareComponent {
   readonly errorA = signal<string | null>(null);
   readonly errorB = signal<string | null>(null);
 
+  get isValid(): boolean {
+    return this.filterAComp().isValid && this.filterBComp().isValid;
+  }
+
+  triggerCompare(): void {
+    this.filterAComp().submitForm();
+    this.filterBComp().submitForm();
+  }
+
+  reset(): void {
+    console.log('reset filters TODO');
+  }
+
   /**
    * Applies Filter A: updates filterA signal and triggers search.
    */
   applyFilterA(snapshot: GeneFilterSnapshot): void {
+    console.log('Filter A ');
+    console.log(snapshot);
     this.filterA.set(snapshot);
     this.searchA(snapshot);
   }
@@ -68,6 +86,8 @@ export class CompareComponent {
    * Applies Filter B: updates filterB signal and triggers search.
    */
   applyFilterB(snapshot: GeneFilterSnapshot): void {
+    console.log('Filter A ');
+    console.log(snapshot);
     this.filterB.set(snapshot);
     this.searchB(snapshot);
   }

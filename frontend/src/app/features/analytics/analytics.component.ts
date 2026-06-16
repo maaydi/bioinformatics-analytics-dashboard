@@ -6,7 +6,7 @@ import {
   inject,
   OnInit,
   signal,
-  ViewChild
+  viewChild
 } from '@angular/core';
 import {
   DashboardKpiCardListComponent
@@ -62,8 +62,10 @@ import {CompareComponent} from '@features/analytics/compare/compare.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyticsComponent implements OnInit {
-  @ViewChild('captureArea')
-  captureArea!: ElementRef;
+
+  readonly captureArea = viewChild.required(ElementRef);
+
+  readonly compareComp = viewChild.required(CompareComponent);
 
   protected dashboardKpiCardLoading = signal<boolean>(true);
 
@@ -119,7 +121,7 @@ export class AnalyticsComponent implements OnInit {
   protected async exportDashboardAsImage() {
     if (!this.captureArea) return;
 
-    const canvas = await html2canvas(this.captureArea.nativeElement, {
+    const canvas = await html2canvas(this.captureArea().nativeElement, {
       scale: 2,
       backgroundColor: '#ffffff',
     });
