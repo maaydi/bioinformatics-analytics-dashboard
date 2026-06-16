@@ -33,7 +33,7 @@
         <h3>📊 Results A</h3>
         @if (resultsA()) {
           <span class="result-count">
-          {{ resultsA()?.totalElements }} results
+          {{ resultsA()?.count }} results
         </span>
         }
       </div>
@@ -66,29 +66,29 @@
           <div class="results-summary">
             <mat-card>
               <mat-card-content>
-                <p><strong>Total Entries:</strong> {{ resultsA()?.totalElements }}</p>
-                <p><strong>Page Size:</strong> {{ resultsA()?.size }}</p>
-                <p><strong>Current Page:</strong> {{ (resultsA()?.page ?? 0) + 1 }}</p>
+                <p><strong>Average Length:</strong> {{ resultsA()?.avgLength }}</p>
+                <p><strong>Reviewed Count:</strong> {{ resultsA()?.reviewedCount }}</p>
+                <p><strong>Reviewed Ratio:</strong> {{ resultsA()?.reviewedRatio }}</p>
               </mat-card-content>
             </mat-card>
 
-            @if (resultsA()?.content?.length) {
+            @if (resultsA()?.lengthDistribution?.length) {
 
               <div class="results-preview">
                 <table>
                   <thead>
                   <tr>
-                    <th>Accession</th>
-                    <th>Entry Name</th>
-                    <th>Length</th>
+                    <th>Bucket</th>
+                    <th>Range</th>
+                    <th>Count</th>
                   </tr>
                   </thead>
                   <tbody>
-                    @for (item of resultsA()!.content; track item.accession) {
+                    @for (item of resultsA()!.lengthDistribution; track item.bucket) {
                       <tr>
-                        <td><strong>{{ item.accession }}</strong></td>
-                        <td>{{ item.entryName }}</td>
-                        <td>{{ item.length }} aa</td>
+                        <td><strong>{{ item.bucket }}</strong></td>
+                        <td>{{ `${item.rangeMin} - ${item.rangeMax}` }}</td>
+                        <td>{{ item.count }}</td>
                       </tr>
                     }
                   </tbody>
@@ -106,7 +106,7 @@
         <h3>📊 Results B</h3>
         @if (resultsB()) {
           <span class="result-count">
-          {{ resultsB()?.totalElements }} results
+          {{ resultsB()?.count }} results
         </span>
         }
       </div>
@@ -139,28 +139,28 @@
           <div class="results-summary">
             <mat-card>
               <mat-card-content>
-                <p><strong>Total Entries:</strong> {{ resultsB()?.totalElements }}</p>
-                <p><strong>Page Size:</strong> {{ resultsB()?.size }}</p>
-                <p><strong>Current Page:</strong> {{ (resultsB()?.page ?? 0) + 1 }}</p>
+                <p><strong>Average Length:</strong> {{ resultsB()?.avgLength }}</p>
+                <p><strong>Reviewed Count:</strong> {{ resultsB()?.reviewedCount }}</p>
+                <p><strong>Reviewed Ratio:</strong> {{ resultsB()?.reviewedRatio }}</p>
               </mat-card-content>
             </mat-card>
 
-            @if (resultsB()?.content?.length) {
+            @if (resultsB()?.lengthDistribution?.length) {
               <div class="results-preview">
                 <table>
                   <thead>
                   <tr>
-                    <th>Accession</th>
-                    <th>Entry Name</th>
-                    <th>Length</th>
+                    <th>Bucket</th>
+                    <th>Range</th>
+                    <th>Count</th>
                   </tr>
                   </thead>
                   <tbody>
-                    @for (item of resultsB()!.content; track item.accession) {
+                    @for (item of resultsB()!.lengthDistribution; track item.bucket) {
                       <tr>
-                        <td><strong>{{ item.accession }}</strong></td>
-                        <td>{{ item.entryName }}</td>
-                        <td>{{ item.length }} aa</td>
+                        <td><strong>{{ item.bucket }}</strong></td>
+                        <td>{{ `${item.rangeMin} - ${item.rangeMax}` }}</td>
+                        <td>{{ item.count }}</td>
                       </tr>
                     }
                   </tbody>

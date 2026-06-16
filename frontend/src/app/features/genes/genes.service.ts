@@ -3,7 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {catchError, from, Observable, switchMap, throwError} from 'rxjs';
 import {ProteinDetail, ProteinSummary} from '@core/models/protein.model';
 import {PagedResponse} from '@core/models/paged-response.model';
-import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterPageable} from '@core/models/saved-filter.model';
 import {environment} from '@env/environment';
 
 /**
@@ -37,7 +37,7 @@ export class GenesService {
    * Searches genes using server-side filters and paging/sorting options.
    * @param filter Filter payload, optionally including page, size, sort, and direction.
    */
-  searchGenes(filter: GeneFilterSnapshot & GeneFilterPageSort):
+  searchGenes(filter: GeneFilterPageable):
     Observable<PagedResponse<ProteinSummary>> {
     return this.http.post<PagedResponse<ProteinSummary>>(`${this.baseUrl}/search`, filter);
   }
@@ -54,7 +54,7 @@ export class GenesService {
    * Exports the current filtered result set as CSV.
    * @param filter Filter payload applied to the export.
    */
-  exportCsv(filter: GeneFilterSnapshot & GeneFilterPageSort): Observable<Blob> {
+  exportCsv(filter: GeneFilterPageable): Observable<Blob> {
     return this.http.post(`${this.baseUrl}/export-csv`, filter, {responseType: 'blob'})
       .pipe(catchError((err) => {
           if (err.error instanceof Blob) {

@@ -2,6 +2,8 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {
+  CompareRequest,
+  CompareResponse,
   DashboardKpis,
   EvidenceLevelItem,
   KeywordFrequencyItem,
@@ -56,5 +58,9 @@ export class AnalyticsService extends AnalyticsProvider {
 
   getProteinLengthWeightCount(filter?: GeneFilterSnapshot): Observable<ProteinLengthWeightCount[]> {
     return this.http.post<ProteinLengthWeightCount[]>(`${this.baseUrl}/length-weight`, filter);
+  }
+
+  compare(request: CompareRequest): Observable<CompareResponse> {
+    return this.http.post<CompareResponse>(`${this.baseUrl}/compare`, request);
   }
 }

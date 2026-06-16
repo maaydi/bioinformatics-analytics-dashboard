@@ -5,6 +5,8 @@
  * All field names must match the JSON contract exactly.
  */
 
+import {GeneFilterPageable} from '@core/models/saved-filter.model';
+
 /** GET /api/analytics/dashboard-kpis */
 export interface DashboardKpis {
   totalProteins: number;
@@ -60,4 +62,24 @@ export interface ProteinLengthWeightCount {
   length: number;
   moleculeWeight: number;
   count: number;
+}
+
+
+export interface CompareRequest {
+  setA: GeneFilterPageable;
+  setB: GeneFilterPageable;
+}
+
+export interface AnalyticsSubset {
+  count: number;
+  avgLength: number;
+  reviewedCount: number;
+  reviewedRatio: number;
+  lengthDistribution: LengthHistogramBucket[];
+  evidenceDistribution: EvidenceLevelItem[];
+}
+
+export interface CompareResponse {
+  subsetA: AnalyticsSubset;
+  subsetB: AnalyticsSubset;
 }

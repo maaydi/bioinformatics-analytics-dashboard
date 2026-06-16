@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatCardModule} from '@angular/material/card';
@@ -6,8 +6,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatButtonModule} from '@angular/material/button';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
-import {PagedResponse} from '@core/models/paged-response.model';
-import {ProteinSummary} from '@core/models/protein.model';
+import {AnalyticsService} from '@features/analytics/analytics.service';
+import {AnalyticsSubset} from '@core/models/analytics.model';
 
 /**
  * Compare Component
@@ -48,8 +48,8 @@ export class CompareComponent {
   readonly filterB = signal<GeneFilterSnapshot | null>(null);
 
   // Results state: Paginated protein search results
-  readonly resultsA = signal<PagedResponse<ProteinSummary> | null>(null);
-  readonly resultsB = signal<PagedResponse<ProteinSummary> | null>(null);
+  readonly resultsA = signal<AnalyticsSubset | null>(null);
+  readonly resultsB = signal<AnalyticsSubset | null>(null);
 
   // Loading state
   readonly loadingA = signal<boolean>(false);
@@ -59,6 +59,8 @@ export class CompareComponent {
   readonly errorA = signal<string | null>(null);
   readonly errorB = signal<string | null>(null);
 
+  private readonly service = inject(AnalyticsService);
+
   get isValid(): boolean {
     return this.filterAComp().isValid && this.filterBComp().isValid;
   }
@@ -66,30 +68,27 @@ export class CompareComponent {
   triggerCompare(): void {
     this.filterAComp().submitForm();
     this.filterBComp().submitForm();
+    this.search(this.filterA()!, this.filterB()!);
   }
 
   reset(): void {
-    console.log('reset filters TODO');
+    this.clearFilterA();
+    this.clearFilterB();
   }
+
 
   /**
    * Applies Filter A: updates filterA signal and triggers search.
    */
   applyFilterA(snapshot: GeneFilterSnapshot): void {
-    console.log('Filter A ');
-    console.log(snapshot);
     this.filterA.set(snapshot);
-    this.searchA(snapshot);
   }
 
   /**
    * Applies Filter B: updates filterB signal and triggers search.
    */
   applyFilterB(snapshot: GeneFilterSnapshot): void {
-    console.log('Filter A ');
-    console.log(snapshot);
     this.filterB.set(snapshot);
-    this.searchB(snapshot);
   }
 
   /**
@@ -115,41 +114,37 @@ export class CompareComponent {
   /**
    * Private: Executes search for Filter A.
    */
-  private searchA(snapshot: GeneFilterSnapshot): void {
+  private search(filterA: GeneFilterSnapshot, filterB: GeneFilterSnapshot): void {
     this.loadingA.set(true);
+    this.loadingB.set(true);
     this.errorA.set(null);
 
-    // this.geneService.searchGenes({...snapshot, page: 0, size: 20}).subscribe({
-    //   next: (result) => {
-    //     this.resultsA.set(result);
-    //     this.loadingA.set(false);
-    //   },
-    //   error: (err) => {
-    //     this.errorA.set('Failed to load results for Filter A');
-    //     this.loadingA.set(false);
-    //     console.error('Search A error:', err);
-    //   }
-    // });
-  }
-
-  /**
-   * Private: Executes search for Filter B.
-   */
-  private searchB(snapshot: GeneFilterSnapshot): void {
-    this.loadingB.set(true);
-    this.errorB.set(null);
-
-    // this.geneService.searchGenes({...snapshot, page: 0, size: 20}).subscribe({
-    //   next: (result) => {
-    //     this.resultsB.set(result);
-    //     this.loadingB.set(false);
-    //   },
-    //   error: (err) => {
-    //     this.errorB.set('Failed to load results for Filter B');
-    //     this.loadingB.set(false);
-    //     console.error('Search B error:', err);
-    //   }
-    // });
+    this.service.compare({
+      setA: {
+        ...filterA,
+        page: 0,
+        size: 1,
+        direction: 'asc'
+      }, setB: {
+        ...filterB,
+        page: 0,
+        size: 1,
+        direction: 'asc'
+      }
+    }).subscribe({
+      next: (result) => {
+        this.resultsA.set(result.subsetA);
+        this.resultsB.set(result.subsetB);
+        this.loadingA.set(false);
+        this.loadingB.set(false);
+      },
+      error: (err) => {
+        this.errorA.set('Failed to load results for Filter A');
+        this.errorB.set('Failed to load results for Filter B');
+        this.loadingA.set(false);
+        this.loadingB.set(false);
+      }
+    });
   }
 
 
