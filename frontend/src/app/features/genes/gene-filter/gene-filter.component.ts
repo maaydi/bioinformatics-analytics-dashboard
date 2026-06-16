@@ -119,6 +119,9 @@ export class GeneFilterComponent {
   displayMode = input<DisplayMode>('sidebar');
   /** Title shown in the header. Parent may override it */
   title = input<string>('Filters');
+
+  readonly showSubmitButton = input<Boolean>(true);
+
   readonly evidenceLevels = EVIDENCE_LEVELS;
   readonly form = new FormGroup<GeneFilterFormControls>({
     globalSearch: new FormControl('', {
@@ -187,6 +190,16 @@ export class GeneFilterComponent {
         }
       }
     });
+  }
+
+  get isValid(): boolean {
+    return this.form.valid;
+  }
+
+  submitForm() {
+    if (this.form.valid) {
+      this.filterChange.emit(this.form.value);
+    }
   }
 
   /** Validates and emits the current filter snapshot. */

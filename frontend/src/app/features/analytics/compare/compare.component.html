@@ -2,21 +2,27 @@
   <div class="filters-row">
     <div class="filter-panel">
       <app-gene-filter
+        #filterAComp
         (filterChange)="applyFilterA($event)"
         (filterClear)="clearFilterA()"
         [displayMode]="'grid'"
         [title]="'Filters A'"
-        [value]="filterA()">
+        [showSubmitButton]="false"
+        [value]="filterA()"
+      >
       </app-gene-filter>
     </div>
 
     <div class="filter-panel">
       <app-gene-filter
+        #filterBComp
         (filterChange)="applyFilterB($event)"
         (filterClear)="clearFilterB()"
         [displayMode]="'grid'"
         [title]="'Filters B'"
-        [value]="filterB()">
+        [showSubmitButton]="false"
+        [value]="filterB()"
+      >
       </app-gene-filter>
     </div>
   </div>

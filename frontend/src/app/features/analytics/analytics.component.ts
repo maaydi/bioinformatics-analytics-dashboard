@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {
   DashboardKpiCardListComponent
 } from '@shared/components/analytics/dashboard-kpi-card-list/dashboard-kpi-card-list.component';
@@ -31,20 +40,6 @@ import {MatButton} from '@angular/material/button';
 import html2canvas from 'html2canvas';
 import {CompareComponent} from '@features/analytics/compare/compare.component';
 
-/**
- * Analytics page — Epic 4 full view.
- *
- * Interactive charts:
- * - Protein length histogram (US-11) DONE
- * - Evidence level pie chart (US-12) DONE
- * - Chart-to-table drill-down (US-13) DONE
- * - Dual-subset comparison (US-14)
- * - Proteins by organism bar chart DONE
- * - Reviewed/unreviewed ratio DONE
- * - Keyword frequency chart DONE
- * - Length vs Molecular Weight scatter DONE
- *
- */
 @Component({
   selector: 'app-analytics',
   imports: [
@@ -85,6 +80,12 @@ export class AnalyticsComponent implements OnInit {
 
   private readonly service = inject(SavedFiltersService);
 
+  /** Controls view layout switcher state */
+  protected isCompareMode = signal<boolean>(false);
+
+  /** Automatically derives page title dynamically based on layout state */
+  protected title = computed(() => this.isCompareMode() ? 'Compare Filter Sets' : 'Analytics');
+
   /**
    * Load saved filters on component init.
    */
@@ -116,6 +117,8 @@ export class AnalyticsComponent implements OnInit {
   }
 
   protected async exportDashboardAsImage() {
+    if (!this.captureArea) return;
+
     const canvas = await html2canvas(this.captureArea.nativeElement, {
       scale: 2,
       backgroundColor: '#ffffff',
@@ -127,5 +130,12 @@ export class AnalyticsComponent implements OnInit {
     link.href = image;
     link.download = `analytics-dashboard-${this.selectedFilter()?.name.replaceAll(' ', '_')}-${new Date().toISOString()}.png`;
     link.click();
+  }
+
+  /**
+   * Toggles the interactive layout view between Analytics and Comparison mode.
+   */
+  protected switchMode(): void {
+    this.isCompareMode.update(mode => !mode);
   }
 }

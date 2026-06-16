@@ -185,6 +185,7 @@
       }
     </section>
     </div>
+    @if (showSubmitButton()) {
     <!--    Submit button   -->
     <section class="filter-actions">
       <button [disabled]="form.invalid"
@@ -195,5 +196,6 @@
       >Apply Filters
       </button>
     </section>
+    }
   </form>
 </mat-card-content>
