@@ -18,6 +18,8 @@ import {
 import {
   CompareEvidenceLevelComponent
 } from '@shared/components/analytics/compare-evidence-level/compare-evidence-level.component';
+import {NotificationService} from '@shared/directive/notification.service';
+import {isEqual} from '@features/genes/gene-filter/gene-filter.utils';
 
 /**
  * Compare Component
@@ -77,6 +79,7 @@ export class CompareComponent {
   protected readonly kpiCardsB = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
 
   private readonly service = inject(AnalyticsService);
+  private readonly notify = inject(NotificationService);
   private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
   get isValid(): boolean {
@@ -86,7 +89,13 @@ export class CompareComponent {
   triggerCompare(): void {
     this.filterAComp().submitForm();
     this.filterBComp().submitForm();
-    this.search(this.filterA()!, this.filterB()!);
+    const filterA = this.filterA()!;
+    const filterB = this.filterB()!;
+    if (isEqual(filterA, filterB)) {
+      this.notify.error('Filters are identical');
+    } else {
+      this.search(this.filterA()!, this.filterB()!);
+    }
   }
 
   reset(): void {

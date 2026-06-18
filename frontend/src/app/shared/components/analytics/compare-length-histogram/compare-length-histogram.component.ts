@@ -39,14 +39,14 @@ interface HistogramXAxisTick {
 export class CompareLengthHistogramComponent {
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
-  // Inputs
+
   public readonly bucketsA = input.required<ReadonlyArray<LengthHistogramBucket>>();
   public readonly bucketsB = input.required<ReadonlyArray<LengthHistogramBucket>>();
   public readonly labelA = input<string>('Set A');
   public readonly labelB = input<string>('Set B');
-  // Output for clicking a bar (optional, keeps component decoupled)
+
   public readonly rangeSelected = output<{ min: number; max: number }>();
-  // Unify the buckets by range so X-axis aligns properly
+
   protected readonly viewBuckets = computed<ReadonlyArray<CompareHistogramBucket>>(() => {
     const a = this.bucketsA() || [];
     const b = this.bucketsB() || [];
@@ -72,7 +72,6 @@ export class CompareLengthHistogramComponent {
     process(a, true);
     process(b, false);
 
-    // Sort by rangeMin to guarantee correct X-axis order
     return Array.from(map.values()).sort((x, y) => x.rangeMin - y.rangeMin);
   });
   protected readonly hasData = computed<boolean>(() => this.viewBuckets().length > 0);

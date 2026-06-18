@@ -1,8 +1,21 @@
 import {GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
+
 export const toSnapshot = (rawValue: GeneFilterFormValue): GeneFilterSnapshot => {
   return {
-    ...rawValue,
+    accession: rawValue.accession || null,
+    entryName: rawValue.entryName || null,
+    geneNamePrimary: rawValue.geneNamePrimary || null,
+    proteinFullName: rawValue.proteinFullName || null,
+    reviewed: rawValue.reviewed ?? null,
+    organism: rawValue.organism || null,
+    taxid: rawValue.taxid ?? null,
+    lineage: rawValue.lineage || null,
+    evidenceLevels: rawValue.evidenceLevels ?? null,
+    keywords: rawValue.keywords ?? null,
+    featureType: rawValue.featureType || null,
+    crossRefSource: rawValue.crossRefSource || null,
+
     globalSearch: rawValue.globalSearch && rawValue.globalSearch !== '' ? rawValue.globalSearch : null,
     lengthMin: rawValue.length ? rawValue.length.min : null,
     lengthMax: rawValue.length ? rawValue.length.max : null,
@@ -55,4 +68,22 @@ export const getDefaultFormValue = (): GeneFilterFormValue => {
     featureType: '',
     crossRefSource: '',
   };
+};
+
+export const isEqual = (obj1: any, obj2: any): boolean => {
+  if (obj1 === obj2) return true;
+
+  if (typeof obj1 !== 'object' || obj1 === null ||
+    typeof obj2 !== 'object' || obj2 === null) return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1) {
+    if (!keys2.includes(key) || !isEqual(obj1[key], obj2[key])) return false;
+  }
+
+  return true;
 };
