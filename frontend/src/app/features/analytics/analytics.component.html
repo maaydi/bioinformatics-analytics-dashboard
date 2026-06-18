@@ -36,7 +36,9 @@
           <select (change)="onFilterSelect($event)" aria-label="Analytics filter selector"
                   class="filter-select"
                   id="analytics-filter-select">
-            <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+            @if (!selectedFilter()) {
+              <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+            }
             @for (filter of filters(); track filter.id) {
               <option [value]="filter.id">{{ filter.name }}</option>
             }
