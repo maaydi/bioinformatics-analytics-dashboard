@@ -4,6 +4,7 @@ import {HttpTestingController, provideHttpClientTesting} from '@angular/common/h
 import {AnalyticsService} from './analytics.service';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {provideHttpClient} from '@angular/common/http';
+import {CompareRequest, CompareResponse} from '@core/models/analytics.model';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
@@ -54,6 +55,83 @@ describe('AnalyticsService', () => {
     expect(req.request.params.get('limit')).toBe('25');
     expect(req.request.body).toBe(filter);
     req.flush(mockResponse);
+  });
+
+  it('should POST compare with CompareRequest containing setA and setB', () => {
+    const filterA = {globalSearch: 'kinase'} as GeneFilterSnapshot;
+    const filterB = {globalSearch: 'phosphatase'} as GeneFilterSnapshot;
+    const compareRequest: CompareRequest = {
+      setA: filterA,
+      setB: filterB,
+    };
+    const mockResponse: CompareResponse = {
+      subsetA: {
+        count: 100,
+        avgLength: 350.5,
+        reviewedCount: 80,
+        reviewedRatio: 0.8,
+        lengthDistribution: [],
+        evidenceDistribution: [],
+      },
+      subsetB: {
+        count: 250,
+        avgLength: 425.3,
+        reviewedCount: 150,
+        reviewedRatio: 0.6,
+        lengthDistribution: [],
+        evidenceDistribution: [],
+      },
+    };
+
+    service.compare(compareRequest).subscribe(res => {
+      expect(res).toEqual(mockResponse);
+      expect(res.subsetA.count).toBe(100);
+      expect(res.subsetB.count).toBe(250);
+    });
+
+    const baseUrl = (service as any).baseUrl as string;
+    const req = httpMock.expectOne(`${baseUrl}/compare`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(compareRequest);
+    expect(req.request.body.setA).toBe(filterA);
+    expect(req.request.body.setB).toBe(filterB);
+    req.flush(mockResponse);
+  });
+
+  it('should return Observable of CompareResponse from compare()', () => {
+    const compareRequest = {
+      setA: {} as GeneFilterSnapshot,
+      setB: {} as GeneFilterSnapshot,
+    };
+    const mockResponse = {
+      subsetA: {
+        count: 0,
+        avgLength: 0,
+        reviewedCount: 0,
+        reviewedRatio: 0,
+        lengthDistribution: [],
+        evidenceDistribution: []
+      },
+      subsetB: {
+        count: 0,
+        avgLength: 0,
+        reviewedCount: 0,
+        reviewedRatio: 0,
+        lengthDistribution: [],
+        evidenceDistribution: []
+      },
+    } as CompareResponse;
+
+    let resultReceived: CompareResponse | null = null;
+    service.compare(compareRequest).subscribe(res => {
+      resultReceived = res;
+    });
+
+    const baseUrl = (service as any).baseUrl as string;
+    const req = httpMock.expectOne(`${baseUrl}/compare`);
+    req.flush(mockResponse);
+
+    expect(resultReceived).toEqual(mockResponse);
   });
 });
 

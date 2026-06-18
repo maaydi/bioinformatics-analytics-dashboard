@@ -41,6 +41,17 @@
 
 ![Dashboard-01](documentation/implementation/DASH-001/dashboard-screen-01.png)
 ![Dashboard-02](documentation/implementation/DASH-001/dashboard-screen-02.png)
+
+### Analytics
+
+![Analytics-01](documentation/implementation/ANALYTICS-001/analytics-1.png)
+![Analytics-02](documentation/implementation/ANALYTICS-001/analytics-2.png)
+
+### Compare
+
+![Compare-01](documentation/implementation/COMPARE-001/compare-01.png)
+![Compare-02](documentation/implementation/COMPARE-001/compare-02.png)
+
 ---
 
 ## 🚀 Quick Start

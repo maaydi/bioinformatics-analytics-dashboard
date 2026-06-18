@@ -1,7 +1,7 @@
 <mat-card-header class="filters-header">
   <div class="filter-title">
     <mat-icon>filter_list</mat-icon>
-    <span>Filters</span>
+    <span>{{ title() }}</span>
   </div>
   <button (click)="openSaveFiltersDialog()"
           color="primary"
@@ -26,6 +26,8 @@
         aria-label="Gene filters form"
         [formGroup]="form"
         class="filters-form"
+        [class.mode-grid]="displayMode() === 'grid'"
+        [class.mode-sidebar]="displayMode() === 'sidebar'"
   >
     <div class="filters-scroll-area">
     <!--  Basic fields -->
@@ -183,6 +185,7 @@
       }
     </section>
     </div>
+    @if (showSubmitButton()) {
     <!--    Submit button   -->
     <section class="filter-actions">
       <button [disabled]="form.invalid"
@@ -193,5 +196,6 @@
       >Apply Filters
       </button>
     </section>
+    }
   </form>
 </mat-card-content>

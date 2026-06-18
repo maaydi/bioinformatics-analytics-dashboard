@@ -1,8 +1,9 @@
 <section aria-label="Analytics workspace" class="analytics-page">
   <header class="analytics-header">
     <div>
-      <h1>Analytics</h1>
+      <h1>{{ title() }}</h1>
     </div>
+
 
     @if (errors()) {
       <div class="error-banner" role="alert">
@@ -10,14 +11,34 @@
       </div>
     }
 
-    @if (!loading() && !errors() && filters().length > 0) {
-      <div aria-label="Analytics description and filter selector" class="analytics-description" role="region">
+
+    <div aria-label="Analytics description and filter selector" class="analytics-description" role="region">
+      @if (isCompareMode()) {
+        <div aria-hidden="false" class="actions">
+          <button (click)="compareComp().triggerCompare()" [disabled]="!compareComp().isValid" class="export-btn"
+                  color="accent"
+                  mat-raised-button>
+            <mat-icon aria-hidden="true">compare</mat-icon>
+            <span>Compare</span>
+          </button>
+        </div>
+        <div aria-hidden="false" class="actions">
+          <button (click)="compareComp().reset()" class="export-btn" color="primary"
+                  mat-raised-button>
+            <mat-icon aria-hidden="true">settings_backup_restore</mat-icon>
+            <span>Reset</span>
+          </button>
+        </div>
+      } @else if (!loading() && !errors() && filters().length > 0) {
+        <!-- Filter Selection Row: Only active in Analytics Dashboard Mode -->
         <div class="select-wrapper">
           <mat-icon class="icon-filter">filter_list</mat-icon>
           <select (change)="onFilterSelect($event)" aria-label="Analytics filter selector"
                   class="filter-select"
                   id="analytics-filter-select">
-            <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+            @if (!selectedFilter()) {
+              <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+            }
             @for (filter of filters(); track filter.id) {
               <option [value]="filter.id">{{ filter.name }}</option>
             }
@@ -31,51 +52,68 @@
             <span>Export as Image</span>
           </button>
         </div>
+
+      }
+      <div aria-hidden="false" class="actions">
+        <button (click)="switchMode()" class="export-btn" color="primary" mat-raised-button>
+          <mat-icon aria-hidden="true">compare_arrows</mat-icon>
+          <span>{{ isCompareMode() ? 'Analytics Mode' : 'Compare Mode' }}</span>
+        </button>
       </div>
-    }
+    </div>
   </header>
 
-  @if (loading()) {
-    <mat-card appearance="outlined" class="loading-spinner">
-      <app-loading-spinner/>
-    </mat-card>
-  } @else if (!errors()) {
+  <!-- Dynamic Content Area -->
+  @if (isCompareMode()) {
+    <!-- Compare Mode Content Layout -->
+    <div class="placeholder-notice">
+      <p>Compare two filter sets to analyse and contrast gene subsets side by side.</p>
+    </div>
+    <app-compare #compareComp/>
+  } @else {
+    <!-- Analytics Dashboard Mode Content Layout -->
+    @if (loading()) {
+      <mat-card appearance="outlined" class="loading-spinner">
+        <app-loading-spinner/>
+      </mat-card>
+    } @else if (!errors()) {
 
-    @if (filters().length === 0) {
-      <div class="empty-state">
-        <p>You should save filters to view visualization.</p>
-      </div>
-    } @else {
-
-      @if (!selectedFilter()) {
-        <div class="placeholder-notice">
-          <p>Please select a saved filter from the dropdown to load the dashboard visualizations.</p>
+      @if (filters().length === 0) {
+        <div class="empty-state">
+          <p>You should save filters to view visualization.</p>
         </div>
       } @else {
-        <div #captureArea class="analytics-page">
-          <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
-            <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
-                                         [filter]="selectedFilter()!.filterJson"/>
-          </section>
 
-          <section aria-label="Distribution charts" class="dual-chart-grid">
-            <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
-            <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
-          </section>
+        @if (!selectedFilter()) {
+          <div class="placeholder-notice">
+            <p>Please select a saved filter from the dropdown to load the dashboard visualizations.</p>
+          </div>
+        } @else {
+          <div #captureArea class="analytics-page">
+            <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+              <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
+                                           [filter]="selectedFilter()!.filterJson"/>
+            </section>
 
-          <section aria-label="Top organisms" class="full-width-row">
-            <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
-          </section>
+            <section aria-label="Distribution charts" class="dual-chart-grid">
+              <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
+              <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
+            </section>
 
-          <section aria-label="Evidence levels" class="dual-chart-grid">
-            <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
-            <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
-          </section>
+            <section aria-label="Top organisms" class="full-width-row">
+              <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
+            </section>
 
-          <section aria-label="Top organisms" class="full-width-row">
-            <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
-          </section>
-        </div>
+            <section aria-label="Evidence levels" class="dual-chart-grid">
+              <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
+              <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
+            </section>
+
+            <section aria-label="Top organisms" class="full-width-row">
+              <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
+            </section>
+          </div>
+        }
       }
     }
   }

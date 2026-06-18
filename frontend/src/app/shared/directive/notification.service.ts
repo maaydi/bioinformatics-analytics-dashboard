@@ -36,7 +36,7 @@ export class NotificationService {
   error(message: string, action = 'Dismiss'): MatSnackBarRef<TextOnlySnackBar> {
     return this.snackBar.open(message, action, {
       ...this.defaultConfig,
-      panelClass: ['snackbar-error'],
+      panelClass: ['error-snackbar'],
     });
   }
 }

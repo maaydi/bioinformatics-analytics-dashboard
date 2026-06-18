@@ -1,0 +1,81 @@
+<mat-card #chartCard appearance="outlined" class="chart-card">
+  <header class="chart-header-export-png" role="group">
+    <div class="header-main">
+      <h2>Protein Length Distribution</h2>
+      <div class="chart-legend no-export">
+        <span class="legend-item"><span class="legend-a"><mat-icon>lens</mat-icon></span> {{ labelA() }}</span>
+        <span class="legend-item"><span class="legend-b"><mat-icon>lens</mat-icon></span> {{ labelB() }}</span>
+      </div>
+    </div>
+
+    <div aria-hidden="false" class="header-actions">
+      <button (click)="exportAsImage()"
+              aria-label="Export chart as image"
+              class="no-export"
+              mat-icon-button
+              title="Export as Image"
+              type="button">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No histogram data available.</p>
+  } @else {
+    <div aria-label="Compare length distribution histogram" class="chart-area" role="img">
+
+      <div aria-hidden="true" class="y-axis">
+        @for (tick of yTicks(); track tick + '-' + $index) {
+          <span class="y-tick">{{ tick | number }}</span>
+        }
+      </div>
+
+      <div class="plot">
+        <div aria-hidden="true" class="grid-lines">
+          @for (tick of yTicks(); track tick + '-' + $index) {
+            <div class="grid-line"></div>
+          }
+        </div>
+
+        <div [style.grid-template-columns]="barGridTemplate()" class="bars">
+          @for (bucket of viewBuckets(); track bucket.rangeLabel) {
+            <button
+              (click)="selectLengthRange(bucket)"
+              [attr.aria-label]="'Length bucket ' + bucket.rangeMin + ' to ' + bucket.rangeMax"
+              class="bar-group"
+              type="button"
+            >
+              <span class="bar-tooltip">
+                <span class="tooltip-title">{{ bucket.rangeMin | number }} - {{ bucket.rangeMax | number }} AA</span>
+                <span class="tooltip-data-a">{{ labelA() }}: {{ bucket.countA | number }}
+                  ({{ barShareA(bucket.countA) | number: '1.0-1' }}%)</span>
+                <span class="tooltip-data-b">{{ labelB() }}: {{ bucket.countB | number }}
+                  ({{ barShareB(bucket.countB) | number: '1.0-1' }}%)</span>
+              </span>
+
+              <div [style.height.%]="barHeight(bucket.countA)" class="bar-fill bar-a"></div>
+              <div [style.height.%]="barHeight(bucket.countB)" class="bar-fill bar-b"></div>
+            </button>
+          }
+        </div>
+
+        <div aria-hidden="true" class="x-axis-line"></div>
+      </div>
+    </div>
+
+    <div aria-hidden="true" class="x-axis">
+      <div class="y-axis-spacer"></div>
+      <div class="x-labels-sparse">
+        @for (tick of xAxisTicks(); track tick.value + '-' + tick.align) {
+          <span [class]="'x-label-sparse x-label-' + tick.align">{{ tick.value | number }}</span>
+        }
+      </div>
+    </div>
+
+    <div aria-hidden="true" class="axis-captions">
+      <div class="y-axis-spacer"></div>
+      <p class="x-caption">Sequence Length (AA)</p>
+    </div>
+  }
+</mat-card>

@@ -1,0 +1,142 @@
+<div class="compare-container">
+  <!-- Row 1: Filters Side-by-Side -->
+  <div class="filters-row">
+    <div class="filter-panel">
+      <app-gene-filter
+        #filterAComp
+        (filterChange)="applyFilterA($event)"
+        (filterClear)="clearFilterA()"
+        [displayMode]="'grid'"
+        [title]="'Filters A'"
+        [showSubmitButton]="false"
+        [value]="filterA()"
+      >
+      </app-gene-filter>
+    </div>
+
+    <div class="filter-panel">
+      <app-gene-filter
+        #filterBComp
+        (filterChange)="applyFilterB($event)"
+        (filterClear)="clearFilterB()"
+        [displayMode]="'grid'"
+        [title]="'Filters B'"
+        [showSubmitButton]="false"
+        [value]="filterB()"
+      >
+      </app-gene-filter>
+    </div>
+  </div>
+  <!-- Row 2: KPI Cards for Results A & B Side-by-Side -->
+  <div class="kpi-cards-row">
+    <div class="kpi-section">
+      <div class="kpi-header">
+        <h4>📊 Results A</h4>
+      </div>
+
+      <div class="kpi-content">
+        @if (loadingA()) {
+          <div class="loading-state">
+            <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
+            <p>Loading...</p>
+          </div>
+        }
+
+        @if (errorA()) {
+          <div class="error-state">
+            <p class="error-message">⚠️ {{ errorA() }}</p>
+            <button (click)="clearFilterA()" color="accent" mat-raised-button>
+              Clear Filter
+            </button>
+          </div>
+        }
+
+        @if (!loadingA() && !errorA() && !resultsA()) {
+          <div class="empty-state">
+            <p>Apply Filter A to see results</p>
+          </div>
+        }
+
+        @if (!loadingA() && !errorA() && resultsA()) {
+          <div class="kpi-grid">
+            @for (card of kpiCardsA(); track card.title) {
+              <app-dashboard-kpi-card
+                [label]="card.label"
+                [title]="card.title"
+                [unit]="card.unit ?? ''"
+                [value]="card.value"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="kpi-section">
+      <div class="kpi-header">
+        <h4>📊 Results B</h4>
+      </div>
+
+      <div class="kpi-content">
+        @if (loadingB()) {
+          <div class="loading-state">
+            <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
+            <p>Loading...</p>
+          </div>
+        }
+
+        @if (errorB()) {
+          <div class="error-state">
+            <p class="error-message">⚠️ {{ errorB() }}</p>
+            <button (click)="clearFilterB()" color="accent" mat-raised-button>
+              Clear Filter
+            </button>
+          </div>
+        }
+
+        @if (!loadingB() && !errorB() && !resultsB()) {
+          <div class="empty-state">
+            <p>Apply Filter B to see results</p>
+          </div>
+        }
+
+        @if (!loadingB() && !errorB() && resultsB()) {
+          <div class="kpi-grid">
+            @for (card of kpiCardsB(); track card.title) {
+              <app-dashboard-kpi-card
+                [label]="card.label"
+                [title]="card.title"
+                [unit]="card.unit ?? ''"
+                [value]="card.value"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Full-Width Histogram -->
+  <div class="chart-row">
+    @if (resultsA() && resultsB() && !loadingA() && !loadingB() && !errorA() && !errorB()) {
+      <div class="histogram-container">
+        <app-compare-length-histogram
+          [bucketsA]="resultsA()!.lengthDistribution"
+          [bucketsB]="resultsB()!.lengthDistribution"
+          labelA="Set A"
+          labelB="Set B"
+        >
+        </app-compare-length-histogram>
+      </div>
+      <div class="histogram-container">
+        <app-compare-evidence-level
+          [primaryData]="resultsA()!.evidenceDistribution"
+          [secondaryData]="resultsB()!.evidenceDistribution"
+          primaryLabel="Set A"
+          secondaryLabel="Set B"
+        >
+        </app-compare-evidence-level>
+      </div>
+    }
+  </div>
+</div>

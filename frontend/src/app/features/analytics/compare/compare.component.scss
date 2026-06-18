@@ -1,0 +1,279 @@
+@use 'design-system' as ds;
+
+// ============================================================================
+// COMPARE CONTAINER
+// ============================================================================
+
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-2xl;
+  padding: ds.$spacing-2xl;
+  background-color: ds.$color-surface-subtle;
+  min-height: 100vh;
+  font-family: ds.$font-family-base;
+}
+
+// ============================================================================
+// ROW 1: FILTERS
+// ============================================================================
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ds.$spacing-2xl;
+  width: 100%;
+
+  @include ds.respond-to('max-lg') {
+    grid-template-columns: 1fr;
+    gap: ds.$spacing-xl;
+  }
+}
+
+.filter-panel {
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl;
+  box-shadow: ds.$shadow-sm;
+  border-left: ds.$border-width-normal solid var(--mat-sys-primary);
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  app-gene-filter {
+    display: flex;
+    flex-direction: column;
+    height: 50vh;
+    min-height: 180px;
+    max-height: 60vh;
+    overflow: hidden;
+  }
+
+  .panel-title {
+    margin: 0 0 ds.$spacing-xl 0;
+    @include ds.text-headline-sm;
+    color: ds.$color-on-surface;
+    display: flex;
+    align-items: center;
+    gap: ds.$spacing-sm;
+  }
+}
+
+// ============================================================================
+// ACTION BAR (between Row 1 filters and Row 2 KPI cards)
+// ============================================================================
+
+.compare-action-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: ds.$spacing-xl;
+  padding: ds.$spacing-lg ds.$spacing-2xl;
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  box-shadow: ds.$shadow-sm;
+
+  mat-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: ds.$spacing-sm;
+  }
+
+  @include ds.respond-to('max-md') {
+    flex-direction: column;
+    gap: ds.$spacing-md;
+    padding: ds.$spacing-lg;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// ============================================================================
+// ROW 2: KPI CARDS
+// ============================================================================
+
+.kpi-cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ds.$spacing-2xl;
+  width: 100%;
+
+  @include ds.respond-to('max-lg') {
+    grid-template-columns: 1fr;
+    gap: ds.$spacing-xl;
+  }
+}
+
+.kpi-section {
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl;
+  box-shadow: ds.$shadow-sm;
+  border-left: ds.$border-width-normal solid var(--mat-sys-primary-container);
+
+  display: flex;
+  flex-direction: column;
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: ds.$spacing-lg;
+    padding-bottom: ds.$spacing-lg;
+    border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+
+    h4 {
+      margin: 0;
+      @include ds.text-title-md;
+      color: ds.$color-on-surface;
+    }
+
+    .result-count {
+      background-color: ds.$color-reviewed-bg;
+      color: ds.$color-reviewed-text;
+      padding: ds.$spacing-sm ds.$spacing-md;
+      border-radius: ds.$border-radius-full;
+      @include ds.text-label-sm;
+      font-weight: ds.$font-weight-medium;
+      white-space: nowrap;
+    }
+  }
+
+  .kpi-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+  }
+}
+
+.kpi-grid {
+  display: flex;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ds.$spacing-lg;
+
+  @include ds.respond-to('max-md') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================================
+// ROW 3: HISTOGRAM
+// ============================================================================
+
+.histogram-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.histogram-container {
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl ds.$spacing-2xl;
+  box-shadow: ds.$shadow-sm;
+  width: 100%;
+  min-height: 400px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+// ============================================================================
+// STATE DISPLAYS (Loading, Empty, Error)
+// ============================================================================
+
+.loading-state,
+.empty-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ds.$spacing-lg;
+  min-height: 100px;
+  color: ds.$color-on-surface-variant;
+}
+
+.loading-state {
+  mat-spinner {
+    margin: 0;
+  }
+
+  p {
+    margin: ds.$spacing-lg 0 0 0;
+    @include ds.text-body-md;
+  }
+}
+
+.empty-state {
+  @include ds.text-body-md;
+  color: ds.$color-on-surface-variant;
+}
+
+.error-state {
+  background-color: ds.$color-not-reviewed-bg;
+  border: ds.$border-width-thin solid ds.$color-not-reviewed-text;
+  border-radius: ds.$border-radius-sm;
+  padding: ds.$spacing-lg;
+
+  .error-message {
+    color: var(--mat-sys-error);
+    font-weight: ds.$font-weight-semibold;
+    margin: 0;
+    @include ds.text-body-md;
+  }
+
+  button {
+    margin-top: ds.$spacing-md;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
+
+@include ds.respond-to('max-md') {
+  .compare-container {
+    padding: ds.$spacing-lg;
+    gap: ds.$spacing-xl;
+  }
+
+  .filters-row,
+  .kpi-cards-row {
+    gap: ds.$spacing-xl;
+  }
+
+  .filter-panel,
+  .kpi-section,
+  .histogram-container {
+    padding: ds.$spacing-lg;
+    border-left-width: ds.$border-width-normal;
+  }
+
+  .kpi-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: ds.$spacing-sm;
+
+    .result-count {
+      align-self: flex-start;
+    }
+  }
+
+  .filter-panel {
+    app-gene-filter {
+      height: 50vh;
+      min-height: 140px;
+    }
+  }
+
+  .histogram-container {
+    padding: ds.$spacing-lg ds.$spacing-xl;
+    min-height: 350px;
+  }
+}
+

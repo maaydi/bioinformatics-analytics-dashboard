@@ -75,3 +75,6 @@ export interface GeneFilterFormValue {
 export type GeneFilterFormControls = {
   [K in keyof GeneFilterFormValue]: FormControl<GeneFilterFormValue[K]>;
 };
+
+export type GeneFilterPageable = GeneFilterSnapshot & GeneFilterPageSort
+

@@ -1,6 +1,12 @@
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 
+export interface DashboardKpiViewModel {
+  readonly title: string;
+  readonly label: string;
+  readonly value: string;
+  readonly unit?: string;
+}
 @Component({
   selector: 'app-dashboard-kpi-card',
   imports: [MatCardModule],

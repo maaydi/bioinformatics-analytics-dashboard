@@ -1,6 +1,8 @@
 package com.bioinformatics.dashboard.analytics.service;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.dto.compare.CompareRequestDto;
+import com.bioinformatics.dashboard.analytics.dto.compare.CompareResponseDto;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
@@ -59,5 +61,20 @@ public class FilteredAnalyticsService {
     public List<ProteinLengthWeightCount> getProteinLengthWeightCount(GeneSearchRequest request) {
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getProteinLengthWeightCount(spec);
+    }
+
+    /**
+     * Compares analytics aggregates for two filter sets.
+     *
+     * @param request contains two distinct GeneSearchRequest objects (setA, setB)
+     * @return CompareResponseDto with AnalyticsSubsetDto for each set
+     */
+    public CompareResponseDto compare(CompareRequestDto request) {
+        var specA = GeneSpecification.fromRequest(request.setA());
+        var specB = GeneSpecification.fromRequest(request.setB());
+        var setA = proteinEntryRepository.getAnalyticsSubset(specA);
+        var setB = proteinEntryRepository.getAnalyticsSubset(specB);
+        return new CompareResponseDto(setA, setB);
+
     }
 }

@@ -1,9 +1,13 @@
 package com.bioinformatics.dashboard.analytics.repository;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -12,6 +16,15 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private static <T> void injectSpecification(Specification<ProteinEntry> spec, Root<ProteinEntry> root, CriteriaQuery<T> query, CriteriaBuilder cb) {
+        if (spec != null) {
+            var predicate = spec.toPredicate(root, query, cb);
+            if (predicate != null) {
+                query.where(predicate);
+            }
+        }
+    }
 
     @Override
     public DashboardKpisDto getDashboardKpis(Specification<ProteinEntry> spec) {
@@ -54,14 +67,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 )
 
         );
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         var result = entityManager.createQuery(query).getSingleResult();
 
         long total = safeLong(result.get(0));
@@ -82,7 +88,6 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         );
     }
 
-
     @Override
     public List<LengthHistogramBucketDto> getLengthHistogram(Specification<ProteinEntry> spec) {
         var cb = entityManager.getCriteriaBuilder();
@@ -101,14 +106,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
         var countExpr = cb.count(root);
 
         query.select(cb.construct(LengthHistogramBucketDto.class, bucketExpr, countExpr));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(bucketExpr);
         query.orderBy(cb.asc(bucketExpr));
 
@@ -155,13 +153,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 unreviewedCountExpr,
                 avgLengthExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
         query.groupBy(organismNameExpr, taxidExpr);
         query.orderBy(cb.desc(totalExpr));
 
@@ -183,14 +175,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 reviewedExpr,
                 countExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(reviewedExpr);
         return entityManager.createQuery(query).getResultList();
     }
@@ -220,12 +205,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 countExpr
         ));
 
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
 
         query.groupBy(evidenceLevelExpr);
         query.orderBy(cb.asc(evidenceLevelExpr));
@@ -250,14 +230,7 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 keywordNameExpr,
                 countExpr
         ));
-
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
-
+        injectSpecification(spec, root, query, cb);
         query.groupBy(keywordNameExpr);
         query.orderBy(cb.desc(countExpr));
 
@@ -292,15 +265,47 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
                 molecularWeightExpr,
                 countExpr));
 
-        if (spec != null) {
-            var predicate = spec.toPredicate(root, query, cb);
-            if (predicate != null) {
-                query.where(predicate);
-            }
-        }
+        injectSpecification(spec, root, query, cb);
         query.groupBy(lengthExpr, molecularWeightExpr);
 
         return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public AnalyticsSubsetDto getAnalyticsSubset(Specification<ProteinEntry> spec) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createTupleQuery();
+        var root = query.from(ProteinEntry.class);
+        var countExpr = cb.count(root);
+        var avgLengthExpr = cb.function("round", Long.class, cb.avg(root.get("length")));
+        var reviewedCountExpr = cb.sum(
+                cb.selectCase().when(cb.isTrue(root.get("reviewed")), 1L).otherwise(0L)
+                        .as(Long.class)
+        );
+        query.select(cb.tuple(
+                countExpr,
+                avgLengthExpr,
+                reviewedCountExpr
+        ));
+        injectSpecification(spec, root, query, cb);
+        var result = entityManager.createQuery(query).getSingleResult();
+        var count = safeLong(result.get(0));
+        if (count == 0) {
+            return new AnalyticsSubsetDto(0L, 0L, 0L, 0L, List.of(), List.of());
+        }
+        var avgLength = safeLong(result.get(1));
+        var reviewedCount = safeLong(result.get(2));
+        var reviewedRatio = reviewedCount * 100 / count;
+        var lengthDist = getLengthHistogram(spec);
+        var evidenceDist = getEvidenceLevels(spec);
+        return new AnalyticsSubsetDto(
+                count,
+                avgLength,
+                reviewedCount,
+                reviewedRatio,
+                lengthDist,
+                evidenceDist
+        );
     }
 
 
@@ -311,4 +316,5 @@ public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepositor
     private int safeInt(Object val) {
         return val instanceof Number ? ((Number) val).intValue() : 0;
     }
+
 }

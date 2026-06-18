@@ -10,7 +10,7 @@ import {
   ValidatorFn,
   Validators
 } from '@angular/forms';
-import {GeneFilterFormControls, GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterFormControls, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
@@ -35,6 +35,7 @@ import {RangeInputComponent} from '@shared/components/range-input/range-input.co
 import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
 import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
+import {getDefaultFormValue, toForm, toSnapshot} from '@features/genes/gene-filter/gene-filter.utils';
 
 
 const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
@@ -71,7 +72,12 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
 
   return null;
 };
-
+/**
+ * Visual display mode for the filter panel.
+ * - 'sidebar' = stacked vertical fields (default)
+ * - 'grid' = compact multi-column layout (used by comparison view)
+ */
+export type DisplayMode = 'sidebar' | 'grid'
 
 /**
  * Presentational filter panel for gene search criteria.
@@ -110,6 +116,13 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
+
+  displayMode = input<DisplayMode>('sidebar');
+  /** Title shown in the header. Parent may override it */
+  title = input<string>('Filters');
+
+  readonly showSubmitButton = input<Boolean>(true);
+
   readonly evidenceLevels = EVIDENCE_LEVELS;
   readonly form = new FormGroup<GeneFilterFormControls>({
     globalSearch: new FormControl('', {
@@ -165,20 +178,34 @@ export class GeneFilterComponent {
       const currentFormValues = this.form.getRawValue();
       const currentFilters = this.value();
       if (currentFilters) {
-        const newFormValues = this.toForm(currentFilters);
+        const newFormValues = toForm(currentFilters);
         if (JSON.stringify(newFormValues) !== JSON.stringify(currentFormValues)) {
           this.form.patchValue(newFormValues, {emitEvent: false});
           this.cdr.markForCheck();
         }
       } else {
-        const defaultValues = this.getDefaultFormValue();
+        const defaultValues = getDefaultFormValue();
         if (JSON.stringify(currentFilters) !== JSON.stringify(defaultValues)) {
-          this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
+          this.form.reset(getDefaultFormValue(), {emitEvent: false});
           this.cdr.markForCheck();
         }
       }
     });
   }
+
+  get isValid(): boolean {
+    return this.form.valid;
+  }
+
+  submitForm() {
+    if (this.form.valid) {
+      const snapshot = this.toSnapshot();
+      this.filterChange.emit(snapshot);
+    } else {
+      this.form.markAllAsTouched();
+    }
+  }
+
 
   /** Validates and emits the current filter snapshot. */
   applyFilters(): void {
@@ -202,7 +229,7 @@ export class GeneFilterComponent {
 
   /** Resets all filter fields to defaults and notifies the parent. */
   protected clearAll() {
-    this.form.reset(this.getDefaultFormValue(), {emitEvent: false});
+    this.form.reset(getDefaultFormValue(), {emitEvent: false});
     this.filterClear.emit();
   }
 
@@ -250,61 +277,6 @@ export class GeneFilterComponent {
   /** Maps form raw values to the API-compatible filter snapshot. */
   private toSnapshot(): GeneFilterSnapshot {
     const rawValue = this.form.getRawValue();
-    return {
-      ...rawValue,
-      globalSearch: rawValue.globalSearch && rawValue.globalSearch !== '' ? rawValue.globalSearch : null,
-      lengthMin: rawValue.length ? rawValue.length.min : null,
-      lengthMax: rawValue.length ? rawValue.length.max : null,
-      molecularWeightMin: rawValue.molecularWeight ? rawValue.molecularWeight.min : null,
-      molecularWeightMax: rawValue.molecularWeight ? rawValue.molecularWeight.max : null,
-      goAspect: rawValue.goAspect ?? null,
-      goTermId: rawValue.goTermId && rawValue.goTermId !== '' ? rawValue.goTermId : null
-    };
+    return toSnapshot(rawValue);
   }
-
-  private toForm(snapshot: GeneFilterSnapshot): Partial<GeneFilterFormValue> {
-    return {
-      globalSearch: snapshot.globalSearch ?? '',
-      accession: snapshot.accession ?? '',
-      entryName: snapshot.entryName ?? '',
-      geneNamePrimary: snapshot.geneNamePrimary ?? '',
-      proteinFullName: snapshot.proteinFullName ?? '',
-      reviewed: snapshot.reviewed ?? null,
-      organism: snapshot.organism ?? '',
-      taxid: snapshot.taxid ?? null,
-      lineage: snapshot.lineage ?? '',
-      length: {min: snapshot.lengthMin ?? null, max: snapshot.lengthMax ?? null},
-      molecularWeight: {min: snapshot.molecularWeightMin ?? null, max: snapshot.molecularWeightMax ?? null},
-      evidenceLevels: snapshot.evidenceLevels ?? [],
-      keywords: snapshot.keywords ?? [],
-      goTermId: snapshot.goTermId ?? '',
-      goAspect: snapshot.goAspect ?? null,
-      featureType: snapshot.featureType ?? '',
-      crossRefSource: snapshot.crossRefSource ?? '',
-    };
-  }
-
-  private getDefaultFormValue(): GeneFilterFormValue {
-    return {
-      globalSearch: '',
-      accession: '',
-      entryName: '',
-      geneNamePrimary: '',
-      proteinFullName: '',
-      reviewed: null,
-      organism: '',
-      taxid: null,
-      lineage: '',
-      length: {min: null, max: null},
-      molecularWeight: {min: null, max: null},
-      evidenceLevels: [],
-      keywords: [],
-      goTermId: '',
-      goAspect: null,
-      featureType: '',
-      crossRefSource: '',
-    };
-  }
-
-
 }
