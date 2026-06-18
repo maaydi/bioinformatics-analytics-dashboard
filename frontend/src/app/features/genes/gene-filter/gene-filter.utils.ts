@@ -1,6 +1,12 @@
 import {GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 
-
+/**
+ * Converts form raw values to an immutable filter snapshot for API requests.
+ * Strips empty strings and null values; preserves min/max ranges.
+ *
+ * @param rawValue submitted form data
+ * @returns normalized filter snapshot
+ */
 export const toSnapshot = (rawValue: GeneFilterFormValue): GeneFilterSnapshot => {
   return {
     accession: rawValue.accession || null,
@@ -26,6 +32,13 @@ export const toSnapshot = (rawValue: GeneFilterFormValue): GeneFilterSnapshot =>
   };
 };
 
+/**
+ * Converts a filter snapshot to form-compatible partial values.
+ * Restores null/sparse fields for form binding and UI state.
+ *
+ * @param snapshot immutable filter snapshot
+ * @returns partial form values
+ */
 export const toForm = (snapshot: GeneFilterSnapshot): Partial<GeneFilterFormValue> => {
   return {
     globalSearch: snapshot.globalSearch ?? '',
@@ -48,6 +61,11 @@ export const toForm = (snapshot: GeneFilterSnapshot): Partial<GeneFilterFormValu
   };
 };
 
+/**
+ * Returns the default/reset form state with all fields cleared.
+ *
+ * @returns fresh form value object
+ */
 export const getDefaultFormValue = (): GeneFilterFormValue => {
   return {
     globalSearch: '',
@@ -70,6 +88,14 @@ export const getDefaultFormValue = (): GeneFilterFormValue => {
   };
 };
 
+/**
+ * Deep equality check for two objects; handles arrays, objects, and primitives.
+ * Used to detect if two filter snapshots are identical (UI warning).
+ *
+ * @param obj1 first object
+ * @param obj2 second object
+ * @returns true if objects are deeply equal
+ */
 export const isEqual = (obj1: any, obj2: any): boolean => {
   if (obj1 === obj2) return true;
 

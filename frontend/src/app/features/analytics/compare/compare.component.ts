@@ -86,6 +86,10 @@ export class CompareComponent {
     return this.filterAComp().isValid && this.filterBComp().isValid;
   }
 
+  /**
+   * Validates both filters and triggers comparison if distinct.
+   * Shows error notification if filters are identical.
+   */
   triggerCompare(): void {
     this.filterAComp().submitForm();
     this.filterBComp().submitForm();
@@ -98,6 +102,9 @@ export class CompareComponent {
     }
   }
 
+  /**
+   * Clears both filters and resets all state.
+   */
   reset(): void {
     this.clearFilterA();
     this.clearFilterB();
@@ -139,7 +146,11 @@ export class CompareComponent {
   }
 
   /**
-   * Private: Executes search for Filter A.
+   * Executes comparison API call with both filters and updates results.
+   * Sets loading state and handles errors.
+   *
+   * @param filterA first filter snapshot
+   * @param filterB second filter snapshot
    */
   private search(filterA: GeneFilterSnapshot, filterB: GeneFilterSnapshot): void {
     this.loadingA.set(true);
@@ -176,6 +187,12 @@ export class CompareComponent {
     });
   }
 
+  /**
+   * Transforms AnalyticsSubset into KPI card view model.
+   *
+   * @param result subset analytics data
+   * @returns array of KPI card view models
+   */
   private toKpiCards(result: AnalyticsSubset): ReadonlyArray<DashboardKpiViewModel> {
     return [
       {title: 'Total', label: 'Total proteins', value: this.numberFormatter.format(result.count)},

@@ -94,6 +94,12 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(raws);
     }
 
+    /**
+     * Compares analytics metrics for two distinct filter sets side by side.
+     *
+     * @param request contains two validated filter snapshots (setA, setB)
+     * @return comparative analytics with both subsets' KPIs, distributions, and histograms
+     */
     @PostMapping("/compare")
     public ResponseEntity<CompareResponseDto> compare(@RequestBody @Valid CompareRequestDto request) {
         var result = service.compare(request);

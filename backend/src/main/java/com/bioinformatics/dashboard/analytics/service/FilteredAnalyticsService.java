@@ -63,7 +63,12 @@ public class FilteredAnalyticsService {
         return proteinEntryRepository.getProteinLengthWeightCount(spec);
     }
 
-
+    /**
+     * Compares analytics aggregates for two filter sets.
+     *
+     * @param request contains two distinct GeneSearchRequest objects (setA, setB)
+     * @return CompareResponseDto with AnalyticsSubsetDto for each set
+     */
     public CompareResponseDto compare(CompareRequestDto request) {
         var specA = GeneSpecification.fromRequest(request.setA());
         var specB = GeneSpecification.fromRequest(request.setB());

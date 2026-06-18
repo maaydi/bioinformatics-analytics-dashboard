@@ -22,8 +22,8 @@
 - [x] Angular service method implemented
 - [x] CompareComponent implemented
 - [x] Unit tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
+- [x] Documentation updated
+- [x] Code reviewed
 - [x] Coverage ≥ 80%
 
 ---

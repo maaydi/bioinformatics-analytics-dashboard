@@ -3,6 +3,9 @@ import {MatCardModule} from '@angular/material/card';
 import {DecimalPipe} from '@angular/common';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
 
+/**
+ * Comparison row view model for evidence level distribution.
+ */
 interface CompareRowView {
   readonly level: number;
   readonly label: string;
@@ -68,6 +71,12 @@ export class CompareEvidenceLevelComponent {
 
   protected readonly hasData = computed<boolean>(() => this.items().length > 0);
 
+  /**
+   * Maps evidence level (1-5) to CSS color class.
+   *
+   * @param evidenceLevel evidence code (1-5)
+   * @returns CSS class name for styling
+   */
   protected toColorClass(evidenceLevel: number): string {
     switch (evidenceLevel) {
       case 1:

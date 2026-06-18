@@ -15,6 +15,9 @@ import {MatIcon} from '@angular/material/icon';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {ImageExportService} from '@shared/directive/image-export-service';
 
+/**
+ * Merged histogram bucket with counts from both compare sets.
+ */
 export interface CompareHistogramBucket {
   readonly rangeLabel: string;
   readonly rangeMin: number;
@@ -23,6 +26,9 @@ export interface CompareHistogramBucket {
   countB: number;
 }
 
+/**
+ * Y-axis tick configuration.
+ */
 interface HistogramXAxisTick {
   readonly value: number;
   readonly align: 'start' | 'center' | 'end';
@@ -111,25 +117,51 @@ export class CompareLengthHistogramComponent {
   });
   private readonly imageExportService = inject(ImageExportService);
 
+  /**
+   * Computes bar height as percentage of max count.
+   *
+   * @param count bar value
+   * @returns height percentage (0-100)
+   */
   protected barHeight(count: number): number {
     const max = this.maxCount();
     return max === 0 ? 0 : Math.round((count / max) * 100);
   }
 
+  /**
+   * Computes bar width as percentage of Set A total.
+   *
+   * @param count bar value from Set A
+   * @returns width percentage (0-100)
+   */
   protected barShareA(count: number): number {
     const total = this.totalCountA();
     return total === 0 ? 0 : (count / total) * 100;
   }
 
+  /**
+   * Computes bar width as percentage of Set B total.
+   *
+   * @param count bar value from Set B
+   * @returns width percentage (0-100)
+   */
   protected barShareB(count: number): number {
     const total = this.totalCountB();
     return total === 0 ? 0 : (count / total) * 100;
   }
 
+  /**
+   * Fires range selection event for parent filter.
+   *
+   * @param bucket selected histogram bucket
+   */
   protected selectLengthRange(bucket: CompareHistogramBucket): void {
     this.rangeSelected.emit({min: bucket.rangeMin, max: bucket.rangeMax});
   }
 
+  /**
+   * Exports histogram chart as PNG image.
+   */
   protected async exportAsImage(): Promise<void> {
     if (!this.chartCard) return;
     await this.imageExportService.exportElement(
