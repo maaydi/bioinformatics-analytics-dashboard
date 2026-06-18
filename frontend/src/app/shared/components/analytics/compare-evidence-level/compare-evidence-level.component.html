@@ -1,0 +1,43 @@
+<mat-card appearance="outlined" class="chart-card">
+  <header class="chart-header" role="group">
+    <div class="header-main">
+      <h2>Evidence Levels Comparison</h2>
+      <div aria-hidden="true" class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-color primary-legend-indicator"></span>
+          <span>{{ primaryLabel() }}</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color secondary-legend-indicator"></span>
+          <span>{{ secondaryLabel() }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  @if (!hasData()) {
+    <p aria-live="polite" class="chart-state">No comparison data available.</p>
+  } @else {
+    <div aria-label="Evidence levels comparison" class="rows" role="list">
+      @for (item of items(); track item.level) {
+        <div class="row-group" role="listitem">
+          <p class="row-label">L{{ item.level }} - {{ item.label }}</p>
+
+          <div [attr.aria-label]="primaryLabel() + ': ' + item.primaryCount" class="bar-group">
+            <div aria-hidden="true" class="row-track">
+              <span [class]="'row-fill primary-fill ' + item.colorClass" [style.width.%]="item.primaryRatio"></span>
+            </div>
+            <span class="count">{{ item.primaryCount | number }}</span>
+          </div>
+
+          <div [attr.aria-label]="secondaryLabel() + ': ' + item.secondaryCount" class="bar-group">
+            <div aria-hidden="true" class="row-track">
+              <span [class]="'row-fill secondary-fill ' + item.colorClass" [style.width.%]="item.secondaryRatio"></span>
+            </div>
+            <span class="count">{{ item.secondaryCount | number }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-card>

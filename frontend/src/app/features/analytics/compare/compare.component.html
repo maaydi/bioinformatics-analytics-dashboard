@@ -117,7 +117,7 @@
   </div>
 
   <!-- Row 3: Full-Width Histogram -->
-  <div class="histogram-row">
+  <div class="chart-row">
     @if (resultsA() && resultsB() && !loadingA() && !loadingB() && !errorA() && !errorB()) {
       <div class="histogram-container">
         <app-compare-length-histogram
@@ -127,6 +127,15 @@
           labelB="Set B"
         >
         </app-compare-length-histogram>
+      </div>
+      <div class="histogram-container">
+        <app-compare-evidence-level
+          [primaryData]="resultsA()!.evidenceDistribution"
+          [secondaryData]="resultsB()!.evidenceDistribution"
+          primaryLabel="Set A"
+          secondaryLabel="Set B"
+        >
+        </app-compare-evidence-level>
       </div>
     }
   </div>

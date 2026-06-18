@@ -75,7 +75,7 @@
 
 - [x] `compare(request: CompareRequest): Observable<CompareResponse>` — `POST /api/analytics/compare`
 
-### Frontend — `CompareComponent` (new sub-component under `features/analytics/compare/`)
+### Frontend — `CompareComponent` (new subcomponent under `features/analytics/compare/`)
 
 - [x] `compare.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
 - [x] `compare.component.html` — external template
@@ -87,9 +87,9 @@
 - [x] Results section (rendered `@if (result())` is non-null):
   - [x] KPI row: count, avg length, reviewed count, reviewed ratio for each set
   - [x] Side-by-side length distribution charts (Set A vs Set B)
-    - [ ] Side-by-side evidence distribution charts (Set A vs Set B)
-- [ ] Loading state during compare API call
-- [ ] Error state with Retry button
+  - [x] Side-by-side evidence distribution charts (Set A vs Set B)
+- [x] Loading state during compare API call
+- [x] Error state with Retry button
 
 ### Tests
 

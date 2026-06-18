@@ -1,0 +1,147 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.chart-card {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: #64748b; // Generic color for the legend key
+}
+
+.primary-legend-indicator {
+  opacity: 1;
+}
+
+.secondary-legend-indicator {
+  opacity: 0.4;
+}
+
+.chart-state {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #374151;
+}
+
+.rows {
+  display: grid;
+  gap: 1rem;
+}
+
+.row-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.row-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.row-track {
+  flex: 1 1 0;
+  height: 0.5rem; // Slimmer than the single chart to accommodate two bars per level
+  border-radius: 999px;
+  background: #e8edf7;
+  border: 1px solid #d1d9ef;
+  overflow: hidden;
+}
+
+.row-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+// Styling separation for Compare Mode
+.primary-fill {
+  opacity: 1;
+}
+
+.secondary-fill {
+  opacity: 0.4; // Distinct visual difference while maintaining the base UniProt color
+}
+
+.count {
+  flex-shrink: 0;
+  width: 68px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Per-level colors
+.level-l1 {
+  background: #2e7d32;
+}
+
+.level-l2 {
+  background: #388e3c;
+}
+
+.level-l3 {
+  background: #e65100;
+}
+
+.level-l4 {
+  background: #c62828;
+}
+
+.level-l5 {
+  background: #676767;
+}
+
+.level-other {
+  background: #334155;
+}

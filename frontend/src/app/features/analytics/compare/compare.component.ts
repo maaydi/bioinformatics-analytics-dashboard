@@ -15,6 +15,9 @@ import {
 import {
   CompareLengthHistogramComponent
 } from '@shared/components/analytics/compare-length-histogram/compare-length-histogram.component';
+import {
+  CompareEvidenceLevelComponent
+} from '@shared/components/analytics/compare-evidence-level/compare-evidence-level.component';
 
 /**
  * Compare Component
@@ -42,6 +45,7 @@ import {
     GeneFilterComponent,
     DashboardKpiCardComponent,
     CompareLengthHistogramComponent,
+    CompareEvidenceLevelComponent,
   ],
   templateUrl: './compare.component.html',
   styleUrl: './compare.component.scss',
@@ -49,8 +53,8 @@ import {
 })
 export class CompareComponent {
 
-  readonly filterAComp = viewChild.required(GeneFilterComponent);
-  readonly filterBComp = viewChild.required(GeneFilterComponent);
+  readonly filterAComp = viewChild.required<GeneFilterComponent>('filterAComp');
+  readonly filterBComp = viewChild.required<GeneFilterComponent>('filterBComp');
 
   // Filter state: Current filter snapshots for A and B
   readonly filterA = signal<GeneFilterSnapshot | null>(null);
