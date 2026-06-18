@@ -1,18 +1,15 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, model, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
-import {DashboardKpiCardComponent} from '@shared/components/analytics/dashboard-kpi-card/dashboard-kpi-card.component';
+import {
+  DashboardKpiCardComponent,
+  DashboardKpiViewModel
+} from '@shared/components/analytics/dashboard-kpi-card/dashboard-kpi-card.component';
 import {DashboardKpis} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 
-interface DashboardKpiViewModel {
-  readonly title: string;
-  readonly label: string;
-  readonly value: string;
-  readonly unit?: string;
-}
 
 /**
  * Dashboard KPI Card list

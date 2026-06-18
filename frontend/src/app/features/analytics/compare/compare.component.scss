@@ -1,30 +1,41 @@
+@use 'design-system' as ds;
+
+// ============================================================================
+// COMPARE CONTAINER
+// ============================================================================
+
 .compare-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 2rem;
-  background-color: #f5f5f5;
+  gap: ds.$spacing-2xl;
+  padding: ds.$spacing-2xl;
+  background-color: ds.$color-surface-subtle;
   min-height: 100vh;
+  font-family: ds.$font-family-base;
 }
 
-// Row 1: Filters
+// ============================================================================
+// ROW 1: FILTERS
+// ============================================================================
+
 .filters-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: ds.$spacing-2xl;
   width: 100%;
 
-  @media (max-width: 1200px) {
+  @include ds.respond-to('max-lg') {
     grid-template-columns: 1fr;
+    gap: ds.$spacing-xl;
   }
 }
 
 .filter-panel {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #1976d2;
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl;
+  box-shadow: ds.$shadow-sm;
+  border-left: ds.$border-width-normal solid var(--mat-sys-primary);
 
   display: flex;
   flex-direction: column;
@@ -40,70 +51,141 @@
   }
 
   .panel-title {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
+    margin: 0 0 ds.$spacing-xl 0;
+    @include ds.text-headline-sm;
+    color: ds.$color-on-surface;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: ds.$spacing-sm;
   }
 }
 
-.dashboards-row {
+// ============================================================================
+// ACTION BAR (between Row 1 filters and Row 2 KPI cards)
+// ============================================================================
+
+.compare-action-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: ds.$spacing-xl;
+  padding: ds.$spacing-lg ds.$spacing-2xl;
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  box-shadow: ds.$shadow-sm;
+
+  mat-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: ds.$spacing-sm;
+  }
+
+  @include ds.respond-to('max-md') {
+    flex-direction: column;
+    gap: ds.$spacing-md;
+    padding: ds.$spacing-lg;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// ============================================================================
+// ROW 2: KPI CARDS
+// ============================================================================
+
+.kpi-cards-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: ds.$spacing-2xl;
   width: 100%;
 
-  @media (max-width: 1200px) {
+  @include ds.respond-to('max-lg') {
+    grid-template-columns: 1fr;
+    gap: ds.$spacing-xl;
+  }
+}
+
+.kpi-section {
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl;
+  box-shadow: ds.$shadow-sm;
+  border-left: ds.$border-width-normal solid var(--mat-sys-primary-container);
+
+  display: flex;
+  flex-direction: column;
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: ds.$spacing-lg;
+    padding-bottom: ds.$spacing-lg;
+    border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+
+    h4 {
+      margin: 0;
+      @include ds.text-title-md;
+      color: ds.$color-on-surface;
+    }
+
+    .result-count {
+      background-color: ds.$color-reviewed-bg;
+      color: ds.$color-reviewed-text;
+      padding: ds.$spacing-sm ds.$spacing-md;
+      border-radius: ds.$border-radius-full;
+      @include ds.text-label-sm;
+      font-weight: ds.$font-weight-medium;
+      white-space: nowrap;
+    }
+  }
+
+  .kpi-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+  }
+}
+
+.kpi-grid {
+  display: flex;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ds.$spacing-lg;
+
+  @include ds.respond-to('max-md') {
     grid-template-columns: 1fr;
   }
 }
 
-.dashboard-panel {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #388e3c;
-  min-height: 300px;
+// ============================================================================
+// ROW 3: HISTOGRAM
+// ============================================================================
+
+.histogram-row {
   display: flex;
-  flex-direction: column;
-
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 1rem;
-
-    h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .result-count {
-      background-color: #e8f5e9;
-      color: #388e3c;
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-  }
-
-  .dashboard-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+  justify-content: center;
+  width: 100%;
 }
 
-// State displays
+.histogram-container {
+  background-color: ds.$color-surface;
+  border-radius: ds.$border-radius-lg;
+  padding: ds.$spacing-xl ds.$spacing-2xl;
+  box-shadow: ds.$shadow-sm;
+  width: 100%;
+  min-height: 400px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+// ============================================================================
+// STATE DISPLAYS (Loading, Empty, Error)
+// ============================================================================
+
 .loading-state,
 .empty-state,
 .error-state {
@@ -111,9 +193,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  min-height: 200px;
-  color: #666;
+  gap: ds.$spacing-lg;
+  min-height: 100px;
+  color: ds.$color-on-surface-variant;
 }
 
 .loading-state {
@@ -122,159 +204,76 @@
   }
 
   p {
-    margin: 1rem 0 0 0;
-    font-size: 0.95rem;
+    margin: ds.$spacing-lg 0 0 0;
+    @include ds.text-body-md;
   }
 }
 
 .empty-state {
-  color: #999;
-  font-size: 0.95rem;
+  @include ds.text-body-md;
+  color: ds.$color-on-surface-variant;
 }
 
 .error-state {
-  background-color: #fff3e0;
-  border: 1px solid #ffb74d;
-  border-radius: 4px;
-  padding: 1rem;
+  background-color: ds.$color-not-reviewed-bg;
+  border: ds.$border-width-thin solid ds.$color-not-reviewed-text;
+  border-radius: ds.$border-radius-sm;
+  padding: ds.$spacing-lg;
 
   .error-message {
-    color: #d32f2f;
-    font-weight: 500;
+    color: var(--mat-sys-error);
+    font-weight: ds.$font-weight-semibold;
     margin: 0;
+    @include ds.text-body-md;
   }
 
   button {
-    margin-top: 0.5rem;
+    margin-top: ds.$spacing-md;
   }
 }
 
-// Results display
-.results-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
 
-  mat-card {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-
-    mat-card-content {
-      padding: 1rem;
-
-      p {
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
-        color: #555;
-
-        strong {
-          color: #333;
-        }
-      }
-    }
-  }
-}
-
-.results-preview {
-  margin-top: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-
-    thead {
-      background-color: #f5f5f5;
-      position: sticky;
-      top: 0;
-
-      tr {
-        border-bottom: 2px solid #ddd;
-
-        th {
-          padding: 0.75rem;
-          text-align: left;
-          font-weight: 600;
-          color: #333;
-        }
-      }
-    }
-
-    tbody {
-      tr {
-        border-bottom: 1px solid #e8e8e8;
-        transition: background-color 0.2s ease;
-
-        &:hover {
-          background-color: #f9f9f9;
-        }
-
-        td {
-          padding: 0.75rem;
-          color: #555;
-
-          strong {
-            color: #1976d2;
-            font-family: 'Courier New', monospace;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
+@include ds.respond-to('max-md') {
   .compare-container {
-    padding: 1rem;
-    gap: 1.5rem;
+    padding: ds.$spacing-lg;
+    gap: ds.$spacing-xl;
   }
 
   .filters-row,
-  .dashboards-row {
-    gap: 1.5rem;
+  .kpi-cards-row {
+    gap: ds.$spacing-xl;
   }
 
   .filter-panel,
-  .dashboard-panel {
-    padding: 1rem;
-    border-left-width: 3px;
+  .kpi-section,
+  .histogram-container {
+    padding: ds.$spacing-lg;
+    border-left-width: ds.$border-width-normal;
   }
 
-  .dashboard-header {
+  .kpi-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: ds.$spacing-sm;
 
     .result-count {
       align-self: flex-start;
     }
   }
 
-  .results-preview {
-    max-height: 300px;
-
-    table {
-      font-size: 0.8rem;
-
-      th,
-      td {
-        padding: 0.5rem;
-      }
+  .filter-panel {
+    app-gene-filter {
+      height: 50vh;
+      min-height: 140px;
     }
   }
 
-  .filter-panel {
-    app-gene-filter {
-      display: flex;
-      flex-direction: column;
-      height: 50vh;
-      min-height: 140px;
-      overflow: hidden;
-    }
+  .histogram-container {
+    padding: ds.$spacing-lg ds.$spacing-xl;
+    min-height: 350px;
   }
 }
 

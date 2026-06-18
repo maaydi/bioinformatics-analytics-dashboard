@@ -1,4 +1,5 @@
 <div class="compare-container">
+  <!-- Row 1: Filters Side-by-Side -->
   <div class="filters-row">
     <div class="filter-panel">
       <app-gene-filter
@@ -26,19 +27,14 @@
       </app-gene-filter>
     </div>
   </div>
-
-  <div class="dashboards-row">
-    <div class="dashboard-panel">
-      <div class="dashboard-header">
-        <h3>📊 Results A</h3>
-        @if (resultsA()) {
-          <span class="result-count">
-          {{ resultsA()?.count }} results
-        </span>
-        }
+  <!-- Row 2: KPI Cards for Results A & B Side-by-Side -->
+  <div class="kpi-cards-row">
+    <div class="kpi-section">
+      <div class="kpi-header">
+        <h4>📊 Results A</h4>
       </div>
 
-      <div class="dashboard-content">
+      <div class="kpi-content">
         @if (loadingA()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
@@ -61,57 +57,27 @@
           </div>
         }
 
-
         @if (!loadingA() && !errorA() && resultsA()) {
-          <div class="results-summary">
-            <mat-card>
-              <mat-card-content>
-                <p><strong>Average Length:</strong> {{ resultsA()?.avgLength }}</p>
-                <p><strong>Reviewed Count:</strong> {{ resultsA()?.reviewedCount }}</p>
-                <p><strong>Reviewed Ratio:</strong> {{ resultsA()?.reviewedRatio }}</p>
-              </mat-card-content>
-            </mat-card>
-
-            @if (resultsA()?.lengthDistribution?.length) {
-
-              <div class="results-preview">
-                <table>
-                  <thead>
-                  <tr>
-                    <th>Bucket</th>
-                    <th>Range</th>
-                    <th>Count</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of resultsA()!.lengthDistribution; track item.bucket) {
-                      <tr>
-                        <td><strong>{{ item.bucket }}</strong></td>
-                        <td>{{ `${item.rangeMin} - ${item.rangeMax}` }}</td>
-                        <td>{{ item.count }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
+          <div class="kpi-grid">
+            @for (card of kpiCardsA(); track card.title) {
+              <app-dashboard-kpi-card
+                [label]="card.label"
+                [title]="card.title"
+                [unit]="card.unit ?? ''"
+                [value]="card.value"
+              />
             }
           </div>
         }
-
       </div>
     </div>
 
-    <div class="dashboard-panel">
-      <div class="dashboard-header">
-        <h3>📊 Results B</h3>
-        @if (resultsB()) {
-          <span class="result-count">
-          {{ resultsB()?.count }} results
-        </span>
-        }
+    <div class="kpi-section">
+      <div class="kpi-header">
+        <h4>📊 Results B</h4>
       </div>
 
-      <div class="dashboard-content">
+      <div class="kpi-content">
         @if (loadingB()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
@@ -134,43 +100,34 @@
           </div>
         }
 
-
         @if (!loadingB() && !errorB() && resultsB()) {
-          <div class="results-summary">
-            <mat-card>
-              <mat-card-content>
-                <p><strong>Average Length:</strong> {{ resultsB()?.avgLength }}</p>
-                <p><strong>Reviewed Count:</strong> {{ resultsB()?.reviewedCount }}</p>
-                <p><strong>Reviewed Ratio:</strong> {{ resultsB()?.reviewedRatio }}</p>
-              </mat-card-content>
-            </mat-card>
-
-            @if (resultsB()?.lengthDistribution?.length) {
-              <div class="results-preview">
-                <table>
-                  <thead>
-                  <tr>
-                    <th>Bucket</th>
-                    <th>Range</th>
-                    <th>Count</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of resultsB()!.lengthDistribution; track item.bucket) {
-                      <tr>
-                        <td><strong>{{ item.bucket }}</strong></td>
-                        <td>{{ `${item.rangeMin} - ${item.rangeMax}` }}</td>
-                        <td>{{ item.count }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
+          <div class="kpi-grid">
+            @for (card of kpiCardsB(); track card.title) {
+              <app-dashboard-kpi-card
+                [label]="card.label"
+                [title]="card.title"
+                [unit]="card.unit ?? ''"
+                [value]="card.value"
+              />
             }
           </div>
         }
-
       </div>
     </div>
+  </div>
+
+  <!-- Row 3: Full-Width Histogram -->
+  <div class="histogram-row">
+    @if (resultsA() && resultsB() && !loadingA() && !loadingB() && !errorA() && !errorB()) {
+      <div class="histogram-container">
+        <app-compare-length-histogram
+          [bucketsA]="resultsA()!.lengthDistribution"
+          [bucketsB]="resultsB()!.lengthDistribution"
+          labelA="Set A"
+          labelB="Set B"
+        >
+        </app-compare-length-histogram>
+      </div>
+    }
   </div>
 </div>

@@ -18,9 +18,9 @@
 - [x] Backend DTOs implemented
 - [x] AnalyticsService.compare() implemented
 - [x] Controller endpoint added
-- [ ] Angular models defined
-- [ ] Angular service method implemented
-- [ ] CompareComponent implemented
+- [x] Angular models defined
+- [x] Angular service method implemented
+- [x] CompareComponent implemented
 - [-] Unit tests written
 - [ ] Documentation updated
 - [ ] Code reviewed
@@ -66,27 +66,27 @@
 
 ### Frontend — Models
 
-- [ ] `compare-request.model.ts` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }`
-- [ ] `analytics-subset.model.ts` —
+- [x] `compare-request.model.ts` — `{ setA: GeneSearchRequest, setB: GeneSearchRequest }`
+- [x] `analytics-subset.model.ts` —
   `{ count, avgLength, reviewedCount, reviewedRatio, lengthDistribution: LengthBucket[], evidenceDistribution: EvidenceLevel[] }`
-- [ ] `compare-response.model.ts` — `{ a: AnalyticsSubset, b: AnalyticsSubset }`
+- [x] `compare-response.model.ts` — `{ a: AnalyticsSubset, b: AnalyticsSubset }`
 
 ### Frontend — Service (add to `features/analytics/analytics.service.ts` or existing service)
 
-- [ ] `compare(request: CompareRequest): Observable<CompareResponse>` — `POST /api/analytics/compare`
+- [x] `compare(request: CompareRequest): Observable<CompareResponse>` — `POST /api/analytics/compare`
 
 ### Frontend — `CompareComponent` (new sub-component under `features/analytics/compare/`)
 
-- [ ] `compare.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `compare.component.html` — external template
-- [ ] `compare.component.scss`
-- [ ] Two filter panel sections labeled "Set A" and "Set B"
-    - [ ] Each uses a slim version of `GeneFilterComponent` (subset of fields or full panel)
-- [ ] "Compare" button
-- [ ] Warning `@if (setsAreIdentical())` — computed signal checking deep equality of Set A and Set B
-- [ ] Results section (rendered `@if (result())` is non-null):
-    - [ ] KPI row: count, avg length, reviewed count, reviewed ratio for each set
-    - [ ] Side-by-side length distribution charts (Set A vs Set B)
+- [x] `compare.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `compare.component.html` — external template
+- [x] `compare.component.scss`
+- [x] Two filter panel sections labeled "Set A" and "Set B"
+  - [x] Each uses a slim version of `GeneFilterComponent` (subset of fields or full panel)
+- [x] "Compare" button
+- [x] Warning `@if (setsAreIdentical())` — computed signal checking deep equality of Set A and Set B
+- [x] Results section (rendered `@if (result())` is non-null):
+  - [x] KPI row: count, avg length, reviewed count, reviewed ratio for each set
+  - [x] Side-by-side length distribution charts (Set A vs Set B)
     - [ ] Side-by-side evidence distribution charts (Set A vs Set B)
 - [ ] Loading state during compare API call
 - [ ] Error state with Retry button

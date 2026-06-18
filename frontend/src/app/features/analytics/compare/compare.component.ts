@@ -8,6 +8,13 @@ import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.compo
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {AnalyticsSubset} from '@core/models/analytics.model';
+import {
+  DashboardKpiCardComponent,
+  DashboardKpiViewModel
+} from '@shared/components/analytics/dashboard-kpi-card/dashboard-kpi-card.component';
+import {
+  CompareLengthHistogramComponent
+} from '@shared/components/analytics/compare-length-histogram/compare-length-histogram.component';
 
 /**
  * Compare Component
@@ -33,6 +40,8 @@ import {AnalyticsSubset} from '@core/models/analytics.model';
     MatProgressSpinnerModule,
     MatButtonModule,
     GeneFilterComponent,
+    DashboardKpiCardComponent,
+    CompareLengthHistogramComponent,
   ],
   templateUrl: './compare.component.html',
   styleUrl: './compare.component.scss',
@@ -59,7 +68,12 @@ export class CompareComponent {
   readonly errorA = signal<string | null>(null);
   readonly errorB = signal<string | null>(null);
 
+  // KPI cards
+  protected readonly kpiCardsA = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
+  protected readonly kpiCardsB = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
+
   private readonly service = inject(AnalyticsService);
+  private readonly numberFormatter = new Intl.NumberFormat('en-US');
 
   get isValid(): boolean {
     return this.filterAComp().isValid && this.filterBComp().isValid;
@@ -135,16 +149,32 @@ export class CompareComponent {
       next: (result) => {
         this.resultsA.set(result.subsetA);
         this.resultsB.set(result.subsetB);
+        this.kpiCardsA.set(this.toKpiCards(result.subsetA));
+        this.kpiCardsB.set(this.toKpiCards(result.subsetB));
         this.loadingA.set(false);
         this.loadingB.set(false);
       },
-      error: (err) => {
+      error: (_) => {
         this.errorA.set('Failed to load results for Filter A');
         this.errorB.set('Failed to load results for Filter B');
         this.loadingA.set(false);
         this.loadingB.set(false);
       }
     });
+  }
+
+  private toKpiCards(result: AnalyticsSubset): ReadonlyArray<DashboardKpiViewModel> {
+    return [
+      {title: 'Total', label: 'Total proteins', value: this.numberFormatter.format(result.count)},
+      {
+        title: 'Avg Len',
+        label: 'Average Length',
+        value: this.numberFormatter.format(Math.round(result.avgLength)),
+        unit: 'AA'
+      },
+      {title: 'Reviewed', label: 'Reviewed count', value: this.numberFormatter.format(result.reviewedCount)},
+      {title: 'Ratio', label: 'Reviewed Ratio', value: this.numberFormatter.format(result.reviewedRatio)},
+    ];
   }
 
 
