@@ -17,7 +17,7 @@
 
 - [x] Requirements analyzed
 - [x] DB migration created
-- [ ] AuditLog entity + repository + service implemented
+- [x] AuditLog entity + repository + service implemented
 - [ ] Audit hooks wired
 - [ ] Actuator configured
 - [ ] Pagination cap implemented
@@ -42,17 +42,17 @@
 
 ### Backend — Entity
 
-- [ ] `AuditLog` entity — fields: `actorUserId`, `action`, `targetType`, `targetId`, `status`, `ipAddress`, `createdAt`
-- [ ] `AuditAction` enum: `LOGIN_SUCCESS`, `LOGIN_FAILURE`, `IMPORT_UPLOAD`, `IMPORT_CANCEL`,
+- [x] `AuditLog` entity — fields: `actorUserId`, `action`, `targetType`, `targetId`, `status`, `ipAddress`, `createdAt`
+- [x] `AuditAction` enum: `LOGIN_SUCCESS`, `LOGIN_FAILURE`, `IMPORT_UPLOAD`, `IMPORT_CANCEL`,
   `SAVED_FILTER_DELETE_OTHER`
 
 ### Backend — Repository
 
-- [ ] `AuditLogRepository extends JpaRepository`
+- [x] `AuditLogRepository extends JpaRepository`
 
 ### Backend — Service
 
-- [ ] 
+- [x] 
   `AuditService.record(Long actorUserId, AuditAction action, String targetType, String targetId, String status, String ipAddress)` —
   `@Async` to avoid blocking the request thread
 

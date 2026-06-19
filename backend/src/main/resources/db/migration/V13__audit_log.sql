@@ -18,8 +18,26 @@ CREATE TABLE IF NOT EXISTS audit_log
                                                         'DETAIL_VIEW', 'IMPORT_UPLOAD', 'IMPORT_CANCEL',
                                                         'COMPARE_ANALYTICS', 'PASSWORD_CHANGE', 'PROFILE_UPDATE',
                                                         'ADMIN_DELETE_USER_FILTER'
-        ))
+        )),
+    CONSTRAINT check_target_type CHECK ( target_type IN ('AUTH',
+                                                         'SAVED_FILTER',
+                                                         'SEARCH',
+                                                         'DETAIL',
+                                                         'COMPARE',
+                                                         'EXPORT_CSV',
+                                                         'EXPORT_CHART',
+                                                         'IMPORT_JOB',
+                                                         'USER',
+                                                         'AUDIT') )
 );
 
 CREATE INDEX idx_audit_user_id_created_at ON audit_log (actor_user_id, created_at DESC);
 CREATE INDEX idx_audit_created_at ON audit_log (created_at DESC);
+
+CREATE SEQUENCE IF NOT EXISTS audit_log_seq
+    START WITH 1 INCREMENT BY 500;
+
+SELECT setval('audit_log_seq', COALESCE((SELECT MAX(id) FROM audit_log), 0) + 500, false);
+
+ALTER TABLE audit_log
+    ALTER COLUMN id SET DEFAULT nextval('audit_log_seq');
