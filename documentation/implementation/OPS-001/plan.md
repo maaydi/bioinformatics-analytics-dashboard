@@ -15,8 +15,8 @@
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] DB migration created
+- [x] Requirements analyzed
+- [x] DB migration created
 - [ ] AuditLog entity + repository + service implemented
 - [ ] Audit hooks wired
 - [ ] Actuator configured
@@ -34,11 +34,11 @@
 
 ### Database Migration (`V6__audit_log.sql`)
 
-- [ ] `audit_log` table: `id BIGSERIAL PK`, `actor_user_id BIGINT FK → app_user(id)`, `action VARCHAR(100) NOT NULL`,
+- [x] `audit_log` table: `id BIGSERIAL PK`, `actor_user_id BIGINT FK → app_user(id)`, `action VARCHAR(100) NOT NULL`,
   `target_type VARCHAR(100)`, `target_id VARCHAR(255)`, `status VARCHAR(20) NOT NULL`, `ip_address VARCHAR(45)`,
   `created_at TIMESTAMP NOT NULL DEFAULT now()`
-- [ ] Index on `(actor_user_id, created_at DESC)` for admin audit view queries
-- [ ] Index on `created_at DESC` for global admin audit queries
+- [x] Index on `(actor_user_id, created_at DESC)` for admin audit view queries
+- [x] Index on `created_at DESC` for global admin audit queries
 
 ### Backend — Entity
 
