@@ -1,5 +1,7 @@
 package com.bioinformatics.dashboard.gene.controller;
 
+import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
@@ -46,6 +48,7 @@ public class GeneController {
      * GET /api/genes — paginated list with optional sort/direction.
      */
     @GetMapping
+    @Auditable(action = AuditAction.SEARCH_QUERY)
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> listGenes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
@@ -60,6 +63,7 @@ public class GeneController {
      * POST /api/genes/search — search and filter with full filter support.
      */
     @PostMapping("/search")
+    @Auditable(action = AuditAction.SEARCH_QUERY)
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> searchGenes(
             @RequestBody @Valid GeneSearchRequest request) {
         var result = geneService.searchGenes(request);
@@ -70,6 +74,7 @@ public class GeneController {
      * GET /api/genes/{id} — full protein detail.
      */
     @GetMapping("/{id}")
+    @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
         return ResponseEntity.ok(geneService.getGeneById(id));
     }
@@ -78,6 +83,7 @@ public class GeneController {
      * POST /api/genes/export-csv — download CSV for filtered result set.
      */
     @PostMapping(value = "/export-csv", produces = "text/csv")
+    @Auditable(action = AuditAction.DATA_EXPORT_CSV)
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
@@ -92,6 +98,7 @@ public class GeneController {
     }
 
     @GetMapping(value = "/keywords")
+    @Auditable(action = AuditAction.SEARCH_QUERY)
     public List<String> loadKeywords() {
         return geneService.listKeywords();
     }

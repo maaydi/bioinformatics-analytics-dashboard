@@ -11,18 +11,19 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @RequiredArgsConstructor
-public class ImportBatchAsyncConfig {
+public class AuditAsyncConfig {
 
     private final AppProperties appProperties;
 
-    @Bean(name = "importExecutor")
-    public Executor getAsyncExecutor() {
-        var properties = appProperties.getImportConfig().getPool();
+
+    @Bean(name = "auditExecutor")
+    public Executor auditExecutor() {
+        var conf = appProperties.getAuditPool();
         var executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(properties.getCoreSize());
-        executor.setMaxPoolSize(properties.getMaxSize());
-        executor.setQueueCapacity(properties.getQueueCapacity());
-        executor.setThreadNamePrefix(properties.getThreadNamePrefix());
+        executor.setCorePoolSize(conf.getCoreSize());
+        executor.setMaxPoolSize(conf.getMaxSize());
+        executor.setQueueCapacity(conf.getQueueCapacity());
+        executor.setThreadNamePrefix(conf.getThreadNamePrefix());
         executor.initialize();
         return executor;
     }

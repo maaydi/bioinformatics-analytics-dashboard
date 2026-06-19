@@ -1,5 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
+import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
@@ -35,12 +37,14 @@ public class SavedFilterController {
     private final SavedFilterService service;
 
     @GetMapping
+    @Auditable(action = AuditAction.FILTER_SAVE)
     public ResponseEntity<List<SavedFilterDto>> listSavedFilters(@AuthenticationPrincipal AppUser currentUser) {
         var filters = service.listForCurrentUser(currentUser);
         return ResponseEntity.ok(filters);
     }
 
     @PostMapping
+    @Auditable(action = AuditAction.FILTER_SAVE)
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
                                                             @AuthenticationPrincipal AppUser currentUser) {
         var res = service.create(request, currentUser);
@@ -48,6 +52,7 @@ public class SavedFilterController {
     }
 
     @DeleteMapping("/{id}")
+    @Auditable(action = AuditAction.FILTER_DELETE)
     public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @AuthenticationPrincipal AppUser currentUser) {
         service.delete(id, currentUser);
         return ResponseEntity.noContent().build();

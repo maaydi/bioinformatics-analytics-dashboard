@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class AuditService {
     private final AuditLogRepository auditLogRepository;
 
-    @Async
+    @Async("auditExecutor")
     public void save(AppUser actor, AuditAction action, String targetId, AuditStatus status,
                      String httpMethod, String endpoint, String ipAddress) {
         var auditLog = new AuditLog();

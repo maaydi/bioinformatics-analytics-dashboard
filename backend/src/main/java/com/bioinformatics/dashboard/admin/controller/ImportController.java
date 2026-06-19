@@ -2,6 +2,8 @@ package com.bioinformatics.dashboard.admin.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.admin.validator.ValidFileType;
+import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
@@ -44,6 +46,7 @@ public class ImportController {
      * POST /api/admin/import/uniprot — triggers Spring Batch import job.
      */
     @PostMapping("/uniprot")
+    @Auditable(action = AuditAction.IMPORT_UPLOAD)
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType MultipartFile file,
             @RequestParam("strategy") String strategy) {
@@ -55,6 +58,7 @@ public class ImportController {
      * GET /api/admin/import/status — paginated list of all import jobs.
      */
     @GetMapping("/status")
+    @Auditable(action = AuditAction.IMPORT_UPLOAD)
     public PagedResponse<ImportJobSummary> listImportJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -65,9 +69,12 @@ public class ImportController {
      * GET /api/admin/import/status/{jobId} — real-time progress of a single job.
      */
     @GetMapping("/status/{jobId}")
+    @Auditable(action = AuditAction.IMPORT_UPLOAD)
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {
         return service.getImportJobStatus(jobId);
     }
+
+    // TODO add cancel import
 
 
 }

@@ -91,6 +91,11 @@ app:
     per-view-timeout-ms: ${VIEW_REFRESH_TIMEOUT_MS:45000}
     retry-backoff-ms: ${VIEW_REFRESH_RETRY_BACKOFF_MS:2000}
     sequence-sla-ms: ${VIEW_REFRESH_SEQUENCE_SLA_MS:180000}
+  audit-pool:
+    core-size: 1
+    max-size: 10
+    queue-capacity: 25
+    thread-name-prefix: audit-
 
 
 # ── Logging ───────────────────────────────────────────────────────────────────

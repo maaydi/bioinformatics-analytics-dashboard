@@ -17,6 +17,7 @@ public class AppProperties {
     private final ImportConfig importConfig = new ImportConfig();
     private final Export export = new Export();
     private final ViewRefresh viewRefresh = new ViewRefresh();
+    private final ThreadPoolSettings auditPool = new ThreadPoolSettings();
 
     @Getter
     @Setter

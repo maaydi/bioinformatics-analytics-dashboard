@@ -28,7 +28,7 @@ public class AsyncUniprotImportJobExecutor {
      * @param parameters parameters passed to the batch job; must not be null
      * @throws com.bioinformatics.dashboard.exception.ExecuteJobException when the job cannot be started
      */
-    @Async
+    @Async("importExecutor")
     public void execute(JobParameters parameters) {
         try {
             log.info("UniProt import job started asynchronously");

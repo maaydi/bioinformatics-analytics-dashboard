@@ -58,9 +58,9 @@
 
 ### Backend — Audit Hooks
 
-- [ ] `AuthService.login()` — record `LOGIN_SUCCESS` or `LOGIN_FAILURE` after authentication attempt
-- [ ] `ImportService.triggerImport()` — record `IMPORT_UPLOAD` after job creation
-- [ ] `SavedFilterService.delete()` — record `SAVED_FILTER_DELETE_OTHER` when ADMIN deletes another user's filter
+- [x] `AuthService.login()` — record `LOGIN_SUCCESS` or `LOGIN_FAILURE` after authentication attempt
+- [x] `ImportService.triggerImport()` — record `IMPORT_UPLOAD` after job creation
+- [x] `SavedFilterService.delete()` — record `SAVED_FILTER_DELETE_OTHER` when ADMIN deletes another user's filter
 
 ### Backend — Actuator Configuration (`application.yml`)
 
