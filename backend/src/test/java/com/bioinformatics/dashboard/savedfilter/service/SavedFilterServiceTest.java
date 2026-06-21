@@ -15,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,16 +47,20 @@ class SavedFilterServiceTest {
         var entity = mock(SavedFilter.class);
         var dto = mock(SavedFilterDto.class);
 
-        when(repository.findByOwnerOrderByCreatedAtDesc(user)).thenReturn(List.of(entity));
+        var expectedPageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        when(repository.findByOwner(user, expectedPageable))
+                .thenReturn(new PageImpl<>(List.of(entity), expectedPageable, 1));
+
         when(mapper.toDto(entity)).thenReturn(dto);
 
-        var result = service.listForCurrentUser(user);
+        var result = service.listForCurrentUser(user, 0, 20);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        // Use get(0) because the service returns a List
-        assertSame(dto, result.get(0));
-        verify(repository).findByOwnerOrderByCreatedAtDesc(user);
+        assertEquals(1, result.content().size());
+        assertSame(dto, result.content().getFirst());
+
+        verify(repository).findByOwner(user, expectedPageable);
         verify(mapper).toDto(entity);
     }
 

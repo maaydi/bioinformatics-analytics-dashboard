@@ -6,6 +6,8 @@ import com.bioinformatics.dashboard.audit.dto.AuditTarget;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
@@ -24,6 +26,7 @@ public class AuditLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "actor_user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AppUser actor;
 
     @Enumerated(EnumType.STRING)

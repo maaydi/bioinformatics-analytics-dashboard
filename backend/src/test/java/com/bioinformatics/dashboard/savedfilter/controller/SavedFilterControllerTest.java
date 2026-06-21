@@ -6,6 +6,7 @@ import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
+import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
@@ -113,29 +114,29 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void listSavedFilters_withAuthenticatedUser_returnsFilters() throws Exception {
         var filters = List.of(testFilterDto);
-        when(service.listForCurrentUser(any(AppUser.class))).thenReturn(filters);
+        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is("My Filter")))
-                .andExpect(jsonPath("$[0].createdAt", notNullValue()));
-        verify(service).listForCurrentUser(any(AppUser.class));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].id", is(1)))
+                .andExpect(jsonPath("$.content[0].name", is("My Filter")))
+                .andExpect(jsonPath("$.content[0].createdAt", notNullValue()));
+        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
     @DisplayName("GET /api/saved-filters - Should list empty filters when user has none")
     @WithMockUser(roles = "USER")
     void listSavedFilters_withNoFilters_returnsEmptyList() throws Exception {
-        when(service.listForCurrentUser(any(AppUser.class))).thenReturn(List.of());
+        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
-        verify(service).listForCurrentUser(any(AppUser.class));
+                .andExpect(jsonPath("$.content", hasSize(0)));
+        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
@@ -150,12 +151,12 @@ class SavedFilterControllerTest {
                 .createdAt(Instant.now())
                 .build();
         var filters = List.of(testFilterDto);
-        when(service.listForCurrentUser(any(AppUser.class))).thenReturn(filters);
+        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
                         .with(user(adminUser)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
-        verify(service).listForCurrentUser(any(AppUser.class));
+                .andExpect(jsonPath("$.content", hasSize(1)));
+        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
@@ -163,7 +164,7 @@ class SavedFilterControllerTest {
     void listSavedFilters_withoutAuthentication_returnsForbidden() throws Exception {
         mockMvc.perform(get("/api/saved-filters"))
                 .andExpect(status().isForbidden());
-        verify(service, never()).listForCurrentUser(any(AppUser.class));
+        verify(service, never()).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
@@ -183,15 +184,15 @@ class SavedFilterControllerTest {
                 Instant.now().plusSeconds(120)
         );
         var filters = List.of(testFilterDto, filter2, filter3);
-        when(service.listForCurrentUser(any(AppUser.class))).thenReturn(filters);
+        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 3, 3));
         mockMvc.perform(get("/api/saved-filters")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].name", is("My Filter")))
-                .andExpect(jsonPath("$[1].name", is("Filter 2")))
-                .andExpect(jsonPath("$[2].name", is("Filter 3")));
-        verify(service).listForCurrentUser(any(AppUser.class));
+                .andExpect(jsonPath("$.content", hasSize(3)))
+                .andExpect(jsonPath("$.content[0].name", is("My Filter")))
+                .andExpect(jsonPath("$.content[1].name", is("Filter 2")))
+                .andExpect(jsonPath("$.content[2].name", is("Filter 3")));
+        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
     }
 
     // ====== POST /api/saved-filters ======
@@ -435,7 +436,7 @@ class SavedFilterControllerTest {
                 .andExpect(status().isForbidden());
         mockMvc.perform(delete("/api/saved-filters/1"))
                 .andExpect(status().isForbidden());
-        verify(service, never()).listForCurrentUser(any(AppUser.class));
+        verify(service, never()).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
         verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
         verify(service, never()).delete(any(Long.class), any(AppUser.class));
     }
@@ -445,7 +446,7 @@ class SavedFilterControllerTest {
     @DisplayName("GET /api/saved-filters - Should return JSON content type")
     @WithMockUser(roles = "USER")
     void listSavedFilters_shouldReturnJsonContentType() throws Exception {
-        when(service.listForCurrentUser(any(AppUser.class))).thenReturn(List.of(testFilterDto));
+        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(testFilterDto), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
                         .with(user(testUser))
                         .accept(MediaType.APPLICATION_JSON))

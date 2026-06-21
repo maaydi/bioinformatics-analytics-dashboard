@@ -74,7 +74,7 @@ class ImportControllerIntegrationTest {
     @Autowired
     RestTestClient restClient;
     @Autowired
-    ImportService importService;
+    ImportService importService; // Keep it for testing purpose ( load beans )
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
     @MockitoBean
@@ -230,7 +230,7 @@ class ImportControllerIntegrationTest {
     // ====== GET /api/admin/import/status ======
 
     @Test
-    void listImportJobs_returnsPagedSummaries() throws Exception {
+    void listImportJobs_returnsPagedSummaries() {
         // Setup: create multiple import jobs
         var job1 = ImportJob.builder()
                 .status(ImportStatus.COMPLETED)
@@ -275,7 +275,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_withPagination_returnsCorrectPage() throws Exception {
+    void listImportJobs_withPagination_returnsCorrectPage() {
         // Setup: create 25 jobs
         for (int i = 0; i < 25; i++) {
             var job = ImportJob.builder()
@@ -338,7 +338,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_withDefaultPagination_returnsFirstPage() throws Exception {
+    void listImportJobs_withDefaultPagination_returnsFirstPage() {
         // Setup: create 25 jobs
         for (int i = 0; i < 25; i++) {
             var job = ImportJob.builder()
@@ -369,7 +369,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_resultsOrderedByCreatedAtDescending() throws Exception {
+    void listImportJobs_resultsOrderedByCreatedAtDescending() {
         // Setup: create jobs with different timestamps
         var job1 = ImportJob.builder()
                 .status(ImportStatus.COMPLETED)
@@ -407,7 +407,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_withoutAdminRole_returnsForbidden() throws Exception {
+    void listImportJobs_withoutAdminRole_returnsForbidden() {
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
                 .header("Authorization", "Bearer " + userToken)
@@ -416,7 +416,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_withoutAuthentication_returnsUnauthorized() throws Exception {
+    void listImportJobs_withoutAuthentication_returnsUnauthorized() {
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
                 .exchange()
@@ -424,7 +424,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void listImportJobs_emptyList_returnsEmptyPagedResponse() throws Exception {
+    void listImportJobs_emptyList_returnsEmptyPagedResponse() {
         // Execute on empty repository
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
@@ -445,7 +445,7 @@ class ImportControllerIntegrationTest {
     // ====== GET /api/admin/import/status/{jobId} ======
 
     @Test
-    void getImportJobStatus_withValidJobId_returnsProgress() throws Exception {
+    void getImportJobStatus_withValidJobId_returnsProgress() {
         // Setup: create a job
         var job = ImportJob.builder()
                 .status(ImportStatus.RUNNING)
@@ -477,7 +477,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void getImportJobStatus_withCompletedJob_returnsCompletedStatus() throws Exception {
+    void getImportJobStatus_withCompletedJob_returnsCompletedStatus() {
         // Setup: create a completed job
         var job = ImportJob.builder()
                 .status(ImportStatus.COMPLETED)
@@ -507,7 +507,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void getImportJobStatus_withFailedJob_returnsErrorMessage() throws Exception {
+    void getImportJobStatus_withFailedJob_returnsErrorMessage() {
         // Setup: create a failed job
         var job = ImportJob.builder()
                 .status(ImportStatus.FAILED)
@@ -537,7 +537,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void getImportJobStatus_withInvalidJobId_returnsFailedStatus() throws Exception {
+    void getImportJobStatus_withInvalidJobId_returnsFailedStatus() {
         var invalidJobId = UUID.randomUUID().toString();
 
         // Execute
@@ -557,7 +557,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void getImportJobStatus_withoutAdminRole_returnsForbidden() throws Exception {
+    void getImportJobStatus_withoutAdminRole_returnsForbidden() {
         var jobId = UUID.randomUUID().toString();
 
         restClient.get()
@@ -578,7 +578,7 @@ class ImportControllerIntegrationTest {
     }
 
     @Test
-    void getImportJobStatus_withMalformedUUID_returnsBadRequest() throws Exception {
+    void getImportJobStatus_withMalformedUUID_returnsBadRequest() {
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", "not-a-uuid")
                 .header("Authorization", "Bearer " + adminToken)
