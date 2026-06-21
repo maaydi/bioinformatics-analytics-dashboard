@@ -92,17 +92,7 @@ export class AnalyticsComponent implements OnInit {
    * Load saved filters on component init.
    */
   ngOnInit(): void {
-    this.service.listSavedFilters().subscribe({
-      next: (sf) => {
-        this.filters.set(sf || []);
-        this.errors.set(null);
-        this.loading.set(false);
-      },
-      error: (_) => {
-        this.errors.set('Failed to load saved filters');
-        this.loading.set(false);
-      },
-    });
+    this.loadAllFilters();
   }
 
   protected onFilterSelect(event: Event): void {
@@ -140,4 +130,27 @@ export class AnalyticsComponent implements OnInit {
   protected switchMode(): void {
     this.isCompareMode.update(mode => !mode);
   }
+
+  private loadAllFilters(page: number = 0, accumulatedFilters: SavedFilter[] = []) {
+    // Max page size supported by API
+    const size = 200;
+    this.service.listSavedFilters(page, size).subscribe({
+      next: (sf) => {
+        const allFilters = [...accumulatedFilters, ...(sf.content || [])];
+        const isLastPage = sf.totalPages === page + 1;
+        if (isLastPage) {
+          this.filters.set(allFilters);
+          this.errors.set(null);
+          this.loading.set(false);
+        } else {
+          this.loadAllFilters(page + 1, allFilters);
+        }
+      },
+      error: (_) => {
+        this.errors.set('Failed to load saved filters');
+        this.loading.set(false);
+      }
+    });
+  }
+
 }

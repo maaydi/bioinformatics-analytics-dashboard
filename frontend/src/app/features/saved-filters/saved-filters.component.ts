@@ -14,6 +14,7 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-dialog.component';
 import {NotificationService} from '@shared/directive/notification.service';
+import {MatPaginator, PageEvent} from '@angular/material/paginator';
 
 /**
  * SavedFiltersComponent — Manage persisted gene filter snapshots.
@@ -45,6 +46,7 @@ import {NotificationService} from '@shared/directive/notification.service';
     MatIcon,
     MatButton,
     MatIconButton,
+    MatPaginator,
   ],
   templateUrl: './saved-filters.component.html',
   styleUrl: './saved-filters.component.scss',
@@ -60,6 +62,10 @@ export class SavedFiltersComponent implements OnInit {
   /** User-facing error message, or null if no error. */
   errors = signal<string | null>(null);
 
+  totalFilters = signal<number>(0);
+  pageSize = signal<number>(5);
+  pageIndex = signal<number>(0);
+
   protected readonly buildFiltersChips = buildFiltersChips;
   protected readonly formatDate = formatDate;
   private readonly service = inject(SavedFiltersService);
@@ -74,17 +80,7 @@ export class SavedFiltersComponent implements OnInit {
    * Load saved filters on component init.
    */
   ngOnInit(): void {
-    this.service.listSavedFilters().subscribe({
-      next: sf => {
-        this.filters.set(sf);
-        this.errors.set(null);
-        this.loading.set(false);
-      },
-      error: _ => {
-        this.errors.set('Failed to load saved filters');
-        this.loading.set(false);
-      }
-    });
+    this.loadFilters();
   }
 
   /**
@@ -117,6 +113,28 @@ export class SavedFiltersComponent implements OnInit {
     const snapshot = filter.filterJson;
     this.genesStore.setActiveFilters(snapshot);
     void this.router.navigate(['/genes']);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadFilters();
+
+  }
+
+  private loadFilters() {
+    this.service.listSavedFilters(this.pageIndex(), this.pageSize()).subscribe({
+      next: sf => {
+        this.filters.set(sf.content);
+        this.totalFilters.set(sf.totalElements);
+        this.errors.set(null);
+        this.loading.set(false);
+      },
+      error: _ => {
+        this.errors.set('Failed to load saved filters');
+        this.loading.set(false);
+      }
+    });
   }
 
   /**

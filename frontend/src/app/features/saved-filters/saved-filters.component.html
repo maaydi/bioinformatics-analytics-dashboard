@@ -58,6 +58,12 @@
           }
         </tbody>
       </table>
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [length]="totalFilters()"
+        [pageSizeOptions]="[5, 10, 20]"
+        [pageSize]="pageSize()">
+      </mat-paginator>
     </div>
   } @else {
     <div aria-live="polite" class="saved-empty-state" role="status">
