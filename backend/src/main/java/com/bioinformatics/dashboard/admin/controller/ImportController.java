@@ -7,6 +7,8 @@ import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,6 +63,8 @@ public class ImportController {
     @Auditable(action = AuditAction.IMPORT_UPLOAD)
     public PagedResponse<ImportJobSummary> listImportJobs(
             @RequestParam(defaultValue = "0") int page,
+            @Min(value = 1, message = "Page size should be greater than 0")
+            @Max(value = 200, message = "Page size should be lower than 201")
             @RequestParam(defaultValue = "20") int size) {
         return service.listImportJobs(page, size);
     }

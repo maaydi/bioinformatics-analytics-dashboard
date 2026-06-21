@@ -9,6 +9,8 @@ import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.service.GeneService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -51,6 +53,8 @@ public class GeneController {
     @Auditable(action = AuditAction.SEARCH_QUERY)
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> listGenes(
             @RequestParam(defaultValue = "0") int page,
+            @Min(value = 1, message = "Page size should be greater than 0")
+            @Max(value = 200, message = "Page size should be lower than 201")
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String direction) {

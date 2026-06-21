@@ -69,7 +69,7 @@ public record GeneSearchRequest(
         @Min(value = 0, message = "page must be ≥ 0")
         Integer page,
 
-        @Min(1) @Max(500)
+        @Min(1) @Max(200)
         Integer size,
 
         String sort,

@@ -4,6 +4,7 @@ import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;
@@ -11,9 +12,9 @@ import com.bioinformatics.dashboard.savedfilter.repository.SavedFilterRepository
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +23,15 @@ public class SavedFilterService {
     private final SavedFilterRepository repository;
     private final SavedFilterMapper mapper;
 
-    public List<SavedFilterDto> listForCurrentUser(AppUser currentUser) {
-        return repository.findByOwnerOrderByCreatedAtDesc(currentUser)
-                .stream()
-                .map(mapper::toDto)
-                .toList();
+    public PagedResponse<SavedFilterDto> listForCurrentUser(AppUser currentUser, int page, int size) {
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        var res = repository.findByOwner(currentUser, pageable)
+                .map(mapper::toDto);
+        return new PagedResponse<>(res.getContent(),
+                res.getNumber(),
+                res.getSize(),
+                res.getTotalElements(),
+                res.getTotalPages());
     }
 
     public SavedFilterDto create(SavedFilterCreateRequest request, AppUser owner) {

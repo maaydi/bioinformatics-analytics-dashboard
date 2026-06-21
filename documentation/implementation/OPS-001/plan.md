@@ -72,12 +72,12 @@
 
 ### Backend — Pagination Cap
 
-- [ ] Add `@Max(200)` and `@Min(1)` validation on `size` parameter in:
-    - [ ] `GeneController.listGenes()` `@RequestParam int size`
-    - [ ] `GeneSearchRequest.size` field
-    - [ ] `ImportAdminController` (import job list)
-    - [ ] `SavedFilterController` (if pagination added)
-- [ ] Global exception handler maps `ConstraintViolationException` → `400` with message "Page size must not exceed 200"
+- [x] Add `@Max(200)` and `@Min(1)` validation on `size` parameter in:
+  - [x] `GeneController.listGenes()` `@RequestParam int size`
+  - [x] `GeneSearchRequest.size` field
+  - [x] `ImportAdminController` (import job list)
+  - [x] `SavedFilterController` (if pagination added)
+- [x] Global exception handler maps `ConstraintViolationException` → `400` with message "Page size must not exceed 200"
 
 ### Backend — Rate Limiting (Bucket4j)
 
