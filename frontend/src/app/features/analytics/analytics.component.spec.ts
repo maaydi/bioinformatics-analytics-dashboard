@@ -16,7 +16,10 @@ describe('AnalyticsComponent', () => {
     createdAt: new Date().toISOString()
   } as SavedFilter];
   const mockSavedFiltersService = {
-    listSavedFilters: vi.fn(() => of(mockFilters))
+    listSavedFilters: vi.fn(() => of({
+      content: mockFilters,
+      totalPages: 1 // 1 === 0 + 1, so isLastPage becomes true and recursion stops.
+    }))
   };
 
   beforeEach(async () => {
@@ -49,7 +52,7 @@ describe('AnalyticsComponent', () => {
     expect(mockSavedFiltersService.listSavedFilters).toHaveBeenCalled();
 
     // signals updated
-    expect((component as any).filters()).toEqual(mockFilters);
+    expect((component as any).filters()).toEqual([...mockFilters]);
     expect((component as any).errors()).toBeNull();
     expect((component as any).loading()).toBeFalsy();
   });
