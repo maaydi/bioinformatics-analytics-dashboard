@@ -64,11 +64,11 @@
 
 ### Backend — Actuator Configuration (`application.yml`)
 
-- [ ] Enable `health` endpoint only: `management.endpoints.web.exposure.include=health`
-- [ ] Configure liveness probe: `management.endpoint.health.probes.enabled=true`
-- [ ] Add Flyway health indicator: `management.health.flyway.enabled=true`
-- [ ] Add DB health indicator (enabled by default)
-- [ ] Secure actuator: ensure `/actuator/**` is accessible without auth but only `health` sub-paths
+- [x] Enable `health` endpoint only: `management.endpoints.web.exposure.include=health`
+- [x] Configure liveness probe: `management.endpoint.health.probes.enabled=true`
+- [x] Add Flyway health indicator: `management.health.flyway.enabled=true`
+- [x] Add DB health indicator (enabled by default)
+- [x] Secure actuator: ensure `/actuator/**` is accessible without auth but only `health` sub-paths
 
 ### Backend — Pagination Cap
 

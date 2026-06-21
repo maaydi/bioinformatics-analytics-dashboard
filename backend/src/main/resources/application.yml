@@ -104,3 +104,18 @@ logging:
   file:
     name: bioinformatic.log
     path: ${LOG_PATH}
+
+# ── Health ───────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    flyway:
+      enable:
+
