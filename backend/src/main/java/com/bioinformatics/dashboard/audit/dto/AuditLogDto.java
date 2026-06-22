@@ -4,6 +4,7 @@ import java.time.Instant;
 
 public record AuditLogDto(
         long id,
+        long userId,
         String username,
         AuditAction action,
         AuditTarget target,

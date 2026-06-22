@@ -3,11 +3,8 @@ package com.bioinformatics.dashboard.audit.entity;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.audit.dto.AuditStatus;
 import com.bioinformatics.dashboard.audit.dto.AuditTarget;
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
 
@@ -24,10 +21,11 @@ public class AuditLog {
     @SequenceGenerator(name = "audit_log_seq", sequenceName = "audit_log_seq", allocationSize = 500)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "actor_user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private AppUser actor;
+    @Column(name = "actor_user_id")
+    private Long actorId;
+
+    @Column(name = "actor_username", nullable = false)
+    private String actorUsername;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false, length = 100)
