@@ -30,4 +30,9 @@ public @interface Auditable {
      * Whether to skip audit for this method
      */
     boolean skip() default false;
+
+    /**
+     * SpEL expression evaluated against method arguments or #result
+     */
+    String targetId() default "";
 }

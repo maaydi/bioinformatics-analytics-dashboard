@@ -49,7 +49,7 @@ public class SavedFilterController {
     }
 
     @PostMapping
-    @Auditable(action = AuditAction.FILTER_SAVE)
+    @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.body.id")
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
                                                             @AuthenticationPrincipal AppUser currentUser) {
         var res = service.create(request, currentUser);
@@ -57,7 +57,7 @@ public class SavedFilterController {
     }
 
     @DeleteMapping("/{id}")
-    @Auditable(action = AuditAction.FILTER_DELETE)
+    @Auditable(action = AuditAction.FILTER_DELETE, targetId = "#id")
     public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @AuthenticationPrincipal AppUser currentUser) {
         service.delete(id, currentUser);
         return ResponseEntity.noContent().build();
