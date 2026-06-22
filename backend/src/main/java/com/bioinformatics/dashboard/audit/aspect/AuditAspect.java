@@ -2,9 +2,9 @@ package com.bioinformatics.dashboard.audit.aspect;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.dto.AuditStatus;
+import com.bioinformatics.dashboard.audit.service.AuditContextHolder;
 import com.bioinformatics.dashboard.audit.service.AuditService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -20,8 +20,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 
 @Aspect
@@ -46,8 +44,8 @@ public class AuditAspect {
             log.debug("Skipping audit for {} (success, auditOnlyOnFailure=true)", auditable.action());
             return;
         }
-        var targetId = evaluateSpel(joinPoint, auditable.targetId(), result);
-        recordAudit(joinPoint, auditable, targetId, AuditStatus.SUCCESS);
+        var targetId = evaluateSPEL(joinPoint, auditable.targetId(), result);
+        recordAudit(auditable, targetId, AuditStatus.SUCCESS);
     }
 
     @AfterThrowing(
@@ -57,39 +55,24 @@ public class AuditAspect {
     public void auditFailure(JoinPoint joinPoint, Exception ex) {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;
-        var targetId = evaluateSpel(joinPoint, auditable.targetId(), null);
-        recordAudit(joinPoint, auditable, targetId, AuditStatus.FAILURE);
+        var targetId = evaluateSPEL(joinPoint, auditable.targetId(), null);
+        recordAudit(auditable, targetId, AuditStatus.FAILURE);
     }
 
 
-    private void recordAudit(JoinPoint joinPoint,
-                             Auditable auditable,
+    private void recordAudit(Auditable auditable,
                              String targetId,
                              AuditStatus status
     ) {
         try {
-            var requestContext = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (requestContext != null) {
-                var request = requestContext.getRequest();
-                var ipAddress = extractIpAddress(request);
-                var httpMethod = request.getMethod();
-                var endpoint = request.getRequestURI();
-
-                AppUser usr = null;
-                var authentication = SecurityContextHolder.getContext().getAuthentication();
-                if (authentication != null && authentication.getPrincipal() instanceof AppUser user) {
-                    usr = user;
-                }
-                if (usr != null) {
-                    service.save(
-                            usr,
-                            auditable.action(),
-                            targetId,
-                            status,
-                            httpMethod,
-                            endpoint, ipAddress
-                    );
-                }
+            AppUser usr = null;
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof AppUser user) {
+                usr = user;
+            }
+            if (usr != null) {
+                var webDetails = AuditContextHolder.get();
+                service.save(usr, auditable.action(), targetId, status, webDetails);
             }
         } catch (Exception e) {
             log.error("Error during audit logging {}", e.getMessage());
@@ -110,26 +93,7 @@ public class AuditAspect {
         }
     }
 
-    private String extractIpAddress(HttpServletRequest request) {
-        String[] ipHeaders = {
-                "X-Forwarded-For",
-                "Proxy-Client-IP",
-                "WL-Proxy-Client-IP",
-                "HTTP_CLIENT_IP",
-                "HTTP_X_FORWARDED_FOR"
-        };
-
-        for (String header : ipHeaders) {
-            String ip = request.getHeader(header);
-            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                return ip.split(",")[0].trim();
-            }
-        }
-
-        return request.getRemoteAddr();
-    }
-
-    private String evaluateSpel(JoinPoint joinPoint, String expressionStr, Object result) {
+    private String evaluateSPEL(JoinPoint joinPoint, String expressionStr, Object result) {
         if (expressionStr.isEmpty()) return "N/A";
 
         try {
@@ -158,4 +122,3 @@ public class AuditAspect {
         }
     }
 }
-

@@ -49,7 +49,7 @@ public class SavedFilterController {
     }
 
     @PostMapping
-    @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.body.id")
+    @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.id")
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
                                                             @AuthenticationPrincipal AppUser currentUser) {
         var res = service.create(request, currentUser);

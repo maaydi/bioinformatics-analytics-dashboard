@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.audit.event;
 
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.audit.dto.AuditStatus;
+import com.bioinformatics.dashboard.audit.service.AuditContextHolder;
 import com.bioinformatics.dashboard.audit.service.AuditService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
@@ -20,9 +21,9 @@ public class AuthenticationEventListener {
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent event) {
         var principal = event.getAuthentication().getPrincipal();
+        var webDetails = AuditContextHolder.get();
         if (principal instanceof AppUser user) {
-            auditService.save(user, AuditAction.LOGIN, null, AuditStatus.SUCCESS,
-                    "POST", "/api/auth/login", "");
+            auditService.save(user, AuditAction.LOGIN, null, AuditStatus.SUCCESS, webDetails);
         }
     }
 
@@ -30,13 +31,7 @@ public class AuthenticationEventListener {
     public void onFailure(AbstractAuthenticationFailureEvent event) {
         var username = event.getAuthentication().getName();
         var user = userRepository.findByUsername(username).orElse(null);
-
-        auditService.save(
-                user,
-                AuditAction.LOGIN,
-                username,
-                AuditStatus.FAILURE,
-                "POST", "/api/auth/login", ""
-        );
+        var webDetails = AuditContextHolder.get();
+        auditService.save(user, AuditAction.LOGIN, username, AuditStatus.FAILURE, webDetails);
     }
 }
