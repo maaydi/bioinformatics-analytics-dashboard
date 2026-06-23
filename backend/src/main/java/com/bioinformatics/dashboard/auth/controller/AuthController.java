@@ -33,7 +33,6 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Auditable(action = AuditAction.LOGIN)
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }

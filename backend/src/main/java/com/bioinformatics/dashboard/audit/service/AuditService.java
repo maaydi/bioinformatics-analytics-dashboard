@@ -23,14 +23,19 @@ public class AuditService {
     private final AuditLogMapper mapper;
 
     @Async("auditExecutor")
-    public void save(AppUser actor, AuditAction action, String targetId, AuditStatus status, AuditWebDetails webDetails) {
+    public void save(AppUser actor, String attemptedUsername, AuditAction action, String targetId, AuditStatus status, AuditWebDetails webDetails) {
         var auditLog = new AuditLog();
-        auditLog.setActorId(actor.getId());
-        auditLog.setActorUsername(actor.getUsername());
         auditLog.setAction(action);
         auditLog.setTarget(action.getDefaultTarget());
         auditLog.setTargetId(targetId);
         auditLog.setStatus(status);
+        if (actor != null) {
+            auditLog.setActorId(actor.getId());
+            auditLog.setActorUsername(actor.getUsername());
+        } else {
+            auditLog.setActorId(null);
+            auditLog.setActorUsername(attemptedUsername != null ? attemptedUsername : "UNKNOWN");
+        }
         if (webDetails != null) {
             auditLog.setHttpMethod(webDetails.httpMethod());
             auditLog.setEndpoint(webDetails.endpoint());

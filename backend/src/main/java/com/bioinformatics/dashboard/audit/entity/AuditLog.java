@@ -35,6 +35,7 @@ public class AuditLog {
     @Column(name = "target_type", nullable = false, length = 100)
     private AuditTarget target;
 
+    @Column(name = "target_id")
     private String targetId;
 
     @Enumerated(EnumType.STRING)

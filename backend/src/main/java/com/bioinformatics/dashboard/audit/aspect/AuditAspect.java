@@ -66,14 +66,14 @@ public class AuditAspect {
     ) {
         try {
             AppUser usr = null;
+            String userName = null;
             var authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof AppUser user) {
                 usr = user;
+                userName = authentication.getName();
             }
-            if (usr != null) {
-                var webDetails = AuditContextHolder.get();
-                service.save(usr, auditable.action(), targetId, status, webDetails);
-            }
+            var webDetails = AuditContextHolder.get();
+            service.save(usr, userName, auditable.action(), targetId, status, webDetails);
         } catch (Exception e) {
             log.error("Error during audit logging {}", e.getMessage());
         }

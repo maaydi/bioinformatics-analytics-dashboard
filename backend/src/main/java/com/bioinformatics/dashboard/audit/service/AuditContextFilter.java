@@ -18,7 +18,7 @@ public class AuditContextFilter implements Filter {
             var ipAddress = extractIpAddress(httpRequest);
             var method = httpRequest.getMethod();
             var endpoint = httpRequest.getRequestURI();
-            AuditContextHolder.set(new AuditWebDetails(ipAddress, method, endpoint));
+            AuditContextHolder.set(new AuditWebDetails(method, endpoint, ipAddress));
             try {
                 chain.doFilter(request, response);
             } finally {
