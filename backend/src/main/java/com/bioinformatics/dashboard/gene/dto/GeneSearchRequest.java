@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import java.util.Set;
  * <p>All field-level validation rules are defined in documentation/validation-rules.md §2.
  * Validation annotations here must match those rules exactly.
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record GeneSearchRequest(
 
         @Size(max = 200, message = "Search query too long (max 200 characters)")

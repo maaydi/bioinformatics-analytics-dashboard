@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.analytics.mapper.*;
 import com.bioinformatics.dashboard.analytics.repository.*;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AnalyticsService {
 
     private final DashboardKpisRepository dashboardKpisRepository;
@@ -43,12 +45,14 @@ public class AnalyticsService {
     private final KeywordFrequencyMapper keywordFrequencyMapper;
 
     public DashboardKpisDto getDashboardKpis() {
+        log.info("Retrieving Dashboard KPIs from materialized view");
         var entity = dashboardKpisRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
         return dashboardKpisMapper.toDto(entity);
     }
 
     public List<LengthHistogramBucketDto> getLengthHistogram() {
+        log.info("Retrieving Length Histogram from materialized view");
         return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
                 .stream()
                 .map(lengthHistogramBucketMapper::toDto)
@@ -56,6 +60,7 @@ public class AnalyticsService {
     }
 
     public List<OrganismCountDto> getByOrganism(int limit) {
+        log.info("Retrieving Organism Count from materialized view");
         return organismCountRepository.findAll(Limit.of(limit))
                 .stream()
                 .map(organismCountMapper::toDto)
@@ -63,6 +68,7 @@ public class AnalyticsService {
     }
 
     public List<ReviewedRatioDto> getReviewedRatio() {
+        log.info("Retrieving Reviewed Ratio from materialized view");
         return reviewedRatioRepository.findAll()
                 .stream()
                 .map(reviewedRatioMapper::toDto)
@@ -70,6 +76,7 @@ public class AnalyticsService {
     }
 
     public List<EvidenceDistributionDto> getEvidenceLevels() {
+        log.info("Retrieving Evidence Levels from materialized view");
         return evidenceDistributionRepository.findAll()
                 .stream()
                 .map(evidenceDistributionMapper::toDto)
@@ -77,6 +84,7 @@ public class AnalyticsService {
     }
 
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
+        log.info("Retrieving Keyword Frequency from materialized view");
         return keywordFrequencyRepository.findAll(Limit.of(limit))
                 .stream()
                 .map(keywordFrequencyMapper::toDto)

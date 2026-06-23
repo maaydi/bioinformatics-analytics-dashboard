@@ -78,7 +78,7 @@ public class GeneController {
      * GET /api/genes/{id} — full protein detail.
      */
     @GetMapping("/{id}")
-    @Auditable(action = AuditAction.DETAIL_VIEW)
+    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#id")
     public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
         return ResponseEntity.ok(geneService.getGeneById(id));
     }

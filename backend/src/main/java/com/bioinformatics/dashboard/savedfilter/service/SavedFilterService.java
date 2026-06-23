@@ -24,6 +24,7 @@ public class SavedFilterService {
     private final SavedFilterMapper mapper;
 
     public PagedResponse<SavedFilterDto> listForCurrentUser(AppUser currentUser, int page, int size) {
+        log.info("Retrieving saved filter page <{}> for user <{}>", page, currentUser.getUsername());
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         var res = repository.findByOwner(currentUser, pageable)
                 .map(mapper::toDto);
@@ -50,6 +51,7 @@ public class SavedFilterService {
     }
 
     public void delete(Long id, AppUser currentUser) {
+        log.info("Delete filter <{}> by user <{}>", id, currentUser.getUsername());
         var filter = repository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.forSavedFilter(id));
         var isOwner = filter.getOwner().getUsername().equals(currentUser.getUsername());

@@ -48,7 +48,7 @@ public class ImportController {
      * POST /api/admin/import/uniprot — triggers Spring Batch import job.
      */
     @PostMapping("/uniprot")
-    @Auditable(action = AuditAction.IMPORT_UPLOAD)
+    @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#result.id")
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType MultipartFile file,
             @RequestParam("strategy") String strategy) {
@@ -73,7 +73,7 @@ public class ImportController {
      * GET /api/admin/import/status/{jobId} — real-time progress of a single job.
      */
     @GetMapping("/status/{jobId}")
-    @Auditable(action = AuditAction.IMPORT_UPLOAD)
+    @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#jobId")
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {
         return service.getImportJobStatus(jobId);
     }
