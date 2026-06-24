@@ -96,6 +96,38 @@ app:
     max-size: 10
     queue-capacity: 25
     thread-name-prefix: audit-
+  rate-limiter:
+    global:
+      name: global
+      capacity: ${RATE_LIMITER_GLOBAL_CAPACITY:100}
+      tokens: ${RATE_LIMITER_GLOBAL_TOKENS:100}
+      seconds: ${RATE_LIMITER_GLOBAL_SECONDS:60}
+    endpoints:
+      - name: login
+        capacity: ${RATE_LIMITER_LOGIN_CAPACITY:10}
+        tokens: ${RATE_LIMITER_LOGIN_TOKENS:10}
+        seconds: ${RATE_LIMITER_LOGIN_SECONDS:60}
+      - name: import
+        capacity: ${RATE_LIMITER_IMPORT_CAPACITY:5}
+        tokens: ${RATE_LIMITER_IMPORT_TOKENS:5}
+        seconds: ${RATE_LIMITER_IMPORT_SECONDS:60}
+      - name: search
+        capacity: ${RATE_LIMITER_SEARCH_CAPACITY:30}
+        tokens: ${RATE_LIMITER_SEARCH_TOKENS:30}
+        seconds: ${RATE_LIMITER_SEARCH_SECONDS:60}
+      - name: detail
+        capacity: ${RATE_LIMITER_SEARCH_CAPACITY:60}
+        tokens: ${RATE_LIMITER_SEARCH_TOKENS:60}
+        seconds: ${RATE_LIMITER_SEARCH_SECONDS:60}
+      - name: analysis
+        capacity: ${RATE_LIMITER_ANALYSIS_CAPACITY:20}
+        tokens: ${RATE_LIMITER_ANALYSIS_TOKENS:20}
+        seconds: ${RATE_LIMITER_ANALYSIS_SECONDS:60}
+      - name: export
+        capacity: ${RATE_LIMITER_ANALYSIS_CAPACITY:10}
+        tokens: ${RATE_LIMITER_ANALYSIS_TOKENS:10}
+        seconds: ${RATE_LIMITER_ANALYSIS_SECONDS:60}
+
 
 
 # ── Logging ───────────────────────────────────────────────────────────────────

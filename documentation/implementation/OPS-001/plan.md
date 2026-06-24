@@ -18,10 +18,10 @@
 - [x] Requirements analyzed
 - [x] DB migration created
 - [x] AuditLog entity + repository + service implemented
-- [ ] Audit hooks wired
-- [ ] Actuator configured
-- [ ] Pagination cap implemented
-- [ ] Rate limiting implemented
+- [x] Audit hooks wired
+- [x] Actuator configured
+- [x] Pagination cap implemented
+- [x] Rate limiting implemented
 - [ ] Unit tests written
 - [ ] Integration tests written
 - [ ] Documentation updated
@@ -81,8 +81,8 @@
 
 ### Backend — Rate Limiting (Bucket4j)
 
-- [ ] Add `bucket4j-spring-boot-starter` to `pom.xml`
-- [ ] Configure in `application.yml`:
+- [x] Add `bucket4j-spring-boot-starter` to `pom.xml`
+- [x] Configure in `application.yml`:
   ```yaml
   bucket4j:
     enabled: true
@@ -97,7 +97,7 @@
                 time: 1
                 unit: minutes
   ```
-- [ ] `Retry-After` header included in 429 response
+- [x] `Retry-After` header included in 429 response
 
 ### Tests
 

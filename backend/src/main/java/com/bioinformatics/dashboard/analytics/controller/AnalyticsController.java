@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.analytics.controller;
 import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -45,6 +46,7 @@ public class AnalyticsController {
     private final AnalyticsService service;
 
     @GetMapping("/dashboard-kpis")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<DashboardKpisDto> getDashboardKpis() {
         var kpis = service.getDashboardKpis();
@@ -52,6 +54,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/length-histogram")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram() {
         var buckets = service.getLengthHistogram();
@@ -59,6 +62,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/by-organism")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<List<OrganismCountDto>> getByOrganism(
             @Min(value = 1, message = "Limit should be greater than 0")
@@ -69,6 +73,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/reviewed-ratio")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<List<ReviewedRatioDto>> getReviewedRatio() {
         var ratios = service.getReviewedRatio();
@@ -76,6 +81,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/evidence-levels")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels() {
         var ev = service.getEvidenceLevels();
@@ -83,6 +89,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/keyword-frequency")
+    @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
     public ResponseEntity<List<KeywordFrequencyDto>> getKeywordFrequency(
             @Min(value = 1, message = "Limit should be greater than 0")

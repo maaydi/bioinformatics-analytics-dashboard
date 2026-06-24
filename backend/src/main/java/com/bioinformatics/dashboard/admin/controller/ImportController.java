@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.admin.controller;
 import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.admin.validator.ValidFileType;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -49,6 +50,7 @@ public class ImportController {
      */
     @PostMapping("/uniprot")
     @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#result.id")
+    @RateLimited(key = "import")
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType MultipartFile file,
             @RequestParam("strategy") String strategy) {
@@ -61,6 +63,7 @@ public class ImportController {
      */
     @GetMapping("/status")
     @Auditable(action = AuditAction.IMPORT_UPLOAD)
+    @RateLimited
     public PagedResponse<ImportJobSummary> listImportJobs(
             @RequestParam(defaultValue = "0") int page,
             @Min(value = 1, message = "Page size should be greater than 0")
@@ -74,6 +77,7 @@ public class ImportController {
      */
     @GetMapping("/status/{jobId}")
     @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#jobId")
+    @RateLimited
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {
         return service.getImportJobStatus(jobId);
     }

@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.gene.controller;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -51,6 +52,7 @@ public class GeneController {
      */
     @GetMapping
     @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited(key = "search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> listGenes(
             @RequestParam(defaultValue = "0") int page,
             @Min(value = 1, message = "Page size should be greater than 0")
@@ -68,6 +70,7 @@ public class GeneController {
      */
     @PostMapping("/search")
     @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited(key = "search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> searchGenes(
             @RequestBody @Valid GeneSearchRequest request) {
         var result = geneService.searchGenes(request);
@@ -79,6 +82,7 @@ public class GeneController {
      */
     @GetMapping("/{id}")
     @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#id")
+    @RateLimited(key = "detail")
     public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
         return ResponseEntity.ok(geneService.getGeneById(id));
     }
@@ -88,6 +92,7 @@ public class GeneController {
      */
     @PostMapping(value = "/export-csv", produces = "text/csv")
     @Auditable(action = AuditAction.DATA_EXPORT_CSV)
+    @RateLimited(key = "export")
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
@@ -103,6 +108,7 @@ public class GeneController {
 
     @GetMapping(value = "/keywords")
     @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited
     public List<String> loadKeywords() {
         return geneService.listKeywords();
     }

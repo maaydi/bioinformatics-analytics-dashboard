@@ -18,6 +18,7 @@ public class AppProperties {
     private final Export export = new Export();
     private final ViewRefresh viewRefresh = new ViewRefresh();
     private final ThreadPoolSettings auditPool = new ThreadPoolSettings();
+    private final RateLimiter rateLimiter = new RateLimiter();
 
     @Getter
     @Setter
@@ -98,5 +99,21 @@ public class AppProperties {
             }
             this.sequenceSlaMs = sequenceSlaMs;
         }
+    }
+
+    @Getter
+    @Setter
+    public static class RateLimiter {
+        private RateLimiterSettings global;
+        private List<RateLimiterSettings> endpoints;
+    }
+
+    @Getter
+    @Setter
+    public static class RateLimiterSettings {
+        private String name;
+        private int capacity;
+        private int tokens;
+        private int seconds;
     }
 }

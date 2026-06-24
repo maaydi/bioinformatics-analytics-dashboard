@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
@@ -39,6 +40,7 @@ public class SavedFilterController {
 
     @GetMapping
     @Auditable(action = AuditAction.FILTER_SAVE)
+    @RateLimited
     public PagedResponse<SavedFilterDto> listSavedFilters(
             @RequestParam(defaultValue = "0") int page,
             @Min(value = 1, message = "Page size should be greater than 0")
@@ -50,6 +52,7 @@ public class SavedFilterController {
 
     @PostMapping
     @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.id")
+    @RateLimited
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
                                                             @AuthenticationPrincipal AppUser currentUser) {
         var res = service.create(request, currentUser);
@@ -58,6 +61,7 @@ public class SavedFilterController {
 
     @DeleteMapping("/{id}")
     @Auditable(action = AuditAction.FILTER_DELETE, targetId = "#id")
+    @RateLimited
     public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @AuthenticationPrincipal AppUser currentUser) {
         service.delete(id, currentUser);
         return ResponseEntity.noContent().build();
