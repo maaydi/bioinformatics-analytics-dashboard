@@ -37,6 +37,12 @@ public class AuditAspect {
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
             returning = "result"
     )
+    /**
+     * Handles successful method executions annotated with {@code @Auditable} and records a success audit.
+     *
+     * @param joinPoint the join point of the executed method
+     * @param result the returned value from the method (may be {@code null})
+     */
     public void auditSuccess(JoinPoint joinPoint, Object result) {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;
@@ -52,6 +58,12 @@ public class AuditAspect {
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
             throwing = "ex"
     )
+    /**
+     * Handles exceptions thrown by methods annotated with {@code @Auditable} and records a failure audit.
+     *
+     * @param joinPoint the join point of the executed method
+     * @param ex the exception that was thrown
+     */
     public void auditFailure(JoinPoint joinPoint, Exception ex) {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;

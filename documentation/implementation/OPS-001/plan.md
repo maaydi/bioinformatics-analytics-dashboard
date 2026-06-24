@@ -22,11 +22,11 @@
 - [x] Actuator configured
 - [x] Pagination cap implemented
 - [x] Rate limiting implemented
-- [ ] Unit tests written
-- [ ] Integration tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Unit tests written
+- [x] Integration tests written
+- [x] Documentation updated
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
 
 ---
 
@@ -101,18 +101,18 @@
 
 ### Tests
 
-- [ ] `AuditServiceTest` — unit:
-    - [ ] `record()` saves `AuditLog` entity with correct fields
-    - [ ] Async — does not block calling thread
-- [ ] Integration tests:
-    - [ ] `GET /api/genes?size=201` → 400
-    - [ ] `POST /api/genes/search` with `"size": 201` → 400
-    - [ ] Actuator liveness → 200
-    - [ ] Actuator readiness → 200 with DB up
+- [x] `AuditServiceTest` — unit:
+  - [x] `record()` saves `AuditLog` entity with correct fields
+  - [x] Async — does not block calling thread
+- [x] Integration tests:
+  - [x] `GET /api/genes?size=201` → 400
+  - [x] `POST /api/genes/search` with `"size": 201` → 400
+  - [x] Actuator liveness → 200
+  - [x] Actuator readiness → 200 with DB up
 
 ### General
 
-- [ ] Actuator non-health endpoints remain unexposed
-- [ ] Audit log does not log sensitive data (no passwords, no tokens)
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Actuator non-health endpoints remain unexposed
+- [x] Audit log does not log sensitive data (no passwords, no tokens)
+- [x] Code reviewed
+- [x] Coverage ≥ 80%

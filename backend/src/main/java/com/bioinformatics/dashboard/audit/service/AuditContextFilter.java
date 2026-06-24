@@ -13,6 +13,16 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuditContextFilter implements Filter {
     @Override
+    /**
+     * Populate the audit context with web request details for the current thread,
+     * invoke the filter chain, and ensure the context is cleared afterwards.
+     *
+     * @param request the servlet request
+     * @param response the servlet response
+     * @param chain the filter chain
+     * @throws IOException if an I/O error occurs during processing
+     * @throws ServletException if the processing fails
+     */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (request instanceof HttpServletRequest httpRequest) {
             var ipAddress = extractIpAddress(httpRequest);

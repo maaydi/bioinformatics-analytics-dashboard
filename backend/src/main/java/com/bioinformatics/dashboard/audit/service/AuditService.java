@@ -23,6 +23,16 @@ public class AuditService {
     private final AuditLogMapper mapper;
 
     @Async("auditExecutor")
+    /**
+     * Persist an audit log entry asynchronously.
+     *
+     * @param actor the authenticated user performing the action, or null for anonymous/system
+     * @param attemptedUsername the username attempted or acting username when actor is null
+     * @param action the audited action
+     * @param targetId identifier of the target resource (may be null)
+     * @param status the audit status
+     * @param webDetails optional web request details
+     */
     public void save(AppUser actor, String attemptedUsername, AuditAction action, String targetId, AuditStatus status, AuditWebDetails webDetails) {
         var auditLog = new AuditLog();
         auditLog.setAction(action);
@@ -47,6 +57,13 @@ public class AuditService {
         auditLogRepository.save(auditLog);
     }
 
+    /**
+     * Retrieve paginated audit log entries for a given user.
+     *
+     * @param userId   the actor/user id to filter by
+     * @param pageable pagination information
+     * @return page of AuditLogDto entries
+     */
     public Page<AuditLogDto> findByUserId(Long userId, Pageable pageable) {
         return auditLogRepository.findByActorId(userId, pageable).map(mapper::toDto);
     }

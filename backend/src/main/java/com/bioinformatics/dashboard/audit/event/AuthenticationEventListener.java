@@ -20,6 +20,11 @@ public class AuthenticationEventListener {
     private final AuditService auditService;
     private final AppUserRepository userRepository;
 
+    /**
+     * Handle successful authentication events and record a login success audit.
+     *
+     * @param event the authentication success event
+     */
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent event) {
         var username = event.getAuthentication().getName();
@@ -31,6 +36,11 @@ public class AuthenticationEventListener {
         }
     }
 
+    /**
+     * Handle authentication failure events and record a login failure audit.
+     *
+     * @param event the authentication failure event
+     */
     @EventListener
     public void onFailure(AbstractAuthenticationFailureEvent event) {
         var username = event.getAuthentication().getName();
