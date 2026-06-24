@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.audit.aspect;
 
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.RateLimitExceededException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.annotation.PostConstruct;
@@ -12,11 +13,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -39,6 +38,7 @@ public class RateLimitAspect {
         rateLimiters = initRateLimiters(appProperties);
     }
 
+
     private static Map<String, AppProperties.RateLimiterSettings> initRateLimiters(AppProperties appProperties) {
         if (appProperties == null || appProperties.getRateLimiter() == null) {
             throw new IllegalStateException("Rate limiter configuration is missing in application properties.");
@@ -49,28 +49,6 @@ public class RateLimitAspect {
         return limiters.stream()
                 .collect(ConcurrentHashMap::new, (map, limiter) -> map.put(limiter.getName(), limiter),
                         ConcurrentHashMap::putAll);
-    }
-
-    @Around("@annotation(com.bioinformatics.dashboard.audit.annotation.RateLimited)")
-    public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!appProperties.getRateLimiter().isEnabled()) {
-            return joinPoint.proceed();
-        }
-        var rateLimited = getAnnotation(joinPoint);
-        if (rateLimited != null) {
-            var configKey = rateLimited.key();
-            var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            var clientIp = request.getRemoteAddr();
-            var bucketId = configKey + "-" + clientIp;
-            var bucket = cache.computeIfAbsent(bucketId, id -> createNewBucket(configKey));
-            if (bucket.tryConsume(1)) {
-                return joinPoint.proceed();
-            } else {
-                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded. Try again later.");
-            }
-        }
-        log.warn("RateLimit annotation is not enabled for this method {}", joinPoint.getSignature().getName());
-        return joinPoint.proceed();
     }
 
     private Bucket createNewBucket(String configKey) {
@@ -89,6 +67,28 @@ public class RateLimitAspect {
                 .build();
     }
 
+    @Around("@annotation(com.bioinformatics.dashboard.audit.annotation.RateLimited)")
+    public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (!appProperties.getRateLimiter().isEnabled()) {
+            return joinPoint.proceed();
+        }
+        var rateLimited = getAnnotation(joinPoint);
+        if (rateLimited != null) {
+            var configKey = rateLimited.key();
+            var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            var clientIp = request.getRemoteAddr();
+            var bucketId = configKey + "-" + clientIp;
+            var bucket = cache.computeIfAbsent(bucketId, _ -> createNewBucket(configKey));
+            if (bucket.tryConsume(1)) {
+                return joinPoint.proceed();
+            } else {
+                throw new RateLimitExceededException("Rate limit exceeded. Try again later.");
+            }
+        }
+        log.warn("RateLimit annotation is not enabled for this method {}", joinPoint.getSignature().getName());
+        return joinPoint.proceed();
+    }
+
     private RateLimited getAnnotation(JoinPoint joinPoint) {
         try {
             var signature = (MethodSignature) joinPoint.getSignature();
@@ -98,7 +98,7 @@ public class RateLimitAspect {
 
             return method.getAnnotation(RateLimited.class);
         } catch (Exception e) {
-            log.warn("Could not extract @Auditable annotation {}", e.getMessage());
+            log.warn("Could not extract @RateLimited annotation {}", e.getMessage());
             return null;
         }
     }
