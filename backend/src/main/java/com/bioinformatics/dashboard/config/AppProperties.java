@@ -104,6 +104,7 @@ public class AppProperties {
     @Getter
     @Setter
     public static class RateLimiter {
+        private boolean enabled;
         private RateLimiterSettings global;
         private List<RateLimiterSettings> endpoints;
     }

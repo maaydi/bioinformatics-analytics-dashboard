@@ -29,8 +29,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RateLimitAspect {
     private final AppProperties appProperties;
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+
     private Map<String, AppProperties.RateLimiterSettings> rateLimiters;
+
+    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        rateLimiters = initRateLimiters(appProperties);
+    }
 
     private static Map<String, AppProperties.RateLimiterSettings> initRateLimiters(AppProperties appProperties) {
         if (appProperties == null || appProperties.getRateLimiter() == null) {
@@ -44,13 +51,11 @@ public class RateLimitAspect {
                         ConcurrentHashMap::putAll);
     }
 
-    @PostConstruct
-    public void init() {
-        rateLimiters = initRateLimiters(appProperties);
-    }
-
     @Around("@annotation(com.bioinformatics.dashboard.audit.annotation.RateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (!appProperties.getRateLimiter().isEnabled()) {
+            return joinPoint.proceed();
+        }
         var rateLimited = getAnnotation(joinPoint);
         if (rateLimited != null) {
             var configKey = rateLimited.key();

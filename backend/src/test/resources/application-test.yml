@@ -33,37 +33,17 @@ app:
       queue-capacity: 25
       thread-name-prefix: BatchAsync-
   rate-limiter:
+    enabled: true
     global:
       name: global
-      capacity: 100
-      tokens: 100
+      capacity: 5
+      tokens: 5
       seconds: 60
     endpoints:
       - name: login
-        capacity: 10
-        tokens: 10
-        seconds: 60
-      - name: import
         capacity: 5
         tokens: 5
         seconds: 60
-      - name: search
-        capacity: 30
-        tokens: 30
-        seconds: 60
-      - name: detail
-        capacity: 60
-        tokens: 60
-        seconds: 60
-      - name: analysis
-        capacity: 20
-        tokens: 20
-        seconds: 60
-      - name: export
-        capacity: 10
-        tokens: 10
-        seconds: 60
-
 
 logging:
   config: classpath:logback-spring.xml
