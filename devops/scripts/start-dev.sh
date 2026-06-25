@@ -42,6 +42,16 @@ until docker compose -f "$ROOT_DIR/docker-compose.yml" exec postgres \
 done
 echo "    PostgresSQL is ready."
 
+echo "==> Starting Redis via Docker Compose..."
+docker compose -f "$ROOT_DIR/docker-compose.yml" up redis -d
+
+echo "==> Waiting for Redis to be ready..."
+until docker compose -f "$ROOT_DIR/docker-compose.yml" exec redis \
+    redis-cli -a "${REDIS_PASSWORD}" --no-auth-warning ping 2>/dev/null | grep -q "PONG"; do
+    sleep 1
+done
+echo "    Redis is ready."
+
 echo "==> Build Spring Boot application..."
 cd "$ROOT_DIR/backend"
 mvn clean install -DskipTests

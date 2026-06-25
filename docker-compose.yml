@@ -36,7 +36,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -64,6 +64,7 @@ services:
       # Redis configuration
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:

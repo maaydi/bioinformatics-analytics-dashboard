@@ -65,8 +65,8 @@ spring:
     type: redis
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:password}
       connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
       client-name: ${SPRING_DATA_REDIS_CLIENT_NAME:bioinformatics-dashboard}
