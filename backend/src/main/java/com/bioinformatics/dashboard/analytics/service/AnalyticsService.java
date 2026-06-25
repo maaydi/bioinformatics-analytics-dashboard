@@ -45,7 +45,7 @@ public class AnalyticsService {
     private final KeywordFrequencyRepository keywordFrequencyRepository;
     private final KeywordFrequencyMapper keywordFrequencyMapper;
 
-    @Cacheable(value = "dashboardKpis")
+    @Cacheable(value = "dashboardKpis", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis() {
         log.info("Retrieving Dashboard KPIs from materialized view");
         var entity = dashboardKpisRepository.findFirstBy()

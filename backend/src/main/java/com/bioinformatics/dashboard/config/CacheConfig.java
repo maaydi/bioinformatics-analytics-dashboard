@@ -30,21 +30,42 @@ import java.util.List;
 public class CacheConfig {
 
 
-    private static ObjectMapper getBaseObjectMapper() {
+    private static ObjectMapper getBaseMapper(DefaultTyping typing) {
         var ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.bioinformatics.dashboard")
                 .allowIfBaseType("java.util")
                 .allowIfBaseType(java.lang.Object.class)
                 .build();
         return JsonMapper.builder()
-                .activateDefaultTyping(ptv, DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
+                .activateDefaultTyping(ptv, typing, JsonTypeInfo.As.PROPERTY)
                 .build();
+    }
+
+    private static ObjectMapper getBaseObjectMapper() {
+        return getBaseMapper(DefaultTyping.JAVA_LANG_OBJECT);
+    }
+
+    private static ObjectMapper getNonFinalAndRecordMapper() {
+        return getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
     }
 
     @Bean
     @Primary
     public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
         var objectMapper = getBaseObjectMapper();
+        var config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(6))
+                .disableCachingNullValues()
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJacksonJsonRedisSerializer(objectMapper)));
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .cacheDefaults(config)
+                .build();
+    }
+
+    @Bean
+    public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory redisConnectionFactory) {
+        var objectMapper = getNonFinalAndRecordMapper();
         var config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(6))
                 .disableCachingNullValues()

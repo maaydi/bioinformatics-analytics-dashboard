@@ -30,7 +30,7 @@ public class FilteredAnalyticsService {
 
     private final ProteinEntryRepository proteinEntryRepository;
 
-    @Cacheable(value = "filtered-dashboardKpis", key = "#request.toString()")
+    @Cacheable(value = "filtered-dashboardKpis", key = "#request.toString()", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis(GeneSearchRequest request) {
         log.info("Retrieving Kpis for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);

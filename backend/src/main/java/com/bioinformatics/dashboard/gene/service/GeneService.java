@@ -83,7 +83,7 @@ public class GeneService {
      * @throws ResourceNotFoundException if not found
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "geneDetail", key = "#id")
+    @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
     public ProteinDetailDto getGeneById(Long id) {
         log.info("Retrieving protein entry by id: {}", id);
         var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
