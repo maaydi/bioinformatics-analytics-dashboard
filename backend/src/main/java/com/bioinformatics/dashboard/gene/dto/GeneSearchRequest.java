@@ -1,6 +1,8 @@
 package com.bioinformatics.dashboard.gene.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,6 +16,7 @@ import java.util.Set;
  * <p>All field-level validation rules are defined in documentation/validation-rules.md §2.
  * Validation annotations here must match those rules exactly.
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record GeneSearchRequest(
 
         @Size(max = 200, message = "Search query too long (max 200 characters)")
@@ -69,7 +72,7 @@ public record GeneSearchRequest(
         @Min(value = 0, message = "page must be ≥ 0")
         Integer page,
 
-        @Min(1) @Max(500)
+        @Min(1) @Max(200)
         Integer size,
 
         String sort,
@@ -106,5 +109,58 @@ public record GeneSearchRequest(
         }
 
         return PageRequest.of(page, size, direct, sortField);
+    }
+
+    private static String fieldToString(String fieldName, Object value) {
+        if (value == null) return "";
+        if (value instanceof List<?> lst && lst.isEmpty()) return "";
+        return String.format("%s=%s, ", fieldName, value);
+    }
+
+    @Override
+    public @NonNull String toString() {
+        return "GeneSearchRequest[" + fieldsToString() +
+                ',' +
+                PaginationToString() +
+                "]";
+    }
+
+    private String fieldsToString() {
+        String sb = "Fields=[" + fieldToString("globalSearch", globalSearch) +
+                fieldToString("accession", accession) +
+                fieldToString("entryName", entryName) +
+                fieldToString("geneNamePrimary", geneNamePrimary) +
+                fieldToString("proteinFullName", proteinFullName) +
+                fieldToString("reviewed", reviewed) +
+                fieldToString("organism", organism) +
+                fieldToString("taxid", taxid) +
+                fieldToString("lineage", lineage) +
+                fieldToString("lengthMin", lengthMin) +
+                fieldToString("lengthMax", lengthMax) +
+                fieldToString("molecularWeightMin", molecularWeightMin) +
+                fieldToString("molecularWeightMax", molecularWeightMax) +
+                fieldToString("evidenceLevels", evidenceLevels) +
+                fieldToString("keywords", keywords) +
+                fieldToString("goTermId", goTermId) +
+                fieldToString("goAspect", goAspect) +
+                fieldToString("featureType", featureType) +
+                fieldToString("crossRefSource", crossRefSource);
+        var s = sb.trim();
+        if (s.endsWith(",")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s + "]";
+    }
+
+    private String PaginationToString() {
+        String sb = "Pagination=[" + fieldToString("page", page) +
+                fieldToString("size", size) +
+                fieldToString("sort", sort) +
+                fieldToString("direction", direction);
+        var s = sb.trim();
+        if (s.endsWith(",")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s + "]";
     }
 }

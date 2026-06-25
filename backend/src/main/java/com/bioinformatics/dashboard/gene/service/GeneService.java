@@ -13,6 +13,7 @@ import com.bioinformatics.dashboard.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class GeneService {
 
     private final ProteinEntryService proteinService;
@@ -50,6 +52,7 @@ public class GeneService {
      *
      */
     public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
+        log.info("Retrieving all protein entries for page: {}", pageable.getPageNumber());
         var page = proteinService.findAll(pageable);
         var genes = page.getContent().stream().map(mapper::toSummary).toList();
         return new PagedResponse<>(genes, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
@@ -60,6 +63,7 @@ public class GeneService {
      *
      */
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
+        log.info("Searching for protein entries for filters: {}", request);
         var page = request.getRequestPage(SORT_WHITELIST, "id");
         var spec = GeneSpecification.fromRequest(request);
         var result = proteinService.findAll(spec, page);
@@ -71,10 +75,11 @@ public class GeneService {
     /**
      * Returns the full detail of a single protein entry.
      *
-     * @throws com.bioinformatics.dashboard.exception.ResourceNotFoundException if not found
+     * @throws ResourceNotFoundException if not found
      */
     @Transactional(readOnly = true)
     public ProteinDetailDto getGeneById(Long id) {
+        log.info("Retrieving protein entry by id: {}", id);
         var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
         return mapper.toDetail(gene);
 
@@ -86,6 +91,7 @@ public class GeneService {
      *
      */
     public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
+        log.info("Exporting protein entries for filters: {}", request);
         request.getRequestPage(SORT_WHITELIST, "id");
         var page = PageRequest.of(0, (int) totalRows);
         var spec = GeneSpecification.fromRequest(request);
@@ -108,6 +114,7 @@ public class GeneService {
     }
 
     public List<String> listKeywords() {
+        log.info("Retrieving keywords for protein entries");
         return keywordRepository.findAll()
                 .stream()
                 .map(Keyword::getName)

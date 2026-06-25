@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -122,6 +124,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Handle Access Denied Exception: {}", ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, "Access Denied");
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex) {
+        log.warn("Handle Rate limit exceeded Exception: {}", ex.getMessage());
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded. Try again later.");
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        log.warn("Handle ResponseStatus Exception: {}", ex.getMessage());
+        var status = Objects.requireNonNullElse(HttpStatus.resolve(ex.getStatusCode().value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(status, ex.getReason());
     }
 
     private boolean isClientAbort(Throwable throwable) {

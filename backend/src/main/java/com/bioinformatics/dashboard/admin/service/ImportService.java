@@ -16,6 +16,7 @@ import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.mapper.ImportJobMapper;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,6 +35,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ImportService {
 
     private final ImportJobRepository importJobRep;
@@ -43,6 +45,7 @@ public class ImportService {
     private final CounterRegistry registry;
 
     public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
+        log.info("listImportJobs page: {}, size: {}", page, size);
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         var summaryPage = importJobRep.findAll(pageable).map(jobMapper::toSummary);
 
@@ -57,8 +60,10 @@ public class ImportService {
     public ImportJobSummary triggerImport(MultipartFile file, String strategy) {
         checkImportAlreadyRunning();
         try {
+            log.info("Triggering import for file {} with strategy {}", file.getOriginalFilename(), strategy);
             var target = saveImportFile(file, strategy);
             var savedJob = saveJob(target, strategy);
+            log.info("Import job {} saved successfully, starting execution", savedJob.id());
             executeImport(savedJob, target);
             return savedJob;
         } catch (Exception e) {
@@ -67,6 +72,7 @@ public class ImportService {
     }
 
     public ImportJobProgress getImportJobStatus(String jobId) {
+        log.info("Getting import job status for job {}", jobId);
         var job = importJobRep
                 .findById(UUID.fromString(jobId))
                 .orElseThrow(() -> ResourceNotFoundException.forImportJob(jobId));

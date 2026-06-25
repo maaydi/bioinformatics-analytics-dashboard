@@ -17,20 +17,26 @@ describe('SavedFiltersComponent', () => {
   let mockGenesStore: any;
   let mockDialog: any;
 
-  const mockSavedFilters = [
-    {
-      id: '1',
-      name: 'High Expression',
-      filterJson: {expr: '>10'},
-      createdAt: '2026-06-01T10:00:00Z'
-    },
-    {
-      id: '2',
-      name: 'Mutated Variants',
-      filterJson: {mutation: 'true'},
-      createdAt: '2026-06-02T10:00:00Z'
-    }
-  ];
+  const mockSavedFilters = {
+    content: [
+      {
+        id: '1',
+        name: 'High Expression',
+        filterJson: {expr: '>10'},
+        createdAt: '2026-06-01T10:00:00Z'
+      },
+      {
+        id: '2',
+        name: 'Mutated Variants',
+        filterJson: {mutation: 'true'},
+        createdAt: '2026-06-02T10:00:00Z'
+      }
+    ],
+    page: 0,
+    size: 2,
+    totalElements: 2,
+    totalPages: 1,
+  };
 
   beforeEach(async () => {
     mockService = {
@@ -96,7 +102,7 @@ describe('SavedFiltersComponent', () => {
     });
 
     it('should show an empty state message if no filters exist', () => {
-      mockService.listSavedFilters.mockReturnValue(of([]));
+      mockService.listSavedFilters.mockReturnValue(of({content: []}));
 
       fixture = TestBed.createComponent(SavedFiltersComponent);
       component = fixture.componentInstance;
@@ -124,7 +130,7 @@ describe('SavedFiltersComponent', () => {
 
   describe('User Actions', () => {
     beforeEach(() => {
-      mockService.listSavedFilters.mockReturnValue(of([...mockSavedFilters]));
+      mockService.listSavedFilters.mockReturnValue(of({...mockSavedFilters}));
       fixture = TestBed.createComponent(SavedFiltersComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -134,7 +140,7 @@ describe('SavedFiltersComponent', () => {
       const applyButton = fixture.debugElement.query(By.css('.action-container button[color="primary"]'));
       applyButton.triggerEventHandler('click', null);
 
-      expect(mockGenesStore.setActiveFilters).toHaveBeenCalledWith(mockSavedFilters[0].filterJson);
+      expect(mockGenesStore.setActiveFilters).toHaveBeenCalledWith(mockSavedFilters.content[0].filterJson);
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/genes']);
     });
 

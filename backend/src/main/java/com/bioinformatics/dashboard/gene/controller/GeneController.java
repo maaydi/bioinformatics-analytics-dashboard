@@ -1,5 +1,8 @@
 package com.bioinformatics.dashboard.gene.controller;
 
+import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.annotation.RateLimited;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
@@ -7,6 +10,8 @@ import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.service.GeneService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,8 +51,12 @@ public class GeneController {
      * GET /api/genes — paginated list with optional sort/direction.
      */
     @GetMapping
+    @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited(key = "search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> listGenes(
             @RequestParam(defaultValue = "0") int page,
+            @Min(value = 1, message = "Page size should be greater than 0")
+            @Max(value = 200, message = "Page size should be lower than 201")
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String direction) {
@@ -60,6 +69,8 @@ public class GeneController {
      * POST /api/genes/search — search and filter with full filter support.
      */
     @PostMapping("/search")
+    @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited(key = "search")
     public ResponseEntity<PagedResponse<ProteinSummaryDto>> searchGenes(
             @RequestBody @Valid GeneSearchRequest request) {
         var result = geneService.searchGenes(request);
@@ -70,6 +81,8 @@ public class GeneController {
      * GET /api/genes/{id} — full protein detail.
      */
     @GetMapping("/{id}")
+    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#id")
+    @RateLimited(key = "detail")
     public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
         return ResponseEntity.ok(geneService.getGeneById(id));
     }
@@ -78,6 +91,8 @@ public class GeneController {
      * POST /api/genes/export-csv — download CSV for filtered result set.
      */
     @PostMapping(value = "/export-csv", produces = "text/csv")
+    @Auditable(action = AuditAction.DATA_EXPORT_CSV)
+    @RateLimited(key = "export")
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
@@ -92,6 +107,8 @@ public class GeneController {
     }
 
     @GetMapping(value = "/keywords")
+    @Auditable(action = AuditAction.SEARCH_QUERY)
+    @RateLimited
     public List<String> loadKeywords() {
         return geneService.listKeywords();
     }

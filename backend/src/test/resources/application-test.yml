@@ -32,6 +32,18 @@ app:
       max-size: 10
       queue-capacity: 25
       thread-name-prefix: BatchAsync-
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 5
+      tokens: 5
+      seconds: 60
+    endpoints:
+      - name: login
+        capacity: 5
+        tokens: 5
+        seconds: 60
 
 logging:
   config: classpath:logback-spring.xml
