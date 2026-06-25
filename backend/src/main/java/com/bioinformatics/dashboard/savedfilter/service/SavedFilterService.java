@@ -39,6 +39,7 @@ public class SavedFilterService {
                 res.getTotalPages());
     }
 
+    @CacheEvict(value = "savedFilters", key = "#owner.id")
     public SavedFilterDto create(SavedFilterCreateRequest request, AppUser owner) {
         log.info("Save filter <{}> created by <{}>", request.name(), owner.getUsername());
         try {

@@ -52,7 +52,7 @@ public class GeneService {
      * Returns a paginated, optionally sorted list of all proteins.
      *
      */
-    @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
+    @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction", cacheManager = "pageResponseListGeneCacheManager")
     public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
         var direct = Sort.Direction.fromString(direction);
         var pageable = PageRequest.of(pageNumber, size, direct, sort);
@@ -66,7 +66,7 @@ public class GeneService {
      * Returns a paginated filtered result set.
      *
      */
-    @Cacheable(value = "geneSearch", key = "#request.toString()")
+    @Cacheable(value = "geneSearch", key = "#request.toString()", cacheManager = "pageResponseListGeneCacheManager")
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
         var page = request.getRequestPage(SORT_WHITELIST, "id");

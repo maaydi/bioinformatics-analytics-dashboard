@@ -78,7 +78,7 @@ spring:
 * **Verification**: Enable SQL statement trace logs. Request an ID twice; verify the console outputs a `SELECT`
   statement precisely once.
 
-#### [ ] Task 2.2: Implement Caching across Analytics Subsystems
+#### [x] Task 2.2: Implement Caching across Analytics Subsystems
 
 * **Actions**:
 * Open `AnalyticsService.java`.

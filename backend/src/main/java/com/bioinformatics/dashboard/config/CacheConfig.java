@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.config;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.cache.annotation.EnableCaching;
@@ -104,6 +105,24 @@ public class CacheConfig {
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .withCacheConfiguration("savedFilters", cacheConfig)
+                .build();
+    }
+
+    @Bean
+    public RedisCacheManager pageResponseListGeneCacheManager(RedisConnectionFactory redisConnectionFactory) {
+        var cleanMapper = getBaseObjectMapper();
+
+        var pageType = TypeFactory.createDefaultInstance()
+                .constructParametricType(PagedResponse.class, ProteinSummaryDto.class);
+
+        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, pageType);
+
+        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
+
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .withCacheConfiguration("geneList", cacheConfig)
+                .withCacheConfiguration("geneSearch", cacheConfig)
                 .build();
     }
 
