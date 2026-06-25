@@ -98,6 +98,20 @@ body {
   }
 }
 
+.warning-snackbar {
+  .mdc-snackbar__surface {
+    background-color: rgb(211 96 47 / 0.84) !important;
+  }
+
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-button.mat-mdc-snack-bar-action {
+    color: #ffffff !important;
+  }
+}
+
 /* ── Chart header/export button style ──────────────────────────────────  */
 
 .chart-header-export-png {
