@@ -9,6 +9,7 @@ import {DashboardKpis} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
+import {MatButton} from '@angular/material/button';
 
 
 /**
@@ -20,7 +21,8 @@ import {Subscription} from 'rxjs';
 @Component({
   selector: 'app-dashboard-kpi-card-list',
   imports: [
-    DashboardKpiCardComponent
+    DashboardKpiCardComponent,
+    MatButton
   ],
   templateUrl: './dashboard-kpi-card-list.component.html',
   styleUrl: './dashboard-kpi-card-list.component.scss',

@@ -39,4 +39,14 @@ export class NotificationService {
       panelClass: ['error-snackbar'],
     });
   }
+
+  /**
+   * Show an error toast with specific styling
+   */
+  warning(message: string, action = 'Dismiss', duration = 5000): MatSnackBarRef<TextOnlySnackBar> {
+    return this.snackBar.open(message, action, {
+      ...this.defaultConfig, duration,
+      panelClass: ['warning-snackbar'],
+    });
+  }
 }

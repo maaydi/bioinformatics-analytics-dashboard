@@ -1,3 +1,5 @@
+@use "../../../../../styles/design-system" as ds;
+
 :host {
   display: block;
   height: 100%;
@@ -170,23 +172,8 @@ $y-axis-width: 48px;
 
 // ─── Tooltip ───────────────────────────────────────────────────────────────
 .bar-tooltip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  background: #1e293b;
-  color: #f8fafc;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  padding: 6px 10px;
-  border-radius: 4px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 10;
+  @include ds.tooltip-base;
   margin-bottom: 6px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 
   span {
     display: block;

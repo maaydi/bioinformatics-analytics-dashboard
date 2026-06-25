@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,6 +44,9 @@ class RateLimiterIntegrationTest {
 
     @MockitoBean
     GeneService geneService;
+
+    @MockitoBean
+    private CacheManager cacheManager;
 
     @BeforeEach
     void setUp() {

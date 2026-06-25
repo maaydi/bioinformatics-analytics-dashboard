@@ -187,21 +187,7 @@
 }
 
 .retry-button {
-  @include ds.text-body-sm;
-  border: ds.$border-width-thin solid var(--mat-sys-primary);
-  border-radius: ds.$border-radius-md;
-  padding: ds.$spacing-sm (ds.$spacing-md * 1.5);
-  background: transparent;
-  color: var(--mat-sys-primary);
-  cursor: pointer;
-  font-weight: ds.$font-weight-medium;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(var(--mat-sys-primary-rgb), 0.05);
-  }
-
-  @include ds.focus-visible;
+  @include ds.btn-outline;
 }
 
 /**

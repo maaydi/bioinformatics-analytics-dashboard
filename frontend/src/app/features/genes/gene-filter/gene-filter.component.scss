@@ -161,46 +161,17 @@ mat-card-content {
 
   button {
     width: 100%;
-    @include ds.text-body-sm;
-    padding: ds.$spacing-sm ds.$spacing-md;
-    border-radius: ds.$border-radius-md;
-    font-weight: ds.$font-weight-medium;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    @include ds.focus-visible;
   }
 
   .apply-btn {
-    background-color: var(--mat-sys-primary);
-    color: white;
-
-    &:hover:not(:disabled) {
-      background-color: var(--mat-sys-primary-container);
-      @include ds.shadow-md;
-    }
+    @include ds.btn-primary;
   }
 
   .clear-btn {
-    background-color: transparent;
-    color: var(--mat-sys-primary);
-    border: 1px solid ds.$color-border-light;
-
-    &:hover:not(:disabled) {
-      background-color: ds.$color-surface-hover;
-      border-color: ds.$color-border-medium;
-    }
+    @include ds.btn-outline;
   }
 }
 
 .error-message {
   @include shared.filter-error-message;
 }
-
-

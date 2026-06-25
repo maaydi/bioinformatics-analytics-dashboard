@@ -3,7 +3,7 @@
 } @else if (kpiError()) {
   <div aria-live="assertive" class="state-message state-message-error" role="alert">
     <p>{{ kpiError() }}</p>
-    <button (click)="retryKpis()" class="retry-button" type="button">Retry</button>
+    <button (click)="retryKpis()" class="retry-button" mat-stroked-button type="button">Retry</button>
   </div>
 } @else if (!kpiCards().length) {
   <p aria-live="polite" class="state-message">No KPI data available.</p>

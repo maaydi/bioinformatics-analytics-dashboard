@@ -386,8 +386,88 @@ $breakpoint-2xl: 2560px; // 2K+
 }
 
 // ============================================================================
+// BUTTON SYSTEM
+// ============================================================================
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-medium;
+  @include text-body-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @include focus-visible;
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  background-color: var(--mat-sys-primary);
+  color: #ffffff;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--mat-sys-primary-container);
+    @include shadow-md;
+  }
+}
+
+@mixin btn-outline {
+  @include btn-base;
+  background-color: transparent;
+  color: var(--mat-sys-primary);
+  border: $border-width-thin solid var(--mat-sys-primary);
+
+  &:hover:not(:disabled) {
+    background-color: $color-surface-hover;
+  }
+}
+
+@mixin btn-text {
+  @include btn-base;
+  background-color: transparent;
+  color: var(--mat-sys-primary);
+  border: none;
+  padding: $spacing-xs $spacing-sm;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(17, 24, 39, 0.04);
+  }
+}
+
+// ============================================================================
 // UTILITY MIXINS
 // ============================================================================
+
+@mixin tooltip-base {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: var(--mat-sys-on-surface, #1a1a1a);
+  color: var(--mat-sys-surface, #ffffff);
+  @include text-body-sm;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius-sm;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  box-shadow: $shadow-sm;
+}
 
 @mixin flex-center {
   display: flex;
@@ -425,4 +505,3 @@ $breakpoint-2xl: 2560px; // 2K+
   white-space: nowrap;
   border-width: 0;
 }
-

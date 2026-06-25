@@ -21,13 +21,13 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {Router} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
 import {MatCard, MatCardContent} from '@angular/material/card';
-import {MatIconButton} from '@angular/material/button';
+import {MatButton, MatIconButton} from '@angular/material/button';
 import {ImageExportService} from '@shared/directive/image-export-service';
 
 @Component({
   selector: 'app-dashboard-scatter-length-weight',
   templateUrl: './dashboard-scatter-length-weight.component.html',
-  imports: [NgxEchartsDirective, MatIcon, MatCard, MatIconButton, MatCardContent],
+  imports: [NgxEchartsDirective, MatIcon, MatCard, MatIconButton, MatCardContent, MatButton],
   providers: [
     {
       provide: NGX_ECHARTS_CONFIG,

@@ -1,7 +1,11 @@
 package com.bioinformatics.dashboard.auth.entity;
 
+import com.bioinformatics.dashboard.auth.dto.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +26,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FilterDef(name = "excludeDeletedFilter", parameters = @ParamDef(name = "isDeletedExcluded", type = Boolean.class))
+@Filter(name = "excludeDeletedFilter", condition = "(:isDeletedExcluded = true AND status <> 'DELETED' OR :isDeletedExcluded = false)")
 public class AppUser implements UserDetails {
 
     @Id
@@ -37,6 +43,10 @@ public class AppUser implements UserDetails {
     @Column(nullable = false, length = 20)
     private String role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private UserStatus status;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -44,6 +54,7 @@ public class AppUser implements UserDetails {
     private void prePersist() {
         if (createdAt == null) {
             createdAt = Instant.now();
+            status = UserStatus.CREATED;
         }
     }
 

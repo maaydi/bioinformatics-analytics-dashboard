@@ -1,9 +1,6 @@
 package com.bioinformatics.dashboard.batch;
 
-import com.bioinformatics.dashboard.batch.listener.ImportJobDatabaseListener;
-import com.bioinformatics.dashboard.batch.listener.ImportJobRefreshViewsListener;
-import com.bioinformatics.dashboard.batch.listener.ImportProgressChunkListener;
-import com.bioinformatics.dashboard.batch.listener.ImportUniprotSkipListener;
+import com.bioinformatics.dashboard.batch.listener.*;
 import com.bioinformatics.dashboard.batch.processor.ProteinEntryItemProcessor;
 import com.bioinformatics.dashboard.batch.reader.UniprotDatItemReader;
 import com.bioinformatics.dashboard.batch.writer.ProteinAggregateItemWriter;
@@ -108,10 +105,12 @@ public class UniProtImportJobConfig {
     @Bean
     Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
                          ImportJobDatabaseListener databaseListener,
+                         PostImportCacheEvictionListener postImportCacheEvictionListener,
                          ImportJobRefreshViewsListener refreshViewsListener) {
         return new JobBuilder(Constants.IMPORT_JOB.getKey(), jobRepository)
                 .start(uniProtImportStep)
                 .listener(databaseListener)
+                .listener(postImportCacheEvictionListener)
                 .listener(refreshViewsListener)
                 .build();
     }

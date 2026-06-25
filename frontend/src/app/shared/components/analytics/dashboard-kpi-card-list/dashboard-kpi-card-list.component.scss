@@ -1,17 +1,19 @@
+@use "../../../../../styles/design-system" as ds;
+
 :host {
   display: contents;
 }
 
 .state-message {
   margin: 0;
-  padding: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  background: #f9fafb;
-  color: #374151;
+  padding: ds.$spacing-lg;
+  border: 1px solid ds.$color-border-medium;
+  border-radius: ds.$border-radius-lg;
+  background: ds.$color-surface-subtle;
+  color: ds.$color-on-surface-variant;
 
   p {
-    margin: 0 0 0.75rem;
+    margin: 0 0 ds.$spacing-md;
   }
 }
 
@@ -22,10 +24,5 @@
 }
 
 .retry-button {
-  border: 1px solid currentColor;
-  border-radius: 0.375rem;
-  background: transparent;
-  padding: 0.375rem 0.75rem;
-  color: inherit;
-  cursor: pointer;
+  @include ds.btn-outline;
 }

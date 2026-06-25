@@ -39,6 +39,7 @@
   }
 
   button {
+    @include ds.btn-outline;
     margin-top: ds.$spacing-md;
   }
 }
