@@ -22,6 +22,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -67,6 +68,7 @@ class SavedFilterControllerTest {
     private AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
 
     @TestConfiguration
+    @Profile("test")
     static class CacheTestConfig {
         @Bean
         @Primary

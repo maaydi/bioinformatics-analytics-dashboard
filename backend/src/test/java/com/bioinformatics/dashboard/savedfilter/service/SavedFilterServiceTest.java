@@ -142,13 +142,14 @@ class SavedFilterServiceTest {
         storedOwner.setUsername("same-user");
 
         var entity = new SavedFilter();
+        entity.setId(99L);
         entity.setOwner(storedOwner);
 
         when(repository.findById(99L)).thenReturn(Optional.of(entity));
         service.delete(99L, currentUser);
 
         verify(repository).findById(99L);
-        verify(repository).delete(entity);
+        verify(repository).deleteById(99L);
     }
 
 }

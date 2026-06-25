@@ -67,7 +67,7 @@ public class SavedFilterService {
         deleteAndEvict(filter.getId(), filter.getOwner());
     }
 
-    @CacheEvict(value = "savedFilters", key = "#owner.id", cacheManager = "pageResponseSavedFiltersCacheManager")
+    @CacheEvict(value = "savedFilters", key = "#owner.id")
     public void deleteAndEvict(Long filterId, AppUser owner) {
         log.info("Delete filter ID <{}> and clear cache for its owner <{}>", filterId, owner.getUsername());
         try {
