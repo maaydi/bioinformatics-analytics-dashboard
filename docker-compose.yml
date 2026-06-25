@@ -22,6 +22,25 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:8.8-alpine
+    container_name: local-redis
+    restart: always
+    env_file: .env
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # ── Spring Boot Backend ────────────────────────────────────────────────────
   backend:
     build:
@@ -31,18 +50,26 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      # Database configuration
       SPRING_DATASOURCE_URL:      ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # JWT configuration
       JWT_SECRET:                 ${JWT_SECRET}
       JWT_ACCESS_TOKEN_EXPIRY_SECONDS:  ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
       JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
+      # File upload configuration
       SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:    ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:-2GB}
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:-2GB}
+      # Redis configuration
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - import_uploads:/tmp/import
@@ -62,3 +89,4 @@ services:
 volumes:
   postgres_data:
   import_uploads:
+  redis_data:

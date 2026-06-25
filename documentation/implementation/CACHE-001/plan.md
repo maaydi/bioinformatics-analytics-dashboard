@@ -23,7 +23,7 @@ specialized infrastructure component into the existing Spring Batch asynchronous
 
 ### Phase 1: Infrastructure & Configuration Setups
 
-#### [ ] Task 1.1: Provision Redis Infrastructure Container
+#### [x] Task 1.1: Provision Redis Infrastructure Container
 
 * **Actions**:
 * Update root-level `docker-compose.yml` to bundle a standard `redis:7.2-alpine` service.
