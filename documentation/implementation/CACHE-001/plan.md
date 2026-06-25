@@ -51,7 +51,7 @@ spring:
 
 ```
 
-#### [ ] Task 1.3: Author Core `CacheConfig.java` Engine
+#### [x] Task 1.3: Author Core `CacheConfig.java` Engine
 
 * **Actions**:
 * Create package `com.bioinformatics.dashboard.config.cache`.

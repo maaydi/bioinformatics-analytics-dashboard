@@ -24,7 +24,7 @@ public class SavedFilterService {
     private final SavedFilterRepository repository;
     private final SavedFilterMapper mapper;
 
-    @Cacheable(value = "savedFilters", key = "#currentUser.id + '-' + #page + '-' + #size")
+    @Cacheable(value = "savedFilters", key = "#currentUser.id + '-' + #page + '-' + #size", cacheManager = "listSavedFiltersCacheManager")
     public PagedResponse<SavedFilterDto> listForCurrentUser(AppUser currentUser, int page, int size) {
         log.info("Retrieving saved filter page <{}> for user <{}>", page, currentUser.getUsername());
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));

@@ -119,7 +119,7 @@ public class GeneService {
 
     }
 
-    @Cacheable(value = "geneKeywords")
+    @Cacheable(value = "geneKeywords", cacheManager = "listStringCacheManager")
     public List<String> listKeywords() {
         log.info("Retrieving keywords for protein entries");
         return keywordRepository.findAll()

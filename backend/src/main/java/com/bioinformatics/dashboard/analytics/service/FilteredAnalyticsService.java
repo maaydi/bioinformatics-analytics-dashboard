@@ -37,43 +37,42 @@ public class FilteredAnalyticsService {
         return proteinEntryRepository.getDashboardKpis(spec);
     }
 
-    @Cacheable(value = "filtered-lengthHistogram", key = "#request.toString()")
+    @Cacheable(value = "filtered-lengthHistogram", key = "#request.toString()", cacheManager = "listLengthHistogramCacheManager")
     public List<LengthHistogramBucketDto> getLengthHistogram(GeneSearchRequest request) {
         log.info("Retrieving length histogram for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getLengthHistogram(spec);
     }
 
-    @Cacheable(value = "filtered-byOrganism", key = "#request.toString() + '-' + #limit")
+    @Cacheable(value = "filtered-byOrganism", key = "#request.toString() + '-' + #limit", cacheManager = "listOrganismCacheManager")
     public List<OrganismCountDto> getByOrganism(int limit, GeneSearchRequest request) {
         log.info("Retrieving organism count for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getByOrganism(limit, spec);
     }
 
-    @Cacheable(value = "filtered-reviewedRatio", key = "#request.toString()")
+    @Cacheable(value = "filtered-reviewedRatio", key = "#request.toString()", cacheManager = "listReviewedRatioCacheManager")
     public List<ReviewedRatioDto> getReviewedRatio(GeneSearchRequest request) {
         log.info("Retrieving reviewed ratio for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getReviewedRatio(spec);
     }
 
-    @Cacheable(value = "filtered-evidenceLevels", key = "#request.toString()")
+    @Cacheable(value = "filtered-evidenceLevels", key = "#request.toString()", cacheManager = "listEvidenceLevelsCacheManager")
     public List<EvidenceDistributionDto> getEvidenceLevels(GeneSearchRequest request) {
         log.info("Retrieving evidence levels for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getEvidenceLevels(spec);
     }
 
-    @Cacheable(value = "filtered-keywordFrequency", key = "#request.toString() + '-' + #limit")
+    @Cacheable(value = "filtered-keywordFrequency", key = "#request.toString() + '-' + #limit", cacheManager = "listKeywordFrequencyCacheManager")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit, GeneSearchRequest request) {
         log.info("Retrieving keyword frequency for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getKeywordFrequency(limit, spec);
     }
 
-    @Cacheable(value = "filtered-proteinLengthWeightCount", key = "#request.toString()")
-
+    @Cacheable(value = "filtered-proteinLengthWeightCount", key = "#request.toString()", cacheManager = "listProteinLengthWeightCountCacheManager")
     public List<ProteinLengthWeightCount> getProteinLengthWeightCount(GeneSearchRequest request) {
         log.info("Retrieving protein length frequency for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
