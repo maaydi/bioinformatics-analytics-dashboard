@@ -68,7 +68,7 @@ spring:
 
 ### Phase 2: Service Layer Caching Adoptions
 
-#### [ ] Task 2.1: Implement Declarative Caching for Gene Queries
+#### [x] Task 2.1: Implement Declarative Caching for Gene Queries
 
 * **Actions**:
 * Open `GeneService.java` and supplement `getGeneById(Long id)` with an explicit
@@ -92,7 +92,7 @@ spring:
 
 ### Phase 3: Spring Batch Orchestrated Eviction Hooks
 
-#### [ ] Task 3.1: Construct `PostImportCacheEvictionListener` Listener
+#### [x] Task 3.1: Construct `PostImportCacheEvictionListener` Listener
 
 * **Actions**:
 * Create `PostImportCacheEvictionListener.java` implementing Spring Batch's `JobExecutionListener`.
