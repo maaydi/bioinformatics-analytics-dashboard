@@ -47,10 +47,10 @@ documentation/implementation/
 | `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `done`        |
 | `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `done`        |
 | `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `done`        |
-| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `done`        |
-| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `not-started` |
 | `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                        | `done`        |
+| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `done`        |
 | `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                | `done`        |     
+| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `in-progress` |
 
 ## Chronological Implementation Order (Recommended)
 
@@ -69,10 +69,10 @@ Implement tickets in this order so dependencies are respected and each increment
 | 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational      | Users can save, reload, and delete personal filter presets                         |
 | 10    | `EXPORT-001`    | `done`        | Export is meaningful after search/table/charts are stable    | Users can export filtered CSV and chart PNG images                                 |
 | 11    | `COMPARE-001`   | `done`        | Compare mode reuses filters + analytics foundation           | Users can compare two populations side by side                                     |
-| 12    | `OPS-001`       | `done`        | Hardening after core features are in place                   | Better reliability: health probes, throttling, auditability, safe page-size limits |
-| 13    | `A11Y-001`      | `not-started` | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |
-| 14    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins        | Improve import performance for the whole UNIPROT data                              |     
-| 15    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                | Distributed Caching with Batch Eviction Hooks                                      |     
+| 12    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins        | Improve import performance for the whole UNIPROT data                              |     
+| 13    | `OPS-001`       | `done`        | Hardening after core features are in place                   | Better reliability: health probes, throttling, auditability, safe page-size limits |
+| 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                | Distributed Caching with Batch Eviction Hooks                                      |     
+| 15    | `A11Y-001`      | `in-progress` | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |
 
 ## End-User Validation Milestones
 
