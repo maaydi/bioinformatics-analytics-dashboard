@@ -6,6 +6,7 @@ import com.bioinformatics.dashboard.analytics.repository.*;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,7 @@ public class AnalyticsService {
     private final KeywordFrequencyRepository keywordFrequencyRepository;
     private final KeywordFrequencyMapper keywordFrequencyMapper;
 
+    @Cacheable(value = "dashboardKpis")
     public DashboardKpisDto getDashboardKpis() {
         log.info("Retrieving Dashboard KPIs from materialized view");
         var entity = dashboardKpisRepository.findFirstBy()
@@ -51,6 +53,7 @@ public class AnalyticsService {
         return dashboardKpisMapper.toDto(entity);
     }
 
+    @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
         log.info("Retrieving Length Histogram from materialized view");
         return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
@@ -59,6 +62,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
         log.info("Retrieving Organism Count from materialized view");
         return organismCountRepository.findAll(Limit.of(limit))
@@ -67,6 +71,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
         log.info("Retrieving Reviewed Ratio from materialized view");
         return reviewedRatioRepository.findAll()
@@ -75,6 +80,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
         log.info("Retrieving Evidence Levels from materialized view");
         return evidenceDistributionRepository.findAll()
@@ -83,6 +89,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
         log.info("Retrieving Keyword Frequency from materialized view");
         return keywordFrequencyRepository.findAll(Limit.of(limit))

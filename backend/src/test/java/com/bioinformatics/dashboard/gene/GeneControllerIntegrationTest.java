@@ -14,7 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,8 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
 class GeneControllerIntegrationTest {
@@ -53,6 +58,17 @@ class GeneControllerIntegrationTest {
     ImportService importService;
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
+
+    @TestConfiguration
+    static class CacheTestConfig {
+        @Bean
+        @Primary
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+    }
+
+
     private String adminToken;
     private String userToken;
 

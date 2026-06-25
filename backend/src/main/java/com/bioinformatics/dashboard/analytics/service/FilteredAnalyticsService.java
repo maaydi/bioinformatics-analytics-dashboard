@@ -8,6 +8,7 @@ import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,42 +30,49 @@ public class FilteredAnalyticsService {
 
     private final ProteinEntryRepository proteinEntryRepository;
 
-
+    @Cacheable(value = "filtered-dashboardKpis", key = "#request.toString()")
     public DashboardKpisDto getDashboardKpis(GeneSearchRequest request) {
         log.info("Retrieving Kpis for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getDashboardKpis(spec);
     }
 
+    @Cacheable(value = "filtered-lengthHistogram", key = "#request.toString()")
     public List<LengthHistogramBucketDto> getLengthHistogram(GeneSearchRequest request) {
         log.info("Retrieving length histogram for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getLengthHistogram(spec);
     }
 
+    @Cacheable(value = "filtered-byOrganism", key = "#request.toString() + '-' + #limit")
     public List<OrganismCountDto> getByOrganism(int limit, GeneSearchRequest request) {
         log.info("Retrieving organism count for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getByOrganism(limit, spec);
     }
 
+    @Cacheable(value = "filtered-reviewedRatio", key = "#request.toString()")
     public List<ReviewedRatioDto> getReviewedRatio(GeneSearchRequest request) {
         log.info("Retrieving reviewed ratio for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getReviewedRatio(spec);
     }
 
+    @Cacheable(value = "filtered-evidenceLevels", key = "#request.toString()")
     public List<EvidenceDistributionDto> getEvidenceLevels(GeneSearchRequest request) {
         log.info("Retrieving evidence levels for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getEvidenceLevels(spec);
     }
 
+    @Cacheable(value = "filtered-keywordFrequency", key = "#request.toString() + '-' + #limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit, GeneSearchRequest request) {
         log.info("Retrieving keyword frequency for filtered analytics request: {}", request);
         var spec = GeneSpecification.fromRequest(request);
         return proteinEntryRepository.getKeywordFrequency(limit, spec);
     }
+
+    @Cacheable(value = "filtered-proteinLengthWeightCount", key = "#request.toString()")
 
     public List<ProteinLengthWeightCount> getProteinLengthWeightCount(GeneSearchRequest request) {
         log.info("Retrieving protein length frequency for filtered analytics request: {}", request);
@@ -78,6 +86,7 @@ public class FilteredAnalyticsService {
      * @param request contains two distinct GeneSearchRequest objects (setA, setB)
      * @return CompareResponseDto with AnalyticsSubsetDto for each set
      */
+    @Cacheable(value = "filtered-compareAnalytics", key = "#request.setA().toString() + '-' + #request.setB().toString()")
     public CompareResponseDto compare(CompareRequestDto request) {
         log.info("Compare two filter sets : Filter A : {} | Filter B : {}", request.setA(), request.setB());
         var specA = GeneSpecification.fromRequest(request.setA());

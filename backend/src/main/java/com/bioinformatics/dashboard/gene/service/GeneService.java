@@ -14,8 +14,9 @@ import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +52,10 @@ public class GeneService {
      * Returns a paginated, optionally sorted list of all proteins.
      *
      */
-    public PagedResponse<ProteinSummaryDto> listGenes(Pageable pageable) {
+    @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
+    public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
+        var direct = Sort.Direction.fromString(direction);
+        var pageable = PageRequest.of(pageNumber, size, direct, sort);
         log.info("Retrieving all protein entries for page: {}", pageable.getPageNumber());
         var page = proteinService.findAll(pageable);
         var genes = page.getContent().stream().map(mapper::toSummary).toList();
@@ -62,6 +66,7 @@ public class GeneService {
      * Returns a paginated filtered result set.
      *
      */
+    @Cacheable(value = "geneSearch", key = "#request.toString()")
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
         var page = request.getRequestPage(SORT_WHITELIST, "id");
@@ -78,6 +83,7 @@ public class GeneService {
      * @throws ResourceNotFoundException if not found
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "geneDetail", key = "#id")
     public ProteinDetailDto getGeneById(Long id) {
         log.info("Retrieving protein entry by id: {}", id);
         var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
@@ -113,6 +119,7 @@ public class GeneService {
 
     }
 
+    @Cacheable(value = "geneKeywords")
     public List<String> listKeywords() {
         log.info("Retrieving keywords for protein entries");
         return keywordRepository.findAll()

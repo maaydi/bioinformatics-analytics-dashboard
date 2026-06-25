@@ -4,6 +4,7 @@ import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.gene.service.GeneService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -26,6 +27,8 @@ class DashboardApplicationTests {
     @MockitoBean
     GeneService geneService;
 
+    @MockitoBean
+    private CacheManager cacheManager;
 
     @Test
     void contextLoads() {

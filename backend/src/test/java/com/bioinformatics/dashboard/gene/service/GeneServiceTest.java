@@ -101,7 +101,7 @@ class GeneServiceTest {
         var dto = new ProteinSummaryDto(1L, "ACC", "entry", "full", "gene", "org", 123, true, 100, 200, (short) 1, List.of());
         when(mapper.toSummary(entry)).thenReturn(dto);
 
-        PagedResponse<ProteinSummaryDto> result = service.listGenes(PageRequest.of(0, 10));
+        PagedResponse<ProteinSummaryDto> result = service.listGenes(0, 10, "id", "asc");
 
         assertNotNull(result);
         assertEquals(1, result.content().size());

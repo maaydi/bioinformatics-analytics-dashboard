@@ -33,7 +33,7 @@ specialized infrastructure component into the existing Spring Batch asynchronous
 
 * **Verification**: Run `docker compose up -d redis` and ensure container remains stable without error loops.
 
-#### [ ] Task 1.2: Establish Project Dependencies & Spring Properties
+#### [x] Task 1.2: Establish Project Dependencies & Spring Properties
 
 * **Actions**:
 * Append `org.springframework.boot:spring-boot-starter-data-redis` inside backend `pom.xml`.

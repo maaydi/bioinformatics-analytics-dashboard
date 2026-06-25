@@ -16,7 +16,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -48,8 +53,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Testcontainers
 @ActiveProfiles("test")
-@TestPropertySource(properties = "app.rate-limiter.enabled=false")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = "app.rate-limiter.enabled=false")
 @AutoConfigureMockMvc
 class SavedFilterControllerTest {
     @Autowired
@@ -60,6 +65,17 @@ class SavedFilterControllerTest {
 
     @MockitoBean
     private AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
+
+    @TestConfiguration
+    static class CacheTestConfig {
+        @Bean
+        @Primary
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+    }
+
+
     private AppUser testUser;
     private SavedFilterCreateRequest validRequest;
     private SavedFilterDto testFilterDto;

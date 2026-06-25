@@ -13,8 +13,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,8 +58,7 @@ public class GeneController {
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String direction) {
-        var direct = Sort.Direction.fromString(direction);
-        var result = geneService.listGenes(PageRequest.of(page, size, direct, sort));
+        var result = geneService.listGenes(page, size, sort, direction);
         return ResponseEntity.ok(result);
     }
 

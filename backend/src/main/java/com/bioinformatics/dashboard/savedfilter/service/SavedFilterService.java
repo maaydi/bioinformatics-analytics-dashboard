@@ -11,6 +11,7 @@ import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;
 import com.bioinformatics.dashboard.savedfilter.repository.SavedFilterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,7 @@ public class SavedFilterService {
     private final SavedFilterRepository repository;
     private final SavedFilterMapper mapper;
 
+    @Cacheable(value = "savedFilters", key = "#currentUser.id + '-' + #page + '-' + #size")
     public PagedResponse<SavedFilterDto> listForCurrentUser(AppUser currentUser, int page, int size) {
         log.info("Retrieving saved filter page <{}> for user <{}>", page, currentUser.getUsername());
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
