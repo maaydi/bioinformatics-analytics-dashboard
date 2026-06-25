@@ -26,11 +26,20 @@ import tools.jackson.databind.type.TypeFactory;
 import java.time.Duration;
 import java.util.List;
 
+/**
+ * Configures Redis caching for analytics queries, search results, and saved filters.
+ * Uses polymorphic Jackson serialization to handle DTO hierarchies safely across cache layers.
+ * 6-hour TTL with per-cache typed serializers for consistent deserialization.
+ */
 @Configuration
 @EnableCaching
 @Profile("!test")
 public class CacheConfig {
 
+    /**
+     * Creates an ObjectMapper with polymorphic type handling for safe Redis serialization.
+     * Restricts allowed base types to application DTOs and standard Java collections.
+     */
     private static ObjectMapper getBaseMapper(DefaultTyping typing) {
         var ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.bioinformatics.dashboard")
@@ -42,6 +51,10 @@ public class CacheConfig {
                 .build();
     }
 
+    /**
+     * Primary cache manager with typed serialization for all DTO payloads.
+     * Prevents Jackson type confusion between cached analytics, search, and filter results.
+     */
     @Bean
     @Primary
     public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
@@ -68,8 +81,8 @@ public class CacheConfig {
     }
 
     /**
-     * Secondary CacheManager if you strictly need a fallback manager that handles
-     * unconfigured caches containing Java Records or Non-Final objects.
+     * Fallback cache manager for unconfigured caches containing Java Records or non-final types.
+     * Uses NON_FINAL_AND_RECORDS typing strategy when the primary manager's strict JAVA_LANG_OBJECT mode is too restrictive.
      */
     @Bean
     public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory connectionFactory) {
@@ -80,6 +93,10 @@ public class CacheConfig {
         return RedisCacheManager.builder(connectionFactory).cacheDefaults(config).build();
     }
 
+    /**
+     * Base cache configuration: 6-hour TTL, null-value rejection, string-key serialization.
+     * Applied to all caches unless overridden with typed serializers.
+     */
     private RedisCacheConfiguration createBaseConfig() {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(6))
@@ -87,6 +104,16 @@ public class CacheConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
     }
 
+    /**
+     * Registers a typed cache with Jackson serialization for a specific DTO parameterized type.
+     * Ensures correct deserialization of generic containers (e.g., {@code List<DtoType>}, {@code PagedResponse<T>}).
+     *
+     * @param builder          cache manager builder
+     * @param mapper           polymorphic ObjectMapper
+     * @param parametrizedType container class (e.g., List. Class, PagedResponse. Class)
+     * @param elementType      element type for parameterization
+     * @param cacheNames       cache names to register with this typed configuration
+     */
     private void registerTypedCache(RedisCacheManager.RedisCacheManagerBuilder builder,
                                     ObjectMapper mapper,
                                     Class<?> parametrizedType,

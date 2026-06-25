@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Clears all caches after successful protein import job completion.
+ * Ensures downstream consumers (analytics views, search results) refresh with new data.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -17,6 +21,10 @@ public class PostImportCacheEvictionListener implements JobExecutionListener {
 
     private final List<CacheManager> cacheManagers;
 
+    /**
+     * On successful job completion, evicts all caches across all managers.
+     * Prevents stale cached results from shadowing newly imported protein data.
+     */
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
@@ -32,6 +40,9 @@ public class PostImportCacheEvictionListener implements JobExecutionListener {
         }
     }
 
+    /**
+     * Clears all named caches within a single cache manager.
+     */
     private void evictCachesForManager(CacheManager manager) {
         manager.getCacheNames().forEach(cacheName -> {
             var cache = manager.getCache(cacheName);
