@@ -64,11 +64,12 @@ public class SavedFilterService {
         if (!isOwner && !currentUser.isAdmin()) {
             throw new AccessDeniedException("You don't have permission to delete this filter");
         }
-        deleteAndEvict(filter.getId(), filter.getOwner().getId());
+        deleteAndEvict(filter.getId(), filter.getOwner());
     }
 
-    @CacheEvict(value = "savedFilters", key = "#ownerId", cacheManager = "pageResponseSavedFiltersCacheManager")
-    public void deleteAndEvict(Long filterId, Long ownerId) {
+    @CacheEvict(value = "savedFilters", key = "#owner.id", cacheManager = "pageResponseSavedFiltersCacheManager")
+    public void deleteAndEvict(Long filterId, AppUser owner) {
+        log.info("Delete filter ID <{}> and clear cache for its owner <{}>", filterId, owner.getUsername());
         try {
             repository.deleteById(filterId);
         } catch (Exception e) {
