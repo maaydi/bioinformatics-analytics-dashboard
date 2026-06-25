@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.config;
 
 import com.bioinformatics.dashboard.analytics.dto.*;
+import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.cache.annotation.EnableCaching;
@@ -90,13 +91,13 @@ public class CacheConfig {
     }
 
     @Bean
-    public RedisCacheManager listSavedFiltersCacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public RedisCacheManager pageResponseSavedFiltersCacheManager(RedisConnectionFactory redisConnectionFactory) {
         var cleanMapper = getBaseObjectMapper();
 
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, SavedFilterDto.class);
+        var pageType = TypeFactory.createDefaultInstance()
+                .constructParametricType(PagedResponse.class, SavedFilterDto.class);
 
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
+        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, pageType);
 
         var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));

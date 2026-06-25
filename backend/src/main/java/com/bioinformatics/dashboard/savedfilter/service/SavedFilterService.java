@@ -11,11 +11,13 @@ import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;
 import com.bioinformatics.dashboard.savedfilter.repository.SavedFilterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class SavedFilterService {
     private final SavedFilterRepository repository;
     private final SavedFilterMapper mapper;
 
-    @Cacheable(value = "savedFilters", key = "#currentUser.id + '-' + #page + '-' + #size", cacheManager = "listSavedFiltersCacheManager")
+    @Cacheable(value = "savedFilters", key = "#currentUser.id", cacheManager = "pageResponseSavedFiltersCacheManager")
     public PagedResponse<SavedFilterDto> listForCurrentUser(AppUser currentUser, int page, int size) {
         log.info("Retrieving saved filter page <{}> for user <{}>", page, currentUser.getUsername());
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -52,6 +54,7 @@ public class SavedFilterService {
         }
     }
 
+    @Transactional
     public void delete(Long id, AppUser currentUser) {
         log.info("Delete filter <{}> by user <{}>", id, currentUser.getUsername());
         var filter = repository.findById(id)
@@ -60,7 +63,16 @@ public class SavedFilterService {
         if (!isOwner && !currentUser.isAdmin()) {
             throw new AccessDeniedException("You don't have permission to delete this filter");
         }
-        repository.delete(filter);
+        deleteAndEvict(filter.getId(), filter.getOwner().getId());
+    }
+
+    @CacheEvict(value = "savedFilters", key = "#ownerId", cacheManager = "pageResponseSavedFiltersCacheManager")
+    public void deleteAndEvict(Long filterId, Long ownerId) {
+        try {
+            repository.deleteById(filterId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

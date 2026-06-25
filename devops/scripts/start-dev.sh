@@ -76,12 +76,13 @@ FRONTEND_PID=$!
 
 echo ""
 echo "================================================"
-echo "  Frontend: http://localhost:4200"
-echo "  Backend:  http://localhost:8080"
-echo "  Database: localhost:5432"
+echo "      Frontend : http://localhost:4200"
+echo "      Backend  : http://localhost:8080"
+echo "      Database : localhost:5432"
+echo "      Redis    : localhost:6379"
 echo "================================================"
 echo "Press Ctrl+C to stop all services."
 
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; docker compose -f \"$ROOT_DIR/docker-compose.yml\" stop postgres" EXIT
+trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; docker compose -f \"$ROOT_DIR/docker-compose.yml\" down postgres redis" EXIT
 
 wait
