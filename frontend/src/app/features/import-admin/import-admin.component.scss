@@ -104,13 +104,7 @@ mat-card {
     gap: ds.$spacing-md;
 
     button {
-      @include ds.text-body-sm;
-      font-weight: ds.$font-weight-medium;
-      border-radius: ds.$border-radius-md;
-
-      &:focus-visible {
-        @include ds.focus-ring();
-      }
+      @include ds.btn-outline;
     }
 
     .file-name {
@@ -166,15 +160,9 @@ mat-card {
   justify-content: flex-end;
 
   button {
-    @include ds.text-body-sm;
-    font-weight: ds.$font-weight-semibold;
-    border-radius: ds.$border-radius-md;
+    @include ds.btn-primary;
     min-height: 40px;
     padding-inline: ds.$spacing-lg;
-
-    &:focus-visible {
-      @include ds.focus-ring();
-    }
   }
 }
 

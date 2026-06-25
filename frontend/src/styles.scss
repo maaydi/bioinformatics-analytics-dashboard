@@ -1,4 +1,6 @@
 @use '@angular/material' as mat;
+@use "design-system" as ds;
+
 @import 'ag-grid-community/styles/ag-grid.css';
 @import 'ag-grid-community/styles/ag-theme-quartz.css';
 
@@ -129,19 +131,7 @@ body {
     align-items: center;
 
     > button.mat-icon-button {
-      background: transparent;
-      border-radius: 0.5rem;
-      padding: 0.25rem;
-
-      &:hover {
-        background-color: rgba(17, 24, 39, 0.04);
-      }
-
-      &:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
-        border-radius: 0.5rem;
-      }
+      @include ds.btn-text;
     }
   }
 
@@ -170,14 +160,9 @@ body {
 }
 
 .export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  transition: box-shadow 120ms ease, transform 120ms ease;
+  @include ds.btn-base;
   color: var(--mat-sys-on-primary, #6200ee);
-  margin-right: 1rem;
+  margin-right: ds.$spacing-lg;
 
   mat-spinner {
     width: 24px !important;
@@ -198,16 +183,5 @@ body {
 
   &:hover {
     transform: translateY(-1px);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mat-sys-primary, #6200ee) 14%, transparent);
-    border-radius: 8px;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    transform: none;
   }
 }
