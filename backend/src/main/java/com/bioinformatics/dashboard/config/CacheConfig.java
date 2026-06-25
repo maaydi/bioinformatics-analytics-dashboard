@@ -29,7 +29,6 @@ import java.util.List;
 @EnableCaching
 public class CacheConfig {
 
-
     private static ObjectMapper getBaseMapper(DefaultTyping typing) {
         var ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.bioinformatics.dashboard")
@@ -41,177 +40,64 @@ public class CacheConfig {
                 .build();
     }
 
-    private static ObjectMapper getBaseObjectMapper() {
-        return getBaseMapper(DefaultTyping.JAVA_LANG_OBJECT);
-    }
-
-    private static ObjectMapper getNonFinalAndRecordMapper() {
-        return getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
-    }
-
     @Bean
     @Primary
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var objectMapper = getBaseObjectMapper();
-        var config = RedisCacheConfiguration.defaultCacheConfig()
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+        var baseMapper = getBaseMapper(DefaultTyping.JAVA_LANG_OBJECT);
+
+        var defaultGlobalConfig = createBaseConfig()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
+                        new GenericJacksonJsonRedisSerializer(baseMapper)));
+
+        var builder = RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(defaultGlobalConfig);
+
+        registerTypedCache(builder, baseMapper, List.class, OrganismCountDto.class, "byOrganism", "filtered-byOrganism");
+        registerTypedCache(builder, baseMapper, List.class, LengthHistogramBucketDto.class, "lengthHistogram", "filtered-lengthHistogram");
+        registerTypedCache(builder, baseMapper, PagedResponse.class, SavedFilterDto.class, "savedFilters");
+        registerTypedCache(builder, baseMapper, PagedResponse.class, ProteinSummaryDto.class, "geneList", "geneSearch");
+        registerTypedCache(builder, baseMapper, List.class, ReviewedRatioDto.class, "reviewedRatio", "filtered-reviewedRatio");
+        registerTypedCache(builder, baseMapper, List.class, EvidenceDistributionDto.class, "evidenceLevels", "filtered-evidenceLevels");
+        registerTypedCache(builder, baseMapper, List.class, KeywordFrequencyDto.class, "keywordFrequency", "filtered-keywordFrequency");
+        registerTypedCache(builder, baseMapper, List.class, ProteinLengthWeightCount.class, "filtered-proteinLengthWeightCount");
+        registerTypedCache(builder, baseMapper, List.class, String.class, "geneKeywords");
+
+        return builder.build();
+    }
+
+    /**
+     * Secondary CacheManager if you strictly need a fallback manager that handles
+     * unconfigured caches containing Java Records or Non-Final objects.
+     */
+    @Bean
+    public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory connectionFactory) {
+        var nonFinalMapper = getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
+        var config = createBaseConfig()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
+                        new GenericJacksonJsonRedisSerializer(nonFinalMapper)));
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(config).build();
+    }
+
+    private RedisCacheConfiguration createBaseConfig() {
+        return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(6))
                 .disableCachingNullValues()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJacksonJsonRedisSerializer(objectMapper)));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(config)
-                .build();
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
     }
 
-    @Bean
-    public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var objectMapper = getNonFinalAndRecordMapper();
-        var config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(6))
-                .disableCachingNullValues()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJacksonJsonRedisSerializer(objectMapper)));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(config)
-                .build();
-    }
+    private void registerTypedCache(RedisCacheManager.RedisCacheManagerBuilder builder,
+                                    ObjectMapper mapper,
+                                    Class<?> parametrizedType,
+                                    Class<?> elementType,
+                                    String... cacheNames) {
 
-    @Bean
-    public RedisCacheManager listOrganismCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, OrganismCountDto.class);
-
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        var targetType = TypeFactory.createDefaultInstance().constructParametricType(parametrizedType, elementType);
+        var serializer = new JacksonJsonRedisSerializer<>(mapper, targetType);
+        var cacheConfig = createBaseConfig()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("byOrganism", cacheConfig)
-                .withCacheConfiguration("filtered-byOrganism", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listLengthHistogramCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, LengthHistogramBucketDto.class);
-
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("lengthHistogram", cacheConfig)
-                .withCacheConfiguration("filtered-lengthHistogram", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager pageResponseSavedFiltersCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-
-        var pageType = TypeFactory.createDefaultInstance()
-                .constructParametricType(PagedResponse.class, SavedFilterDto.class);
-
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, pageType);
-
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("savedFilters", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager pageResponseListGeneCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-
-        var pageType = TypeFactory.createDefaultInstance()
-                .constructParametricType(PagedResponse.class, ProteinSummaryDto.class);
-
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, pageType);
-
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("geneList", cacheConfig)
-                .withCacheConfiguration("geneSearch", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listReviewedRatioCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, ReviewedRatioDto.class);
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("reviewedRatio", cacheConfig)
-                .withCacheConfiguration("filtered-reviewedRatio", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listEvidenceLevelsCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, EvidenceDistributionDto.class);
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("evidenceLevels", cacheConfig)
-                .withCacheConfiguration("filtered-evidenceLevels", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listKeywordFrequencyCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, KeywordFrequencyDto.class);
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("keywordFrequency", cacheConfig)
-                .withCacheConfiguration("filtered-keywordFrequency", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listProteinLengthWeightCountCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, ProteinLengthWeightCount.class);
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("filtered-proteinLengthWeightCount", cacheConfig)
-                .build();
-    }
-
-    @Bean
-    public RedisCacheManager listStringCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        var cleanMapper = getBaseObjectMapper();
-        var listType = TypeFactory.createDefaultInstance()
-                .constructCollectionType(List.class, String.class);
-        var serializer = new JacksonJsonRedisSerializer<>(cleanMapper, listType);
-        var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .withCacheConfiguration("geneKeywords", cacheConfig)
-                .build();
+        for (String name : cacheNames) {
+            builder.withCacheConfiguration(name, cacheConfig);
+        }
     }
 }

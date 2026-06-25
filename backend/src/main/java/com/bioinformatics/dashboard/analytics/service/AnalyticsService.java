@@ -53,7 +53,7 @@ public class AnalyticsService {
         return dashboardKpisMapper.toDto(entity);
     }
 
-    @Cacheable(value = "lengthHistogram", cacheManager = "listLengthHistogramCacheManager")
+    @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
         log.info("Retrieving Length Histogram from materialized view");
         return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
@@ -62,7 +62,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    @Cacheable(value = "byOrganism", key = "#limit", cacheManager = "listOrganismCacheManager")
+    @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
         log.info("Retrieving Organism Count from materialized view");
         return organismCountRepository.findAll(Limit.of(limit))
@@ -71,7 +71,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    @Cacheable(value = "reviewedRatio", cacheManager = "listReviewedRatioCacheManager")
+    @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
         log.info("Retrieving Reviewed Ratio from materialized view");
         return reviewedRatioRepository.findAll()
@@ -80,7 +80,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    @Cacheable(value = "evidenceLevels", cacheManager = "listEvidenceLevelsCacheManager")
+    @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
         log.info("Retrieving Evidence Levels from materialized view");
         return evidenceDistributionRepository.findAll()
@@ -89,7 +89,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    @Cacheable(value = "keywordFrequency", key = "#limit", cacheManager = "listKeywordFrequencyCacheManager")
+    @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
         log.info("Retrieving Keyword Frequency from materialized view");
         return keywordFrequencyRepository.findAll(Limit.of(limit))
