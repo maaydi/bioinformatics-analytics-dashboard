@@ -4,6 +4,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {AuthService} from '@core/services/auth.service';
+import {ThemeService} from '@core/services/theme.service';
 
 /**
  * Top navigation bar.
@@ -19,4 +20,5 @@ import {AuthService} from '@core/services/auth.service';
 })
 export class NavbarComponent {
   readonly authService = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
 }

@@ -3,24 +3,20 @@
 ## Tasks
 
 1. Analyze requirements and update plan
-2. Implement `StateHostComponent` (shared loading/error/empty/ready states)
-3. Integrate `StateHostComponent` into all list/table/chart views
-4. Implement `ThemeService` + theme toggle in navbar
-5. Audit and fix WCAG AA color contrast in both themes
-6. Audit and fix keyboard navigation across all pages
-7. Implement `PUT /api/auth/password` endpoint (backend)
-8. Implement password change form (frontend profile/settings page)
-9. Add `@axe-core/playwright` to e2e suite
-10. Write unit tests for `ThemeService` and `StateHostComponent`
-11. Update documentation
+2. Implement `ThemeService` + theme toggle in navbar
+3. Audit and fix WCAG AA color contrast in both themes
+4. Audit and fix keyboard navigation across all pages
+5. Implement `PUT /api/auth/password` endpoint (backend)
+6. Implement password change form (frontend profile/settings page)
+7. Add `@axe-core/playwright` to e2e suite
+8. Write unit tests for `ThemeService` and `StateHostComponent`
+9. Update documentation
 
 ## Status
 
-- [ ] Requirements analyzed
-- [ ] StateHostComponent implemented
-- [ ] State integration in all views done
-- [ ] ThemeService implemented
-- [ ] Theme toggle in navbar implemented
+- [x] Requirements analyzed
+- [x] ThemeService implemented
+- [x] Theme toggle in navbar implemented
 - [ ] WCAG AA contrast verified and fixed
 - [ ] Keyboard navigation audited and fixed
 - [ ] PUT /api/auth/password implemented
@@ -35,43 +31,22 @@
 
 ## Detailed Checklist
 
-### Shared `StateHostComponent` (`shared/state-host/`)
-
-- [ ] `state-host.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `state-host.component.html` — external template
-- [ ] `state-host.component.scss`
-- [ ] `input() state: 'loading' | 'error' | 'empty' | 'ready'`
-- [ ] `input() errorMessage: string` (optional, shown in error state)
-- [ ] `output() retry` event emitted from "Retry" button
-- [ ] `ng-content` slot for `ready` state content
-- [ ] Skeleton layout for `loading` state (generic card skeleton)
-- [ ] Error block for `error` state with icon + message + Retry button
-- [ ] Empty state block for `empty` state with icon + message slot
-
-### State Integration
-
-- [ ] `GenesTableComponent` — wire `StateHostComponent`
-- [ ] `DashboardComponent` — wire `StateHostComponent`
-- [ ] `AnalyticsComponent` — wire `StateHostComponent` per chart
-- [ ] `SavedFiltersComponent` — wire `StateHostComponent`
-- [ ] `ImportAdminComponent` — verify states already present
-
 ### Theme (`core/services/theme.service.ts`)
 
-- [ ] `ThemeService` — `signal<'light' | 'dark'>` initialized from `localStorage`
-- [ ] `toggle()` method — flips theme, updates `document.documentElement` class, persists to `localStorage`
-- [ ] `theme` signal used in app root to set `class="light-theme"` or `class="dark-theme"` on `<html>`
+- [x] `ThemeService` — `signal<'light' | 'dark'>` initialized from `localStorage`
+- [x] `toggle()` method — flips theme, updates `document.documentElement` class, persists to `localStorage`
+- [x] `theme` signal used in app root to set `class="light-theme"` or `class="dark-theme"` on `<html>`
 
 ### Layout — Navbar Theme Toggle (`layout/`)
 
-- [ ] Add theme toggle button (sun/moon icon) to navbar
-- [ ] Button calls `ThemeService.toggle()`
-- [ ] `aria-label` reflects current state: "Switch to dark theme" / "Switch to light theme"
-- [ ] Theme preference survives page reload
+- [x] Add theme toggle button (sun/moon icon) to navbar
+- [x] Button calls `ThemeService.toggle()`
+- [x] `aria-label` reflects current state: "Switch to dark theme" / "Switch to light theme"
+- [x] Theme preference survives page reload
 
 ### SCSS / Theming
 
-- [ ] Define CSS custom properties for both themes in `styles.scss`
+- [x] Define CSS custom properties for both themes in `styles.scss` (using material variables across _design-system)
 - [ ] Verify contrast ratios ≥ 4.5:1 for all text/background combinations
 - [ ] Both themes verified with browser DevTools / contrast checker
 
