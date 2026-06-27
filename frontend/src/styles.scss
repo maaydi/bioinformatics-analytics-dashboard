@@ -38,7 +38,7 @@ body {
   height: 100%;
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background-color: #f5f5f5;
+  background-color: var(--color-surface-subtle);
   color: var(--mat-sys-on-surface);
 }
 
@@ -72,43 +72,43 @@ body {
 
 .success-snackbar {
   .mdc-snackbar__surface {
-    background-color: #2e7d32 !important;
+    background-color: var(--status-completed-text) !important;
   }
 
   .mdc-snackbar__label {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 
   .mat-mdc-button.mat-mdc-snack-bar-action {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 }
 
 .error-snackbar {
   .mdc-snackbar__surface {
-    background-color: #d32f2f !important;
+    background-color: var(--snackbar-error-bg) !important;
   }
 
   .mdc-snackbar__label {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 
   .mat-mdc-button.mat-mdc-snack-bar-action {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 }
 
 .warning-snackbar {
   .mdc-snackbar__surface {
-    background-color: rgb(211 96 47 / 0.84) !important;
+    background-color: var(--feature-chip-site-border) !important;
   }
 
   .mdc-snackbar__label {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 
   .mat-mdc-button.mat-mdc-snack-bar-action {
-    color: #ffffff !important;
+    color: var(--color-surface) !important;
   }
 }
 
@@ -129,12 +129,12 @@ body {
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
-      color: #1a1a1a;
+      color: var(--color-on-surface);
     }
 
     p {
       margin: 0;
-      color: #6b7280;
+      color: var(--color-on-surface-variant);
       font-size: 0.8125rem;
     }
   }

@@ -39,10 +39,10 @@
 .chart-state {
   margin: 0;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--chart-state-border);
   border-radius: 0.5rem;
-  background: #f9fafb;
-  color: #374151;
+  background: var(--chart-state-bg);
+  color: var(--chart-text-color);
 }
 
 .chart-state p {
@@ -50,7 +50,7 @@
 }
 
 .chart-state-error {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border-color: var(--chart-error-border);
+  background: var(--chart-error-bg);
+  color: var(--chart-error-text);
 }

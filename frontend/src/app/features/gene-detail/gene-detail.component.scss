@@ -244,8 +244,8 @@
 .keyword-chip {
   @include ds.text-label-sm;
   @include ds.chip-base;
-  background-color: #eef2ff;
-  color: #374151;
+  background-color: var(--keyword-chip-bg);
+  color: var(--keyword-chip-text);
   padding: ds.$spacing-xs ds.$spacing-md;
   border-radius: ds.$border-radius-full;
   display: inline-block;
@@ -534,9 +534,9 @@
 .xref-source-chip {
   @include ds.chip-base;
   @include ds.text-label-sm;
-  background-color: #e0f2fe;
-  color: #075985;
-  border: ds.$border-width-thin solid #bae6fd;
+  background-color: var(--xref-source-chip-bg);
+  color: var(--xref-source-chip-text);
+  border: ds.$border-width-thin solid var(--xref-source-chip-border);
   border-radius: ds.$border-radius-full;
   padding: ds.$spacing-xs ds.$spacing-md;
 }
@@ -563,9 +563,9 @@
 .comment-type-chip {
   @include ds.chip-base;
   @include ds.text-label-sm;
-  background-color: #f3e8ff;
-  color: #6b21a8;
-  border: ds.$border-width-thin solid #ddd6fe;
+  background-color: var(--comment-type-chip-bg);
+  color: var(--comment-type-chip-text);
+  border: ds.$border-width-thin solid var(--comment-type-chip-border);
   border-radius: ds.$border-radius-full;
   padding: ds.$spacing-xs ds.$spacing-md;
 }
@@ -612,79 +612,79 @@
   border: ds.$border-width-thin solid ds.$color-border-light;
 
   &--chain {
-    background-color: #dbeafe;
-    color: #1d4ed8;
-    border-color: #93c5fd;
+    background-color: var(--accent-blue-track-bg);
+    color: var(--feature-chip-chain-text);
+    border-color: var(--accent-blue-light);
   }
 
   &--region {
-    background-color: #dcfce7;
-    color: #15803d;
-    border-color: #86efac;
+    background-color: var(--feature-chip-region-bg);
+    color: var(--feature-chip-region-text);
+    border-color: var(--feature-chip-region-border);
   }
 
   &--compbias {
-    background-color: #fef9c3;
-    color: #854d0e;
-    border-color: #fde047;
+    background-color: var(--feature-chip-compbias-bg);
+    color: var(--feature-chip-compbias-text);
+    border-color: var(--feature-chip-compbias-border);
   }
 
   &--domain {
-    background-color: #ede9fe;
-    color: #6d28d9;
-    border-color: #c4b5fd;
+    background-color: var(--feature-chip-domain-bg);
+    color: var(--feature-chip-domain-text);
+    border-color: var(--feature-chip-domain-border);
   }
 
   &--motif {
-    background-color: #fce7f3;
-    color: #be185d;
-    border-color: #f9a8d4;
+    background-color: var(--feature-chip-motif-bg);
+    color: var(--feature-chip-motif-text);
+    border-color: var(--feature-chip-motif-border);
   }
 
   &--site {
-    background-color: #ffedd5;
-    color: #c2410c;
-    border-color: #fdba74;
+    background-color: var(--feature-chip-site-bg);
+    color: var(--feature-chip-site-text);
+    border-color: var(--feature-chip-site-border);
   }
 
   &--disulfid {
-    background-color: #ecfeff;
-    color: #0e7490;
-    border-color: #67e8f9;
+    background-color: var(--feature-chip-disulfid-bg);
+    color: var(--feature-chip-disulfid-text);
+    border-color: var(--feature-chip-disulfid-border);
   }
 
   &--binding {
-    background-color: #f0fdf4;
-    color: #166534;
-    border-color: #bbf7d0;
+    background-color: var(--feature-chip-binding-bg);
+    color: var(--feature-chip-binding-text);
+    border-color: var(--feature-chip-binding-border);
   }
 
   &--mod_res,
   &--mod-res {
-    background-color: #fdf4ff;
-    color: #7e22ce;
-    border-color: #e9d5ff;
+    background-color: var(--feature-chip-mod-res-bg);
+    color: var(--feature-chip-mod-res-text);
+    border-color: var(--feature-chip-mod-res-border);
   }
 
   &--signal,
   &--peptide,
   &--propep {
-    background-color: #fff1f2;
-    color: #be123c;
-    border-color: #fecdd3;
+    background-color: var(--feature-chip-signal-bg);
+    color: var(--feature-chip-signal-text);
+    border-color: var(--feature-chip-signal-border);
   }
 
   &--transit {
-    background-color: #f0f9ff;
-    color: #0369a1;
-    border-color: #bae6fd;
+    background-color: var(--feature-chip-transit-bg);
+    color: var(--feature-chip-transit-text);
+    border-color: var(--feature-chip-transit-border);
   }
 
   &--act_site,
   &--act-site {
-    background-color: #fff7ed;
-    color: #c2410c;
-    border-color: #fed7aa;
+    background-color: var(--feature-chip-act-site-bg);
+    color: var(--feature-chip-act-site-text);
+    border-color: var(--feature-chip-act-site-border);
   }
 }
 

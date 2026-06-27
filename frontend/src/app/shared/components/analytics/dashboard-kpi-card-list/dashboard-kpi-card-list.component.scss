@@ -1,4 +1,4 @@
-@use "../../../../../styles/design-system" as ds;
+@use "design-system" as ds;
 
 :host {
   display: contents;
@@ -18,9 +18,9 @@
 }
 
 .state-message-error {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border-color: var(--chart-error-border);
+  background: var(--chart-error-bg);
+  color: var(--chart-error-text);
 }
 
 .retry-button {

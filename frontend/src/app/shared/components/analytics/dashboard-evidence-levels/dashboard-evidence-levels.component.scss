@@ -15,10 +15,10 @@
 .chart-state {
   margin: 0;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--chart-state-border);
   border-radius: 0.5rem;
-  background: #f9fafb;
-  color: #374151;
+  background: var(--chart-state-bg);
+  color: var(--chart-text-color);
 
   p {
     margin: 0 0 0.75rem;
@@ -26,9 +26,9 @@
 }
 
 .chart-state-error {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border-color: var(--chart-error-border);
+  background: var(--chart-error-bg);
+  color: var(--chart-error-text);
 }
 
 .rows {
@@ -50,7 +50,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid #1d4ed8;
+    outline: 2px solid var(--accent-blue-strong);
     outline-offset: 2px;
     border-radius: 0.25rem;
   }
@@ -59,7 +59,7 @@
 .row-label {
   margin: 0;
   font-size: 0.8125rem;
-  color: #1a1a1a;
+  color: var(--color-on-surface);
   font-weight: 500;
 }
 
@@ -74,8 +74,8 @@
   height: 0.875rem;
   border-radius: 999px;
   // Explicit light background — no color-mix()
-  background: #e8edf7;
-  border: 1px solid #d1d9ef;
+  background: var(--compare-row-track-bg);
+  border: 1px solid var(--compare-row-track-border);
   overflow: hidden;
 }
 
@@ -90,33 +90,33 @@
   width: 68px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--chart-text-color);
   text-align: right;
   white-space: nowrap;
 }
 
 // Per-level colors from design system (genes-design-system.md)
 .level-l1 {
-  background: #2e7d32; // Evidence green — established at protein level
+  background: var(--evidence-level-1); // Evidence green — established at protein level
 }
 
 .level-l2 {
-  background: #388e3c; // Evidence green lighter — transcript level
+  background: var(--evidence-level-2); // Evidence green lighter — transcript level
 }
 
 .level-l3 {
-  background: #e65100; // Evidence orange — inferred from homology
+  background: var(--evidence-level-3); // Evidence orange — inferred from homology
 }
 
 .level-l4 {
-  background: #c62828; // Evidence red — predicted
+  background: var(--evidence-level-4); // Evidence red — predicted
 }
 
 .level-l5 {
-  background: #676767; // Evidence gray — uncertain
+  background: var(--evidence-level-5); // Evidence gray — uncertain
 }
 
 .level-other {
-  background: #334155;
+  background: var(--evidence-level-other);
 }
 

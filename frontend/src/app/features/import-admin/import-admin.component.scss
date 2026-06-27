@@ -33,9 +33,8 @@ mat-card {
   overflow: hidden;
 
   .mat-mdc-card-header {
-    padding: ds.$spacing-lg ds.$spacing-lg 0;
     border-bottom: 1px solid ds.$color-border-light;
-    padding-bottom: ds.$spacing-md;
+    padding: ds.$spacing-lg ds.$spacing-lg ds.$spacing-md;
     margin-bottom: 0;
   }
 
@@ -72,8 +71,8 @@ mat-card {
   margin-bottom: ds.$spacing-lg;
   padding: ds.$spacing-md ds.$spacing-lg;
   border-radius: ds.$border-radius-md;
-  background-color: rgba(239, 68, 68, 0.07);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background-color: var(--banner-error-bg);
+  border: 1px solid var(--banner-error-border);
   border-left: 4px solid var(--mat-sys-error);
   color: var(--mat-sys-error);
   @include ds.text-body-sm;
@@ -244,27 +243,27 @@ mat-card {
   white-space: nowrap;
 
   &.pending {
-    background-color: #fff3e0;
-    color: #e65100;
-    border: 1px solid rgba(230, 81, 0, 0.2);
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border: 1px solid var(--status-pending-border);
   }
 
   &.running {
-    background-color: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid rgba(21, 101, 192, 0.2);
+    background-color: var(--status-running-bg);
+    color: var(--status-running-text);
+    border: 1px solid var(--status-running-border);
   }
 
   &.completed {
-    background-color: ds.$color-reviewed-bg;
-    color: ds.$color-reviewed-text;
-    border: 1px solid rgba(46, 125, 50, 0.2);
+    background-color: var(--status-completed-bg);
+    color: var(--status-completed-text);
+    border: 1px solid var(--status-completed-border);
   }
 
   &.failed {
-    background-color: #ffebee;
-    color: ds.$color-evidence-red;
-    border: 1px solid rgba(198, 40, 40, 0.2);
+    background-color: var(--status-failed-bg);
+    color: var(--status-failed-text);
+    border: 1px solid var(--status-failed-border);
   }
 }
 

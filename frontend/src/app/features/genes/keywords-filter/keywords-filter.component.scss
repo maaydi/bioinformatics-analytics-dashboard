@@ -20,11 +20,11 @@
  */
 .selected-count {
   @include ds.text-label-sm;
-  color: var(--mat-sys-primary, #3b82f6);
+  color: var(--mat-sys-primary);
   font-weight: ds.$font-weight-bold;
   margin-right: ds.$spacing-xs;
   padding: 0.25rem 0.5rem;
-  background-color: rgba(var(--mat-sys-primary-rgb, 59, 130, 246), 0.1);
+  background-color: var(--selected-count-bg);
   border-radius: ds.$border-radius-sm;
   display: inline-block;
 }

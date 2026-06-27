@@ -13,8 +13,8 @@
   gap: ds.$spacing-md;
   min-height: 72px;
   padding-inline: ds.$spacing-lg;
-  background: linear-gradient(90deg, var(--mat-sys-primary) 0%, color-mix(in srgb, var(--mat-sys-primary) 88%, black 12%) 100%);
-  color: black;
+  background: linear-gradient(90deg, var(--mat-sys-primary) 0%, var(--navbar-gradient-end) 100%);
+  color: var(--navbar-text-color);
   box-shadow: ds.$shadow-sm;
   font-family: ds.$font-family-base;
 }
@@ -54,16 +54,16 @@
   transition: background-color 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: var(--nav-link-hover-bg);
   }
 
   &:focus-visible {
-    @include ds.focus-ring(white);
+    @include ds.focus-ring(var(--navbar-focus-ring-color));
   }
 }
 
 a.active {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--nav-link-active-bg);
   font-weight: ds.$font-weight-semibold;
 }
 
@@ -71,7 +71,7 @@ button[mat-icon-button] {
   color: inherit;
 
   &:focus-visible {
-    @include ds.focus-ring(white);
+    @include ds.focus-ring(var(--navbar-focus-ring-color));
   }
 }
 

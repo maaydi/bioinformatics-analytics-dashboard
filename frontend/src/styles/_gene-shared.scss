@@ -17,13 +17,13 @@
   &.is-reviewed {
     background-color: ds.$color-reviewed-bg;
     color: ds.$color-reviewed-text;
-    border-color: rgba(46, 125, 50, 0.2);
+    border-color: var(--status-completed-border);
   }
 
   &.not-reviewed {
     background-color: ds.$color-not-reviewed-bg;
     color: ds.$color-not-reviewed-text;
-    border-color: rgba(230, 81, 0, 0.2);
+    border-color: var(--status-pending-border);
   }
 }
 

@@ -133,11 +133,11 @@
     max-width: 120px;
     border-radius: ds.$border-radius-full;
     flex-shrink: 0;
-    border: 1px solid rgba(55, 65, 81, 0.1);
+    border: 1px solid var(--keyword-chip-border);
 
     &:hover {
-      background-color: rgba(238, 242, 255, 0.8);
-      border-color: var(--mat-sys-primary, #3b82f6);
+      background-color: var(--keyword-chip-hover-bg);
+      border-color: var(--mat-sys-primary);
     }
   }
 
@@ -147,7 +147,7 @@
     color: ds.$color-keyword-more-text;
     font-weight: ds.$font-weight-bold;
     max-width: none;
-    border: 1px solid rgba(85, 85, 85, 0.2);
+    border: 1px solid var(--keyword-more-chip-border);
   }
 
   .empty-value {
@@ -165,7 +165,7 @@
   align-items: center;
   justify-content: center;
   gap: ds.$spacing-md;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--state-overlay-bg);
   backdrop-filter: blur(2px);
   padding: ds.$spacing-lg;
   text-align: center;
@@ -197,7 +197,7 @@
 .skeleton-row {
   width: min(560px, 92%);
   border-radius: ds.$border-radius-md;
-  background: linear-gradient(90deg, #eceff1 25%, #f7f9fa 37%, #eceff1 63%);
+  background: linear-gradient(90deg, var(--skeleton-color-1) 25%, var(--skeleton-color-2) 37%, var(--skeleton-color-1) 63%);
   background-size: 400% 100%;
   animation: skeleton-loading 1.2s ease infinite;
 }
