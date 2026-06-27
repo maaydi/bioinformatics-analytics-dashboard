@@ -58,15 +58,6 @@ $color-b: var(--compare-color-b); // Orange
   }
 }
 
-.chart-state {
-  margin: 0;
-  padding: 0.75rem;
-  border: 1px solid var(--chart-state-border);
-  border-radius: 0.5rem;
-  background: var(--chart-state-bg);
-  color: var(--chart-text-color);
-}
-
 // ─── Grid & Axis ───────────────────────────────────────────────────────────
 $y-axis-width: 48px;
 
@@ -192,7 +183,7 @@ $y-axis-width: 48px;
 
   // Lighter blue for tooltip
   .tooltip-data-b {
-    color: var(--feature-chip-site-border);
+    color: var(--chip-orange-border);
   }
 
   // Lighter orange for tooltip
@@ -205,7 +196,7 @@ $y-axis-width: 48px;
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--keyword-chip-text);
+  background: var(--chip-indigo-text);
 }
 
 .x-axis {
@@ -249,7 +240,7 @@ $y-axis-width: 48px;
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--keyword-chip-text);
+  color: var(--chip-indigo-text);
   text-align: center;
   letter-spacing: 0.3px;
   text-transform: uppercase;

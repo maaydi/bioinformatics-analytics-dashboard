@@ -128,26 +128,26 @@
 
   .keyword-chip {
     @include ds.chip-base;
-    background-color: ds.$color-keyword-bg;
-    color: ds.$color-keyword-text;
+    background-color: ds.$color-accent-bg;
+    color: ds.$color-accent-text;
     max-width: 120px;
     border-radius: ds.$border-radius-full;
     flex-shrink: 0;
-    border: 1px solid var(--keyword-chip-border);
+    border: 1px solid var(--chip-indigo-border);
 
     &:hover {
-      background-color: var(--keyword-chip-hover-bg);
+      background-color: var(--chip-indigo-hover-bg);
       border-color: var(--mat-sys-primary);
     }
   }
 
   .more-counter-chip {
     @include ds.chip-base;
-    background-color: ds.$color-keyword-more-bg;
-    color: ds.$color-keyword-more-text;
+    background-color: ds.$color-muted-bg;
+    color: ds.$color-muted-text;
     font-weight: ds.$font-weight-bold;
     max-width: none;
-    border: 1px solid var(--keyword-more-chip-border);
+    border: 1px solid var(--chip-neutral-border);
   }
 
   .empty-value {

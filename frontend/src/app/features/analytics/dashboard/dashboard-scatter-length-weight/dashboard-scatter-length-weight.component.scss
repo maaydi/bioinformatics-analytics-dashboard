@@ -35,22 +35,3 @@
     height: 320px;
   }
 }
-
-.chart-state {
-  margin: 0;
-  padding: 0.75rem;
-  border: 1px solid var(--chart-state-border);
-  border-radius: 0.5rem;
-  background: var(--chart-state-bg);
-  color: var(--chart-text-color);
-}
-
-.chart-state p {
-  margin: 0 0 0.75rem;
-}
-
-.chart-state-error {
-  border-color: var(--chart-error-border);
-  background: var(--chart-error-bg);
-  color: var(--chart-error-text);
-}

@@ -243,27 +243,27 @@ mat-card {
   white-space: nowrap;
 
   &.pending {
-    background-color: var(--status-pending-bg);
-    color: var(--status-pending-text);
-    border: 1px solid var(--status-pending-border);
+    background-color: var(--status-orange-bg);
+    color: var(--status-orange-text);
+    border: 1px solid var(--status-orange-border);
   }
 
   &.running {
-    background-color: var(--status-running-bg);
-    color: var(--status-running-text);
-    border: 1px solid var(--status-running-border);
+    background-color: var(--status-blue-bg);
+    color: var(--status-blue-text);
+    border: 1px solid var(--status-blue-border);
   }
 
   &.completed {
-    background-color: var(--status-completed-bg);
-    color: var(--status-completed-text);
-    border: 1px solid var(--status-completed-border);
+    background-color: var(--status-green-bg);
+    color: var(--status-green-text);
+    border: 1px solid var(--status-green-border);
   }
 
   &.failed {
-    background-color: var(--status-failed-bg);
-    color: var(--status-failed-text);
-    border: 1px solid var(--status-failed-border);
+    background-color: var(--status-red-bg);
+    color: var(--status-red-text);
+    border: 1px solid var(--status-red-border);
   }
 }
 

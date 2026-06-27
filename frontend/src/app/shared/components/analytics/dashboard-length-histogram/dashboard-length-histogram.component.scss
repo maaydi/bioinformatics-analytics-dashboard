@@ -29,25 +29,6 @@
   }
 }
 
-.chart-state {
-  margin: 0;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border-medium);
-  border-radius: 0.5rem;
-  background: var(--color-surface-subtle);
-  color: var(--keyword-chip-text);
-
-  p {
-    margin: 0 0 0.75rem;
-  }
-}
-
-.chart-state-error {
-  border-color: var(--chart-error-border);
-  background: var(--chart-error-bg);
-  color: var(--chart-error-text);
-}
-
 // ─── Y-axis spacer width (shared across rows) ──────────────────────────────
 $y-axis-width: 48px;
 
@@ -160,7 +141,7 @@ $y-axis-width: 48px;
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--keyword-chip-text);
+  background: var(--chip-indigo-text);
 }
 
 // ─── X-axis labels row ──────────────────────────────────────────────────────
@@ -210,7 +191,7 @@ $y-axis-width: 48px;
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--keyword-chip-text);
+  color: var(--chip-indigo-text);
   text-align: center;
   letter-spacing: 0.3px;
   text-transform: uppercase;

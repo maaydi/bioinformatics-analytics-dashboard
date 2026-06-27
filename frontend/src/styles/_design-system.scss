@@ -2,6 +2,7 @@
  * @file _design-system.scss
  * @description Unified design system for Genes component
  * Ensures coherent typography, colors, and responsive layout across HD (1366x768) and FHD (1920x1080)
+ *
  */
 
 @use '@angular/material' as mat;
@@ -137,8 +138,50 @@ $font-weight-bold: 700;
 // COLOR SYSTEM (The CSS Variable Architecture)
 // ============================================================================
 
+// ----------------------------------------------------------------------------
+// SHARED THEME-AGNOSTIC VARIABLES
+// Extracted from both light & dark to remove duplication.
+// If a variable needs theme-specific values in the future, move it back down.
+// ----------------------------------------------------------------------------
+:root {
+  // Accents
+  --accent-blue: #1565c0;
+  --accent-blue-strong: #1d4ed8;
+  --accent-blue-shadow: rgba(21, 101, 192, 0.25);
+
+  // Evidence Levels
+  --evidence-level-1: #2e7d32;
+  --evidence-level-2: #388e3c;
+  --evidence-level-3: #e65100;
+  --evidence-level-4: #c62828;
+  --evidence-level-5: #676767;
+  --evidence-level-other: #334155;
+
+  // Compare
+  --compare-color-a: #1565c0;
+  --compare-color-b: #ea580c;
+
+  // Chart Shared
+  --chart-state-border: #d1d5db;
+  --chart-error-border: #fecaca;
+  --chart-error-text: #991b1b;
+
+  // Chart Legend (shared, was light-only)
+  --chart-legend-text: #4b5563;
+  --chart-legend-key: #64748b;
+
+  // Misc
+  --tooltip-title-border: #475569;
+  --snackbar-error-bg: #d32f2f;
+  --nav-link-active-bg: rgba(255, 255, 255, 0.2);
+}
+
+// ----------------------------------------------------------------------------
+// LIGHT THEME
+// ----------------------------------------------------------------------------
 :root, .light-theme {
   @include mat.all-component-themes($light-theme);
+
   // Surface & Backgrounds
   --color-surface: #ffffff;
   --color-surface-subtle: #f9fafb;
@@ -159,31 +202,30 @@ $font-weight-bold: 700;
   --banner-error-bg: rgba(239, 68, 68, 0.07);
   --banner-error-border: rgba(239, 68, 68, 0.25);
 
-  // Status Badges (Light)
-  --status-pending-bg: #fff3e0;
-  --status-pending-text: #e65100;
-  --status-pending-border: rgba(230, 81, 0, 0.2);
+  // Status Badges (Generic)
+  --status-orange-bg: #fff3e0;
+  --status-orange-text: #e65100;
+  --status-orange-border: rgba(230, 81, 0, 0.2);
 
-  --status-running-bg: #e3f2fd;
-  --status-running-text: #1565c0;
-  --status-running-border: rgba(21, 101, 192, 0.2);
+  --status-blue-bg: #e3f2fd;
+  --status-blue-text: #1565c0;
+  --status-blue-border: rgba(21, 101, 192, 0.2);
 
-  --status-completed-bg: #e8f5e9;
-  --status-completed-text: #2e7d32;
-  --status-completed-border: rgba(46, 125, 50, 0.2);
+  --status-green-bg: #e8f5e9;
+  --status-green-text: #2e7d32;
+  --status-green-border: rgba(46, 125, 50, 0.2);
 
-  --status-failed-bg: #ffebee;
-  --status-failed-text: #c62828;
-  --status-failed-border: rgba(198, 40, 40, 0.2);
+  --status-red-bg: #ffebee;
+  --status-red-text: #c62828;
+  --status-red-border: rgba(198, 40, 40, 0.2);
 
-  // Keyword Chip
-  --keyword-chip-bg: #eef2ff;
-  --keyword-chip-text: #374151;
-  --keyword-chip-border: rgba(55, 65, 81, 0.1);
-  --keyword-chip-hover-bg: rgba(238, 242, 255, 0.8);
+  // Keyword Chip (Generic)
+  --chip-indigo-bg: #eef2ff;
+  --chip-indigo-text: #374151;
+  --chip-indigo-border: rgba(55, 65, 81, 0.1);
+  --chip-indigo-hover-bg: rgba(238, 242, 255, 0.8);
 
-  // Keyword Chip "More" Counter
-  --keyword-more-chip-border: rgba(85, 85, 85, 0.2);
+  --chip-neutral-border: rgba(85, 85, 85, 0.2);
 
   // State Overlay
   --state-overlay-bg: rgba(255, 255, 255, 0.94);
@@ -192,64 +234,60 @@ $font-weight-bold: 700;
   --skeleton-color-1: #eceff1;
   --skeleton-color-2: #f7f9fa;
 
-  // Xref Source Chip
-  --xref-source-chip-bg: #e0f2fe;
-  --xref-source-chip-text: #075985;
-  --xref-source-chip-border: #bae6fd;
+  // Xref Source Chip (Generic)
+  --xref-sky-bg: #e0f2fe;
+  --xref-sky-text: #075985;
+  --xref-sky-border: #bae6fd;
 
-  // Comment Type Chip
-  --comment-type-chip-bg: #f3e8ff;
-  --comment-type-chip-text: #6b21a8;
-  --comment-type-chip-border: #ddd6fe;
+  // Comment Type Chip (Generic)
+  --chip-purple-bg: #f3e8ff;
+  --chip-purple-text: #6b21a8;
+  --chip-purple-border: #ddd6fe;
 
-  // Feature Type Chips
-  --accent-blue-track-bg: #dbeafe;
-  --feature-chip-chain-text: #1d4ed8;
-  --accent-blue-light: #93c5fd;
+  // Feature Type Chips (Generic)
+  --chip-blue-bg: #dbeafe;
+  --chip-blue-text: #1d4ed8;
+  --chip-blue-border: #93c5fd;
 
-  --feature-chip-region-bg: #dcfce7;
-  --feature-chip-region-text: #15803d;
-  --feature-chip-region-border: #86efac;
+  --chip-green-bg: #dcfce7;
+  --chip-green-text: #15803d;
+  --chip-green-border: #86efac;
 
-  --feature-chip-compbias-bg: #fef9c3;
-  --feature-chip-compbias-text: #854d0e;
-  --feature-chip-compbias-border: #fde047;
+  --chip-yellow-bg: #fef9c3;
+  --chip-yellow-text: #854d0e;
+  --chip-yellow-border: #fde047;
 
-  --feature-chip-domain-bg: #ede9fe;
-  --feature-chip-domain-text: #6d28d9;
-  --feature-chip-domain-border: #c4b5fd;
+  --chip-violet-bg: #ede9fe;
+  --chip-violet-text: #6d28d9;
+  --chip-violet-border: #c4b5fd;
 
-  --feature-chip-motif-bg: #fce7f3;
-  --feature-chip-motif-text: #be185d;
-  --feature-chip-motif-border: #f9a8d4;
+  --chip-pink-bg: #fce7f3;
+  --chip-pink-text: #be185d;
+  --chip-pink-border: #f9a8d4;
 
-  --feature-chip-site-bg: #ffedd5;
-  --feature-chip-site-text: #c2410c;
-  --feature-chip-site-border: #fdba74;
+  --chip-orange-bg: #ffedd5;
+  --chip-orange-text: #c2410c;
+  --chip-orange-border: #fdba74;
 
-  --feature-chip-disulfid-bg: #ecfeff;
-  --feature-chip-disulfid-text: #0e7490;
-  --feature-chip-disulfid-border: #67e8f9;
+  --chip-cyan-bg: #ecfeff;
+  --chip-cyan-text: #0e7490;
+  --chip-cyan-border: #67e8f9;
 
-  --feature-chip-binding-bg: #f0fdf4;
-  --feature-chip-binding-text: #166534;
-  --feature-chip-binding-border: #bbf7d0;
+  --chip-emerald-bg: #f0fdf4;
+  --chip-emerald-text: #166534;
+  --chip-emerald-border: #bbf7d0;
 
-  --feature-chip-mod-res-bg: #fdf4ff;
-  --feature-chip-mod-res-text: #7e22ce;
-  --feature-chip-mod-res-border: #e9d5ff;
+  --chip-fuchsia-bg: #fdf4ff;
+  --chip-fuchsia-text: #7e22ce;
+  --chip-fuchsia-border: #e9d5ff;
 
-  --feature-chip-signal-bg: #fff1f2;
-  --feature-chip-signal-text: #be123c;
-  --feature-chip-signal-border: #fecdd3;
+  --chip-rose-bg: #fff1f2;
+  --chip-rose-text: #be123c;
+  --chip-rose-border: #fecdd3;
 
-  --feature-chip-transit-bg: #f0f9ff;
-  --feature-chip-transit-text: #0369a1;
-  --feature-chip-transit-border: #bae6fd;
-
-  --feature-chip-act-site-bg: #fff7ed;
-  --feature-chip-act-site-text: #c2410c;
-  --feature-chip-act-site-border: #fed7aa;
+  --chip-sky-bg: #f0f9ff;
+  --chip-sky-text: #0369a1;
+  --chip-sky-border: #bae6fd;
 
   // Button Hover State (Light theme hover on text button)
   --btn-text-hover-bg: rgba(17, 24, 39, 0.04);
@@ -257,33 +295,17 @@ $font-weight-bold: 700;
   // Shadow overlay (analytics header)
   --shadow-overlay-color: rgba(16, 24, 40, 0.04);
 
-  // Analytics Dashboards
-  --accent-blue: #1565c0;
-  --accent-blue-strong: #1d4ed8;
-  --accent-blue-shadow: rgba(21, 101, 192, 0.25);
+  // Analytics Dashboards (Light-specific)
   --accent-blue-lighter-border: #bfdbfe;
   --accent-blue-hover-bg: rgba(21, 101, 192, 0.08);
   --accent-blue-active-bg: rgba(21, 101, 192, 0.12);
 
-  --chart-state-border: #d1d5db;
   --chart-state-bg: #f9fafb;
   --chart-text-color: #374151;
-
-  --chart-error-border: #fecaca;
   --chart-error-bg: #fef2f2;
-  --chart-error-text: #991b1b;
 
   --compare-row-track-bg: #e8edf7;
   --compare-row-track-border: #d1d9ef;
-
-  --chart-legend-text: #4b5563;
-  --chart-legend-key: #64748b;
-  --evidence-level-1: #2e7d32;
-  --evidence-level-2: #388e3c;
-  --evidence-level-3: #e65100;
-  --evidence-level-4: #c62828;
-  --evidence-level-5: #676767;
-  --evidence-level-other: #334155;
 
   --pie-chart-inner-shadow: rgba(0, 0, 0, 0.06);
 
@@ -291,19 +313,14 @@ $font-weight-bold: 700;
 
   --nav-link-hover-bg: rgba(255, 255, 255, 0.12);
   --navbar-focus-ring-color: white;
-  --nav-link-active-bg: rgba(255, 255, 255, 0.2);
-
-  --compare-color-a: #1565c0;
-  --compare-color-b: #ea580c;
-
-  --tooltip-title-border: #475569;
-
-  --snackbar-error-bg: #d32f2f;
-
 }
 
+// ----------------------------------------------------------------------------
+// DARK THEME
+// ----------------------------------------------------------------------------
 .dark-theme {
   @include mat.all-component-themes($dark-theme);
+
   // Surface & Backgrounds
   --color-surface: #121212;
   --color-surface-subtle: #1e1e1e;
@@ -324,97 +341,92 @@ $font-weight-bold: 700;
   --banner-error-bg: rgba(239, 68, 68, 0.15);
   --banner-error-border: rgba(239, 68, 68, 0.4);
 
-  // Status Badges (Dark Mode adjusted for contrast and readability)
-  --status-pending-bg: rgba(230, 81, 0, 0.15);
-  --status-pending-text: #ffb74d; // Lighter orange
-  --status-pending-border: rgba(230, 81, 0, 0.3);
+  // Status Badges (Generic)
+  --status-orange-bg: rgba(230, 81, 0, 0.15);
+  --status-orange-text: #ffb74d;
+  --status-orange-border: rgba(230, 81, 0, 0.3);
 
-  --status-running-bg: rgba(21, 101, 192, 0.15);
-  --status-running-text: #64b5f6; // Lighter blue
-  --status-running-border: rgba(21, 101, 192, 0.3);
+  --status-blue-bg: rgba(21, 101, 192, 0.15);
+  --status-blue-text: #64b5f6;
+  --status-blue-border: rgba(21, 101, 192, 0.3);
 
-  --status-completed-bg: rgba(46, 125, 50, 0.15);
-  --status-completed-text: #81c784; // Lighter green
-  --status-completed-border: rgba(46, 125, 50, 0.3);
+  --status-green-bg: rgba(46, 125, 50, 0.15);
+  --status-green-text: #81c784;
+  --status-green-border: rgba(46, 125, 50, 0.3);
 
-  --status-failed-bg: rgba(198, 40, 40, 0.15);
-  --status-failed-text: #e57373; // Lighter red
-  --status-failed-border: rgba(198, 40, 40, 0.3);
+  --status-red-bg: rgba(198, 40, 40, 0.15);
+  --status-red-text: #e57373;
+  --status-red-border: rgba(198, 40, 40, 0.3);
 
-  // Keyword Chip (dark mode variant)
-  --keyword-chip-bg: rgba(79, 90, 255, 0.15);
-  --keyword-chip-text: #a0aeff;
-  --keyword-chip-border: rgba(79, 90, 255, 0.2);
-  --keyword-chip-hover-bg: rgba(79, 90, 255, 0.25);
+  // Keyword Chip (Generic)
+  --chip-indigo-bg: rgba(79, 90, 255, 0.15);
+  --chip-indigo-text: #a0aeff;
+  --chip-indigo-border: rgba(79, 90, 255, 0.2);
+  --chip-indigo-hover-bg: rgba(79, 90, 255, 0.25);
 
-  // Keyword Chip "More" Counter (dark mode variant)
-  --keyword-more-chip-border: rgba(160, 160, 160, 0.3);
+  --chip-neutral-border: rgba(160, 160, 160, 0.3);
 
-  // State Overlay (dark mode variant)
+  // State Overlay
   --state-overlay-bg: rgba(18, 18, 18, 0.94);
 
-  // Skeleton Loading (dark mode variant)
+  // Skeleton Loading
   --skeleton-color-1: #2c2c2c;
   --skeleton-color-2: #383838;
 
-  // Xref Source Chip (dark mode variant)
-  --xref-source-chip-bg: rgba(7, 89, 133, 0.15);
-  --xref-source-chip-text: #4fadf7;
-  --xref-source-chip-border: rgba(79, 177, 245, 0.3);
+  // Xref Source Chip (Generic)
+  --xref-sky-bg: rgba(7, 89, 133, 0.15);
+  --xref-sky-text: #4fadf7;
+  --xref-sky-border: rgba(79, 177, 245, 0.3);
 
-  // Comment Type Chip (dark mode variant)
-  --comment-type-chip-bg: rgba(107, 33, 168, 0.15);
-  --comment-type-chip-text: #d8b4f8;
-  --comment-type-chip-border: rgba(168, 85, 247, 0.3);
+  // Comment Type Chip (Generic)
+  --chip-purple-bg: rgba(107, 33, 168, 0.15);
+  --chip-purple-text: #d8b4f8;
+  --chip-purple-border: rgba(168, 85, 247, 0.3);
 
-  // Feature Type Chips (dark mode variants with preserved semantics)
-  --accent-blue-track-bg: rgba(29, 78, 216, 0.15);
-  --feature-chip-chain-text: #60a5fa;
-  --accent-blue-light: rgba(96, 165, 250, 0.3);
+  // Feature Type Chips (Generic)
+  --chip-blue-bg: rgba(29, 78, 216, 0.15);
+  --chip-blue-text: #60a5fa;
+  --chip-blue-border: rgba(96, 165, 250, 0.3);
 
-  --feature-chip-region-bg: rgba(21, 128, 61, 0.15);
-  --feature-chip-region-text: #4ade80;
-  --feature-chip-region-border: rgba(74, 222, 128, 0.3);
+  --chip-green-bg: rgba(21, 128, 61, 0.15);
+  --chip-green-text: #4ade80;
+  --chip-green-border: rgba(74, 222, 128, 0.3);
 
-  --feature-chip-compbias-bg: rgba(133, 77, 14, 0.15);
-  --feature-chip-compbias-text: #fbbf24;
-  --feature-chip-compbias-border: rgba(251, 191, 36, 0.3);
+  --chip-yellow-bg: rgba(133, 77, 14, 0.15);
+  --chip-yellow-text: #fbbf24;
+  --chip-yellow-border: rgba(251, 191, 36, 0.3);
 
-  --feature-chip-domain-bg: rgba(109, 40, 217, 0.15);
-  --feature-chip-domain-text: #c4b5fd;
-  --feature-chip-domain-border: rgba(196, 181, 253, 0.3);
+  --chip-violet-bg: rgba(109, 40, 217, 0.15);
+  --chip-violet-text: #c4b5fd;
+  --chip-violet-border: rgba(196, 181, 253, 0.3);
 
-  --feature-chip-motif-bg: rgba(190, 24, 93, 0.15);
-  --feature-chip-motif-text: #f472b6;
-  --feature-chip-motif-border: rgba(244, 114, 182, 0.3);
+  --chip-pink-bg: rgba(190, 24, 93, 0.15);
+  --chip-pink-text: #f472b6;
+  --chip-pink-border: rgba(244, 114, 182, 0.3);
 
-  --feature-chip-site-bg: rgba(194, 65, 12, 0.15);
-  --feature-chip-site-text: #fb923c;
-  --feature-chip-site-border: rgba(251, 146, 60, 0.3);
+  --chip-orange-bg: rgba(194, 65, 12, 0.15);
+  --chip-orange-text: #fb923c;
+  --chip-orange-border: rgba(251, 146, 60, 0.3);
 
-  --feature-chip-disulfid-bg: rgba(14, 116, 144, 0.15);
-  --feature-chip-disulfid-text: #06b6d4;
-  --feature-chip-disulfid-border: rgba(6, 182, 212, 0.3);
+  --chip-cyan-bg: rgba(14, 116, 144, 0.15);
+  --chip-cyan-text: #06b6d4;
+  --chip-cyan-border: rgba(6, 182, 212, 0.3);
 
-  --feature-chip-binding-bg: rgba(22, 101, 52, 0.15);
-  --feature-chip-binding-text: #86efac;
-  --feature-chip-binding-border: rgba(134, 239, 172, 0.3);
+  --chip-emerald-bg: rgba(22, 101, 52, 0.15);
+  --chip-emerald-text: #86efac;
+  --chip-emerald-border: rgba(134, 239, 172, 0.3);
 
-  --feature-chip-mod-res-bg: rgba(126, 34, 206, 0.15);
-  --feature-chip-mod-res-text: #d8b4f8;
-  --feature-chip-mod-res-border: rgba(216, 180, 248, 0.3);
+  --chip-fuchsia-bg: rgba(126, 34, 206, 0.15);
+  --chip-fuchsia-text: #d8b4f8;
+  --chip-fuchsia-border: rgba(216, 180, 248, 0.3);
 
-  --feature-chip-signal-bg: rgba(190, 18, 60, 0.15);
-  --feature-chip-signal-text: #f43f5e;
-  --feature-chip-signal-border: rgba(244, 63, 94, 0.3);
+  --chip-rose-bg: rgba(190, 18, 60, 0.15);
+  --chip-rose-text: #f43f5e;
+  --chip-rose-border: rgba(244, 63, 94, 0.3);
 
-  --feature-chip-transit-bg: rgba(3, 105, 161, 0.15);
-  --feature-chip-transit-text: #38bdf8;
-  --feature-chip-transit-border: rgba(56, 189, 248, 0.3);
-
-  --feature-chip-act-site-bg: rgba(194, 65, 12, 0.15);
-  --feature-chip-act-site-text: #fb923c;
-  --feature-chip-act-site-border: rgba(251, 146, 60, 0.3);
+  --chip-sky-bg: rgba(3, 105, 161, 0.15);
+  --chip-sky-text: #38bdf8;
+  --chip-sky-border: rgba(56, 189, 248, 0.3);
 
   // Button Hover State (dark theme hover on text button)
   --btn-text-hover-bg: rgba(229, 231, 235, 0.08);
@@ -422,29 +434,20 @@ $font-weight-bold: 700;
   // Shadow overlay (analytics header, adjusted for dark)
   --shadow-overlay-color: rgba(0, 0, 0, 0.2);
 
-  // Analytics Dashboards
-  --accent-blue: #1565c0;
-  --accent-blue-strong: #1d4ed8;
-  --accent-blue-shadow: rgba(21, 101, 192, 0.25);
-
-  --chart-state-border: #d1d5db;
+  // Analytics Dashboards (Dark-specific)
   --chart-state-bg: #374151;
   --chart-text-color: #f9fafb;
-
-  --chart-error-border: #fecaca;
-  --chart-error-bg: #374151;
-  --chart-error-text: #991b1b;
+  --chart-error-bg: #450a0a;
 
   --compare-row-track-bg: #323335;
   --compare-row-track-border: #3a3c42;
 
-  --pie-chart-inner-shadow: rgb(227 219 219 / 0.57);
+  --pie-chart-inner-shadow: rgba(227, 219, 219, 0.57);
 
-  --selected-count-bg: rgb(238 242 253 / 0.1);
+  --selected-count-bg: rgba(238, 242, 253, 0.1);
 
-  --nav-link-hover-bg: rgb(186 176 176 / 0.12);
+  --nav-link-hover-bg: rgba(186, 176, 176, 0.12);
   --navbar-focus-ring-color: #252525;
-  --nav-link-active-bg: rgba(255, 255, 255, 0.2);
 
 }
 
@@ -466,27 +469,30 @@ $color-on-surface-disabled: var(--color-on-surface-disabled);
 $color-border-light: var(--color-border-light);
 $color-border-medium: var(--color-border-medium);
 $color-border-strong: var(--color-border-strong);
+
 // Semantic state colors
 $color-success: #10b981;
 $color-warning: #f59e0b;
 $color-error: #ef4444;
 $color-info: #3b82f6;
 
-// Special colors (preserved from original spec)
-$color-evidence-green: #2e7d32;
-$color-evidence-orange: #e65100;
-$color-evidence-red: #c62828;
-$color-evidence-undefined: #676767;
+// Evidence levels (renamed from color-based to semantic)
+$color-evidence-high: #2e7d32;
+$color-evidence-medium: #e65100;
+$color-evidence-low: #c62828;
+$color-evidence-unknown: #676767;
 
-$color-reviewed-bg: #e8f5e9;
-$color-reviewed-text: #2e7d32;
-$color-not-reviewed-bg: #fff3e0;
-$color-not-reviewed-text: #e65100;
+// Review states (renamed from component-specific to semantic)
+$color-success-bg: #e8f5e9;
+$color-success-text: #2e7d32;
+$color-warning-bg: #fff3e0;
+$color-warning-text: #e65100;
 
-$color-keyword-bg: #eef2ff;
-$color-keyword-text: #374151;
-$color-keyword-more-bg: #e0e0e0;
-$color-keyword-more-text: #555;
+// Accent chips (renamed from component-specific to generic)
+$color-accent-bg: #eef2ff;
+$color-accent-text: #374151;
+$color-muted-bg: #e0e0e0;
+$color-muted-text: #555;
 
 // ============================================================================
 // SPACING SYSTEM

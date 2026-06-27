@@ -72,7 +72,7 @@ body {
 
 .success-snackbar {
   .mdc-snackbar__surface {
-    background-color: var(--status-completed-text) !important;
+    background-color: var(--status-green-text) !important;
   }
 
   .mdc-snackbar__label {
@@ -100,7 +100,7 @@ body {
 
 .warning-snackbar {
   .mdc-snackbar__surface {
-    background-color: var(--feature-chip-site-border) !important;
+    background-color: var(--chip-orange-border) !important;
   }
 
   .mdc-snackbar__label {
@@ -198,4 +198,23 @@ body {
   &:hover {
     transform: translateY(-1px);
   }
+}
+
+.chart-state {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-medium);
+  border-radius: 0.5rem;
+  background: var(--color-surface-subtle);
+  color: var(--chip-indigo-text);
+
+  p {
+    margin: 0 0 0.75rem;
+  }
+}
+
+.chart-state-error {
+  border-color: var(--chart-error-border);
+  background: var(--chart-error-bg);
+  color: var(--chart-error-text);
 }

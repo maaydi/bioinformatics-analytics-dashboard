@@ -244,8 +244,8 @@
 .keyword-chip {
   @include ds.text-label-sm;
   @include ds.chip-base;
-  background-color: var(--keyword-chip-bg);
-  color: var(--keyword-chip-text);
+  background-color: var(--chip-indigo-bg);
+  color: var(--chip-indigo-text);
   padding: ds.$spacing-xs ds.$spacing-md;
   border-radius: ds.$border-radius-full;
   display: inline-block;
@@ -534,9 +534,9 @@
 .xref-source-chip {
   @include ds.chip-base;
   @include ds.text-label-sm;
-  background-color: var(--xref-source-chip-bg);
-  color: var(--xref-source-chip-text);
-  border: ds.$border-width-thin solid var(--xref-source-chip-border);
+  background-color: var(--xref-sky-bg);
+  color: var(--xref-sky-text);
+  border: ds.$border-width-thin solid var(--xref-sky-border);
   border-radius: ds.$border-radius-full;
   padding: ds.$spacing-xs ds.$spacing-md;
 }
@@ -563,9 +563,9 @@
 .comment-type-chip {
   @include ds.chip-base;
   @include ds.text-label-sm;
-  background-color: var(--comment-type-chip-bg);
-  color: var(--comment-type-chip-text);
-  border: ds.$border-width-thin solid var(--comment-type-chip-border);
+  background-color: var(--chip-purple-bg);
+  color: var(--chip-purple-text);
+  border: ds.$border-width-thin solid var(--chip-purple-border);
   border-radius: ds.$border-radius-full;
   padding: ds.$spacing-xs ds.$spacing-md;
 }
@@ -613,78 +613,78 @@
 
   &--chain {
     background-color: var(--accent-blue-track-bg);
-    color: var(--feature-chip-chain-text);
+    color: var(--chip-blue-text);
     border-color: var(--accent-blue-light);
   }
 
   &--region {
-    background-color: var(--feature-chip-region-bg);
-    color: var(--feature-chip-region-text);
-    border-color: var(--feature-chip-region-border);
+    background-color: var(--chip-green-bg);
+    color: var(--chip-green-text);
+    border-color: var(--chip-green-border);
   }
 
   &--compbias {
-    background-color: var(--feature-chip-compbias-bg);
-    color: var(--feature-chip-compbias-text);
-    border-color: var(--feature-chip-compbias-border);
+    background-color: var(--chip-yellow-bg);
+    color: var(--chip-yellow-text);
+    border-color: var(--chip-yellow-border);
   }
 
   &--domain {
-    background-color: var(--feature-chip-domain-bg);
-    color: var(--feature-chip-domain-text);
-    border-color: var(--feature-chip-domain-border);
+    background-color: var(--chip-violet-bg);
+    color: var(--chip-violet-text);
+    border-color: var(--chip-violet-border);
   }
 
   &--motif {
-    background-color: var(--feature-chip-motif-bg);
-    color: var(--feature-chip-motif-text);
-    border-color: var(--feature-chip-motif-border);
+    background-color: var(--chip-pink-bg);
+    color: var(--chip-pink-text);
+    border-color: var(--chip-pink-border);
   }
 
   &--site {
-    background-color: var(--feature-chip-site-bg);
-    color: var(--feature-chip-site-text);
-    border-color: var(--feature-chip-site-border);
+    background-color: var(--chip-orange-bg);
+    color: var(--chip-orange-text);
+    border-color: var(--chip-orange-border);
   }
 
   &--disulfid {
-    background-color: var(--feature-chip-disulfid-bg);
-    color: var(--feature-chip-disulfid-text);
-    border-color: var(--feature-chip-disulfid-border);
+    background-color: var(--chip-cyan-bg);
+    color: var(--chip-cyan-text);
+    border-color: var(--chip-cyan-border);
   }
 
   &--binding {
-    background-color: var(--feature-chip-binding-bg);
-    color: var(--feature-chip-binding-text);
-    border-color: var(--feature-chip-binding-border);
+    background-color: var(--chip-emerald-bg);
+    color: var(--chip-emerald-text);
+    border-color: var(--chip-emerald-border);
   }
 
   &--mod_res,
   &--mod-res {
-    background-color: var(--feature-chip-mod-res-bg);
-    color: var(--feature-chip-mod-res-text);
-    border-color: var(--feature-chip-mod-res-border);
+    background-color: var(--chip-fuchsia-bg);
+    color: var(--chip-fuchsia-text);
+    border-color: var(--chip-fuchsia-border);
   }
 
   &--signal,
   &--peptide,
   &--propep {
-    background-color: var(--feature-chip-signal-bg);
-    color: var(--feature-chip-signal-text);
-    border-color: var(--feature-chip-signal-border);
+    background-color: var(--chip-rose-bg);
+    color: var(--chip-rose-text);
+    border-color: var(--chip-rose-border);
   }
 
   &--transit {
-    background-color: var(--feature-chip-transit-bg);
-    color: var(--feature-chip-transit-text);
-    border-color: var(--feature-chip-transit-border);
+    background-color: var(--chip-sky-bg);
+    color: var(--chip-sky-text);
+    border-color: var(--chip-sky-border);
   }
 
   &--act_site,
   &--act-site {
-    background-color: var(--feature-chip-act-site-bg);
-    color: var(--feature-chip-act-site-text);
-    border-color: var(--feature-chip-act-site-border);
+    background-color: var(--chip-orange-bg);
+    color: var(--chip-orange-text);
+    border-color: var(--chip-orange-border);
   }
 }
 
