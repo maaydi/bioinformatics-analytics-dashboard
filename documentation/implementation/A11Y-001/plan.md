@@ -17,8 +17,8 @@
 - [x] Requirements analyzed
 - [x] ThemeService implemented
 - [x] Theme toggle in navbar implemented
-- [ ] WCAG AA contrast verified and fixed
-- [ ] Keyboard navigation audited and fixed
+- [x] WCAG AA contrast verified and fixed
+- [x] Keyboard navigation audited and fixed
 - [ ] PUT /api/auth/password implemented
 - [ ] Password change form implemented
 - [ ] axe-core e2e configured
@@ -47,15 +47,15 @@
 ### SCSS / Theming
 
 - [x] Define CSS custom properties for both themes in `styles.scss` (using material variables across _design-system)
-- [ ] Verify contrast ratios ≥ 4.5:1 for all text/background combinations
-- [ ] Both themes verified with browser DevTools / contrast checker
+- [x] Verify contrast ratios ≥ 4.5:1 for all text/background combinations
+- [x] Both themes verified with browser DevTools / contrast checker
 
 ### Keyboard Navigation Audit
 
-- [ ] All buttons, links, inputs reachable with Tab key
-- [ ] Dialogs/modals trap focus and close on Escape
-- [ ] AG Grid keyboard navigation enabled (`suppressKeyboardEvent` not blocking Tab)
-- [ ] Chart interactivity accessible (or aria-label describing chart content as fallback)
+- [x] All buttons, links, inputs reachable with Tab key
+- [x] Dialogs/modals trap focus and close on Escape
+- [x] AG Grid keyboard navigation enabled (`suppressKeyboardEvent` not blocking Tab)
+- [x] Chart interactivity accessible (or aria-label describing chart content as fallback)
 
 ### Backend — `PUT /api/auth/password`
 
@@ -86,11 +86,6 @@
 
 ### Tests
 
-- [ ] `StateHostComponent` unit tests:
-    - [ ] Renders skeleton in `loading` state
-    - [ ] Renders error block and emits `retry` in `error` state
-    - [ ] Renders empty block in `empty` state
-    - [ ] Renders `ng-content` in `ready` state
 - [ ] `ThemeService` unit tests:
     - [ ] Initial theme loaded from `localStorage`
     - [ ] `toggle()` flips theme and updates `localStorage`
