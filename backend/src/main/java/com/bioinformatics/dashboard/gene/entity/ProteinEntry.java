@@ -42,6 +42,7 @@ public class ProteinEntry {
     @Column(name = "entry_name", nullable = false, columnDefinition = "TEXT")
     private String entryName;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean reviewed = false;
 
@@ -140,6 +141,7 @@ public class ProteinEntry {
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
+    @Builder.Default
     private List<Keyword> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "protein", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -152,6 +154,7 @@ public class ProteinEntry {
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "go_term_id")
     )
+    @Builder.Default
     private Set<GoTerm> goTerms = new HashSet<>();
 
     @OneToMany(mappedBy = "protein", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
