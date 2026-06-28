@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.auth.service;
 
 import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
+import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,12 +32,16 @@ class AuthServiceTest {
 
     @Mock
     JwtUtil jwtUtil;
+    @Mock
+    PasswordEncoder passwordEncoder;
+    @Mock
+    AppUserRepository userRepository;
 
     AuthService authService;
 
     @BeforeEach
     void setUp() throws Exception {
-        authService = new AuthService(authenticationManager, userDetailsService, jwtUtil);
+        authService = new AuthService(authenticationManager, userDetailsService, jwtUtil, passwordEncoder, userRepository);
         var f = AuthService.class.getDeclaredField("accessTokenExpirySeconds");
         f.setAccessible(true);
         f.setLong(authService, 3600L);

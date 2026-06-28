@@ -139,6 +139,12 @@ public class GlobalExceptionHandler {
         return buildResponse(status, ex.getReason());
     }
 
+    @ExceptionHandler(PasswordUpdateException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordUpdateException(PasswordUpdateException ex) {
+        log.warn("Handle Password Update Exception: {}", ex.getMessage());
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
     private boolean isClientAbort(Throwable throwable) {
         Throwable current = throwable;
         while (current != null) {

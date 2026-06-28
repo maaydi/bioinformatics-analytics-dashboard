@@ -19,7 +19,7 @@
 - [x] Theme toggle in navbar implemented
 - [x] WCAG AA contrast verified and fixed
 - [x] Keyboard navigation audited and fixed
-- [ ] PUT /api/auth/password implemented
+- [x] PUT /api/auth/password implemented
 - [ ] Password change form implemented
 - [ ] axe-core e2e configured
 - [ ] Unit tests written
@@ -61,10 +61,10 @@
 
 - [x] `ChangePasswordRequest` DTO: `{ @NotBlank currentPassword, @NotBlank @Pattern newPassword }` (pattern: ≥ 12 chars,
   at least one uppercase, one lowercase, one digit)
-- [ ] `AuthService.changePassword(ChangePasswordRequest, AppUser currentUser)`:
-    - [ ] Verify `currentPassword` via bcrypt; throw `BadCredentialsException` (401) if wrong
-    - [ ] Validate `newPassword` complexity; throw `PasswordComplexityException` (400) if fails
-    - [ ] Encode new password and save
+- [x] `AuthService.changePassword(ChangePasswordRequest, AppUser currentUser)`:
+  - [x] Verify `currentPassword` via bcrypt; throw `BadCredentialsException` (401) if wrong
+  - [x] Validate `newPassword` complexity; throw `PasswordComplexityException` (400) if fails
+  - [x] Encode new password and save
     - [ ] Revoke all refresh tokens for the user
 - [ ] Controller: `@PutMapping("/api/auth/password")`, returns `200 OK`
 - [ ] Exception mappings in `GlobalExceptionHandler`

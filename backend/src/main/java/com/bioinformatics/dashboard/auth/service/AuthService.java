@@ -1,17 +1,23 @@
 package com.bioinformatics.dashboard.auth.service;
 
-import com.bioinformatics.dashboard.auth.dto.LoginRequest;
-import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
-import com.bioinformatics.dashboard.auth.dto.TokenResponse;
+import com.bioinformatics.dashboard.auth.dto.*;
+import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
+import com.bioinformatics.dashboard.exception.AccessDeniedException;
+import com.bioinformatics.dashboard.exception.PasswordUpdateException;
 import com.bioinformatics.dashboard.security.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Authentication service.
@@ -26,11 +32,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final AppUserRepository userRepository;
 
     @Value("${app.jwt.access-token-expiry-seconds:3600}")
     private long accessTokenExpirySeconds;
@@ -41,6 +50,7 @@ public class AuthService {
      * @throws org.springframework.security.core.AuthenticationException on bad credentials
      */
     public TokenResponse login(LoginRequest request) {
+        log.info("User login <{}>", request.username());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
@@ -52,7 +62,7 @@ public class AuthService {
      * Validates the refresh token and issues a new JWT pair.
      *
      * @throws BadCredentialsException if token is
-     *         invalid, expired, or not of type "refresh"
+     *                                 invalid, expired, or not of type "refresh"
      */
     public TokenResponse refresh(RefreshRequest request) {
         var token = request.refreshToken();
@@ -69,6 +79,40 @@ public class AuthService {
         }
 
         return buildTokenResponse(userDetails);
+    }
+
+    @Transactional
+    public ChangePasswordResponse updatePassword(@Valid ChangePasswordRequest request) {
+
+        var currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth == null) {
+            log.warn("Security violation: Attempting changing password for unauthenticated user");
+            throw new AccessDeniedException("Operation not allowed");
+        }
+        var username = currentAuth.getName();
+        log.info("Attempting password update for user <{}>", username);
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, request.currentPassword())
+            );
+            var user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+
+            user.setPassword(passwordEncoder.encode(request.newPassword()));
+            userRepository.save(user);
+
+            log.info("User <{}> password updated successfully", username);
+            SecurityContextHolder.clearContext();
+            return ChangePasswordResponse.succeed();
+
+        } catch (BadCredentialsException e) {
+            log.warn("Failed password update for <{}>: Bad credentials", username);
+            throw new BadCredentialsException("Invalid username or current password");
+        } catch (Exception e) {
+            log.error("Unexpected error during password update for user <{}>", username, e);
+            throw new PasswordUpdateException("An error occurred while updating the password. Please try again later.", e);
+        }
     }
 
     private TokenResponse buildTokenResponse(UserDetails userDetails) {
