@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, PLATFORM_ID, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {MatCard} from '@angular/material/card';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
@@ -11,6 +11,7 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {NotificationService} from '@shared/directive/notification.service';
 import {GenesService} from '@features/genes/genes.service';
+import {isPlatformBrowser} from '@angular/common';
 
 /**
  * Container component for the Genes feature.
@@ -40,9 +41,12 @@ export class GenesPageComponent {
   private geneService = inject(GenesService);
   private notify = inject(NotificationService);
   protected isExportinProgress = signal<boolean>(false);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
-    this.store.searchGene(this.store.activeFilters() ?? {});
+    if (isPlatformBrowser(this.platformId)) {
+      this.store.searchGene(this.store.activeFilters() ?? {});
+    }
   }
 
   applyFilters(snapshot: GeneFilterSnapshot): void {

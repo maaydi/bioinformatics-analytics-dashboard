@@ -1,12 +1,12 @@
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnDestroy,
-  OnInit,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -73,7 +73,7 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   styleUrl: './import-admin.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportAdminComponent implements OnInit, OnDestroy {
+export class ImportAdminComponent implements OnDestroy {
   private readonly importService = inject(ImportAdminService);
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
   private readonly ALLOWED_EXTENSIONS = ['.dat', '.tsv'];
@@ -97,9 +97,14 @@ export class ImportAdminComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  ngOnInit(): void {
-    this.loadJobHistory();
+  constructor() {
+    afterNextRender(() => {
+      this.loadJobHistory();
+
+    });
+
   }
+
 
   ngOnDestroy(): void {
     this.stopPolling();

@@ -1,4 +1,4 @@
-import {DecimalPipe} from '@angular/common';
+import {DecimalPipe, isPlatformBrowser} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,6 +8,7 @@ import {
   ElementRef,
   inject,
   input,
+  PLATFORM_ID,
   signal,
   ViewChild
 } from '@angular/core';
@@ -70,9 +71,13 @@ export class DashboardKeywordFrequencyHistogramComponent {
 
   private readonly imageExportService = inject(ImageExportService);
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor() {
     effect(() => {
-      this.loadKeywordFrequency();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadKeywordFrequency();
+      }
     });
   }
 

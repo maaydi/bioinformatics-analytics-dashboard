@@ -1,10 +1,10 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   ElementRef,
   inject,
-  OnInit,
   signal,
   viewChild
 } from '@angular/core';
@@ -61,7 +61,7 @@ import {CompareComponent} from '@features/analytics/compare/compare.component';
   styleUrls: ['./analytics.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AnalyticsComponent implements OnInit {
+export class AnalyticsComponent {
 
   readonly captureArea = viewChild.required(ElementRef);
 
@@ -91,8 +91,10 @@ export class AnalyticsComponent implements OnInit {
   /**
    * Load saved filters on component init.
    */
-  ngOnInit(): void {
-    this.loadAllFilters();
+  constructor() {
+    afterNextRender(() => {
+      this.loadAllFilters();
+    });
   }
 
   protected onFilterSelect(event: Event): void {

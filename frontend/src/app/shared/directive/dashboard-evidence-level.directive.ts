@@ -1,4 +1,4 @@
-import {computed, DestroyRef, Directive, effect, inject, input, signal} from '@angular/core';
+import {computed, DestroyRef, Directive, effect, inject, input, PLATFORM_ID, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
@@ -8,6 +8,7 @@ import {EvidenceLevelItem} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {EvidenceLevel} from '@core/models/protein.model';
+import {isPlatformBrowser} from '@angular/common';
 
 @Directive()
 export abstract class AbstractDashboardEvidenceLevelsDirective {
@@ -25,9 +26,13 @@ export abstract class AbstractDashboardEvidenceLevelsDirective {
   protected readonly destroyRef = inject(DestroyRef);
   private evidenceSub?: Subscription;
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor() {
     effect(() => {
-      this.loadEvidenceLevels();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadEvidenceLevels();
+      }
     });
   }
 

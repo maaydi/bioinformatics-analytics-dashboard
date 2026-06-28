@@ -8,6 +8,7 @@ import {
   ElementRef,
   inject,
   input,
+  PLATFORM_ID,
   signal,
   ViewChild
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {isPlatformBrowser} from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -69,10 +71,13 @@ export class DashboardReviewedRatioComponent {
   chartCard!: ElementRef<HTMLElement>;
 
   private readonly imageExportService = inject(ImageExportService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     effect(() => {
-      this.loadReviewedRatio();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadReviewedRatio();
+      }
     });
   }
 

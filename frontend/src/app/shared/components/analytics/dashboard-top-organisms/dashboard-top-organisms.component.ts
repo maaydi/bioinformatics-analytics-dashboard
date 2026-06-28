@@ -1,4 +1,4 @@
-import {DecimalPipe} from '@angular/common';
+import {DecimalPipe, isPlatformBrowser} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -9,6 +9,7 @@ import {
   ElementRef,
   inject,
   input,
+  PLATFORM_ID,
   signal,
   ViewChild
 } from '@angular/core';
@@ -69,10 +70,13 @@ export class DashboardTopOrganismsComponent {
   chartCard!: ElementRef<HTMLElement>;
 
   private readonly imageExportService = inject(ImageExportService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     effect(() => {
-      this.loadTopOrganisms();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadTopOrganisms();
+      }
     });
   }
 

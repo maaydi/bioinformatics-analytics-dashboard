@@ -1,4 +1,4 @@
-import {DecimalPipe} from '@angular/common';
+import {DecimalPipe, isPlatformBrowser} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -9,6 +9,7 @@ import {
   ElementRef,
   inject,
   input,
+  PLATFORM_ID,
   signal,
   ViewChild
 } from '@angular/core';
@@ -103,10 +104,13 @@ export class DashboardLengthHistogramComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     effect(() => {
-      this.loadHistogram();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadHistogram();
+      }
     });
   }
 

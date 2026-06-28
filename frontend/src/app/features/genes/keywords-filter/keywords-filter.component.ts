@@ -1,4 +1,12 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, forwardRef, inject, OnInit, signal} from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  signal
+} from '@angular/core';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, map, startWith} from 'rxjs/operators';
 import {GenesService} from '@features/genes/genes.service';
@@ -44,7 +52,7 @@ import {HttpErrorResponse} from '@angular/common/http';
  * - Loads available keywords from backend once on init.
  * - Emits selected keyword arrays on every toggle.
  */
-export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
+export class KeywordsFilterComponent implements ControlValueAccessor {
 
   protected selectedKeywords = signal<string[]>([]);
   protected keywordSearchCtrl = new FormControl<string>('', {nonNullable: true});
@@ -54,9 +62,11 @@ export class KeywordsFilterComponent implements OnInit, ControlValueAccessor {
   private geneService = inject(GenesService);
   private allKeywords: string[] = [];
 
-  ngOnInit(): void {
-    this.loadKeywordsFromBackend();
-    this.initAutoCompleteStream();
+  constructor() {
+    afterNextRender(() => {
+      this.loadKeywordsFromBackend();
+      this.initAutoCompleteStream();
+    });
   }
 
   /** Writes the current form value from parent control state. */
