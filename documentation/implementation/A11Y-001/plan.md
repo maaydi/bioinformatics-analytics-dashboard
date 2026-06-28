@@ -65,9 +65,9 @@
   - [x] Verify `currentPassword` via bcrypt; throw `BadCredentialsException` (401) if wrong
   - [x] Validate `newPassword` complexity; throw `PasswordComplexityException` (400) if fails
   - [x] Encode new password and save
-    - [ ] Revoke all refresh tokens for the user
-- [ ] Controller: `@PutMapping("/api/auth/password")`, returns `200 OK`
-- [ ] Exception mappings in `GlobalExceptionHandler`
+    - [x] Revoke all refresh tokens for the user
+- [x] Controller: `@PutMapping("/api/auth/password")`, returns `200 OK`
+- [x] Exception mappings in `GlobalExceptionHandler`
 
 ### Frontend — Password Change Form
 

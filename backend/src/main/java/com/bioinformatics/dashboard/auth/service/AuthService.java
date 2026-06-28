@@ -1,14 +1,16 @@
 package com.bioinformatics.dashboard.auth.service;
 
 import com.bioinformatics.dashboard.auth.dto.*;
+import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
-import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.PasswordUpdateException;
 import com.bioinformatics.dashboard.security.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,7 +66,9 @@ public class AuthService {
      * @throws BadCredentialsException if token is
      *                                 invalid, expired, or not of type "refresh"
      */
-    public TokenResponse refresh(RefreshRequest request) {
+    @Cacheable(value = "refresh-tokens", key = "#currentUser.username", cacheManager = "redisNonFinalAndRecordCacheManager")
+    public TokenResponse refresh(RefreshRequest request, AppUser currentUser) {
+        log.info("Generate Refresh Token for user <{}>", currentUser.getUsername());
         var token = request.refreshToken();
 
         if (!jwtUtil.isRefreshToken(token)) {
@@ -78,20 +82,15 @@ public class AuthService {
             throw new BadCredentialsException("Invalid or expired refresh token");
         }
 
+
         return buildTokenResponse(userDetails);
     }
 
     @Transactional
-    public ChangePasswordResponse updatePassword(@Valid ChangePasswordRequest request) {
-
-        var currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth == null) {
-            log.warn("Security violation: Attempting changing password for unauthenticated user");
-            throw new AccessDeniedException("Operation not allowed");
-        }
-        var username = currentAuth.getName();
+    @CacheEvict(value = "refresh-tokens", key = "#currentUser.username")
+    public ChangePasswordResponse updatePassword(@Valid ChangePasswordRequest request, AppUser currentUser) {
+        var username = currentUser.getUsername();
         log.info("Attempting password update for user <{}>", username);
-
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, request.currentPassword())

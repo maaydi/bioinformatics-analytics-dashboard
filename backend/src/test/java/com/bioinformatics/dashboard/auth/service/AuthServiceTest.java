@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.auth.service;
 
 import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
+import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,6 +74,7 @@ class AuthServiceTest {
 
     @Test
     void refresh_shouldReturnNewTokens_whenRefreshTokenValid() {
+        var currentUser = AppUser.builder().username("test").build();
         var req = new RefreshRequest("r-token");
 
         when(jwtUtil.isRefreshToken("r-token")).thenReturn(true);
@@ -83,7 +85,7 @@ class AuthServiceTest {
         when(jwtUtil.generateAccessToken(userDetails)).thenReturn("new-access");
         when(jwtUtil.generateRefreshToken(userDetails)).thenReturn("new-refresh");
 
-        var resp = authService.refresh(req);
+        var resp = authService.refresh(req, currentUser);
 
         assertThat(resp.accessToken()).isEqualTo("new-access");
         assertThat(resp.refreshToken()).isEqualTo("new-refresh");
@@ -91,10 +93,12 @@ class AuthServiceTest {
 
     @Test
     void refresh_shouldThrowBadCredentials_whenTokenNotRefresh() {
+        var currentUser = AppUser.builder().username("test").build();
+
         var req = new RefreshRequest("bad-token");
         when(jwtUtil.isRefreshToken("bad-token")).thenReturn(false);
 
-        assertThatThrownBy(() -> authService.refresh(req))
+        assertThatThrownBy(() -> authService.refresh(req, currentUser))
                 .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class);
     }
 }

@@ -4,10 +4,12 @@ import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.auth.dto.*;
+import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -37,14 +39,14 @@ public class AuthController {
     @PostMapping("/refresh")
     @RateLimited(key = "login")
     @Auditable(action = AuditAction.TOKEN_REFRESH)
-    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) {
-        return ResponseEntity.ok(authService.refresh(request));
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request, @AuthenticationPrincipal AppUser currentUser) {
+        return ResponseEntity.ok(authService.refresh(request, currentUser));
     }
 
     @PutMapping("/password")
     @RateLimited(key = "login")
     @Auditable(action = AuditAction.UPDATE_PASSWORD)
-    public ResponseEntity<ChangePasswordResponse> updatePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        return ResponseEntity.ok(authService.updatePassword(request));
+    public ResponseEntity<ChangePasswordResponse> updatePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal AppUser currentUser) {
+        return ResponseEntity.ok(authService.updatePassword(request, currentUser));
     }
 }
