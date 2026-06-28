@@ -57,5 +57,8 @@ public class AuditLog {
     @PrePersist
     void onCreate() {
         this.createdAt = Instant.now();
+        if (action != null) {
+            this.target = action.getDefaultTarget();
+        }
     }
 }

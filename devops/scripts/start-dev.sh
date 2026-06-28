@@ -60,6 +60,16 @@ restart_postgres() {
   echo "    PostgresSQL is ready."
 }
 
+migrate_flyway(){
+  echo "==> [Postgres] Run flyway migration..."
+  cd "$ROOT_DIR/backend"
+  mvn flyway:repair \
+    -Dflyway.url=$SPRING_DATASOURCE_URL \
+    -Dflyway.user=$SPRING_DATASOURCE_USERNAME \
+    -Dflyway.password=$SPRING_DATASOURCE_PASSWORD
+  echo "    Migration was executed successfully."
+}
+
 restart_redis() {
   echo "==> [Redis] Restarting container..."
   docker compose -f "$ROOT_DIR/docker-compose.yml" down redis -v || true
@@ -129,7 +139,8 @@ print_menu() {
   echo "  [r] Restart Redis"
   echo "  [b] Rebuild & Restart Backend"
   echo "  [f] Restart Frontend"
-  echo "  [Ctrl+C] Exit & Stop all services"
+  echo "  [m] Run Flyway Migration"
+  echo "  [Ctrl+C] / [k] Exit & Stop all services"
   echo "================================================"
   echo -n "Waiting for input..."
 }
@@ -195,6 +206,10 @@ while true; do
         ;;
       f|F)
         restart_frontend
+        print_menu
+        ;;
+      m|M)
+        migrate_flyway
         print_menu
         ;;
       k|K)
