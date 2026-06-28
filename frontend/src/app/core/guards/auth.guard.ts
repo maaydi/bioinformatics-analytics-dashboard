@@ -16,7 +16,7 @@ export const authGuard: CanActivateFn = () => {
   const platformId = inject(PLATFORM_ID);
 
   if (!isPlatformBrowser(platformId)) {
-    return router.createUrlTree(['/login']);
+    return true;
   }
 
   return auth.isAuthenticated$.pipe(

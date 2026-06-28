@@ -12,6 +12,23 @@
       rel="stylesheet"
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script>
+      (function () {
+        try {
+          // Set Theme from local storage before the app renders
+          const savedTheme = localStorage.getItem('app-theme');
+          const rootElement = document.documentElement;
+
+          if (savedTheme === 'dark') {
+            rootElement.classList.add('dark-theme');
+          } else {
+            rootElement.classList.add('light-theme');
+          }
+        } catch (e) {
+          console.log(e)
+        }
+      })();
+    </script>
   </head>
   <body class="mat-typography">
     <app-root></app-root>
