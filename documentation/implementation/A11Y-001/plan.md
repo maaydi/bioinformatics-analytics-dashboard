@@ -59,7 +59,7 @@
 
 ### Backend — `PUT /api/auth/password`
 
-- [ ] `ChangePasswordRequest` DTO: `{ @NotBlank currentPassword, @NotBlank @Pattern newPassword }` (pattern: ≥ 12 chars,
+- [x] `ChangePasswordRequest` DTO: `{ @NotBlank currentPassword, @NotBlank @Pattern newPassword }` (pattern: ≥ 12 chars,
   at least one uppercase, one lowercase, one digit)
 - [ ] `AuthService.changePassword(ChangePasswordRequest, AppUser currentUser)`:
     - [ ] Verify `currentPassword` via bcrypt; throw `BadCredentialsException` (401) if wrong
