@@ -1,13 +1,14 @@
 package com.bioinformatics.dashboard.auth.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.auth.dto.LoginRequest;
-import com.bioinformatics.dashboard.auth.dto.RefreshRequest;
-import com.bioinformatics.dashboard.auth.dto.TokenResponse;
+import com.bioinformatics.dashboard.auth.dto.*;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.exception.ErrorResponse;
 import com.bioinformatics.dashboard.gene.service.GeneService;
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
 @ActiveProfiles("test")
 @AutoConfigureRestTestClient
+@Slf4j
 class AuthControllerIntegrationTest {
 
     @Autowired
@@ -61,6 +64,20 @@ class AuthControllerIntegrationTest {
         userRepository.save(user);
     }
 
+
+    private @NonNull TokenResponse getLoginResult() {
+        var loginResult = restClient.post()
+                .uri("/api/auth/login")
+                .body(new LoginRequest("alice", "secret"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(TokenResponse.class)
+                .returnResult();
+        assert loginResult.getResponseBody() != null;
+        return loginResult.getResponseBody();
+
+    }
+
     @Test
     void login_shouldReturnAccessAndRefreshTokens() {
         restClient.post()
@@ -81,19 +98,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void refresh_shouldIssueNewPairWhenRefreshTokenValid() {
-        var loginResult = restClient.post()
-                .uri("/api/auth/login")
-                .body(new LoginRequest("alice", "secret"))
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(TokenResponse.class)
-                .returnResult();
+        var loginResult = getLoginResult();
 
-        assert loginResult.getResponseBody() != null;
-        var refreshToken = loginResult.getResponseBody().refreshToken();
+        var accessToken = loginResult.accessToken();
+        var refreshToken = loginResult.refreshToken();
 
         restClient.post()
                 .uri("/api/auth/refresh")
+                .header("Authorization", "Bearer " + accessToken)
                 .body(new RefreshRequest(refreshToken))
                 .exchange()
                 .expectStatus().isOk()
@@ -106,4 +118,65 @@ class AuthControllerIntegrationTest {
                     assertThat(body.refreshToken()).isNotEqualTo(refreshToken);
                 });
     }
+
+
+    @Test
+    void logout_shouldInvalidateSecurityContext() {
+        var loginResult = getLoginResult();
+
+        var accessToken = loginResult.accessToken();
+
+        restClient.post()
+                .uri("/api/auth/logout")
+                .header("Authorization", "Bearer " + accessToken)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class)
+                .consumeWith(result -> {
+                    assertThat(result.getResponseBody()).isNull();
+                    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+                });
+    }
+
+    @Test
+    void updatePassword_shouldChangePasswordAndInvalidateSecurityContext() {
+        var loginResult = getLoginResult();
+        var accessToken = loginResult.accessToken();
+
+        restClient.put()
+                .uri("/api/auth/password")
+                .header("Authorization", "Bearer " + accessToken)
+                .body(new ChangePasswordRequest("Abcd123456789@", "secret"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ChangePasswordResponse.class)
+                .consumeWith(result -> {
+                    var body = result.getResponseBody();
+                    assertThat(body).isNotNull();
+                    assertThat(body.success()).isTrue();
+                    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+                });
+    }
+
+    @Test
+    void updatePassword_shouldFailedDueToInvalidPassword() {
+        var loginResult = getLoginResult();
+        var accessToken = loginResult.accessToken();
+        restClient.put()
+                .uri("/api/auth/password")
+                .header("Authorization", "Bearer " + accessToken)
+                .body(new ChangePasswordRequest("Abcdef", "secret"))
+                .exchange()
+                .expectStatus().is4xxClientError()
+                .expectBody(ErrorResponse.class)
+                .consumeWith(result -> {
+                    var body = result.getResponseBody();
+                    assertThat(body).isNotNull();
+                    assertThat(body.status()).isEqualTo(400);
+                    assertThat(body.message()).isEqualTo("newPassword: Password must be at least 12 characters long and contain at least one uppercase letter, one lowercase letter, and one digit");
+                });
+
+    }
+
+
 }
