@@ -17,25 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * REST controller for UniProt import administration.
- *
+ * REST Controller for managing UniProt batch import operations.
  * <p>
- * All endpoints are restricted to {@code ROLE_ADMIN}.
- * Contract: documentation/api-contract.md §3 — Import Admin Endpoints.
- *
- * <ul>
- * <li>{@code POST /api/admin/import/uniprot} — trigger import job</li>
- * <li>{@code GET  /api/admin/import/status} — list all jobs</li>
- * <li>{@code GET  /api/admin/import/status/{jobId}} — poll single job</li>
- * </ul>
- *
- * <p>
- * File upload limits:
- * <ul>
- * <li>Max size: 2 GB (enforced by Spring multipart +
- * GlobalExceptionHandler)</li>
- * <li>Accepted types: .dat, .tsv (validated in batch ItemProcessor)</li>
- * </ul>
+ * Exposes endpoints to trigger large-scale data imports and monitor job status.
+ * Access is restricted to users with the ROLE_ADMIN authority.
+ * Delegates orchestration of Spring Batch jobs to the {@link ImportService}.
+ * Consult {@code documentation/api-contract.md} for detailed endpoint specifications.
+ * </p>
  */
 @RestController
 @RequestMapping("/api/admin/import")
@@ -81,8 +69,5 @@ public class ImportController {
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {
         return service.getImportJobStatus(jobId);
     }
-
-    // TODO add cancel import
-
 
 }

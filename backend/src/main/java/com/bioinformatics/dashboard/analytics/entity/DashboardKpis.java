@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+/**
+ * Immutable entity mapping to the pre-aggregated materialized view for dashboard KPIs.
+ * Eliminates dynamic aggregation overhead on the primary gene tables.
+ */
 @Entity
 @Immutable
 @Table(name = "mv_dashboard_kpis")

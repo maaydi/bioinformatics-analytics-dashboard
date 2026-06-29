@@ -7,6 +7,10 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
+/**
+ * Defines dynamically evaluated analytics queries spanning multiple criteria.
+ * Implementations should parse JPA specifications to render accurate runtime distributions.
+ */
 public interface AnalyticsProteinRepository {
     DashboardKpisDto getDashboardKpis(Specification<ProteinEntry> spec);
 

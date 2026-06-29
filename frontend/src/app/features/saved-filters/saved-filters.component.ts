@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {afterNextRender, ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {SavedFilter} from '@core/models/saved-filter.model';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
@@ -52,7 +52,7 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   styleUrl: './saved-filters.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SavedFiltersComponent implements OnInit {
+export class SavedFiltersComponent {
   /** True while loading saved filters from API. */
   loading = signal<boolean>(true);
 
@@ -73,15 +73,15 @@ export class SavedFiltersComponent implements OnInit {
   private readonly genesStore = inject(GenesStore);
   private readonly notify = inject(NotificationService);
 
-  constructor(private dialog: MatDialog) {
-  }
-
   /**
    * Load saved filters on component init.
    */
-  ngOnInit(): void {
-    this.loadFilters();
+  constructor(private dialog: MatDialog) {
+    afterNextRender(() => {
+      this.loadFilters();
+    });
   }
+
 
   /**
    * Prompt user for delete confirmation before removing a filter.

@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Manages operations and logic for CounterRegistry.
+ */
 @Component
 @RequiredArgsConstructor
 public class CounterRegistry {

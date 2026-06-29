@@ -16,6 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Manages operations and logic for ProteinEntryService.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProteinEntryService {

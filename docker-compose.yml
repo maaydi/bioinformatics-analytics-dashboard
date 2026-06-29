@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
 
   # ── PostgreSQL 16 ───────────────────────────────────────────────────────────
@@ -22,6 +20,8 @@ services:
       timeout: 5s
       retries: 5
 
+
+  # ── Redis 8 Alpine ───────────────────────────────────────────────────────────
   redis:
     image: redis:8.8-alpine
     container_name: local-redis

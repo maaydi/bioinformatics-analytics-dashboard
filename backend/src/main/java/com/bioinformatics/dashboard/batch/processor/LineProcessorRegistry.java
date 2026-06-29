@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Manages operations and logic for LineProcessorRegistry.
+ */
 @Component
 @Slf4j
 public class LineProcessorRegistry {

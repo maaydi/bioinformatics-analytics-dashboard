@@ -12,26 +12,6 @@
   gap: 1rem;
 }
 
-
-.chart-state {
-  margin: 0;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  background: #f9fafb;
-  color: #374151;
-
-  p {
-    margin: 0 0 0.75rem;
-  }
-}
-
-.chart-state-error {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-}
-
 .ratio-layout {
   display: flex;
   flex-direction: column;
@@ -41,7 +21,7 @@
 }
 
 .donut-svg {
-  filter: drop-shadow(0 2px 8px rgba(21, 101, 192, 0.25));
+  filter: drop-shadow(0 2px 8px var(--accent-blue-shadow));
 }
 
 .legend-list {
@@ -56,7 +36,7 @@
   align-items: center;
   gap: 0.625rem;
   font-size: 0.875rem;
-  color: #1a1a1a;
+  color: var(--color-on-surface);
   font-weight: 500;
 }
 
@@ -69,12 +49,12 @@
 }
 
 .reviewed .legend-dot {
-  background: #1565c0;
+  background: var(--accent-blue);
 }
 
 .unreviewed .legend-dot {
-  background: #93c5fd;
-  border: 1px solid #bfdbfe;
+  background: var(--accent-blue-light);
+  border: 1px solid var(--accent-blue-lighter-border);
 }
 
 .legend-button {
@@ -87,15 +67,15 @@
   transition: background-color 150ms ease-in-out;
 
   &:hover {
-    background-color: rgba(21, 101, 192, 0.08);
+    background-color: var(--accent-blue-hover-bg);
   }
 
   &:active {
-    background-color: rgba(21, 101, 192, 0.12);
+    background-color: var(--accent-blue-active-bg);
   }
 
   &:focus-visible {
-    outline: 2px solid #1565c0;
+    outline: 2px solid var(--accent-blue);
     outline-offset: 2px;
   }
 }

@@ -56,11 +56,11 @@ var
 )
 
 // Special (Preserved)
-$color-evidence-green: #2e7d32;
-$color-evidence-orange: #e65100;
-$color-evidence-red: #c62828;
-$color-reviewed-bg: #e8f5e9;
-$color-keyword-bg: #eef2ff;
+$color-evidence-high: #2e7d32;
+$color-evidence-medium: #e65100;
+$color-evidence-low: #c62828;
+$color-success-bg: #e8f5e9;
+$color-accent-bg: #eef2ff;
 ```
 
 ## Spacing Tokens

@@ -19,16 +19,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for saved filter sets.
+ * REST Controller responsible for persisting and managing user-specific filter variants.
  *
- * <p>Contract: documentation/api-contract.md §4 — Saved Filters Endpoints.
+ * <p>Allows authenticated users to save their current complex filter state and retrieve it
+ * later, enabling reproducible analytic workflows.</p>
  * <ul>
- *   <li>{@code GET    /api/saved-filters}      — list own saved filters</li>
- *   <li>{@code POST   /api/saved-filters}      — create a saved filter</li>
- *   <li>{@code DELETE /api/saved-filters/{id}} — delete (own only; ADMIN may delete any)</li>
+ *   <li>{@code GET    /api/saved-filters}      — lists paginated saved filters belonging to the active user</li>
+ *   <li>{@code POST   /api/saved-filters}      — stores a new named snapshot of the current filter parameters</li>
+ *   <li>{@code DELETE /api/saved-filters/{id}} — safely destroys a saved filter belonging to the issuer</li>
  * </ul>
  *
- * <p>Authorization: USER and ADMIN (users may only access their own filters).
+ * <p>Security dictates that standard users can interact only with their own saved configurations
+ * scoped per {@code AppUser.id}. Handled functionally by {@link SavedFilterService}.</p>
  */
 @RestController
 @RequestMapping("/api/saved-filters")

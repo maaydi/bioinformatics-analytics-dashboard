@@ -15,6 +15,9 @@ import java.util.UUID;
 
 import static com.bioinformatics.dashboard.job.dto.Constants.IMPORT_JOB_ID;
 
+/**
+ * Manages operations and logic for UniprotAsyncExceptionHandler.
+ */
 @Component
 @RequiredArgsConstructor
 public class UniprotAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {

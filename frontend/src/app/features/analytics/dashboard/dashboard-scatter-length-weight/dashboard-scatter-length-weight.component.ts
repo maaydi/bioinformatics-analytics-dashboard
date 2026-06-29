@@ -7,6 +7,7 @@ import {
   inject,
   input,
   model,
+  PLATFORM_ID,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {MatIcon} from '@angular/material/icon';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {isPlatformBrowser} from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-scatter-length-weight',
@@ -128,10 +130,13 @@ export class DashboardScatterLengthWeightComponent {
   private chartSub?: Subscription;
   private readonly genesStore = inject(GenesStore);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     effect(() => {
-      this.loadChartData();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadChartData();
+      }
     });
   }
 

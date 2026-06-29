@@ -56,7 +56,7 @@ export class DashboardEvidenceLevelsPieChartComponent extends AbstractDashboardE
       const slicePercentage = (item.count / total) * 100;
       accumulatedPercentage += slicePercentage;
 
-      const colorVar = `var(--${this.toColorClass(item.evidenceLevel)})`;
+      const colorVar = `var(--evidence-level-${item.evidenceLevel})`;
       return `${colorVar} ${start.toFixed(2)}% ${accumulatedPercentage.toFixed(2)}%`;
     });
 

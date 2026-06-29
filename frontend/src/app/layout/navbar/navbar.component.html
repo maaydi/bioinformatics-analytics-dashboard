@@ -1,4 +1,4 @@
-<mat-toolbar aria-label="Primary navigation" color="primary" role="navigation">
+<mat-toolbar aria-label="Primary navigation" class="mat-toolbar" role="navigation">
   <img alt="Bioinformatics Analytics Dashboard logo" class="app-logo" src="/bio_logo.png">
   <span class="app-title">BioInfo Dashboard</span>
   <span class="spacer"></span>
@@ -20,8 +20,21 @@
       <a mat-button routerLink="/admin/import" routerLinkActive="active">Import</a>
     }
   </div>
-
+  <button (click)="themeService.toggle()"
+          [attr.aria-label]="themeService.currentTheme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+          class="theme-toggle-btn"
+          mat-button>
+    @if (themeService.currentTheme() === 'light') {
+      <span class="icon">🌙 Go Dark</span>
+    } @else {
+      <span class="icon">☀️ Go Light</span>
+    }
+  </button>
+  <button (click)="openAccountSettingsDialog()" aria-label="Settings" mat-icon-button title="Account Settings">
+    <mat-icon>account_box</mat-icon>
+  </button>
   <button mat-icon-button (click)="authService.logout()" title="Logout" aria-label="Logout">
     <mat-icon>logout</mat-icon>
   </button>
+
 </mat-toolbar>

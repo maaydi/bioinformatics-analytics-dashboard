@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+/**
+ * Manages operations and logic for TsvUniprotCounter.
+ */
 @Component
 public class TsvUniprotCounter extends AbstractUniprotCounter {
     private static final String EXTENSION = ".tsv";

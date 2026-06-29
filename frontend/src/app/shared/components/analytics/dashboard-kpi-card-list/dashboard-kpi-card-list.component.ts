@@ -1,4 +1,14 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, model, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  model,
+  PLATFORM_ID,
+  signal
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {
@@ -10,6 +20,7 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatButton} from '@angular/material/button';
+import {isPlatformBrowser} from '@angular/common';
 
 
 /**
@@ -41,9 +52,13 @@ export class DashboardKpiCardListComponent {
 
   private kpiSub?: Subscription;
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor() {
     effect(() => {
-      this.loadKpis();
+      if (isPlatformBrowser(this.platformId)) {
+        this.loadKpis();
+      }
     });
   }
 

@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum AuditAction {
     LOGIN(AuditTarget.AUTH),
     LOGOUT(AuditTarget.AUTH),
+    UPDATE_PASSWORD(AuditTarget.AUTH),
     TOKEN_REFRESH(AuditTarget.AUTH),
     FILTER_SAVE(AuditTarget.SAVED_FILTER),
     FILTER_LOAD(AuditTarget.SAVED_FILTER),

@@ -35,7 +35,6 @@ import {formatDate} from '@shared/utils/date-formatter';
  * Data source: GET /api/genes/{id} → ProteinDetail
  * NFR: ≤ 1 s load time (§12.1)
  *
- * TODO: implement in ticket DETAIL-001
  */
 @Component({
   selector: 'app-gene-detail',

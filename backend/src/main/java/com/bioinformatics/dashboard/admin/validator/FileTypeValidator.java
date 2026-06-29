@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Validates uploaded files to ensure their extension matches the allowed list.
+ */
 @Component
 @RequiredArgsConstructor
 public class FileTypeValidator implements ConstraintValidator<ValidFileType, MultipartFile> {

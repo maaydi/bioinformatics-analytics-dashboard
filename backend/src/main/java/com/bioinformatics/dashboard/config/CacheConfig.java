@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.gene.dto.PagedResponse;
 import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.type.TypeFactory;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,6 +37,11 @@ import java.util.List;
 @EnableCaching
 @Profile("!test")
 public class CacheConfig {
+
+
+    @Value("${app.jwt.access-token-expiry-seconds:3600}")
+    private long accessTokenExpirySeconds;
+
 
     /**
      * Creates an ObjectMapper with polymorphic type handling for safe Redis serialization.
@@ -87,10 +94,18 @@ public class CacheConfig {
     @Bean
     public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory connectionFactory) {
         var nonFinalMapper = getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
+        var baseSerializer = RedisSerializationContext.SerializationPair.fromSerializer(
+                new GenericJacksonJsonRedisSerializer(nonFinalMapper));
         var config = createBaseConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJacksonJsonRedisSerializer(nonFinalMapper)));
-        return RedisCacheManager.builder(connectionFactory).cacheDefaults(config).build();
+                .serializeValuesWith(baseSerializer);
+        var customSpecs = new HashMap<String, RedisCacheConfiguration>();
+        customSpecs.put("refresh-tokens", createBaseConfig()
+                .serializeValuesWith(baseSerializer)
+                .entryTtl(Duration.ofSeconds(accessTokenExpirySeconds)));
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .withInitialCacheConfigurations(customSpecs)
+                .build();
     }
 
     /**

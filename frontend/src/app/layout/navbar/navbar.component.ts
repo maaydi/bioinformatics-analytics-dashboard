@@ -2,8 +2,11 @@ import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import {RouterLink, RouterLinkActive} from '@angular/router';
+import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {AuthService} from '@core/services/auth.service';
+import {ThemeService} from '@core/services/theme.service';
+import {MatDialog} from '@angular/material/dialog';
+import {AccountSettingsComponent} from '@shared/components/account-settings/account-settings.component';
 
 /**
  * Top navigation bar.
@@ -19,4 +22,23 @@ import {AuthService} from '@core/services/auth.service';
 })
 export class NavbarComponent {
   readonly authService = inject(AuthService);
+  protected readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
+
+  constructor(private dialog: MatDialog) {
+  }
+
+  protected openAccountSettingsDialog() {
+    const dialogRef = this.dialog.open(AccountSettingsComponent, {
+      width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe((response: { success: boolean } | null) => {
+      if (response?.success) {
+        this.router.navigate(['/login']).then(() => {
+          console.log('Navigated to /login after password change');
+        });
+      }
+    });
+  }
 }

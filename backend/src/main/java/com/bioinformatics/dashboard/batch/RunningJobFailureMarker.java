@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Manages operations and logic for RunningJobFailureMarker.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

@@ -1,18 +1,25 @@
 <section [attr.aria-busy]="loading()" class="table-wrapper">
-  <ag-grid-angular
-    (gridReady)="onGridReady($event)"
-    (gridSizeChanged)="onGridSizeChanged($event)"
-    (rowClicked)="onGridRowClicked($event)"
-    (sortChanged)="onGridSortChanged($event)"
-    [animateRows]="true"
-    [columnDefs]="columnDefs"
-    [defaultColDef]="defaultColDef"
-    [rowData]="rows()"
-    [rowSelection]="rowSelection"
-    [suppressCellFocus]="false"
-    aria-label="Gene explorer results"
-    class="ag-theme-quartz gene-grid"
-  ></ag-grid-angular>
+  @defer (on immediate) {
+    <ag-grid-angular
+      (gridReady)="onGridReady($event)"
+      (gridSizeChanged)="onGridSizeChanged($event)"
+      (rowClicked)="onGridRowClicked($event)"
+      (sortChanged)="onGridSortChanged($event)"
+      [animateRows]="true"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [rowData]="rows()"
+      [rowSelection]="rowSelection"
+      [suppressCellFocus]="false"
+      aria-label="Gene explorer results"
+      class="ag-theme-quartz gene-grid"
+    ></ag-grid-angular>
+  } @placeholder {
+    <div aria-live="polite" class="state-overlay">
+      <p class="table-state">Loading proteins...</p>
+    </div>
+  }
+
 
   @if (loading()) {
     <div aria-live="polite" class="state-overlay">

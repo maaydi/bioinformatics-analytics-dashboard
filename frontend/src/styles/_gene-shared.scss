@@ -15,15 +15,15 @@
   justify-content: center;
 
   &.is-reviewed {
-    background-color: ds.$color-reviewed-bg;
-    color: ds.$color-reviewed-text;
-    border-color: rgba(46, 125, 50, 0.2);
+    background-color: ds.$color-success-bg;
+    color: ds.$color-success-text;
+    border-color: var(--status-green-border);
   }
 
   &.not-reviewed {
-    background-color: ds.$color-not-reviewed-bg;
-    color: ds.$color-not-reviewed-text;
-    border-color: rgba(230, 81, 0, 0.2);
+    background-color: ds.$color-warning-bg;
+    color: ds.$color-warning-text;
+    border-color: var(--status-orange-border);
   }
 }
 
@@ -38,23 +38,23 @@
   flex-shrink: 0;
 
   &.level-1, &.level-2 {
-    border-color: ds.$color-evidence-green;
-    color: ds.$color-evidence-green;
+    border-color: ds.$color-evidence-high;
+    color: ds.$color-evidence-high;
   }
 
   &.level-3 {
-    border-color: ds.$color-evidence-orange;
-    color: ds.$color-evidence-orange;
+    border-color: ds.$color-evidence-medium;
+    color: ds.$color-evidence-medium;
   }
 
   &.level-4, &.level-5 {
-    border-color: ds.$color-evidence-red;
-    color: ds.$color-evidence-red;
+    border-color: ds.$color-evidence-low;
+    color: ds.$color-evidence-low;
   }
 
   &.level-undefined {
-    border-color: ds.$color-evidence-undefined;
-    color: ds.$color-evidence-undefined;
+    border-color: ds.$color-evidence-unknown;
+    color: ds.$color-evidence-unknown;
   }
 }
 

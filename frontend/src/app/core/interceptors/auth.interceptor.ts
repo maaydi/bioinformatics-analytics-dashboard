@@ -1,6 +1,7 @@
-import { inject } from '@angular/core';
-import { HttpInterceptorFn } from '@angular/common/http';
-import { AuthService } from '../services/auth.service';
+import {inject} from '@angular/core';
+import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
+import {AuthService} from '../services/auth.service';
+import {catchError, switchMap, throwError} from 'rxjs';
 
 /**
  * Functional HTTP interceptor — attaches the JWT Bearer token to every
@@ -17,10 +18,27 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (token && req.url.includes('/api')) {
     req = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
+      setHeaders: {Authorization: `Bearer ${token}`},
     });
   }
 
-  // TODO: handle 401 responses — trigger token refresh or redirect to login
-  return next(req);
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !req.url.includes('/api/auth/refresh')) {
+        return authService.refresh().pipe(
+          switchMap((tokenResponse) => {
+            const retriedReq = req.clone({
+              setHeaders: {Authorization: `Bearer ${tokenResponse.accessToken}`},
+            });
+            return next(retriedReq);
+          }),
+          catchError((refreshError) => {
+            authService.logout();
+            return throwError(() => refreshError);
+          }),
+        );
+      }
+      return throwError(() => error);
+    }),
+  );
 };

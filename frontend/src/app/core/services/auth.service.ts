@@ -2,9 +2,17 @@ import {isPlatformBrowser} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {Inject, inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {Router} from '@angular/router';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {BehaviorSubject, catchError, map, Observable, of, tap} from 'rxjs';
 import {environment} from '@env/environment';
-import {JwtPayload, LoginRequest, TokenResponse, UserRole} from '../models/auth.model';
+import {
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  JwtPayload,
+  LoginRequest,
+  TokenResponse,
+  UserRole
+} from '../models/auth.model';
+import {NotificationService} from '@shared/directive/notification.service';
 
 /**
  * Authentication service — manages JWT tokens and user session state.
@@ -18,14 +26,15 @@ import {JwtPayload, LoginRequest, TokenResponse, UserRole} from '../models/auth.
  * @see documentation/api-contract.md §5 — Authentication Endpoints
  * @see documentation/validation-rules.md §4 — Authentication Rules
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly notify = inject(NotificationService);
   private readonly router = inject(Router);
 
   private readonly baseUrl = `${environment.apiBaseUrl}/auth`;
 
-  private isBrowser: boolean;
+  private readonly isBrowser: boolean;
   private readonly _isAuthenticated$: BehaviorSubject<boolean>;
   readonly isAuthenticated$: Observable<boolean>;
 
@@ -45,17 +54,27 @@ export class AuthService {
   refresh(): Observable<TokenResponse> {
     const refreshToken = this.isBrowser ? sessionStorage.getItem('refreshToken') : null;
     return this.http
-      .post<TokenResponse>(`${this.baseUrl}/refresh`, { refreshToken })
+      .post<TokenResponse>(`${this.baseUrl}/refresh`, {refreshToken})
       .pipe(tap((tokens) => this.storeTokens(tokens)));
   }
 
   logout(): void {
     if (this.isBrowser) {
-      sessionStorage.removeItem('accessToken');
-      sessionStorage.removeItem('refreshToken');
+      this.http.post<TokenResponse>(`${this.baseUrl}/logout`, {}).subscribe({
+        next: () => {
+          this.notify.success('Logged out successfully');
+          this.clearTokens();
+        },
+        error: (err) => {
+          this.notify.error(`Logout failed: ${err}`);
+          this.clearTokens();
+        },
+      });
     }
     this._isAuthenticated$.next(false);
-    this.router.navigate(['/login']);
+    this.router
+      .navigate(['/login'])
+      .then((r) => console.log('Navigated to /login after logout:', r));
   }
 
   getAccessToken(): string | null {
@@ -66,12 +85,34 @@ export class AuthService {
     return this.extractRoles().includes('ROLE_ADMIN');
   }
 
+  changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    if (!this.isBrowser) {
+      return of({success: false, message: 'Not running in a browser environment'});
+    }
+    return this.http.put<ChangePasswordResponse>(`${this.baseUrl}/password`, data).pipe(
+      map((response) => {
+        this.notify.success('Password changed successfully');
+        this.clearTokens();
+        return response;
+      }),
+      catchError((err) => {
+        this.notify.error(`Failed to change password: ${err.message || err}`);
+        return of({success: false, message: err.message || 'Unknown error'});
+      }),
+    );
+  }
+
   private storeTokens(tokens: TokenResponse): void {
     if (this.isBrowser) {
       sessionStorage.setItem('accessToken', tokens.accessToken);
       sessionStorage.setItem('refreshToken', tokens.refreshToken);
     }
     this._isAuthenticated$.next(true);
+  }
+
+  private clearTokens(): void {
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
   }
 
   private hasValidToken(): boolean {

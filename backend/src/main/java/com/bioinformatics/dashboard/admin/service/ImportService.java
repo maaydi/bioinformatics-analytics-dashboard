@@ -33,6 +33,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Orchestrates the execution of asynchronous UniProt import jobs.
+ * Enforces single-job concurrency and validates files before delegating to Spring Batch.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

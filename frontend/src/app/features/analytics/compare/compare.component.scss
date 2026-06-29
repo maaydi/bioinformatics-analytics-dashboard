@@ -132,8 +132,8 @@
     }
 
     .result-count {
-      background-color: ds.$color-reviewed-bg;
-      color: ds.$color-reviewed-text;
+      background-color: ds.$color-success-bg;
+      color: ds.$color-success-text;
       padding: ds.$spacing-sm ds.$spacing-md;
       border-radius: ds.$border-radius-full;
       @include ds.text-label-sm;
@@ -215,8 +215,8 @@
 }
 
 .error-state {
-  background-color: ds.$color-not-reviewed-bg;
-  border: ds.$border-width-thin solid ds.$color-not-reviewed-text;
+  background-color: ds.$color-warning-bg;
+  border: ds.$border-width-thin solid ds.$color-warning-text;
   border-radius: ds.$border-radius-sm;
   padding: ds.$spacing-lg;
 

@@ -29,7 +29,7 @@
   gap: 1.25rem;
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: #4b5563;
+  color: var(--chart-legend-text);
 }
 
 .legend-item {
@@ -42,7 +42,7 @@
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  background: #64748b; // Generic color for the legend key
+  background: var(--chart-legend-key); // Generic color for the legend key
 }
 
 .primary-legend-indicator {
@@ -51,15 +51,6 @@
 
 .secondary-legend-indicator {
   opacity: 0.4;
-}
-
-.chart-state {
-  margin: 0;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  background: #f9fafb;
-  color: #374151;
 }
 
 .rows {
@@ -76,7 +67,7 @@
 .row-label {
   margin: 0;
   font-size: 0.8125rem;
-  color: #1a1a1a;
+  color: var(--color-on-surface);
   font-weight: 500;
 }
 
@@ -90,8 +81,8 @@
   flex: 1 1 0;
   height: 0.5rem; // Slimmer than the single chart to accommodate two bars per level
   border-radius: 999px;
-  background: #e8edf7;
-  border: 1px solid #d1d9ef;
+  background: var(--compare-row-track-bg);
+  border: 1px solid var(--compare-row-track-border);
   overflow: hidden;
 }
 
@@ -116,32 +107,32 @@
   width: 68px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--chart-text-color);
   text-align: right;
   white-space: nowrap;
 }
 
 // Per-level colors
 .level-l1 {
-  background: #2e7d32;
+  background: var(--evidence-level-1);
 }
 
 .level-l2 {
-  background: #388e3c;
+  background: var(--evidence-level-2);
 }
 
 .level-l3 {
-  background: #e65100;
+  background: var(--evidence-level-3);
 }
 
 .level-l4 {
-  background: #c62828;
+  background: var(--evidence-level-4);
 }
 
 .level-l5 {
-  background: #676767;
+  background: var(--evidence-level-5);
 }
 
 .level-other {
-  background: #334155;
+  background: var(--evidence-level-other);
 }
