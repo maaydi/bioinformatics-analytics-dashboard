@@ -66,7 +66,4 @@ public class ImportController {
         return service.getImportJobStatus(jobId);
     }
 
-    // TODO add cancel import
-
-
 }
