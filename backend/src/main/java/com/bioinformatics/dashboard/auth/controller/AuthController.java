@@ -13,15 +13,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for authentication endpoints (public — no JWT required).
+ * REST Controller responsible for public authentication endpoints.
  *
- * <p>Contract: documentation/api-contract.md §5 — Authentication Endpoints.
+ * <p>Handles standard user authentication flows, producing JWT pairs for authenticated sessions.
+ * Important: These APIs are exposed globally and do not require existing authentication headers.</p>
  * <ul>
- *   <li>{@code POST /api/auth/login}   — credentials → JWT pair</li>
- *   <li>{@code POST /api/auth/refresh} — refresh token → new JWT pair</li>
+ *   <li>{@code POST /api/auth/login}   — Exchanges user credentials for an active token response</li>
+ *   <li>{@code POST /api/auth/refresh} — Exchanges a valid refresh token for a new set of tokens</li>
+ *   <li>{@code GET /api/auth/me}      — Fetch current authenticated user info</li>
  * </ul>
  *
- * <p>Validation rules: documentation/validation-rules.md §4.
+ * <p>Consult detailed restrictions in {@code documentation/validation-rules.md} and payloads inside {@code documentation/api-contract.md}.
+ * Delegates underlying user management and encryption logic to the {@link AuthService}.</p>
  */
 @RestController
 @RequestMapping("/api/auth")

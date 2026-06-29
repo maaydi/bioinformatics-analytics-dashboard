@@ -17,9 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Manages UniProt import operations for admin users.
- * Enforces ROLE_ADMIN access and delegates to the import orchestration layer.
- * Consult documentation/api-contract.md for endpoint specifications.
+ * REST Controller for managing UniProt batch import operations.
+ * <p>
+ * Exposes endpoints to trigger large-scale data imports and monitor job status.
+ * Access is restricted to users with the ROLE_ADMIN authority.
+ * Delegates orchestration of Spring Batch jobs to the {@link ImportService}.
+ * Consult {@code documentation/api-contract.md} for detailed endpoint specifications.
+ * </p>
  */
 @RestController
 @RequestMapping("/api/admin/import")

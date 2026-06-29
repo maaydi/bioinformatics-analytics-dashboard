@@ -20,8 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST controller for dynamic analytics charting.
- * Resolves analytics by applying JPA Specifications against raw tables, matching the provided filters.
+ * REST Controller providing dynamic analytics endpoints supporting user-defined filters.
+ *
+ * <p>Unlike the static analytics controller which hits materialized views, this controller
+ * relies on Spring Data JPA Specifications built dynamically from user requests, thereby
+ * returning aggregated analytical data corresponding exactly to the provided query parameters.</p>
+ *
+ * <p>Delegates calculation and projection to the {@link FilteredAnalyticsService}.
+ * Strict payload schemas follow {@code documentation/api-contract.md}.</p>
  */
 @RestController
 @Validated

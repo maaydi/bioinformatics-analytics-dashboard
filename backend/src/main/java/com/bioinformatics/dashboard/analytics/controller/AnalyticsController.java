@@ -19,8 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * REST controller for static analytics charts.
- * Exposes fast endpoints powered by pre-aggregated PostgreSQL materialized views.
+ * REST Controller serving static, highly performant analytics and KPIs.
+ *
+ * <p>All endpoints within this controller rely heavily on PostgreSQL materialized views
+ * populated during the batch import process, allowing for fast, pre-computed dashboard metrics
+ * handling hundreds of megabytes of relational data under 500ms.</p>
+ *
+ * <p>Delegates query retrieval to the {@link AnalyticsService}. Accessible to users
+ * holding either USER or ADMIN authority.</p>
  */
 @RestController
 @Validated

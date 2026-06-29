@@ -23,18 +23,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * REST controller for gene/protein endpoints.
+ * REST Controller providing APIs for retrieving and exporting gene/protein data.
  *
- * <p>Contract: documentation/api-contract.md §1 — Gene / Protein Endpoints.
+ * <p>Exposed endpoints include:</p>
  * <ul>
- *   <li>{@code GET  /api/genes}             — paginated list</li>
- *   <li>{@code POST /api/genes/search}       — search + multi-filter</li>
- *   <li>{@code GET  /api/genes/{id}}         — full protein detail</li>
- *   <li>{@code POST /api/genes/export-csv}   — CSV export</li>
+ *   <li>{@code GET  /api/genes}             — paginated basic list of genes</li>
+ *   <li>{@code POST /api/genes/search}      — sophisticated querying via dynamic multi-filtering</li>
+ *   <li>{@code GET  /api/genes/{id}}        — fetches deep, related details for a specific protein</li>
+ *   <li>{@code GET /api/genes/export-csv}   — exports search results to CSV format</li>
  * </ul>
  *
- * <p>Authorization: USER and ADMIN (see SecurityConfig).
- * Controllers are intentionally thin — all business logic lives in {@link GeneService}.
+ * <p>All endpoints enforce at least standard {@code USER} roles. Architecture dictates that this
+ * controller remains thin, delegating complex Specification building and dataset projections to the
+ * underlying {@link GeneService}. Check {@code documentation/api-contract.md} for strict contract schemas.</p>
  */
 @RestController
 @RequestMapping("/api/genes")
