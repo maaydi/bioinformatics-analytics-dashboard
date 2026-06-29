@@ -15,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Manages operations and logic for AuditService.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional

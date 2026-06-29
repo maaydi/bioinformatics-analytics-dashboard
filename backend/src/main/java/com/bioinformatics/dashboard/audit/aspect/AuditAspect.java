@@ -22,6 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * Manages operations and logic for AuditAspect.
+ */
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -32,17 +35,16 @@ public class AuditAspect {
 
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
-
-    @AfterReturning(
-            pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
-            returning = "result"
-    )
     /**
      * Handles successful method executions annotated with {@code @Auditable} and records a success audit.
      *
      * @param joinPoint the join point of the executed method
      * @param result the returned value from the method (may be {@code null})
      */
+    @AfterReturning(
+            pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
+            returning = "result"
+    )
     public void auditSuccess(JoinPoint joinPoint, Object result) {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;
@@ -53,17 +55,16 @@ public class AuditAspect {
         var targetId = evaluateSPEL(joinPoint, auditable.targetId(), result);
         recordAudit(auditable, targetId, AuditStatus.SUCCESS);
     }
-
-    @AfterThrowing(
-            pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
-            throwing = "ex"
-    )
     /**
      * Handles exceptions thrown by methods annotated with {@code @Auditable} and records a failure audit.
      *
      * @param joinPoint the join point of the executed method
      * @param ex the exception that was thrown
      */
+    @AfterThrowing(
+            pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
+            throwing = "ex"
+    )
     public void auditFailure(JoinPoint joinPoint, Exception ex) {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;

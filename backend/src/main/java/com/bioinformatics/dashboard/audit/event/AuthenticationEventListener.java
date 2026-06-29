@@ -13,6 +13,9 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
 
+/**
+ * Manages operations and logic for AuthenticationEventListener.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

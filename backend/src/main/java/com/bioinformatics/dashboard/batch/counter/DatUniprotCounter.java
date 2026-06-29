@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+/**
+ * Manages operations and logic for DatUniprotCounter.
+ */
 @Component
 public class DatUniprotCounter extends AbstractUniprotCounter {
     private static final String DELIMITER = "//";

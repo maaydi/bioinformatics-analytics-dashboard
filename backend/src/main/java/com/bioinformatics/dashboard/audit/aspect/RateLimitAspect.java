@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages operations and logic for RateLimitAspect.
+ */
 @Aspect
 @Component
 @RequiredArgsConstructor

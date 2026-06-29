@@ -5,6 +5,9 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Manages operations and logic for UniProtImportJobParameters.
+ */
 @Component
 @StepScope
 @Getter
