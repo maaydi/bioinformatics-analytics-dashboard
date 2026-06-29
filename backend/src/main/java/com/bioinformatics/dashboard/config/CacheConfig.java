@@ -94,11 +94,14 @@ public class CacheConfig {
     @Bean
     public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory connectionFactory) {
         var nonFinalMapper = getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
+        var baseSerializer = RedisSerializationContext.SerializationPair.fromSerializer(
+                new GenericJacksonJsonRedisSerializer(nonFinalMapper));
         var config = createBaseConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJacksonJsonRedisSerializer(nonFinalMapper)));
+                .serializeValuesWith(baseSerializer);
         var customSpecs = new HashMap<String, RedisCacheConfiguration>();
-        customSpecs.put("refresh-tokens", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(accessTokenExpirySeconds)));
+        customSpecs.put("refresh-tokens", createBaseConfig()
+                .serializeValuesWith(baseSerializer)
+                .entryTtl(Duration.ofSeconds(accessTokenExpirySeconds)));
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .withInitialCacheConfigurations(customSpecs)
