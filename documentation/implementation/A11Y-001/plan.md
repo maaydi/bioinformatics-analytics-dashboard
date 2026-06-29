@@ -20,12 +20,12 @@
 - [x] WCAG AA contrast verified and fixed
 - [x] Keyboard navigation audited and fixed
 - [x] PUT /api/auth/password implemented
-- [ ] Password change form implemented
-- [ ] axe-core e2e configured
-- [ ] Unit tests written
-- [ ] Documentation updated
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] Password change form implemented
+- [x] axe-core e2e configured
+- [x] Unit tests written
+- [x] Documentation updated
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
 
 ---
 
@@ -80,19 +80,19 @@
 
 ### E2E — axe-core
 
-- [ ] Install `@axe-core/playwright` as a dev dependency
-- [ ] Add `axe-smoke.spec.ts` that visits each main route and runs axe; fails on severity ≥ "serious"
-- [ ] Register in CI pipeline (`package.json` scripts or GitHub Actions)
+- [x] Install `@axe-core/playwright` as a dev dependency
+- [x] Add `axe-smoke.spec.ts` that visits each main route and runs axe; fails on severity ≥ "serious"
+- [x] Register in CI pipeline (`package.json` scripts or GitHub Actions)
 
 ### Tests
 
-- [ ] `ThemeService` unit tests:
-    - [ ] Initial theme loaded from `localStorage`
-    - [ ] `toggle()` flips theme and updates `localStorage`
+- [x] `ThemeService` unit tests:
+  - [x] Initial theme loaded from `localStorage`
+  - [x] `toggle()` flips theme and updates `localStorage`
 
 ### General
 
-- [ ] This ticket is the last milestone — all other tickets should be complete before E2E axe sweep
-- [ ] `rel="noopener noreferrer"` on all `target="_blank"` links (security)
-- [ ] Code reviewed
-- [ ] Coverage ≥ 80%
+- [x] This ticket is the last milestone — all other tickets should be complete before E2E axe sweep
+- [x] `rel="noopener noreferrer"` on all `target="_blank"` links (security)
+- [x] Code reviewed
+- [x] Coverage ≥ 80%
