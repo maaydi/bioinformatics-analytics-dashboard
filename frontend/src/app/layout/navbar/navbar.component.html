@@ -20,7 +20,8 @@
       <a mat-button routerLink="/admin/import" routerLinkActive="active">Import</a>
     }
   </div>
-  <button (click)="themeService.toggle()" [attr.aria-label]="themeService.currentTheme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+  <button (click)="themeService.toggle()"
+          [attr.aria-label]="themeService.currentTheme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
           class="theme-toggle-btn"
           mat-button>
     @if (themeService.currentTheme() === 'light') {
@@ -28,6 +29,9 @@
     } @else {
       <span class="icon">☀️ Go Light</span>
     }
+  </button>
+  <button (click)="openAccountSettingsDialog()" aria-label="Settings" mat-icon-button title="Account Settings">
+    <mat-icon>account_box</mat-icon>
   </button>
   <button mat-icon-button (click)="authService.logout()" title="Logout" aria-label="Logout">
     <mat-icon>logout</mat-icon>

@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>Account settings</h2>
+<form (ngSubmit)="onSubmit()" [formGroup]="form" aria-label="Account settings form">
+  <mat-dialog-content>
+    <h3 class="subtitle">Change password</h3>
+
+    @if (error()) {
+      <div class="error-banner">{{ error() }}</div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Current password</mat-label>
+      <input formControlName="currentPassword" matInput placeholder="Enter current password" type="password"/>
+      @if (form.controls.currentPassword.touched && form.controls.currentPassword.hasError('required')) {
+        <mat-error>Current password is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>New password</mat-label>
+      <input formControlName="newPassword" matInput placeholder="Enter new password" type="password"/>
+      @if (form.controls.newPassword.touched && form.controls.newPassword.hasError('required')) {
+        <mat-error>New password is required.</mat-error>
+      } @else if (form.controls.newPassword.touched && form.controls.newPassword.hasError('pattern')) {
+        <mat-error>Password must be at least 12 characters, with uppercase, lowercase, and numbers.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Confirm new password</mat-label>
+      <input formControlName="confirmPassword" matInput placeholder="Confirm new password" type="password"/>
+      @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
+        <mat-error>Please confirm your new password.</mat-error>
+      } @else if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+        <mat-error>Passwords do not match.</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button (click)="onCancel()" mat-button type="button">Cancel</button>
+    <button [disabled]="form.invalid" color="primary" mat-flat-button type="submit">Update</button>
+  </mat-dialog-actions>
+</form>

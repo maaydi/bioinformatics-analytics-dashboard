@@ -71,12 +71,12 @@
 
 ### Frontend — Password Change Form
 
-- [ ] New route `/profile` or `/settings` (or modal from navbar)
-- [ ] `ChangePasswordComponent` — reactive form: `currentPassword`, `newPassword`, `confirmPassword`
-- [ ] Cross-field validator: `newPassword === confirmPassword`
-- [ ] Client-side complexity rules displayed as inline hints (show/fail on blur)
-- [ ] On success: show toast "Password changed. Please log in again." → call `AuthService.logout()`
-- [ ] On wrong current password: show inline error "Current password is incorrect"
+- [x] New route `/profile` or `/settings` (or modal from navbar)
+- [x] `ChangePasswordComponent` — reactive form: `currentPassword`, `newPassword`, `confirmPassword`
+- [x] Cross-field validator: `newPassword === confirmPassword`
+- [x] Client-side complexity rules displayed as inline hints (show/fail on blur)
+- [x] On success: show toast "Password changed. Please log in again." → call `AuthService.logout()`
+- [x] On wrong current password: show inline error "Current password is incorrect"
 
 ### E2E — axe-core
 

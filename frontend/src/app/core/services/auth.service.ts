@@ -2,9 +2,16 @@ import {isPlatformBrowser} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {Inject, inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {Router} from '@angular/router';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {BehaviorSubject, catchError, map, Observable, of, tap} from 'rxjs';
 import {environment} from '@env/environment';
-import {JwtPayload, LoginRequest, TokenResponse, UserRole} from '../models/auth.model';
+import {
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  JwtPayload,
+  LoginRequest,
+  TokenResponse,
+  UserRole
+} from '../models/auth.model';
 import {NotificationService} from '@shared/directive/notification.service';
 
 /**
@@ -76,6 +83,23 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.extractRoles().includes('ROLE_ADMIN');
+  }
+
+  changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    if (!this.isBrowser) {
+      return of({success: false, message: 'Not running in a browser environment'});
+    }
+    return this.http.put<ChangePasswordResponse>(`${this.baseUrl}/password`, data).pipe(
+      map((response) => {
+        this.notify.success('Password changed successfully');
+        this.clearTokens();
+        return response;
+      }),
+      catchError((err) => {
+        this.notify.error(`Failed to change password: ${err.message || err}`);
+        return of({success: false, message: err.message || 'Unknown error'});
+      }),
+    );
   }
 
   private storeTokens(tokens: TokenResponse): void {

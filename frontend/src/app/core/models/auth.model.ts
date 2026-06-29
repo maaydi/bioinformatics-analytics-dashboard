@@ -30,3 +30,13 @@ export interface JwtPayload {
 }
 
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN';
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: String;
+}
+
+export interface ChangePasswordRequest {
+  newPassword: string;
+  currentPassword: string;
+}
