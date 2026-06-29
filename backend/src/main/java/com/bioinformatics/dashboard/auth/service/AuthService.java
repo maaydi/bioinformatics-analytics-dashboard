@@ -25,8 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Authentication service.
  *
  * <ul>
- *   <li>Login: delegates to Spring Security {@link AuthenticationManager}, then issues JWT pair.</li>
- *   <li>Refresh: validates the refresh token type and expiry, then issues a new JWT pair.</li>
+ * <li>Login: delegates to Spring Security {@link AuthenticationManager}, then issues JWT pair.</li>
+ * <li>Refresh: validates the refresh token type and expiry, then issues a new JWT pair.</li>
+ * <li>Logout: evicts the user's cached refresh token and clears the security context.</li>
  * </ul>
  *
  * @see <a href="{@docRoot}/documentation/api-contract.md">API Contract §5</a>
@@ -83,7 +84,6 @@ public class AuthService {
             throw new BadCredentialsException("Invalid or expired refresh token");
         }
 
-
         return buildTokenResponse(userDetails);
     }
 
@@ -115,7 +115,15 @@ public class AuthService {
         }
     }
 
-    // TODO add logout with cache evict
+    /**
+     * Logs out the current user by evicting their refresh token from the cache
+     * and clearing the SecurityContext.
+     */
+    @CacheEvict(value = "refresh-tokens", key = "#currentUser.username")
+    public void logout(AppUser currentUser) {
+        log.info("Logging out user <{}> and evicting refresh token", currentUser.getUsername());
+        SecurityContextHolder.clearContext();
+    }
 
     private TokenResponse buildTokenResponse(UserDetails userDetails) {
         var accessToken = jwtUtil.generateAccessToken(userDetails);

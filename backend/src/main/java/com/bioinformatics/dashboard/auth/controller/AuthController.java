@@ -38,14 +38,22 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @RateLimited(key = "login")
-    @Auditable(action = AuditAction.TOKEN_REFRESH)
+    @Auditable(action = AuditAction.TOKEN_REFRESH, targetId = "#currentUser.username")
     public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request, @AuthenticationPrincipal AppUser currentUser) {
         return ResponseEntity.ok(authService.refresh(request, currentUser));
     }
 
+    @PostMapping("/logout")
+    @RateLimited(key = "login")
+    @Auditable(action = AuditAction.LOGOUT, targetId = "#currentUser.username")
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal AppUser currentUser) {
+        authService.logout(currentUser);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/password")
     @RateLimited(key = "login")
-    @Auditable(action = AuditAction.UPDATE_PASSWORD)
+    @Auditable(action = AuditAction.UPDATE_PASSWORD, targetId = "#currentUser.username")
     public ResponseEntity<ChangePasswordResponse> updatePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal AppUser currentUser) {
         return ResponseEntity.ok(authService.updatePassword(request, currentUser));
     }
