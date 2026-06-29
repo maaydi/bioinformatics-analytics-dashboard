@@ -19,22 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * REST controller for analytics chart endpoints.
- *
- * <p>All endpoints are served from pre-computed PostgreSQL materialized views.
- * See documentation/api-contract.md §2 — Analytics Endpoints.
- *
- * <ul>
- *   <li>{@code GET /api/analytics/dashboard-kpis}       — mv_dashboard_kpis</li>
- *   <li>{@code GET /api/analytics/length-histogram}     — mv_length_histogram</li>
- *   <li>{@code GET /api/analytics/by-organism}          — mv_organism_counts</li>
- *   <li>{@code GET /api/analytics/reviewed-ratio}       — mv_reviewed_ratio</li>
- *   <li>{@code GET /api/analytics/evidence-levels}      — mv_evidence_distribution</li>
- *   <li>{@code GET /api/analytics/keyword-frequency}    — mv_keyword_frequency</li>
- * </ul>
- *
- * <p>Authorization: USER and ADMIN.
- * Response time target: ≤ 500 ms (NFR §12.1).
+ * REST controller for static analytics charts.
+ * Exposes fast endpoints powered by pre-aggregated PostgreSQL materialized views.
  */
 @RestController
 @Validated
@@ -45,6 +31,9 @@ public class AnalyticsController {
 
     private final AnalyticsService service;
 
+    /**
+     * Retrieves top-level dashboard KPIs.
+     */
     @GetMapping("/dashboard-kpis")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -53,6 +42,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(kpis);
     }
 
+    /**
+     * Retrieves the length distribution histogram buckets.
+     */
     @GetMapping("/length-histogram")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -61,6 +53,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(buckets);
     }
 
+    /**
+     * Retrieves organism counts up to the specified limit.
+     */
     @GetMapping("/by-organism")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -72,6 +67,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(count);
     }
 
+    /**
+     * Retrieves the ratio of reviewed to unreviewed proteins.
+     */
     @GetMapping("/reviewed-ratio")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -80,6 +78,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(ratios);
     }
 
+    /**
+     * Retrieves evidence level distributions from experiments to predictions.
+     */
     @GetMapping("/evidence-levels")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -88,6 +89,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(ev);
     }
 
+    /**
+     * Retrieves most frequent keywords.
+     */
     @GetMapping("/keyword-frequency")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)

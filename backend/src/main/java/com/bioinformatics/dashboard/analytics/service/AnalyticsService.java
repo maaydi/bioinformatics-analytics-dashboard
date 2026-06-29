@@ -13,15 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Service for analytics queries.
- *
- * <p>All methods query pre-computed PostgreSQL materialized views.
- * Views are refreshed post-import by {@code UniProtImportJobConfig}.
- *
- * @see <a href="{@docRoot}/documentation/domain-model.md">Materialized Views</a>
- * @see <a href="{@docRoot}/documentation/api-contract.md">Analytics Endpoints</a>
+ * Service for statically pre-aggregated analytics queries.
+ * Driven strictly by PostgreSQL materialized views for high-performance (sub-500ms target).
  */
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -45,6 +39,9 @@ public class AnalyticsService {
     private final KeywordFrequencyRepository keywordFrequencyRepository;
     private final KeywordFrequencyMapper keywordFrequencyMapper;
 
+    /**
+     * @return current dashboard KPIs from cache or materialized record.
+     */
     @Cacheable(value = "dashboardKpis", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis() {
         log.info("Retrieving Dashboard KPIs from materialized view");
@@ -53,6 +50,9 @@ public class AnalyticsService {
         return dashboardKpisMapper.toDto(entity);
     }
 
+    /**
+     * @return bucketed length frequency map natively computed in DB.
+     */
     @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
         log.info("Retrieving Length Histogram from materialized view");
@@ -62,6 +62,10 @@ public class AnalyticsService {
                 .toList();
     }
 
+    /**
+     * @param limit limits response size for high-cardinality taxa mapping
+     * @return global occurrences of organisms sorted descending.
+     */
     @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
         log.info("Retrieving Organism Count from materialized view");
@@ -71,6 +75,9 @@ public class AnalyticsService {
                 .toList();
     }
 
+    /**
+     * @return ratio tracking verified vs newly-found sequences.
+     */
     @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
         log.info("Retrieving Reviewed Ratio from materialized view");
@@ -80,6 +87,9 @@ public class AnalyticsService {
                 .toList();
     }
 
+    /**
+     * @return distribution grouped by evidence confirmation level.
+     */
     @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
         log.info("Retrieving Evidence Levels from materialized view");
@@ -89,6 +99,10 @@ public class AnalyticsService {
                 .toList();
     }
 
+    /**
+     * @param limit limits response size for massive dictionary graphs
+     * @return common trait occurrences over entire domain dataset.
+     */
     @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
         log.info("Retrieving Keyword Frequency from materialized view");

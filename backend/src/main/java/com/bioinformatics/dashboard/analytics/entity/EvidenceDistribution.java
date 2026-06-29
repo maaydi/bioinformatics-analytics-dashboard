@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+/**
+ * Immutable entity mapping to the evidence distribution materialized view.
+ * Facilitates sub-500ms retrieval of evidence categorization counts.
+ */
 @Entity
 @Immutable
 @Table(name = "mv_evidence_distribution")

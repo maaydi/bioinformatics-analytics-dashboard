@@ -17,25 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * REST controller for UniProt import administration.
- *
- * <p>
- * All endpoints are restricted to {@code ROLE_ADMIN}.
- * Contract: documentation/api-contract.md §3 — Import Admin Endpoints.
- *
- * <ul>
- * <li>{@code POST /api/admin/import/uniprot} — trigger import job</li>
- * <li>{@code GET  /api/admin/import/status} — list all jobs</li>
- * <li>{@code GET  /api/admin/import/status/{jobId}} — poll single job</li>
- * </ul>
- *
- * <p>
- * File upload limits:
- * <ul>
- * <li>Max size: 2 GB (enforced by Spring multipart +
- * GlobalExceptionHandler)</li>
- * <li>Accepted types: .dat, .tsv (validated in batch ItemProcessor)</li>
- * </ul>
+ * Manages UniProt import operations for admin users.
+ * Enforces ROLE_ADMIN access and delegates to the import orchestration layer.
+ * Consult documentation/api-contract.md for endpoint specifications.
  */
 @RestController
 @RequestMapping("/api/admin/import")

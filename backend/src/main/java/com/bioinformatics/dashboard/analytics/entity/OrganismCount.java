@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+/**
+ * Immutable entity mapping to the organism occurrences materialized view.
+ * Sidesteps expensive GROUP BY operations on main datasets during global analytics calls.
+ */
 @Entity
 @Immutable
 @Table(name = "mv_organism_counts")

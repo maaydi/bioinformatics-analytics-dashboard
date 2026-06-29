@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * Composite key defining the taxonomy uniqueness constraint (combines Name and TaxID).
+ */
 @RequiredArgsConstructor
 @Getter
 @Setter

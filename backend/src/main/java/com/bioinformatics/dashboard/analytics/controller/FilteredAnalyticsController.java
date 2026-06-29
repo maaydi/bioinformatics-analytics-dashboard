@@ -20,22 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST controller for analytics chart endpoints.
- *
- * <p>All endpoints are served from repository based on GeneSearchRequest.
- * See documentation/api-contract.md §2 — Analytics Endpoints.
- *
- * <ul>
- *   <li>{@code GET /api/analytics/dashboard-kpis}       </li>
- *   <li>{@code GET /api/analytics/length-histogram}     </li>
- *   <li>{@code GET /api/analytics/by-organism}         </li>
- *   <li>{@code GET /api/analytics/reviewed-ratio}       </li>
- *   <li>{@code GET /api/analytics/evidence-levels}      </li>
- *   <li>{@code GET /api/analytics/keyword-frequency}    </li>
- * </ul>
- *
- * <p>Authorization: USER and ADMIN.
- * Response time target: ≤ 500 ms (NFR §12.1).
+ * REST controller for dynamic analytics charting.
+ * Resolves analytics by applying JPA Specifications against raw tables, matching the provided filters.
  */
 @RestController
 @Validated
@@ -46,6 +32,9 @@ public class FilteredAnalyticsController {
 
     private final FilteredAnalyticsService service;
 
+    /**
+     * Calculates top-level KPIs for a filtered subset.
+     */
     @PostMapping("/dashboard-kpis")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -54,6 +43,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(kpis);
     }
 
+    /**
+     * Calculates the length distribution histogram buckets for a filtered subset.
+     */
     @PostMapping("/length-histogram")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -62,6 +54,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(buckets);
     }
 
+    /**
+     * Calculates top organism occurrences for a filtered subset.
+     */
     @PostMapping("/by-organism")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -74,6 +69,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(count);
     }
 
+    /**
+     * Calculates the ratio of reviewed to unreviewed proteins within the filtered subset.
+     */
     @PostMapping("/reviewed-ratio")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -82,6 +80,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(ratios);
     }
 
+    /**
+     * Calculates the distribution of evidence levels within the filtered subset.
+     */
     @PostMapping("/evidence-levels")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -90,6 +91,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(ev);
     }
 
+    /**
+     * Calculates the most frequent keywords for the filtered subset.
+     */
     @PostMapping("/keyword-frequency")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -102,6 +106,9 @@ public class FilteredAnalyticsController {
         return ResponseEntity.ok(keywords);
     }
 
+    /**
+     * Calculates raw protein length distribution, avoiding bucket scaling for granular analysis.
+     */
     @PostMapping("/length-weight")
     @RateLimited(key = "analysis")
     @Auditable(action = AuditAction.DETAIL_VIEW)
@@ -112,10 +119,10 @@ public class FilteredAnalyticsController {
     }
 
     /**
-     * Compares analytics metrics for two distinct filter sets side by side.
+     * Compares analytics metrics for two distinct search requests side by side.
+     * Useful for evaluating differences in metrics between separated groups.
      *
-     * @param request contains two validated filter snapshots (setA, setB)
-     * @return comparative analytics with both subsets' KPIs, distributions, and histograms
+     * @param request encapsulates subsets A and B
      */
     @PostMapping("/compare")
     @RateLimited(key = "analysis")
