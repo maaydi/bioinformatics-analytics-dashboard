@@ -51,6 +51,7 @@ public class AuthService {
      *
      * @throws org.springframework.security.core.AuthenticationException on bad credentials
      */
+    @Cacheable(value = "refresh-tokens", key = "#request.username", cacheManager = "redisNonFinalAndRecordCacheManager")
     public TokenResponse login(LoginRequest request) {
         log.info("User login <{}>", request.username());
         authenticationManager.authenticate(
@@ -113,6 +114,8 @@ public class AuthService {
             throw new PasswordUpdateException("An error occurred while updating the password. Please try again later.", e);
         }
     }
+
+    // TODO add logout with cache evict
 
     private TokenResponse buildTokenResponse(UserDetails userDetails) {
         var accessToken = jwtUtil.generateAccessToken(userDetails);
