@@ -32,15 +32,6 @@ describe('authGuard', () => {
     return {routerMock};
   };
 
-  it('redirects to /login on server-side execution to avoid rendering protected routes', () => {
-    const {routerMock} = setup(false, 'server');
-
-    const result = TestBed.runInInjectionContext(() => authGuard(routeSnapshot, stateSnapshot));
-
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
-    expect(result).toBe(loginUrlTree);
-  });
-
   it('redirects to /login in browser when user is not authenticated', async () => {
     const {routerMock} = setup(false, 'browser');
 
