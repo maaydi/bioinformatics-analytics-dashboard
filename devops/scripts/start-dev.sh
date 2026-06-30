@@ -62,11 +62,8 @@ restart_postgres() {
 
 migrate_flyway(){
   echo "==> [Postgres] Run flyway migration..."
-  cd "$ROOT_DIR/backend"
-  mvn flyway:repair \
-    -Dflyway.url=$SPRING_DATASOURCE_URL \
-    -Dflyway.user=$SPRING_DATASOURCE_USERNAME \
-    -Dflyway.password=$SPRING_DATASOURCE_PASSWORD
+  cd "$ROOT_DIR/devops/scripts"
+  ./db-migrate.sh
   echo "    Migration was executed successfully."
 }
 
