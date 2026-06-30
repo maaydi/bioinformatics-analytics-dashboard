@@ -8,7 +8,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 echo "==> Building Spring Boot backend..."
 cd "$ROOT_DIR/backend"
-./mvnw clean package -DskipTests -q
+mvn clean package -DskipTests -q
 echo "    Backend JAR: backend/target/dashboard-*.jar"
 
 echo "==> Installing frontend dependencies..."
