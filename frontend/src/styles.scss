@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @use "design-system" as ds;
+@use "theme-variables";
 
 @import 'ag-grid-community/styles/ag-grid.css';
 @import 'ag-grid-community/styles/ag-theme-quartz.css';
