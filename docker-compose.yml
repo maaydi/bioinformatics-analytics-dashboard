@@ -7,15 +7,15 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      POSTGRES_DB:       ${POSTGRES_DB}
-      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,15 +51,15 @@ services:
     env_file: .env
     environment:
       # Database configuration
-      SPRING_DATASOURCE_URL:      ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       # JWT configuration
-      JWT_SECRET:                 ${JWT_SECRET}
-      JWT_ACCESS_TOKEN_EXPIRY_SECONDS:  ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
       JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
       # File upload configuration
-      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:    ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:-2GB}
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:-2GB}
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:-2GB}
       # Redis configuration
       SPRING_DATA_REDIS_HOST: redis
@@ -74,12 +74,13 @@ services:
         condition: service_healthy
     volumes:
       - import_uploads:/tmp/import
+      - backend_logs:/app/logs
 
   # ── Angular Frontend (served by nginx) ─────────────────────────────────────
   frontend:
     build:
-      context: ./frontend
-      dockerfile: ../devops/docker/frontend/Dockerfile
+      context: .
+      dockerfile: ./devops/docker/frontend/Dockerfile
     container_name: bio_frontend
     restart: unless-stopped
     ports:
@@ -91,3 +92,4 @@ volumes:
   postgres_data:
   import_uploads:
   redis_data:
+  backend_logs:
