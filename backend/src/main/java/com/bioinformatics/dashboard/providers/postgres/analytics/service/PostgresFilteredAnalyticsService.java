@@ -1,9 +1,11 @@
-package com.bioinformatics.dashboard.analytics.service;
+package com.bioinformatics.dashboard.providers.postgres.analytics.service;
 
+import com.bioinformatics.dashboard.interfaces.analytics.FilteredAnalyticsService;
 import com.bioinformatics.dashboard.model.analytics.*;
 import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
 import com.bioinformatics.dashboard.model.analytics.compare.CompareResponseDto;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FilteredAnalyticsService {
+public class PostgresFilteredAnalyticsService extends AbstractPostgresProvider implements FilteredAnalyticsService {
 
     private final ProteinEntryRepository proteinEntryRepository;
 
@@ -29,6 +31,7 @@ public class FilteredAnalyticsService {
      * @param request the parameters slicing the target subset
      * @return current dashboard KPIs computed exclusively against the dynamically filtered subset.
      */
+    @Override
     @Cacheable(value = "filtered-dashboardKpis", key = "#request.toString()", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis(GeneSearchRequest request) {
         log.info("Retrieving Kpis for filtered analytics request: {}", request);
@@ -40,6 +43,7 @@ public class FilteredAnalyticsService {
      * @param request the parameters slicing the target subset
      * @return bucketed length frequency natively mapped via filtered query.
      */
+    @Override
     @Cacheable(value = "filtered-lengthHistogram", key = "#request.toString()")
     public List<LengthHistogramBucketDto> getLengthHistogram(GeneSearchRequest request) {
         log.info("Retrieving length histogram for filtered analytics request: {}", request);
@@ -52,6 +56,7 @@ public class FilteredAnalyticsService {
      * @param request the parameters slicing the target subset
      * @return highest-occurring mapped organisms restricted to matched dataset context.
      */
+    @Override
     @Cacheable(value = "filtered-byOrganism", key = "#request.toString() + '-' + #limit")
     public List<OrganismCountDto> getByOrganism(int limit, GeneSearchRequest request) {
         log.info("Retrieving organism count for filtered analytics request: {}", request);
@@ -63,6 +68,7 @@ public class FilteredAnalyticsService {
      * @param request the parameters slicing the target subset
      * @return verified vs experimental distribution constrained to current search context.
      */
+    @Override
     @Cacheable(value = "filtered-reviewedRatio", key = "#request.toString()")
     public List<ReviewedRatioDto> getReviewedRatio(GeneSearchRequest request) {
         log.info("Retrieving reviewed ratio for filtered analytics request: {}", request);
@@ -74,6 +80,7 @@ public class FilteredAnalyticsService {
      * @param request the parameters slicing the target subset
      * @return distribution grouped by discovery evidence confirmation bounded dynamically.
      */
+    @Override
     @Cacheable(value = "filtered-evidenceLevels", key = "#request.toString()")
     public List<EvidenceDistributionDto> getEvidenceLevels(GeneSearchRequest request) {
         log.info("Retrieving evidence levels for filtered analytics request: {}", request);
@@ -82,10 +89,11 @@ public class FilteredAnalyticsService {
     }
 
     /**
-     * @param limit restricts response sizing
+     * @param limit   restricts response sizing
      * @param request the parameters slicing the target subset
      * @return frequent attributes present solely in returned filter dataset matrix.
      */
+    @Override
     @Cacheable(value = "filtered-keywordFrequency", key = "#request.toString() + '-' + #limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit, GeneSearchRequest request) {
         log.info("Retrieving keyword frequency for filtered analytics request: {}", request);
@@ -95,8 +103,9 @@ public class FilteredAnalyticsService {
 
     /**
      * @param request the parameters slicing the target subset
-     * @return direct, unbucketed sequence weight distributions for accurate mathematical representation of active filters.
+     * @return direct, bucketed sequence weight distributions for accurate mathematical representation of active filters.
      */
+    @Override
     @Cacheable(value = "filtered-proteinLengthWeightCount", key = "#request.toString()")
     public List<ProteinLengthWeightCount> getProteinLengthWeightCount(GeneSearchRequest request) {
         log.info("Retrieving protein length frequency for filtered analytics request: {}", request);
@@ -111,6 +120,7 @@ public class FilteredAnalyticsService {
      * @param request encapsulates subsets A and B
      * @return paired comparison analysis structure
      */
+    @Override
     @Cacheable(value = "filtered-compareAnalytics", key = "#request.setA().toString() + '-' + #request.setB().toString()")
     public CompareResponseDto compare(CompareRequestDto request) {
         log.info("Compare two filter sets : Filter A : {} | Filter B : {}", request.setA(), request.setB());

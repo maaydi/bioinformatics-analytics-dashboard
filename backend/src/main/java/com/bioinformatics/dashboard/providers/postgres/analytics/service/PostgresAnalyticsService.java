@@ -1,7 +1,9 @@
-package com.bioinformatics.dashboard.analytics.service;
+package com.bioinformatics.dashboard.providers.postgres.analytics.service;
 
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.interfaces.analytics.AnalyticsService;
 import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.providers.postgres.analytics.mapper.*;
 import com.bioinformatics.dashboard.providers.postgres.analytics.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AnalyticsService {
+public class PostgresAnalyticsService extends AbstractPostgresProvider implements AnalyticsService {
 
     private final DashboardKpisRepository dashboardKpisRepository;
     private final DashboardKpisMapper dashboardKpisMapper;
@@ -42,6 +44,7 @@ public class AnalyticsService {
     /**
      * @return current dashboard KPIs from cache or materialized record.
      */
+    @Override
     @Cacheable(value = "dashboardKpis", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis() {
         log.info("Retrieving Dashboard KPIs from materialized view");
@@ -53,6 +56,7 @@ public class AnalyticsService {
     /**
      * @return bucketed length frequency map natively computed in DB.
      */
+    @Override
     @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
         log.info("Retrieving Length Histogram from materialized view");
@@ -66,6 +70,7 @@ public class AnalyticsService {
      * @param limit limits response size for high-cardinality taxa mapping
      * @return global occurrences of organisms sorted descending.
      */
+    @Override
     @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
         log.info("Retrieving Organism Count from materialized view");
@@ -78,6 +83,7 @@ public class AnalyticsService {
     /**
      * @return ratio tracking verified vs newly-found sequences.
      */
+    @Override
     @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
         log.info("Retrieving Reviewed Ratio from materialized view");
@@ -90,6 +96,7 @@ public class AnalyticsService {
     /**
      * @return distribution grouped by evidence confirmation level.
      */
+    @Override
     @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
         log.info("Retrieving Evidence Levels from materialized view");
@@ -103,6 +110,7 @@ public class AnalyticsService {
      * @param limit limits response size for massive dictionary graphs
      * @return common trait occurrences over entire domain dataset.
      */
+    @Override
     @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
         log.info("Retrieving Keyword Frequency from materialized view");

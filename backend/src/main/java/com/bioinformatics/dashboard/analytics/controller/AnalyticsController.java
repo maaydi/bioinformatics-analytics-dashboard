@@ -1,10 +1,11 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
-import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.interfaces.analytics.AnalyticsService;
 import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.providers.postgres.analytics.service.PostgresAnalyticsService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.List;
  * populated during the batch import process, allowing for fast, pre-computed dashboard metrics
  * handling hundreds of megabytes of relational data under 500ms.</p>
  *
- * <p>Delegates query retrieval to the {@link AnalyticsService}. Accessible to users
+ * <p>Delegates query retrieval to the {@link PostgresAnalyticsService}. Accessible to users
  * holding either USER or ADMIN authority.</p>
  */
 @RestController

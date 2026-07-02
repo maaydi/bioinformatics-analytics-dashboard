@@ -4,6 +4,7 @@ import com.bioinformatics.dashboard.model.analytics.*;
 import com.bioinformatics.dashboard.model.analytics.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.analytics.service.PostgresFilteredAnalyticsService;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,13 +27,13 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-class FilteredAnalyticsServiceTest {
+class PostgresFilteredAnalyticsServiceTest {
 
     @Mock
     private ProteinEntryRepository proteinEntryRepository;
 
     @InjectMocks
-    private FilteredAnalyticsService filteredAnalyticsService;
+    private PostgresFilteredAnalyticsService postgresFilteredAnalyticsService;
 
     private GeneSearchRequest blankRequest;
 
@@ -65,7 +66,7 @@ class FilteredAnalyticsServiceTest {
         var expectedKpis = mock(DashboardKpisDto.class);
         when(proteinEntryRepository.getDashboardKpis(any(Specification.class))).thenReturn(expectedKpis);
 
-        var result = filteredAnalyticsService.getDashboardKpis(blankRequest);
+        var result = postgresFilteredAnalyticsService.getDashboardKpis(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedKpis, result);
@@ -78,7 +79,7 @@ class FilteredAnalyticsServiceTest {
         List<LengthHistogramBucketDto> expectedHistogram = Collections.emptyList();
         when(proteinEntryRepository.getLengthHistogram(any(Specification.class))).thenReturn(expectedHistogram);
 
-        var result = filteredAnalyticsService.getLengthHistogram(blankRequest);
+        var result = postgresFilteredAnalyticsService.getLengthHistogram(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedHistogram, result);
@@ -92,7 +93,7 @@ class FilteredAnalyticsServiceTest {
         List<OrganismCountDto> expectedCounts = Collections.emptyList();
         when(proteinEntryRepository.getByOrganism(eq(limit), any(Specification.class))).thenReturn(expectedCounts);
 
-        var result = filteredAnalyticsService.getByOrganism(limit, blankRequest);
+        var result = postgresFilteredAnalyticsService.getByOrganism(limit, blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedCounts, result);
@@ -105,7 +106,7 @@ class FilteredAnalyticsServiceTest {
         List<ReviewedRatioDto> expectedRatios = Collections.emptyList();
         when(proteinEntryRepository.getReviewedRatio(any(Specification.class))).thenReturn(expectedRatios);
 
-        var result = filteredAnalyticsService.getReviewedRatio(blankRequest);
+        var result = postgresFilteredAnalyticsService.getReviewedRatio(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedRatios, result);
@@ -118,7 +119,7 @@ class FilteredAnalyticsServiceTest {
         List<EvidenceDistributionDto> expectedDistribution = Collections.emptyList();
         when(proteinEntryRepository.getEvidenceLevels(any(Specification.class))).thenReturn(expectedDistribution);
 
-        var result = filteredAnalyticsService.getEvidenceLevels(blankRequest);
+        var result = postgresFilteredAnalyticsService.getEvidenceLevels(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedDistribution, result);
@@ -132,7 +133,7 @@ class FilteredAnalyticsServiceTest {
         List<KeywordFrequencyDto> expectedFrequencies = Collections.emptyList();
         when(proteinEntryRepository.getKeywordFrequency(eq(limit), any(Specification.class))).thenReturn(expectedFrequencies);
 
-        var result = filteredAnalyticsService.getKeywordFrequency(limit, blankRequest);
+        var result = postgresFilteredAnalyticsService.getKeywordFrequency(limit, blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedFrequencies, result);
@@ -145,7 +146,7 @@ class FilteredAnalyticsServiceTest {
         List<ProteinLengthWeightCount> expectedMetrics = Collections.emptyList();
         when(proteinEntryRepository.getProteinLengthWeightCount(any(Specification.class))).thenReturn(expectedMetrics);
 
-        var result = filteredAnalyticsService.getProteinLengthWeightCount(blankRequest);
+        var result = postgresFilteredAnalyticsService.getProteinLengthWeightCount(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedMetrics, result);
@@ -164,7 +165,7 @@ class FilteredAnalyticsServiceTest {
                 .thenReturn(mockSubsetA)
                 .thenReturn(mockSubsetB);
 
-        var response = filteredAnalyticsService.compare(compareRequestDto);
+        var response = postgresFilteredAnalyticsService.compare(compareRequestDto);
 
         assertNotNull(response);
         assertEquals(mockSubsetA, response.subsetA());

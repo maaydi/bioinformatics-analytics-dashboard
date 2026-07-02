@@ -11,6 +11,7 @@ import com.bioinformatics.dashboard.providers.postgres.analytics.entity.LengthHi
 import com.bioinformatics.dashboard.providers.postgres.analytics.entity.OrganismCount;
 import com.bioinformatics.dashboard.providers.postgres.analytics.mapper.*;
 import com.bioinformatics.dashboard.providers.postgres.analytics.repository.*;
+import com.bioinformatics.dashboard.providers.postgres.analytics.service.PostgresAnalyticsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AnalyticsServiceTest {
+class PostgresAnalyticsServiceTest {
 
     @Mock
     private DashboardKpisRepository dashboardKpisRepository;
@@ -66,11 +67,11 @@ class AnalyticsServiceTest {
     @Mock
     private KeywordFrequencyMapper keywordFrequencyMapper;
 
-    private AnalyticsService service;
+    private PostgresAnalyticsService service;
 
     @BeforeEach
     void setUp() {
-        service = new AnalyticsService(
+        service = new PostgresAnalyticsService(
                 dashboardKpisRepository,
                 dashboardKpisMapper,
                 lengthHistogramBucketRepository,
