@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.audit.mapper;
 
-import com.bioinformatics.dashboard.audit.dto.AuditLogDto;
 import com.bioinformatics.dashboard.audit.entity.AuditLog;
+import com.bioinformatics.dashboard.model.audit.AuditLogDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

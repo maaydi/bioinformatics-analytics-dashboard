@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.analytics.repository;
 
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.model.analytics.compare.AnalyticsSubsetDto;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;

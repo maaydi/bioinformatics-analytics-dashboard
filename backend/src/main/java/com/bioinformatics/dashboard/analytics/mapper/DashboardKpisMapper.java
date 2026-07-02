@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.analytics.mapper;
 
-import com.bioinformatics.dashboard.analytics.dto.DashboardKpisDto;
 import com.bioinformatics.dashboard.analytics.entity.DashboardKpis;
+import com.bioinformatics.dashboard.model.analytics.DashboardKpisDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

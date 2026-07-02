@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.savedfilter.mapper;
 
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
-import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
+import com.bioinformatics.dashboard.model.savedfilter.SavedFilterCreateRequest;
+import com.bioinformatics.dashboard.model.savedfilter.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

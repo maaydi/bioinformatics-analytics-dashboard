@@ -1,12 +1,12 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
+import com.bioinformatics.dashboard.model.analytics.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

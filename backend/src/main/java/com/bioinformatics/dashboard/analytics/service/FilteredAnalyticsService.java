@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.analytics.service;
 
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareRequestDto;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareResponseDto;
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
 import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.gene.specification.GeneSpecification;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareResponseDto;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

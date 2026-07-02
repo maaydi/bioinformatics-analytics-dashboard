@@ -1,16 +1,16 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareRequestDto;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareResponseDto;
 import com.bioinformatics.dashboard.analytics.service.FilteredAnalyticsService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.model.analytics.compare.AnalyticsSubsetDto;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareResponseDto;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

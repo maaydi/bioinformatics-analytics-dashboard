@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.audit;
 
-import com.bioinformatics.dashboard.audit.dto.*;
 import com.bioinformatics.dashboard.audit.entity.AuditLog;
 import com.bioinformatics.dashboard.audit.mapper.AuditLogMapper;
 import com.bioinformatics.dashboard.audit.repository.AuditLogRepository;
 import com.bioinformatics.dashboard.audit.service.AuditService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.dashboard.model.audit.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.analytics.service;
 
-import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.mapper.*;
 import com.bioinformatics.dashboard.analytics.repository.*;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.model.analytics.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

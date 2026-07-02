@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.audit.event;
 
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
-import com.bioinformatics.dashboard.audit.dto.AuditStatus;
 import com.bioinformatics.dashboard.audit.service.AuditContextHolder;
 import com.bioinformatics.dashboard.audit.service.AuditService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
+import com.bioinformatics.dashboard.model.audit.AuditAction;
+import com.bioinformatics.dashboard.model.audit.AuditStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

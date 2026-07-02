@@ -2,10 +2,10 @@ package com.bioinformatics.dashboard.auth.controller;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.auth.dto.*;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.service.AuthService;
+import com.bioinformatics.dashboard.model.audit.AuditAction;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

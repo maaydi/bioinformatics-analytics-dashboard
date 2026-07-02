@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.audit.annotation;
 
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
-import com.bioinformatics.dashboard.audit.dto.AuditTarget;
+import com.bioinformatics.dashboard.model.audit.AuditAction;
+import com.bioinformatics.dashboard.model.audit.AuditTarget;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.gene.mapper;
 
-import com.bioinformatics.dashboard.gene.dto.ProteinDetailDto;
-import com.bioinformatics.dashboard.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.dashboard.gene.entity.Keyword;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
+import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

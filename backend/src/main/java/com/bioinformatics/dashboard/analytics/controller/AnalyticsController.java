@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
-import com.bioinformatics.dashboard.analytics.dto.*;
 import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.model.audit.AuditAction;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

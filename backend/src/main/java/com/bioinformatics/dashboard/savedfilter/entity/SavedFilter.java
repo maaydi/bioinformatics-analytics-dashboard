@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.entity;
 
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

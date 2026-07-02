@@ -1,9 +1,5 @@
 package com.bioinformatics.dashboard.analytics.service;
 
-import com.bioinformatics.dashboard.analytics.dto.DashboardKpisDto;
-import com.bioinformatics.dashboard.analytics.dto.KeywordFrequencyDto;
-import com.bioinformatics.dashboard.analytics.dto.LengthHistogramBucketDto;
-import com.bioinformatics.dashboard.analytics.dto.OrganismCountDto;
 import com.bioinformatics.dashboard.analytics.entity.DashboardKpis;
 import com.bioinformatics.dashboard.analytics.entity.KeywordFrequency;
 import com.bioinformatics.dashboard.analytics.entity.LengthHistogramBucket;
@@ -11,6 +7,10 @@ import com.bioinformatics.dashboard.analytics.entity.OrganismCount;
 import com.bioinformatics.dashboard.analytics.mapper.*;
 import com.bioinformatics.dashboard.analytics.repository.*;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.model.analytics.DashboardKpisDto;
+import com.bioinformatics.dashboard.model.analytics.KeywordFrequencyDto;
+import com.bioinformatics.dashboard.model.analytics.LengthHistogramBucketDto;
+import com.bioinformatics.dashboard.model.analytics.OrganismCountDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
