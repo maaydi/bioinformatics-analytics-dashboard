@@ -1,7 +1,7 @@
-package com.bioinformatics.dashboard.analytics.mapper;
+package com.bioinformatics.dashboard.providers.postgres.analytics.mapper;
 
-import com.bioinformatics.dashboard.analytics.entity.DashboardKpis;
 import com.bioinformatics.dashboard.model.analytics.DashboardKpisDto;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.DashboardKpis;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

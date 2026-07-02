@@ -1,6 +1,6 @@
-package com.bioinformatics.dashboard.analytics.repository;
+package com.bioinformatics.dashboard.providers.postgres.analytics.repository;
 
-import com.bioinformatics.dashboard.analytics.entity.LengthHistogramBucket;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.LengthHistogramBucket;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

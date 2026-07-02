@@ -1,7 +1,7 @@
-package com.bioinformatics.dashboard.analytics.repository;
+package com.bioinformatics.dashboard.providers.postgres.analytics.repository;
 
-import com.bioinformatics.dashboard.analytics.entity.OrganismCount;
-import com.bioinformatics.dashboard.analytics.entity.OrganismCountId;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.OrganismCount;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.OrganismCountId;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

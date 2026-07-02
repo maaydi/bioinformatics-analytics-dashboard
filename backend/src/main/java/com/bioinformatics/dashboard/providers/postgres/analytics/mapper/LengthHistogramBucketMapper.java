@@ -1,7 +1,7 @@
-package com.bioinformatics.dashboard.analytics.mapper;
+package com.bioinformatics.dashboard.providers.postgres.analytics.mapper;
 
-import com.bioinformatics.dashboard.analytics.entity.LengthHistogramBucket;
 import com.bioinformatics.dashboard.model.analytics.LengthHistogramBucketDto;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.LengthHistogramBucket;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

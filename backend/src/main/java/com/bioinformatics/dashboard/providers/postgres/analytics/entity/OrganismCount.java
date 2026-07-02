@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.analytics.entity;
+package com.bioinformatics.dashboard.providers.postgres.analytics.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

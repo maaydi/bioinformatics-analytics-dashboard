@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.gene.repository;
 
-import com.bioinformatics.dashboard.analytics.repository.AnalyticsProteinRepository;
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.analytics.repository.AnalyticsProteinRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

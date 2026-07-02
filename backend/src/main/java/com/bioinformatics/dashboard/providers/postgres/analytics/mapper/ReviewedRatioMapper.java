@@ -1,7 +1,7 @@
-package com.bioinformatics.dashboard.analytics.mapper;
+package com.bioinformatics.dashboard.providers.postgres.analytics.mapper;
 
-import com.bioinformatics.dashboard.analytics.entity.ReviewedRatio;
 import com.bioinformatics.dashboard.model.analytics.ReviewedRatioDto;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.ReviewedRatio;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

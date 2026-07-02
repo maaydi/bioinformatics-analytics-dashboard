@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.analytics.repository;
+package com.bioinformatics.dashboard.providers.postgres.analytics.repository;
 
 import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.model.analytics.*;
