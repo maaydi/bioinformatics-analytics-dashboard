@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.batch.processor;
 
 import com.bioinformatics.dashboard.batch.processor.resolver.KeywordResolver;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

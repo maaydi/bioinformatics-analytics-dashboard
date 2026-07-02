@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.batch.listener;
 
 import com.bioinformatics.dashboard.batch.UniProtImportJobParameters;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

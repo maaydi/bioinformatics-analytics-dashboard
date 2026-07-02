@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.audit.aspect;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
+import com.bioinformatics.dashboard.audit.dto.AuditStatus;
 import com.bioinformatics.dashboard.audit.service.AuditContextHolder;
 import com.bioinformatics.dashboard.audit.service.AuditService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.model.audit.AuditStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

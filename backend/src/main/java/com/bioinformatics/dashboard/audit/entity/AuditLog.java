@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.audit.entity;
 
-import com.bioinformatics.dashboard.model.audit.AuditAction;
-import com.bioinformatics.dashboard.model.audit.AuditStatus;
-import com.bioinformatics.dashboard.model.audit.AuditTarget;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.audit.dto.AuditStatus;
+import com.bioinformatics.dashboard.audit.dto.AuditTarget;
 import jakarta.persistence.*;
 import lombok.*;
 

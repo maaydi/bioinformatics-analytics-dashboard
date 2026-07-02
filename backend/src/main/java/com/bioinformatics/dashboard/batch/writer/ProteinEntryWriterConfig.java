@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.batch.writer;
 
-import com.bioinformatics.dashboard.gene.repository.CrossReferenceRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinCommentRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinPublicationRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.CrossReferenceRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinCommentRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinPublicationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.audit.service;
 
-import com.bioinformatics.dashboard.model.audit.AuditWebDetails;
+import com.bioinformatics.dashboard.audit.dto.AuditWebDetails;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;

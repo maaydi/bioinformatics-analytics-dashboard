@@ -1,13 +1,13 @@
 package com.bioinformatics.dashboard.audit.service;
 
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.audit.dto.AuditLogDto;
+import com.bioinformatics.dashboard.audit.dto.AuditStatus;
+import com.bioinformatics.dashboard.audit.dto.AuditWebDetails;
 import com.bioinformatics.dashboard.audit.entity.AuditLog;
 import com.bioinformatics.dashboard.audit.mapper.AuditLogMapper;
 import com.bioinformatics.dashboard.audit.repository.AuditLogRepository;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.model.audit.AuditAction;
-import com.bioinformatics.dashboard.model.audit.AuditLogDto;
-import com.bioinformatics.dashboard.model.audit.AuditStatus;
-import com.bioinformatics.dashboard.model.audit.AuditWebDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

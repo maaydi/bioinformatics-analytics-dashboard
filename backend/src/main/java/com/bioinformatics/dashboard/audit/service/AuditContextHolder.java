@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.audit.service;
 
-import com.bioinformatics.dashboard.model.audit.AuditWebDetails;
+import com.bioinformatics.dashboard.audit.dto.AuditWebDetails;
 
 public final class AuditContextHolder {
     private static final ThreadLocal<AuditWebDetails> CONTEXT = new ThreadLocal<>();

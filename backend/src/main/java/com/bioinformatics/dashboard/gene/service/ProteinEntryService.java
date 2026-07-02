@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.gene.service;
 
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
-import com.bioinformatics.dashboard.gene.repository.CrossReferenceRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinCommentRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinPublicationRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.CrossReferenceRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinCommentRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinPublicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

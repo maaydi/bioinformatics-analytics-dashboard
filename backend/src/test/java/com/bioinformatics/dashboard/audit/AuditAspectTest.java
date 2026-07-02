@@ -2,9 +2,9 @@ package com.bioinformatics.dashboard.audit;
 
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.aspect.AuditAspect;
+import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.audit.dto.AuditStatus;
 import com.bioinformatics.dashboard.audit.service.AuditService;
-import com.bioinformatics.dashboard.model.audit.AuditAction;
-import com.bioinformatics.dashboard.model.audit.AuditStatus;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;

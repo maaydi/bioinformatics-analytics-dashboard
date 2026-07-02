@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.providers.postgres.analytics.repository;
 
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.model.analytics.*;
 import com.bioinformatics.dashboard.model.analytics.compare.AnalyticsSubsetDto;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
