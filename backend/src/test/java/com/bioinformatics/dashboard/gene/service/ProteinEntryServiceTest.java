@@ -8,6 +8,7 @@ import com.bioinformatics.dashboard.providers.postgres.gene.repository.CrossRefe
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinCommentRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinPublicationRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

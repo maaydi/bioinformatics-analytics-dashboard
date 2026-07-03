@@ -10,7 +10,6 @@ import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
-import com.bioinformatics.dashboard.gene.service.GeneService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +48,6 @@ class AuditIntegrationTest {
 
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
-
-    @MockitoBean
-    GeneService geneService;
 
     @BeforeEach
     void setUp() {

@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.batch.processor.resolver;
 
-import com.bioinformatics.dashboard.gene.service.ProteinEntryService;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

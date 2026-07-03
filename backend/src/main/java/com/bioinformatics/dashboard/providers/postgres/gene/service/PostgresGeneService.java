@@ -1,13 +1,19 @@
-package com.bioinformatics.dashboard.gene.service;
+package com.bioinformatics.dashboard.providers.postgres.gene.service;
+/**
+ * Service for gene/protein operations.
+ *
+ */
 
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
+import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
@@ -35,23 +41,21 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GeneService {
+public class PostgresGeneService extends AbstractPostgresProvider implements GeneService {
 
+    // Whitelisted sortable fields from ProteinSummaryDto
+    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
+            .map(Field::getName).collect(Collectors.toSet());
     private final ProteinEntryService proteinService;
     private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
-
-    // Whitelisted sortable fields from ProteinSummaryDto
-    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
-            .map(Field::getName).collect(Collectors.toSet());
-
-
     /**
      * Returns a paginated, optionally sorted list of all proteins.
      *
      */
+    @Override
     @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
     public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
         var direct = Sort.Direction.fromString(direction);
@@ -66,6 +70,7 @@ public class GeneService {
      * Returns a paginated filtered result set.
      *
      */
+    @Override
     @Cacheable(value = "geneSearch", key = "#request.toString()")
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
@@ -82,6 +87,7 @@ public class GeneService {
      *
      * @throws ResourceNotFoundException if not found
      */
+    @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
     public ProteinDetailDto getGeneById(Long id) {
@@ -96,6 +102,7 @@ public class GeneService {
      * Page configuration is ignored and all data are returned
      *
      */
+    @Override
     public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
         log.info("Exporting protein entries for filters: {}", request);
         request.getRequestPage(SORT_WHITELIST, "id");
@@ -107,6 +114,7 @@ public class GeneService {
 
     }
 
+    @Override
     public long assertWithinExportLimit(GeneSearchRequest request) {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
         var spec = GeneSpecification.fromRequest(request);
@@ -119,6 +127,7 @@ public class GeneService {
 
     }
 
+    @Override
     @Cacheable(value = "geneKeywords")
     public List<String> listKeywords() {
         log.info("Retrieving keywords for protein entries");

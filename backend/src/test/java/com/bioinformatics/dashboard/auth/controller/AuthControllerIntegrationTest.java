@@ -6,7 +6,6 @@ import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
-import com.bioinformatics.dashboard.gene.service.GeneService;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,9 +45,6 @@ class AuthControllerIntegrationTest {
 
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
-
-    @MockitoBean
-    GeneService geneService;
 
     @MockitoBean
     private CacheManager cacheManager;

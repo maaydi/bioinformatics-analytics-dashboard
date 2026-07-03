@@ -10,6 +10,8 @@ import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GeneServiceTest {
+class PostgresGeneServiceTest {
 
     @Mock
     ProteinEntryService proteinEntryService;
@@ -44,7 +46,7 @@ class GeneServiceTest {
 
     AppProperties appProperties;
 
-    GeneService service;
+    PostgresGeneService service;
 
     @BeforeEach
     void setUp() {
@@ -53,7 +55,7 @@ class GeneServiceTest {
         export.setCsv(new AppProperties.Csv());
         export.getCsv().setMaxRows(1000);
 
-        service = new GeneService(proteinEntryService, keywordRepository, mapper, appProperties);
+        service = new PostgresGeneService(proteinEntryService, keywordRepository, mapper, appProperties);
     }
 
     private GeneSearchRequest buildRequest(

@@ -8,7 +8,6 @@ import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
 import com.bioinformatics.dashboard.batch.counter.RecordCounter;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
-import com.bioinformatics.dashboard.gene.service.GeneService;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
@@ -79,8 +78,7 @@ class ImportControllerIntegrationTest {
     ImportService importService; // Keep it for testing purpose ( load beans )
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
-    @MockitoBean
-    GeneService geneService;
+
     @MockitoBean
     CounterRegistry counterRegistry;
     private String adminToken;
