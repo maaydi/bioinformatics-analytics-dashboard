@@ -9,6 +9,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Full protein detail record returned by {@code GET /api/genes/{id}}.
+ * Contains all protein metadata, sequences, related features, GO terms, cross-references, and publications.
+ *
+ * <p>Schema defined in documentation/api-contract.md — Shared Schemas — {@code ProteinDetail}.
+ */
 public record ProteinDetailDto(
 
         Long id,

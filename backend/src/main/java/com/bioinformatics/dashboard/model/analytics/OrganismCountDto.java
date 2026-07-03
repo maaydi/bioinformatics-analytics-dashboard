@@ -1,5 +1,9 @@
 package com.bioinformatics.dashboard.model.analytics;
 
+/**
+ * Aggregated protein statistics by organism.
+ * Used in "Top Organisms" analytics chart.
+ */
 public record OrganismCountDto(String organismName,
                                int taxid,
                                int total,
