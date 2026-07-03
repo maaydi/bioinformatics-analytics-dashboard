@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.providers.postgres.savedfilter.entity;
+package com.bioinformatics.dashboard.savedfilter.entity;
 
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;

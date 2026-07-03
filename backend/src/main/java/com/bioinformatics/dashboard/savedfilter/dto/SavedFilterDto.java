@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.model.savedfilter;
+package com.bioinformatics.dashboard.savedfilter.dto;
 
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 

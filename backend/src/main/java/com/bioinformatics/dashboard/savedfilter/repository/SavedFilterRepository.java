@@ -1,7 +1,7 @@
-package com.bioinformatics.dashboard.providers.postgres.savedfilter.repository;
+package com.bioinformatics.dashboard.savedfilter.repository;
 
 import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.providers.postgres.savedfilter.entity.SavedFilter;
+import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

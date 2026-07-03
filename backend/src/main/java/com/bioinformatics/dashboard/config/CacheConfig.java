@@ -3,7 +3,7 @@ package com.bioinformatics.dashboard.config;
 import com.bioinformatics.dashboard.model.analytics.*;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.model.savedfilter.SavedFilterDto;
+import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
