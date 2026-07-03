@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.gene.specification;
 
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
 import jakarta.persistence.criteria.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

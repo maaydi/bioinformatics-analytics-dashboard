@@ -1,16 +1,16 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.dto.compare.AnalyticsSubsetDto;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareRequestDto;
-import com.bioinformatics.dashboard.analytics.dto.compare.CompareResponseDto;
-import com.bioinformatics.dashboard.analytics.service.FilteredAnalyticsService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.model.analytics.compare.AnalyticsSubsetDto;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
+import com.bioinformatics.dashboard.model.analytics.compare.CompareResponseDto;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.analytics.service.PostgresFilteredAnalyticsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -39,8 +40,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,8 +66,8 @@ class FilteredAnalyticsControllerIntegrationTest {
     private AppUserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @MockitoBean
-    private FilteredAnalyticsService analyticsService;
+    @MockitoSpyBean
+    private PostgresFilteredAnalyticsService analyticsService;
     @MockitoBean
     private ImportService importService;
     @MockitoBean
@@ -244,7 +244,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         var subsetB = new AnalyticsSubsetDto(20L, 400L, 10L, 50L, List.of(), List.of());
         var responseDto = new CompareResponseDto(subsetA, subsetB);
 
-        when(analyticsService.compare(any(CompareRequestDto.class))).thenReturn(responseDto);
+        doReturn(responseDto).when(analyticsService).compare(any(CompareRequestDto.class));
 
         restClient.post()
                 .uri("/api/analytics/filters/compare")

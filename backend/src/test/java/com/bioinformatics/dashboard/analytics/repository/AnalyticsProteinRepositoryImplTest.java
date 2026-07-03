@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.analytics.repository;
 
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.analytics.repository.AnalyticsProteinRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,7 @@ import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
-import com.bioinformatics.dashboard.gene.dto.PagedResponse;
+import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;

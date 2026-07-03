@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.batch.processor.resolver;
 
-import com.bioinformatics.dashboard.gene.service.ProteinEntryService;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -2,7 +2,7 @@ package com.bioinformatics.dashboard.batch.processor.handlers;
 
 import com.bioinformatics.dashboard.batch.processor.LineProcessor;
 import com.bioinformatics.dashboard.batch.processor.ProteinParsingContext;
-import com.bioinformatics.dashboard.gene.entity.Keyword;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

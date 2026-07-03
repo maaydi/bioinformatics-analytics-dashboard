@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.batch.processor;
 
 import com.bioinformatics.dashboard.batch.processor.resolver.KeywordResolver;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

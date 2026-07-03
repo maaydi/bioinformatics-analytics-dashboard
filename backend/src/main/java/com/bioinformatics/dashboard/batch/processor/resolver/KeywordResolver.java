@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.batch.processor.resolver;
 
-import com.bioinformatics.dashboard.gene.entity.Keyword;
-import com.bioinformatics.dashboard.gene.repository.KeywordRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.Locked;
 import lombok.RequiredArgsConstructor;

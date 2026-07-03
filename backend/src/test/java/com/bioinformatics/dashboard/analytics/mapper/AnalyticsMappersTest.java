@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.analytics.mapper;
 
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.entity.*;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.providers.postgres.analytics.entity.*;
+import com.bioinformatics.dashboard.providers.postgres.analytics.mapper.*;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

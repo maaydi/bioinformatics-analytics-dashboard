@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.savedfilter.dto;
 
-import com.bioinformatics.dashboard.gene.dto.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -2,7 +2,7 @@ package com.bioinformatics.dashboard.batch.processor.handlers;
 
 import com.bioinformatics.dashboard.batch.processor.LineProcessor;
 import com.bioinformatics.dashboard.batch.processor.ProteinParsingContext;
-import com.bioinformatics.dashboard.gene.entity.CrossReference;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.CrossReference;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,13 +1,14 @@
 package com.bioinformatics.dashboard.gene.service;
 
-import com.bioinformatics.dashboard.gene.entity.CrossReference;
-import com.bioinformatics.dashboard.gene.entity.ProteinComment;
-import com.bioinformatics.dashboard.gene.entity.ProteinEntry;
-import com.bioinformatics.dashboard.gene.entity.ProteinPublication;
-import com.bioinformatics.dashboard.gene.repository.CrossReferenceRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinCommentRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.gene.repository.ProteinPublicationRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.CrossReference;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinComment;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinPublication;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.CrossReferenceRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinCommentRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinPublicationRepository;
+import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

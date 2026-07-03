@@ -1,12 +1,12 @@
 package com.bioinformatics.dashboard.analytics.controller;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.analytics.dto.*;
-import com.bioinformatics.dashboard.analytics.service.AnalyticsService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
+import com.bioinformatics.dashboard.model.analytics.*;
+import com.bioinformatics.dashboard.providers.postgres.analytics.service.PostgresAnalyticsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -33,8 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,8 +59,8 @@ class AnalyticsControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private AnalyticsService analyticsService;
+    @MockitoSpyBean
+    private PostgresAnalyticsService postgresAnalyticsService;
 
     @MockitoBean
     private ImportService importService;
@@ -97,7 +97,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getDashboardKpis_returnsExpectedContractShape() {
         var dto = new DashboardKpisDto(1000L, 600L, 400L, 80, 80, 360, 40643L, 2, 35213);
-        when(analyticsService.getDashboardKpis()).thenReturn(dto);
+        doReturn(dto).when(postgresAnalyticsService).getDashboardKpis();
 
         restClient.get()
                 .uri("/api/analytics/dashboard-kpis")
@@ -117,7 +117,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getLengthHistogram_returnsBucketList() {
         var dto = new LengthHistogramBucketDto(1, 0, 99, 12000);
-        when(analyticsService.getLengthHistogram()).thenReturn(List.of(dto));
+        when(postgresAnalyticsService.getLengthHistogram()).thenReturn(List.of(dto));
 
         restClient.get()
                 .uri("/api/analytics/length-histogram")
@@ -136,7 +136,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getByOrganism_withValidLimit_returnsTopOrganisms() {
         var dto = new OrganismCountDto("Homo sapiens (Human)", 9606, 20581, 20581, 0, 480);
-        when(analyticsService.getByOrganism(1)).thenReturn(List.of(dto));
+        when(postgresAnalyticsService.getByOrganism(1)).thenReturn(List.of(dto));
 
         restClient.get()
                 .uri("/api/analytics/by-organism?limit=1")
@@ -156,8 +156,8 @@ class AnalyticsControllerIntegrationTest {
     void getReviewedRatioAndEvidenceLevels_returnExpectedCollections() {
         var ratio = new ReviewedRatioDto(true, 570000L);
         var evidence = new EvidenceDistributionDto(1, "Protein level", 400000L);
-        when(analyticsService.getReviewedRatio()).thenReturn(List.of(ratio));
-        when(analyticsService.getEvidenceLevels()).thenReturn(List.of(evidence));
+        when(postgresAnalyticsService.getReviewedRatio()).thenReturn(List.of(ratio));
+        when(postgresAnalyticsService.getEvidenceLevels()).thenReturn(List.of(evidence));
 
         restClient.get()
                 .uri("/api/analytics/reviewed-ratio")
@@ -189,7 +189,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getKeywordFrequency_withValidLimit_returnsRankedKeywords() {
         var dto = new KeywordFrequencyDto("Kinase", 18000L);
-        when(analyticsService.getKeywordFrequency(1)).thenReturn(List.of(dto));
+        when(postgresAnalyticsService.getKeywordFrequency(1)).thenReturn(List.of(dto));
 
         restClient.get()
                 .uri("/api/analytics/keyword-frequency?limit=1")
@@ -220,7 +220,7 @@ class AnalyticsControllerIntegrationTest {
                     assertThat(body.message()).contains("Limit should be lower than 201");
                 });
 
-        verifyNoInteractions(analyticsService);
+        verifyNoInteractions(postgresAnalyticsService);
     }
 
     @Test
@@ -238,7 +238,7 @@ class AnalyticsControllerIntegrationTest {
                     assertThat(body.message()).contains("Limit should be lower than 501");
                 });
 
-        verifyNoInteractions(analyticsService);
+        verifyNoInteractions(postgresAnalyticsService);
     }
 
     private String obtainToken() throws Exception {
