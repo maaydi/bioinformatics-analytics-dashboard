@@ -34,24 +34,25 @@ documentation/implementation/
 
 ## Ticket Catalog (Planned)
 
-| ID              | Scope                                                                        | Status |
-|-----------------|------------------------------------------------------------------------------|--------|
-| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                | `done` |
-| `IMPORT-001`    | Spring Batch import pipeline + ImportController                              | `done` |
-| `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `done` |
-| `GENE-002`      | GeneFilter Angular component + reactive form                                 | `done` |
-| `GENE-003`      | GenesTable AG Grid component                                                 | `done` |
-| `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `done` |
-| `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `done` |
-| `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `done` |
-| `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `done` |
-| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `done` |
-| `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `done` |
-| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                        | `done` |
-| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `done` |
-| `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                | `done` |     
-| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `done` |
-| `REFACTOR-001`  | Refctoring - Pluggable Data Provider Architecture                            | `done` |
+| ID              | Scope                                                                        | Status        |
+|-----------------|------------------------------------------------------------------------------|---------------|
+| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                | `done`        |
+| `IMPORT-001`    | Spring Batch import pipeline + ImportController                              | `done`        |
+| `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `done`        |
+| `GENE-002`      | GeneFilter Angular component + reactive form                                 | `done`        |
+| `GENE-003`      | GenesTable AG Grid component                                                 | `done`        |
+| `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `done`        |
+| `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `done`        |
+| `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `done`        |
+| `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `done`        |
+| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `done`        |
+| `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `done`        |
+| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                        | `done`        |
+| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `done`        |
+| `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                | `done`        |     
+| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `done`        |
+| `REFACTOR-001`  | Refctoring - Pluggable Data Provider Architecture                            | `done`        |
+| `RDF-001`       | User can fetch data from uniprot RDF data source                             | `in-progress` |
 
 ## Chronological Implementation Order (Recommended)
 
@@ -75,7 +76,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                | Distributed Caching with Batch Eviction Hooks                                      |     
 | 15    | `A11Y-001`      | `done`        | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |
 | 15    | `REFACTOR-001`  | `done`        | Pluggable Data Provider Architecture                         | No changes for end-user                                                            |
-| 15    | `RDF-001`       | `not-started` | User can fetch data from uniprot RDF data source             | Toggle data source to use local DB or remote uniprot RDF data                      |
+| 15    | `RDF-001`       | `in-progress` | User can fetch data from uniprot RDF data source             | Toggle data source to use local DB or remote uniprot RDF data                      |
 
 ## End-User Validation Milestones
 
