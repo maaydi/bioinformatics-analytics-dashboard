@@ -19,6 +19,7 @@ public class UniprotRestClientConfig {
 
         var nonFinalMapper = JsonMapper.builder()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
                 .build();
         var jacksonConverter =
                 new JacksonJsonHttpMessageConverter(nonFinalMapper);
