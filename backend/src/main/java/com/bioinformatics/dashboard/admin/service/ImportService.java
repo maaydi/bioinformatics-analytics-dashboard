@@ -93,7 +93,6 @@ public class ImportService {
 
     private Path saveImportFile(MultipartFile file, String strategy) throws IOException {
         var uploadDir = Paths.get(appProperties.getImportConfig().getTempDir());
-        Files.createDirectories(uploadDir);
         var fname = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         var target = uploadDir.resolve(fname);
         if ("overwrite".equalsIgnoreCase(strategy)) {

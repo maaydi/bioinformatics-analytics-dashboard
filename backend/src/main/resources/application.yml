@@ -93,7 +93,7 @@ app:
       skip-limit: ${UNIPROT_API_BATCH_SKIP_LIMIT:1000}
 
   import-config:
-    temp-dir: ${java.io.tmpdir}/bio-import
+    temp-dir: ${APP_DIR}/.bio-import
     extensions: dat,tsv
     pool:
       core-size: 2
