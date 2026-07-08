@@ -1,4 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.dto;
 
-public record Gene(GeneName geneName) {
+import java.util.List;
+
+public record Gene(GeneName geneName, List<GeneName> orfNames) {
 }
