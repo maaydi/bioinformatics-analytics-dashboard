@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch;
 
+import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +35,16 @@ public class RunningJobFailureMarker implements ApplicationRunner {
     @Override
     @Transactional
     public void run(@NonNull ApplicationArguments args) throws Exception {
-        log.info("Clean previous incomplete jobs");
-        jobRepo.getJobNames()
+        var jobs = jobRepo.findJobInstances(Constants.MANUAL_IMPORT_JOB.getKey())
                 .stream()
-                .map(jobRepo::findJobInstances)
-                .flatMap(List::stream)
                 .map(JobInstance::getJobExecutions)
                 .flatMap(List::stream)
                 .filter(jobExecution -> jobExecution.getStatus() != BatchStatus.COMPLETED)
-                .forEach(jobRepo::deleteJobExecution);
-        importJobRepo.updateStatusInBulk(ImportStatus.RUNNING, ImportStatus.FAILED);
+                .toList();
+        if (!jobs.isEmpty()) {
+            log.info("Clean previous incomplete manual import jobs and mark them as FAILED, Found {} jobs", jobs.size());
+            jobs.forEach(jobRepo::deleteJobExecution);
+            importJobRepo.updateStatusInBulk(ImportStatus.RUNNING, ImportStatus.FAILED);
+        }
     }
 }

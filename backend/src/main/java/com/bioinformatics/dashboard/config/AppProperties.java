@@ -19,6 +19,7 @@ public class AppProperties {
     private final ViewRefresh viewRefresh = new ViewRefresh();
     private final ThreadPoolSettings auditPool = new ThreadPoolSettings();
     private final RateLimiter rateLimiter = new RateLimiter();
+    private final UniProtApi uniprotApi = new UniProtApi();
 
     @Getter
     @Setter
@@ -116,5 +117,12 @@ public class AppProperties {
         private int capacity;
         private int tokens;
         private int seconds;
+    }
+
+    @Getter
+    @Setter
+    public static class UniProtApi {
+        private String baseUrl;
+        private Batch batch;
     }
 }

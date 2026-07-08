@@ -7,11 +7,17 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Constants {
 
-    IMPORT_JOB("uniProtImportJob"),
+    MANUAL_IMPORT_JOB("uniProtImportJob"),
     IMPORT_STEP("uniProtImportStep"),
     IMPORT_JOB_ID("importUniprotJobId"),
     FILE_PATH("filePath"),
-    TIMESTAMP("timestamp");
+    TIMESTAMP("timestamp"),
+
+    /**
+     * API-based import job constants
+     */
+    AUTOMATIC_API_IMPORT_JOB("uniProtApiImportJob"),
+    API_IMPORT_STEP("uniProtApiImportStep");
 
     private final String key;
 }
