@@ -1,8 +1,11 @@
 package com.bioinformatics.dashboard.batch.service;
 
-import com.bioinformatics.dashboard.batch.model.ViewToRefresh;
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.job.dto.RefreshResult;
+import com.bioinformatics.dashboard.job.dto.ViewToRefresh;
 import com.bioinformatics.dashboard.job.repository.ViewRefreshLogRepository;
+import com.bioinformatics.dashboard.job.service.MaterializedViewRefreshService;
+import com.bioinformatics.dashboard.job.service.ViewRefreshAlertService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -117,12 +120,12 @@ class MaterializedViewRefreshServiceTest {
 
         var spiedService = spy(service);
         var results = List.of(
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_dashboard_kpis", true),
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_length_histogram", false),
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_organism_counts", true),
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_reviewed_ratio", true),
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_evidence_distribution", false),
-                new com.bioinformatics.dashboard.batch.model.RefreshResult("mv_keyword_frequency", true)
+                new RefreshResult("mv_dashboard_kpis", true),
+                new RefreshResult("mv_length_histogram", false),
+                new RefreshResult("mv_organism_counts", true),
+                new RefreshResult("mv_reviewed_ratio", true),
+                new RefreshResult("mv_evidence_distribution", false),
+                new RefreshResult("mv_keyword_frequency", true)
         );
         var index = new AtomicInteger(0);
 

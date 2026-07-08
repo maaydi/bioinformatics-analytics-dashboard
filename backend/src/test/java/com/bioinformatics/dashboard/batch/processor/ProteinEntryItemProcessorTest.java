@@ -1,6 +1,9 @@
 package com.bioinformatics.dashboard.batch.processor;
 
-import com.bioinformatics.dashboard.batch.processor.resolver.KeywordResolver;
+import com.bioinformatics.dashboard.job.resolver.KeywordResolver;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.LineProcessorRegistry;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinEntryItemProcessor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

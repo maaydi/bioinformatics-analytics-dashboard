@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.processor.resolver;
 
+import com.bioinformatics.dashboard.job.resolver.KeywordResolver;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import org.junit.jupiter.api.Test;

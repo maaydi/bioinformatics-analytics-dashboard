@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.batch;
 
 import com.bioinformatics.dashboard.exception.ExecuteJobException;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

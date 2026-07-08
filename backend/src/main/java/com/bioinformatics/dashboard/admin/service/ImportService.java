@@ -1,7 +1,5 @@
 package com.bioinformatics.dashboard.admin.service;
 
-import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
-import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ExecuteJobException;
 import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
@@ -14,6 +12,8 @@ import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.mapper.ImportJobMapper;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

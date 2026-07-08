@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.batch.processor.handlers;
 
-import com.bioinformatics.dashboard.batch.processor.ProteinParsingContext;
-import com.bioinformatics.dashboard.batch.processor.resolver.ProteinAccessionResolver;
+import com.bioinformatics.dashboard.job.resolver.ProteinAccessionResolver;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.handler.AccessionNumberProcessor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

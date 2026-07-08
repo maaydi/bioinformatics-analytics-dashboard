@@ -9,7 +9,7 @@ import com.bioinformatics.dashboard.audit.repository.AuditLogRepository;
 import com.bioinformatics.dashboard.auth.dto.LoginRequest;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
-import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

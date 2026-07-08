@@ -3,7 +3,7 @@ package com.bioinformatics.dashboard.gene;
 import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
-import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
