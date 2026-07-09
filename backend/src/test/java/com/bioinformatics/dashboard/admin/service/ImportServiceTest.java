@@ -8,6 +8,7 @@ import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.mapper.ImportJobMapper;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
@@ -45,6 +46,8 @@ class ImportServiceTest {
     private ImportJobMapper jobMapper;
     @Mock
     private AsyncUniprotImportJobExecutor importExec;
+    @Mock
+    private UniProtApiImportJobExecutor remoteImportExec;
     @Mock
     private CounterRegistry registry;
     @InjectMocks
@@ -117,6 +120,41 @@ class ImportServiceTest {
     }
 
     @Test
+    void triggerRemoteImport_success_savesAndExecutes() {
+        when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of());
+
+        var inJob = new ImportJob();
+        inJob.setId(UUID.randomUUID());
+        inJob.setStatus(ImportStatus.RUNNING);
+        inJob.setFileName("UNIPROT_API_REMOTE");
+        inJob.setStrategy("OVERWRITE");
+
+        when(importJobRep.save(any(ImportJob.class))).thenReturn(inJob);
+
+        var summary = new ImportJobSummary(inJob.getId().toString(), inJob.getStatus(), inJob.getFileName(), 0, 0, 0L, inJob.getCreatedAt(), inJob.getCompletedAt(), null);
+        when(jobMapper.toSummary(any())).thenReturn(summary);
+
+        var result = importService.triggerRemoteImport();
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(inJob.getId().toString());
+
+        verify(remoteImportExec, times(1)).execute(any());
+        verify(importJobRep, times(1)).save(any(ImportJob.class));
+    }
+
+    @Test
+    void triggerRemoteImport_whenAnotherRunning_throws() {
+        var runningJob = ImportJob.builder().id(UUID.randomUUID()).status(ImportStatus.RUNNING).build();
+        when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of(runningJob));
+
+        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport());
+
+        verify(importJobRep, never()).save(any());
+        verify(remoteImportExec, never()).execute(any());
+    }
+
+    @Test
     void getImportJobStatus_notFound_returnsFailedProgress() {
         var jobId = UUID.randomUUID().toString();
         when(importJobRep.findById(UUID.fromString(jobId))).thenReturn(Optional.empty());
@@ -127,4 +165,3 @@ class ImportServiceTest {
                 .hasMessageContaining(jobId);
     }
 }
-

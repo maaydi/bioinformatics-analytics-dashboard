@@ -12,6 +12,7 @@ import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.mapper.ImportJobMapper;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
@@ -42,9 +43,12 @@ import java.util.UUID;
 @Slf4j
 public class ImportService {
 
+    private static final String REMOTE_UNIPROT_API_SOURCE = "UNIPROT_API_REMOTE";
+
     private final ImportJobRepository importJobRep;
     private final ImportJobMapper jobMapper;
     private final AsyncUniprotImportJobExecutor importExec;
+    private final UniProtApiImportJobExecutor remoteImportExec;
     private final AppProperties appProperties;
     private final CounterRegistry registry;
 
@@ -72,6 +76,19 @@ public class ImportService {
             return savedJob;
         } catch (Exception e) {
             throw new ExecuteJobException("Failed to trigger import " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public ImportJobSummary triggerRemoteImport() {
+        checkImportAlreadyRunning();
+        try {
+            log.info("Triggering remote UniProt API import");
+            var savedJob = saveRemoteJob();
+            executeRemoteImport(savedJob);
+            return savedJob;
+        } catch (Exception e) {
+            throw new ExecuteJobException("Failed to trigger remote import " + e.getMessage(), e);
         }
     }
 
@@ -116,6 +133,16 @@ public class ImportService {
         return jobMapper.toSummary(savedJob);
     }
 
+    private ImportJobSummary saveRemoteJob() {
+        var job = new ImportJob();
+        job.setStatus(ImportStatus.RUNNING);
+        job.setFileName(REMOTE_UNIPROT_API_SOURCE);
+        job.setStrategy("OVERWRITE");
+        job.setTotalEstimated(0);
+        var savedJob = importJobRep.save(job);
+        return jobMapper.toSummary(savedJob);
+    }
+
     private int countUniprotEntries(Path file) {
         var counter = registry.getCounter(file.toString());
         try (var is = Files.newInputStream(file)) {
@@ -132,6 +159,14 @@ public class ImportService {
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
                 .toJobParameters();
         importExec.execute(parameters);
+    }
+
+    private void executeRemoteImport(ImportJobSummary importJob) {
+        var parameters = new JobParametersBuilder()
+                .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
+                .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .toJobParameters();
+        remoteImportExec.execute(parameters);
     }
 
 
