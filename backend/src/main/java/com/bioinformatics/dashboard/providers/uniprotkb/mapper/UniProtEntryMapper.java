@@ -40,7 +40,7 @@ public class UniProtEntryMapper {
      * @param source non-null UniProt REST entry
      * @return a detached {@link ProteinEntry} ready for persistence
      */
-    public ProteinEntry toProteinEntry(final UniProtEntry source) {
+    public ProteinEntry toProteinEntry(UniProtEntry source) {
         Objects.requireNonNull(source, "UniProtEntry must not be null");
 
         final ProteinEntry entry = buildCoreEntry(source);
@@ -57,7 +57,7 @@ public class UniProtEntryMapper {
 
     // ── Core scalar fields ────────────────────────────────────────────────────
 
-    private ProteinEntry buildCoreEntry(final UniProtEntry src) {
+    private ProteinEntry buildCoreEntry(UniProtEntry src) {
         return ProteinEntry.builder()
                 .accession(src.primaryAccession())
                 .entryName(src.uniProtkbId())
@@ -86,11 +86,11 @@ public class UniProtEntryMapper {
 
     // ── Protein name ──────────────────────────────────────────────────────────
 
-    private String extractProteinFullName(final ProteinDescription desc) {
+    private String extractProteinFullName(ProteinDescription desc) {
         if (desc == null) return null;
-        RecommendedName rec = desc.recommendedName();
+        var rec = desc.recommendedName();
         if (rec == null) return null;
-        FullName fn = rec.fullName();
+        var fn = rec.fullName();
         return fn != null ? fn.value() : null;
     }
 
@@ -100,9 +100,9 @@ public class UniProtEntryMapper {
      * Returns the primary gene name from the first {@link Gene} in the list.
      * UniProt guarantees the first gene object carries the canonical name.
      */
-    private String extractPrimaryGeneName(final List<Gene> genes) {
+    private String extractPrimaryGeneName(List<Gene> genes) {
         if (genes == null || genes.isEmpty()) return null;
-        Gene primary = genes.getFirst();
+        var primary = genes.getFirst();
         return primary.geneName() != null ? primary.geneName().value() : null;
     }
 
@@ -110,9 +110,9 @@ public class UniProtEntryMapper {
      * Treats gene names from genes[1..n] as synonyms.
      * This is a best-effort approximation — synonym/ORF fields are not yet present in the DTO.
      */
-    private String[] extractGeneNameSynonyms(final List<Gene> genes) {
+    private String[] extractGeneNameSynonyms(List<Gene> genes) {
         if (genes == null || genes.size() <= 1) return null;
-        String[] synonyms = genes.stream()
+        var synonyms = genes.stream()
                 .skip(1)
                 .map(Gene::geneName)
                 .filter(Objects::nonNull)
@@ -140,13 +140,13 @@ public class UniProtEntryMapper {
      * Returns a safe non-null placeholder organism when the source organism is absent.
      * Should not normally occur for well-formed UniProt entries.
      */
-    private Organism safeOrganism(final UniProtEntry src) {
+    private Organism safeOrganism(UniProtEntry src) {
         return src.organism() != null
                 ? src.organism()
                 : new Organism("Unknown", null, 0, List.of());
     }
 
-    private String[] lineageArray(final Organism organism) {
+    private String[] lineageArray(Organism organism) {
         if (organism == null || organism.lineage() == null) return new String[0];
         return organism.lineage().toArray(String[]::new);
     }
@@ -158,7 +158,7 @@ public class UniProtEntryMapper {
      * via a find-or-create (upsert) strategy before flushing.
      */
     private List<Keyword> mapKeywords(
-            final List<com.bioinformatics.dashboard.providers.uniprotkb.dto.Keyword> keywords) {
+            List<com.bioinformatics.dashboard.providers.uniprotkb.dto.Keyword> keywords) {
         if (keywords == null) return new ArrayList<>();
         return keywords.stream()
                 .filter(k -> k.name() != null)
@@ -168,7 +168,7 @@ public class UniProtEntryMapper {
 
     // ── Features ──────────────────────────────────────────────────────────────
 
-    private Set<ProteinFeature> mapFeatures(final List<Feature> features, final ProteinEntry protein) {
+    private Set<ProteinFeature> mapFeatures(List<Feature> features, ProteinEntry protein) {
         if (features == null) return new HashSet<>();
         return features.stream()
                 .filter(f -> f.type() != null)
@@ -176,7 +176,7 @@ public class UniProtEntryMapper {
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private ProteinFeature toProteinFeature(final Feature src, final ProteinEntry protein) {
+    private ProteinFeature toProteinFeature(Feature src, ProteinEntry protein) {
         Integer startPos = null;
         Integer endPos = null;
         if (src.location() != null) {
@@ -196,7 +196,7 @@ public class UniProtEntryMapper {
 
     // ── GO Terms (from cross-references where database = "GO") ────────────────
 
-    private Set<GoTerm> mapGoTerms(final List<UniProtKBCrossReference> crossRefs) {
+    private Set<GoTerm> mapGoTerms(List<UniProtKBCrossReference> crossRefs) {
         if (crossRefs == null) return new HashSet<>();
         return crossRefs.stream()
                 .filter(r -> GO_DATABASE.equals(r.database()))
@@ -211,9 +211,9 @@ public class UniProtEntryMapper {
      * where aspect is {@code F} (Molecular Function), {@code P} (Biological Process),
      * or {@code C} (Cellular Component).
      */
-    private GoTerm toGoTerm(final UniProtKBCrossReference ref) {
+    private GoTerm toGoTerm(UniProtKBCrossReference ref) {
         char aspect = '?';
-        String description = "";
+        var description = "";
         if (ref.properties() != null) {
             for (CrossReferenceProperty prop : ref.properties()) {
                 if ("GoTerm".equals(prop.key()) && prop.value() != null) {
@@ -238,8 +238,8 @@ public class UniProtEntryMapper {
     // ── Cross-references (non-GO) ─────────────────────────────────────────────
 
     private Set<CrossReference> mapCrossReferences(
-            final List<UniProtKBCrossReference> crossRefs,
-            final ProteinEntry protein) {
+            List<UniProtKBCrossReference> crossRefs,
+            ProteinEntry protein) {
         if (crossRefs == null) return new HashSet<>();
         return crossRefs.stream()
                 .filter(r -> !GO_DATABASE.equals(r.database()))
@@ -247,7 +247,7 @@ public class UniProtEntryMapper {
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private CrossReference toCrossReference(final UniProtKBCrossReference src, final ProteinEntry protein) {
+    private CrossReference toCrossReference(UniProtKBCrossReference src, ProteinEntry protein) {
         String secondaryId = null;
         String tertiaryInfo = null;
         if (src.properties() != null) {
@@ -265,7 +265,7 @@ public class UniProtEntryMapper {
 
     // ── Comments ──────────────────────────────────────────────────────────────
 
-    private Set<ProteinComment> mapComments(final List<Comment> comments, final ProteinEntry protein) {
+    private Set<ProteinComment> mapComments(List<Comment> comments, ProteinEntry protein) {
         if (comments == null) return new HashSet<>();
         return comments.stream()
                 .filter(c -> c.commentType() != null)
@@ -274,7 +274,7 @@ public class UniProtEntryMapper {
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private ProteinComment toProteinComment(final Comment src, final ProteinEntry protein) {
+    private ProteinComment toProteinComment(Comment src, ProteinEntry protein) {
         return ProteinComment.builder()
                 .protein(protein)
                 .commentType(src.commentType())
@@ -286,10 +286,10 @@ public class UniProtEntryMapper {
      * Extracts a human-readable text representation from a polymorphic {@link Comment}.
      * UniProt comments carry their payload in different fields depending on the comment type.
      */
-    private String extractCommentText(final Comment comment) {
+    private String extractCommentText(Comment comment) {
         // Plain text comments (FUNCTION, CATALYTIC_ACTIVITY, SIMILARITY, …)
         if (comment.texts() != null && !comment.texts().isEmpty()) {
-            String joined = comment.texts().stream()
+            var joined = comment.texts().stream()
                     .map(Text::value)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(" "));
@@ -297,7 +297,7 @@ public class UniProtEntryMapper {
         }
         // SUBCELLULAR_LOCATION
         if (comment.subcellularLocations() != null && !comment.subcellularLocations().isEmpty()) {
-            String joined = comment.subcellularLocations().stream()
+            var joined = comment.subcellularLocations().stream()
                     .filter(sl -> sl.location() != null)
                     .map(sl -> sl.location().value())
                     .filter(Objects::nonNull)
@@ -306,7 +306,7 @@ public class UniProtEntryMapper {
         }
         // DISEASE
         if (comment.disease() != null) {
-            String desc = comment.disease().description();
+            var desc = comment.disease().description();
             return desc != null ? desc : Objects.requireNonNullElse(comment.disease().diseaseId(), "");
         }
         // Note (fallback for structured notes)
@@ -321,15 +321,15 @@ public class UniProtEntryMapper {
 
     // ── Publications ──────────────────────────────────────────────────────────
 
-    private Set<ProteinPublication> mapPublications(final List<Reference> references, final ProteinEntry protein) {
+    private Set<ProteinPublication> mapPublications(List<Reference> references, ProteinEntry protein) {
         if (references == null) return new HashSet<>();
         return references.stream()
                 .map(r -> toProteinPublication(r, protein))
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private ProteinPublication toProteinPublication(final Reference src, final ProteinEntry protein) {
-        final Citation cit = src.citation();
+    private ProteinPublication toProteinPublication(Reference src, ProteinEntry protein) {
+        var cit = src.citation();
         return ProteinPublication.builder()
                 .protein(protein)
                 .refNumber((short) src.referenceNumber())
@@ -341,7 +341,7 @@ public class UniProtEntryMapper {
                 .build();
     }
 
-    private String extractCitationXref(final Citation citation, final String database) {
+    private String extractCitationXref(Citation citation, String database) {
         if (citation == null || citation.citationCrossReferences() == null) return null;
         return citation.citationCrossReferences().stream()
                 .filter(x -> database.equals(x.database()))
@@ -350,11 +350,11 @@ public class UniProtEntryMapper {
                 .orElse(null);
     }
 
-    private String joinAuthors(final Citation citation) {
+    private String joinAuthors(Citation citation) {
         if (citation == null) return null;
-        List<String> authors = citation.authors();
+        var authors = citation.authors();
         if (authors == null || authors.isEmpty()) {
-            List<String> groups = citation.authoringGroup();
+            var groups = citation.authoringGroup();
             if (groups != null && !groups.isEmpty()) return String.join("; ", groups);
             return null;
         }
@@ -363,9 +363,9 @@ public class UniProtEntryMapper {
 
     // ── EntryAudit helpers ────────────────────────────────────────────────────
 
-    private LocalDate auditDate(final EntryAudit audit, final AuditDateField field) {
+    private LocalDate auditDate(EntryAudit audit, AuditDateField field) {
         if (audit == null) return null;
-        String raw = switch (field) {
+        var raw = switch (field) {
             case FIRST_PUBLIC -> audit.firstPublicDate();
             case LAST_SEQUENCE_UPDATE -> audit.lastSequenceUpdateDate();
             case LAST_ANNOTATION_UPDATE -> audit.lastAnnotationUpdateDate();
@@ -373,7 +373,7 @@ public class UniProtEntryMapper {
         return parseDate(raw);
     }
 
-    private Short auditShort(final EntryAudit audit, final AuditShortField field) {
+    private Short auditShort(EntryAudit audit, AuditShortField field) {
         if (audit == null) return null;
         int value = switch (field) {
             case SEQUENCE_VERSION -> audit.sequenceVersion();
@@ -382,7 +382,7 @@ public class UniProtEntryMapper {
         return (short) value;
     }
 
-    private LocalDate parseDate(final String raw) {
+    private LocalDate parseDate(String raw) {
         if (raw == null || raw.isBlank()) return null;
         try {
             return LocalDate.parse(raw, DATE_FORMATTER);
@@ -396,7 +396,7 @@ public class UniProtEntryMapper {
         }
     }
 
-    private String joinEvidenceCodes(final List<Evidence> evidences) {
+    private String joinEvidenceCodes(List<Evidence> evidences) {
         if (evidences == null || evidences.isEmpty()) return null;
         return evidences.stream()
                 .map(Evidence::evidenceCode)
