@@ -1,0 +1,4488 @@
+[
+  {
+    "id": "accession_field",
+    "label": "UniProtKB AC",
+    "itemType": "single",
+    "term": "accession",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "P12345",
+    "regex": "(?i)([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z]([0-9][A-Z][A-Z0-9]{2}){1,2}[0-9])(-[0-9]+)?"
+  },
+  {
+    "id": "id_field",
+    "label": "Entry Name [ID]",
+    "itemType": "single",
+    "term": "id",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "P53_HUMAN"
+  },
+  {
+    "id": "sec_acc",
+    "label": "Secondary Accession",
+    "itemType": "single",
+    "term": "sec_acc",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "B2R5V1",
+    "regex": "(?i)([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z]([0-9][A-Z][A-Z0-9]{2}){1,2}[0-9])(-[0-9]+)?"
+  },
+  {
+    "id": "protein_name_field",
+    "label": "Protein Name [DE]",
+    "itemType": "single",
+    "term": "protein_name",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "Elastin"
+  },
+  {
+    "id": "gene_field",
+    "label": "Gene Name [GN]",
+    "itemType": "single",
+    "term": "gene",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "YDJ1"
+  },
+  {
+    "id": "organism_name_field",
+    "label": "Organism [OS]",
+    "itemType": "single",
+    "term": "organism_name",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "saccharomyces",
+    "autoComplete": "/suggester?dict=organism&query=?",
+    "autoCompleteQueryTerm": "organism_id"
+  },
+  {
+    "id": "taxonomy_name",
+    "label": "Taxonomy [OC]",
+    "itemType": "single",
+    "term": "taxonomy_name",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "mammalia",
+    "autoComplete": "/suggester?dict=taxonomy&query=?",
+    "autoCompleteQueryTerm": "taxonomy_id"
+  },
+  {
+    "id": "virus_host_name",
+    "label": "Virus host",
+    "itemType": "single",
+    "term": "virus_host_name",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "human",
+    "autoComplete": "/suggester?dict=host&query=?",
+    "autoCompleteQueryTerm": "virus_host_id"
+  },
+  {
+    "id": "existence",
+    "label": "Protein Existence [PE]",
+    "itemType": "single",
+    "term": "existence",
+    "dataType": "enum",
+    "fieldType": "general",
+    "example": "1",
+    "regex": "[1-5]",
+    "values": [
+      {
+        "name": "Evidence at protein level",
+        "value": "1"
+      },
+      {
+        "name": "Evidence at transcript level",
+        "value": "2"
+      },
+      {
+        "name": "Inferred from homology",
+        "value": "3"
+      },
+      {
+        "name": "Predicted",
+        "value": "4"
+      },
+      {
+        "name": "Uncertain",
+        "value": "5"
+      }
+    ]
+  },
+  {
+    "id": "function",
+    "label": "Function",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "ec",
+        "label": "Enzyme classification [EC]",
+        "itemType": "single",
+        "term": "ec",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "1.1.2.3",
+        "autoComplete": "/suggester?dict=ec&query=?",
+        "autoCompleteQueryTerm": "ec"
+      },
+      {
+        "id": "cofactors",
+        "label": "Cofactors",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "chebi_term",
+            "label": "ChEBI term",
+            "itemType": "sibling_group",
+            "tags": [
+              "CHEBI",
+              "InChIKey"
+            ],
+            "siblings": [
+              {
+                "id": "cc_cofactor_chebi",
+                "itemType": "single",
+                "term": "cc_cofactor_chebi",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "29105",
+                "autoComplete": "/suggester?dict=cofactor&query=?",
+                "autoCompleteQueryTerm": "cc_cofactor_chebi"
+              },
+              {
+                "id": "cc_cofactor_chebi_exp",
+                "itemType": "single",
+                "term": "cc_cofactor_chebi_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "29105"
+              }
+            ]
+          },
+          {
+            "id": "note",
+            "label": "Note",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_cofactor_note",
+                "itemType": "single",
+                "term": "cc_cofactor_note",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "subunit"
+              },
+              {
+                "id": "cc_cofactor_note_exp",
+                "itemType": "single",
+                "term": "cc_cofactor_note_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "subunit"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "biophysicochemical_properties",
+        "label": "Biophysicochemical properties",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "biophysicochemical_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp",
+                "itemType": "single",
+                "term": "cc_bpcp",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "prosthetic"
+              },
+              {
+                "id": "cc_bpcp_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "prosthetic"
+              }
+            ]
+          },
+          {
+            "id": "biophysicochemical_absorption",
+            "label": "Absorption",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp_absorption",
+                "itemType": "single",
+                "term": "cc_bpcp_absorption",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "prosthetic"
+              },
+              {
+                "id": "cc_bpcp_absorption_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_absorption_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "prosthetic"
+              }
+            ]
+          },
+          {
+            "id": "biophysicochemical_kinetics",
+            "label": "Kinetics",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp_kinetics",
+                "itemType": "single",
+                "term": "cc_bpcp_kinetics",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "aspartate"
+              },
+              {
+                "id": "cc_bpcp_kinetics_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_kinetics_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "aspartate"
+              }
+            ]
+          },
+          {
+            "id": "biophysicochemical_ph_dependence",
+            "label": "pH dependence",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp_ph_dependence",
+                "itemType": "single",
+                "term": "cc_bpcp_ph_dependence",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "optimum"
+              },
+              {
+                "id": "cc_bpcp_ph_dependence_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_ph_dependence_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "optimum"
+              }
+            ]
+          },
+          {
+            "id": "biophysicochemical_redox_potential",
+            "label": "Redox potential",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp_redox_potential",
+                "itemType": "single",
+                "term": "cc_bpcp_redox_potential",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "siroheme"
+              },
+              {
+                "id": "cc_bpcp_redox_potential_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_redox_potential_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "siroheme"
+              }
+            ]
+          },
+          {
+            "id": "biophysicochemical_temperature_dependence",
+            "label": "Temperature dependence",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_bpcp_temp_dependence",
+                "itemType": "single",
+                "term": "cc_bpcp_temp_dependence",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "cc_bpcp_temp_dependence_exp",
+                "itemType": "single",
+                "term": "cc_bpcp_temp_dependence_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "catalytic_activity",
+        "label": "Catalytic Activity",
+        "itemType": "sibling_group",
+        "tags": [
+          "RHEA",
+          "CHEBI",
+          "InChIKey"
+        ],
+        "siblings": [
+          {
+            "id": "cc_catalytic_activity_field",
+            "itemType": "single",
+            "term": "cc_catalytic_activity",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "tyrosine",
+            "autoComplete": "/suggester?dict=catalytic_activity&query=?",
+            "autoCompleteQueryTerm": "cc_catalytic_activity"
+          },
+          {
+            "id": "cc_catalytic_activity_exp",
+            "itemType": "single",
+            "term": "cc_catalytic_activity_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "tyrosine"
+          }
+        ]
+      },
+      {
+        "id": "activity_regulation",
+        "label": "Activity regulation",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_activity_regulation",
+            "itemType": "single",
+            "term": "cc_activity_regulation",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "inhibited"
+          },
+          {
+            "id": "cc_activity_regulation_exp",
+            "itemType": "single",
+            "term": "cc_activity_regulation_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "inhibited"
+          }
+        ]
+      },
+      {
+        "id": "function_cc",
+        "label": "Function [CC]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_function",
+            "itemType": "single",
+            "term": "cc_function",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "enzyme"
+          },
+          {
+            "id": "cc_function_exp",
+            "itemType": "single",
+            "term": "cc_function_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "enzyme"
+          }
+        ]
+      },
+      {
+        "id": "caution",
+        "label": "Caution",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_caution",
+            "itemType": "single",
+            "term": "cc_caution",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "kinase"
+          },
+          {
+            "id": "cc_caution_exp",
+            "itemType": "single",
+            "term": "cc_caution_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "kinase"
+          }
+        ]
+      },
+      {
+        "id": "sites",
+        "label": "Sites",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "sites_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_sites",
+                "itemType": "single",
+                "term": "ft_sites",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "translocation"
+              },
+              {
+                "id": "ft_sites_exp",
+                "itemType": "single",
+                "term": "ft_sites_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "translocation"
+              }
+            ]
+          },
+          {
+            "id": "sites_active_site",
+            "label": "Active site",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_act_site",
+                "itemType": "single",
+                "term": "ft_act_site",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "phosphocysteine"
+              },
+              {
+                "id": "ft_act_site_exp",
+                "itemType": "single",
+                "term": "ft_act_site_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "phosphocysteine"
+              }
+            ]
+          },
+          {
+            "id": "sites_binding_site",
+            "label": "Binding site",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_binding",
+                "itemType": "single",
+                "term": "ft_binding",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "phosphocysteine",
+                "autoComplete": "/suggester?dict=binding&query=?",
+                "autoCompleteQueryTerm": "ft_binding"
+              },
+              {
+                "id": "ft_binding_exp",
+                "itemType": "single",
+                "term": "ft_binding_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "phosphocysteine"
+              }
+            ]
+          },
+          {
+            "id": "sites_other",
+            "label": "Other",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_site",
+                "itemType": "single",
+                "term": "ft_site",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "phosphocysteine"
+              },
+              {
+                "id": "ft_site_exp",
+                "itemType": "single",
+                "term": "ft_site_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "phosphocysteine"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dna_binding",
+        "label": "DNA binding",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_dna_bind",
+            "itemType": "single",
+            "term": "ft_dna_bind",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_dna_bind_exp",
+            "itemType": "single",
+            "term": "ft_dna_bind_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "pathway",
+        "label": "Pathway",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_pathway",
+            "itemType": "single",
+            "term": "cc_pathway",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "metabolism"
+          },
+          {
+            "id": "cc_pathway_exp",
+            "itemType": "single",
+            "term": "cc_pathway_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "metabolism"
+          }
+        ]
+      },
+      {
+        "id": "miscellaneous_cc",
+        "label": "Miscellaneous [CC]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_miscellaneous",
+            "itemType": "single",
+            "term": "cc_miscellaneous",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "abscisic"
+          },
+          {
+            "id": "cc_miscellaneous_exp",
+            "itemType": "single",
+            "term": "cc_miscellaneous_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "abscisic"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "subcellular",
+    "label": "Subcellular location",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "cc_subcellular",
+        "label": "Subcellular location [CC]",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "subcellular_location_term",
+            "label": "Subcellular location term",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_scl_term_field",
+                "itemType": "single",
+                "term": "cc_scl_term",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "membrane",
+                "autoComplete": "/suggester?dict=subcell&query=?",
+                "autoCompleteQueryTerm": "cc_scl_term"
+              },
+              {
+                "id": "cc_scl_term_exp",
+                "itemType": "single",
+                "term": "cc_scl_term_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "membrane"
+              }
+            ]
+          },
+          {
+            "id": "subcellular_location_note",
+            "label": "Subcellular location note",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_scl_note",
+                "itemType": "single",
+                "term": "cc_scl_note",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "membrane"
+              },
+              {
+                "id": "cc_scl_note_exp",
+                "itemType": "single",
+                "term": "cc_scl_note_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "membrane"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "transmembrane",
+        "label": "Transmembrane",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_transmem",
+            "itemType": "single",
+            "term": "ft_transmem",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "helical"
+          },
+          {
+            "id": "ft_transmem_exp",
+            "itemType": "single",
+            "term": "ft_transmem_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "helical"
+          }
+        ]
+      },
+      {
+        "id": "topological_domain",
+        "label": "Topological domain",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_topo_dom",
+            "itemType": "single",
+            "term": "ft_topo_dom",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "cytoplasmic"
+          },
+          {
+            "id": "ft_topo_dom_exp",
+            "itemType": "single",
+            "term": "ft_topo_dom_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "cytoplasmic"
+          }
+        ]
+      },
+      {
+        "id": "intramembrane",
+        "label": "Intramembrane",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_intramem",
+            "itemType": "single",
+            "term": "ft_intramem",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "helical"
+          },
+          {
+            "id": "ft_intramem_exp",
+            "itemType": "single",
+            "term": "ft_intramem_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "helical"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pathology_biotech",
+    "label": "Pathology & Biotech",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "disease",
+        "label": "Disease",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_disease",
+            "itemType": "single",
+            "term": "cc_disease",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "nephrotic",
+            "autoComplete": "/suggester?dict=disease&query=?",
+            "autoCompleteQueryTerm": "cc_disease"
+          },
+          {
+            "id": "cc_disease_exp",
+            "itemType": "single",
+            "term": "cc_disease_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "nephrotic"
+          }
+        ]
+      },
+      {
+        "id": "alergenic_properties",
+        "label": "Allergenic properties",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_allergen",
+            "itemType": "single",
+            "term": "cc_allergen",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "allergic"
+          },
+          {
+            "id": "cc_allergen_exp",
+            "itemType": "single",
+            "term": "cc_allergen_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "allergic"
+          }
+        ]
+      },
+      {
+        "id": "toxic_dose",
+        "label": "Toxic dose",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_toxic_dose",
+            "itemType": "single",
+            "term": "cc_toxic_dose",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "intracistenal"
+          },
+          {
+            "id": "cc_toxic_dose_exp",
+            "itemType": "single",
+            "term": "cc_toxic_dose_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "intracistenal"
+          }
+        ]
+      },
+      {
+        "id": "biotechnological_use",
+        "label": "Biotechnological use",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_biotechnology",
+            "itemType": "single",
+            "term": "cc_biotechnology",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "vaccine"
+          },
+          {
+            "id": "cc_biotechnology_exp",
+            "itemType": "single",
+            "term": "cc_biotechnology_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "vaccine"
+          }
+        ]
+      },
+      {
+        "id": "pharmaceutical_use",
+        "label": "Pharmaceutical use",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_pharmaceutical",
+            "itemType": "single",
+            "term": "cc_pharmaceutical",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "peptide"
+          },
+          {
+            "id": "cc_pharmaceutical_exp",
+            "itemType": "single",
+            "term": "cc_pharmaceutical_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "peptide"
+          }
+        ]
+      },
+      {
+        "id": "disruption_phenotype",
+        "label": "Disruption phenotype",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_disruption_phenotype",
+            "itemType": "single",
+            "term": "cc_disruption_phenotype",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "infected"
+          },
+          {
+            "id": "cc_disruption_phenotype_exp",
+            "itemType": "single",
+            "term": "cc_disruption_phenotype_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "infected"
+          }
+        ]
+      },
+      {
+        "id": "mutagenesis",
+        "label": "Mutagenesis",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_mutagen",
+            "itemType": "single",
+            "term": "ft_mutagen",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "phosphatase"
+          },
+          {
+            "id": "ft_mutagen_exp",
+            "itemType": "single",
+            "term": "ft_mutagen_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "phosphatase"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ptm_processing",
+    "label": "PTM/Processing",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "post_translational_modification_cc",
+        "label": "Post-translational modification [CC]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_ptm",
+            "itemType": "single",
+            "term": "cc_ptm",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "mitosis"
+          },
+          {
+            "id": "cc_ptm_exp",
+            "itemType": "single",
+            "term": "cc_ptm_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "mitosis"
+          }
+        ]
+      },
+      {
+        "id": "modified_residue_ft",
+        "label": "Modified residue [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_mod_res",
+            "itemType": "single",
+            "term": "ft_mod_res",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "phosphoserine"
+          },
+          {
+            "id": "ft_mod_res_exp",
+            "itemType": "single",
+            "term": "ft_mod_res_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "phosphoserine"
+          }
+        ]
+      },
+      {
+        "id": "lipidation_ft",
+        "label": "Lipidation [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_lipid",
+            "itemType": "single",
+            "term": "ft_lipid",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "cysteine"
+          },
+          {
+            "id": "ft_lipid_exp",
+            "itemType": "single",
+            "term": "ft_lipid_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "cysteine"
+          }
+        ]
+      },
+      {
+        "id": "glycosylation_ft",
+        "label": "Glycosylation [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_carbohyd",
+            "itemType": "single",
+            "term": "ft_carbohyd",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "GlcNAc"
+          },
+          {
+            "id": "ft_carbohyd_exp",
+            "itemType": "single",
+            "term": "ft_carbohyd_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "GlcNAc"
+          }
+        ]
+      },
+      {
+        "id": "disulfide_bond_ft",
+        "label": "Disulfide bond [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_disulfid",
+            "itemType": "single",
+            "term": "ft_disulfid",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "reversible"
+          },
+          {
+            "id": "ft_disulfid_exp",
+            "itemType": "single",
+            "term": "ft_disulfid_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "reversible"
+          }
+        ]
+      },
+      {
+        "id": "cross_link_ft",
+        "label": "Cross-link [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_crosslnk",
+            "itemType": "single",
+            "term": "ft_crosslnk",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "lysine"
+          },
+          {
+            "id": "ft_crosslnk_exp",
+            "itemType": "single",
+            "term": "ft_crosslnk_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "lysine"
+          }
+        ]
+      },
+      {
+        "id": "molecule_processing",
+        "label": "Molecule Processing [FT]",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "any_molecule_processing",
+            "label": "Any molecule processing",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_molecule_processing",
+                "itemType": "single",
+                "term": "ft_molecule_processing",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "disulfide"
+              },
+              {
+                "id": "ft_molecule_processing_exp",
+                "itemType": "single",
+                "term": "ft_molecule_processing_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "disulfide"
+              }
+            ]
+          },
+          {
+            "id": "chain",
+            "label": "Chain",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_chain",
+                "itemType": "single",
+                "term": "ft_chain",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "kinase"
+              },
+              {
+                "id": "ft_chain_exp",
+                "itemType": "single",
+                "term": "ft_chain_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "kinase"
+              }
+            ]
+          },
+          {
+            "id": "initiator_methionine",
+            "label": "Initiator methionine",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_init_met",
+                "itemType": "single",
+                "term": "ft_init_met",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "Removed"
+              },
+              {
+                "id": "ft_init_met_exp",
+                "itemType": "single",
+                "term": "ft_init_met_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "Removed"
+              }
+            ]
+          },
+          {
+            "id": "peptide",
+            "label": "Peptide",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_peptide",
+                "itemType": "single",
+                "term": "ft_peptide",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "Removed"
+              },
+              {
+                "id": "ft_peptide_exp",
+                "itemType": "single",
+                "term": "ft_peptide_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "Removed"
+              }
+            ]
+          },
+          {
+            "id": "signal_peptide",
+            "label": "Signal Peptide",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_signal",
+                "itemType": "single",
+                "term": "ft_signal",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "cleaved"
+              },
+              {
+                "id": "ft_signal_exp",
+                "itemType": "single",
+                "term": "ft_signal_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "cleaved"
+              }
+            ]
+          },
+          {
+            "id": "propeptide",
+            "label": "Propeptide",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_propep",
+                "itemType": "single",
+                "term": "ft_propep",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "Activation peptide"
+              },
+              {
+                "id": "ft_propep_exp",
+                "itemType": "single",
+                "term": "ft_propep_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "Activation peptide"
+              }
+            ]
+          },
+          {
+            "id": "transit_peptide",
+            "label": "Transit Peptide",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_transit",
+                "itemType": "single",
+                "term": "ft_transit",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "Mitochondrion"
+              },
+              {
+                "id": "ft_transit_exp",
+                "itemType": "single",
+                "term": "ft_transit_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "Mitochondrion"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "expression",
+    "label": "Expression",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "developmental_stage",
+        "label": "Developmental stage",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_developmental_stage",
+            "itemType": "single",
+            "term": "cc_developmental_stage",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "brain"
+          },
+          {
+            "id": "cc_developmental_stage_exp",
+            "itemType": "single",
+            "term": "cc_developmental_stage_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "brain"
+          }
+        ]
+      },
+      {
+        "id": "induction",
+        "label": "Induction",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_induction",
+            "itemType": "single",
+            "term": "cc_induction",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "calcium"
+          },
+          {
+            "id": "cc_induction_exp",
+            "itemType": "single",
+            "term": "cc_induction_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "calcium"
+          }
+        ]
+      },
+      {
+        "id": "tissue_specificity",
+        "label": "Tissue specificity",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_tissue_specificity",
+            "itemType": "single",
+            "term": "cc_tissue_specificity",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "pancreas"
+          },
+          {
+            "id": "cc_tissue_specificity_exp",
+            "itemType": "single",
+            "term": "cc_tissue_specificity_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "pancreas"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "interaction",
+    "label": "Interaction",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "interactor",
+        "label": "Binary Interaction",
+        "itemType": "single",
+        "term": "interactor",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "EBI-1042898"
+      },
+      {
+        "id": "subunit_structure",
+        "label": "Subunit structure",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_subunit",
+            "itemType": "single",
+            "term": "cc_subunit",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "homodimer"
+          },
+          {
+            "id": "cc_subunit_exp",
+            "itemType": "single",
+            "term": "cc_subunit_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "homodimer"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "structure",
+    "label": "Structure",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "structure_3d",
+        "label": "3D Structure",
+        "itemType": "single",
+        "term": "structure_3d",
+        "dataType": "boolean",
+        "fieldType": "general",
+        "example": "true",
+        "regex": "^true|false$"
+      },
+      {
+        "id": "secondary_structure",
+        "label": "Secondary structure",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "secondary_structure_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_secstruct",
+                "itemType": "single",
+                "term": "ft_secstruct",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "ft_secstruct_exp",
+                "itemType": "single",
+                "term": "ft_secstruct_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          },
+          {
+            "id": "secondary_structure_helix",
+            "label": "Helix",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_helix",
+                "itemType": "single",
+                "term": "ft_helix",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "ft_helix_exp",
+                "itemType": "single",
+                "term": "ft_helix_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          },
+          {
+            "id": "secondary_structure_turn",
+            "label": "Turn",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_turn",
+                "itemType": "single",
+                "term": "ft_turn",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "ft_turn_exp",
+                "itemType": "single",
+                "term": "ft_turn_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          },
+          {
+            "id": "secondary_structure_beta_strand",
+            "label": "Beta strand",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_strand",
+                "itemType": "single",
+                "term": "ft_strand",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "ft_strand_exp",
+                "itemType": "single",
+                "term": "ft_strand_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sequence",
+    "label": "Sequence",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "mass_range",
+        "label": "Mass(Da)",
+        "itemType": "single",
+        "term": "mass",
+        "dataType": "integer",
+        "fieldType": "range",
+        "example": "[10000 TO 11000]"
+      },
+      {
+        "id": "checksum",
+        "label": "Checksum (CRC64/MD5)",
+        "itemType": "single",
+        "term": "checksum",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "B8824CE1ECAEEEAE"
+      },
+      {
+        "id": "length_range",
+        "label": "Sequence length",
+        "itemType": "single",
+        "term": "length",
+        "dataType": "integer",
+        "fieldType": "range",
+        "example": "[441 TO 450]"
+      },
+      {
+        "id": "alt_product_isoform",
+        "label": "Alternative products (isoforms)",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "sequence_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_ap",
+                "itemType": "single",
+                "term": "cc_ap",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "tissues"
+              },
+              {
+                "id": "cc_ap_exp",
+                "itemType": "single",
+                "term": "cc_ap_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "tissues"
+              }
+            ]
+          },
+          {
+            "id": "alternative_promoter_usage",
+            "label": "Alternative promoter usage",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_ap_apu",
+                "itemType": "single",
+                "term": "cc_ap_apu",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "*"
+              },
+              {
+                "id": "cc_ap_apu_exp",
+                "itemType": "single",
+                "term": "cc_ap_apu_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "*"
+              }
+            ]
+          },
+          {
+            "id": "alternative_splicing",
+            "label": "Alternative splicing",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_ap_as",
+                "itemType": "single",
+                "term": "cc_ap_as",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "experimental"
+              },
+              {
+                "id": "cc_ap_as_exp",
+                "itemType": "single",
+                "term": "cc_ap_as_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "experimental"
+              }
+            ]
+          },
+          {
+            "id": "alternative_initiation",
+            "label": "Alternative initiation",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_ap_ai",
+                "itemType": "single",
+                "term": "cc_ap_ai",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "acetylalanine"
+              },
+              {
+                "id": "cc_ap_ai_exp",
+                "itemType": "single",
+                "term": "cc_ap_ai_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "acetylalanine"
+              }
+            ]
+          },
+          {
+            "id": "ribosomal_frameshifting",
+            "label": "Ribosomal frameshifting",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_ap_rf",
+                "itemType": "single",
+                "term": "cc_ap_rf",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "translation"
+              },
+              {
+                "id": "cc_ap_rf_exp",
+                "itemType": "single",
+                "term": "cc_ap_rf_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "translation"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "seq_caution",
+        "label": "Sequence caution",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "seq_caution_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_sequence_caution",
+                "itemType": "single",
+                "term": "cc_sequence_caution",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "translated"
+              },
+              {
+                "id": "cc_sequence_caution_exp",
+                "itemType": "single",
+                "term": "cc_sequence_caution_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "translated"
+              }
+            ]
+          },
+          {
+            "id": "cc_sc_framesh",
+            "label": "Frameshift",
+            "itemType": "single",
+            "term": "cc_sc_framesh",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "cc_sc_einit",
+            "label": "Erroneous initiation",
+            "itemType": "single",
+            "term": "cc_sc_einit",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "extended"
+          },
+          {
+            "id": "cc_sc_eterm",
+            "label": "Erroneous termination",
+            "itemType": "single",
+            "term": "cc_sc_eterm",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "truncated"
+          },
+          {
+            "id": "cc_sc_epred",
+            "label": "Erroneous gene model prediction",
+            "itemType": "single",
+            "term": "cc_sc_epred",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "cc_sc_etran",
+            "label": "Erroneous translation",
+            "itemType": "single",
+            "term": "cc_sc_etran",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "choice"
+          },
+          {
+            "id": "miscellaneous_discrepancy",
+            "label": "Miscellaneous Discrepancy",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "cc_sc_misc",
+                "itemType": "single",
+                "term": "cc_sc_misc",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "sequence"
+              },
+              {
+                "id": "cc_sc_misc_exp",
+                "itemType": "single",
+                "term": "cc_sc_misc_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "sequence"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mass_spectrometry",
+        "label": "Mass Spectrometry",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_mass_spectrometry",
+            "itemType": "single",
+            "term": "cc_mass_spectrometry",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "electrospray"
+          },
+          {
+            "id": "cc_mass_spectrometry_exp",
+            "itemType": "single",
+            "term": "cc_mass_spectrometry_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "electrospray"
+          }
+        ]
+      },
+      {
+        "id": "polymorphism",
+        "label": "Polymorphism",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_polymorphism",
+            "itemType": "single",
+            "term": "cc_polymorphism",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "transcript"
+          },
+          {
+            "id": "cc_polymorphism_exp",
+            "itemType": "single",
+            "term": "cc_polymorphism_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "transcript"
+          }
+        ]
+      },
+      {
+        "id": "rna_editing",
+        "label": "RNA Editing",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_rna_editing",
+            "itemType": "single",
+            "term": "cc_rna_editing",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "target"
+          },
+          {
+            "id": "cc_rna_editing_exp",
+            "itemType": "single",
+            "term": "cc_rna_editing_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "target"
+          }
+        ]
+      },
+      {
+        "id": "natural_variations",
+        "label": "Natural Variations",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "natural_variations_any",
+            "label": "Any",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_variants",
+                "itemType": "single",
+                "term": "ft_variants",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "colorectal"
+              },
+              {
+                "id": "ft_variants_exp",
+                "itemType": "single",
+                "term": "ft_variants_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "colorectal"
+              }
+            ]
+          },
+          {
+            "id": "natural_variations_natural_variant",
+            "label": "Natural variant",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_variant",
+                "itemType": "single",
+                "term": "ft_variant",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "colorectal"
+              },
+              {
+                "id": "ft_variant_exp",
+                "itemType": "single",
+                "term": "ft_variant_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "colorectal"
+              }
+            ]
+          },
+          {
+            "id": "natural_variations_alternative_sequence",
+            "label": "Alternative sequence",
+            "itemType": "sibling_group",
+            "siblings": [
+              {
+                "id": "ft_var_seq",
+                "itemType": "single",
+                "term": "ft_var_seq",
+                "dataType": "string",
+                "fieldType": "general",
+                "example": "isoform"
+              },
+              {
+                "id": "ft_var_seq_exp",
+                "itemType": "single",
+                "term": "ft_var_seq_exp",
+                "dataType": "string",
+                "fieldType": "experimental_evidence",
+                "example": "isoform"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "non_standard_residue",
+        "label": "Non-standard residue",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_non_std",
+            "itemType": "single",
+            "term": "ft_non_std",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "selenocysteine"
+          },
+          {
+            "id": "ft_non_std_exp",
+            "itemType": "single",
+            "term": "ft_non_std_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "selenocysteine"
+          }
+        ]
+      },
+      {
+        "id": "non_terminal_residue",
+        "label": "Non-terminal residue",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_non_ter",
+            "itemType": "single",
+            "term": "ft_non_ter",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_non_ter_exp",
+            "itemType": "single",
+            "term": "ft_non_ter_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "non_adjacent_residue",
+        "label": "Non-adjacent residue",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_non_cons",
+            "itemType": "single",
+            "term": "ft_non_cons",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_non_cons_exp",
+            "itemType": "single",
+            "term": "ft_non_cons_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "sequence_conflict",
+        "label": "Sequence conflict",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_conflict",
+            "itemType": "single",
+            "term": "ft_conflict",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_conflict_exp",
+            "itemType": "single",
+            "term": "ft_conflict_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "sequence_uncertainty",
+        "label": "Sequence uncertainty",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_unsure",
+            "itemType": "single",
+            "term": "ft_unsure",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_unsure_exp",
+            "itemType": "single",
+            "term": "ft_unsure_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "sequence_features_ft",
+        "label": "Sequence features [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_positional",
+            "itemType": "single",
+            "term": "ft_positional",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "colorectal"
+          },
+          {
+            "id": "ft_positional_exp",
+            "itemType": "single",
+            "term": "ft_positional_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "colorectal"
+          }
+        ]
+      },
+      {
+        "id": "fragment",
+        "label": "Fragment",
+        "itemType": "single",
+        "term": "fragment",
+        "dataType": "boolean",
+        "fieldType": "general",
+        "example": "true",
+        "regex": "^true|false$"
+      },
+      {
+        "id": "encoded_in",
+        "label": "Encoded in",
+        "itemType": "single",
+        "term": "encoded_in",
+        "dataType": "enum",
+        "fieldType": "general",
+        "example": "mitochondrion",
+        "values": [
+          {
+            "name": "Mitochondrion",
+            "value": "mitochondrion"
+          },
+          {
+            "name": "Plasmid",
+            "value": "plasmid"
+          },
+          {
+            "name": "Plastid",
+            "value": "plastid"
+          },
+          {
+            "name": "Chloroplast",
+            "value": "chloroplast"
+          },
+          {
+            "name": "Cyanelle",
+            "value": "cyanelle"
+          },
+          {
+            "name": "Apicoplast",
+            "value": "apicoplast"
+          },
+          {
+            "name": "Organellar chromatophore",
+            "value": "organellar chromatophore"
+          },
+          {
+            "name": "Non-photosynthetic plastid",
+            "value": "non-photosynthetic plastid"
+          },
+          {
+            "name": "Nucleomorph",
+            "value": "nucleomorph"
+          },
+          {
+            "name": "Hydrogenosome",
+            "value": "hydrogenosome"
+          }
+        ]
+      },
+      {
+        "id": "precursor",
+        "label": "Precursor",
+        "itemType": "single",
+        "term": "precursor",
+        "dataType": "boolean",
+        "fieldType": "general",
+        "example": "true",
+        "regex": "^true|false$"
+      },
+      {
+        "id": "sequence_from_rc",
+        "label": "Sequence from ... [RC]",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "tissue",
+            "label": "Tissue",
+            "itemType": "single",
+            "term": "tissue",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "head"
+          },
+          {
+            "id": "strain",
+            "label": "Strain",
+            "itemType": "single",
+            "term": "strain",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "berkeley"
+          },
+          {
+            "id": "plasmid",
+            "label": "Plasmid",
+            "itemType": "single",
+            "term": "plasmid",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "pO113"
+          },
+          {
+            "id": "transposon",
+            "label": "Transposon",
+            "itemType": "single",
+            "term": "transposon",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "tn3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "family_domains",
+    "label": "Family and Domains",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "domain_ft",
+        "label": "Domain [FT]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_domain",
+            "itemType": "single",
+            "term": "ft_domain",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "phosphatase"
+          },
+          {
+            "id": "ft_domain_exp",
+            "itemType": "single",
+            "term": "ft_domain_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "phosphatase"
+          }
+        ]
+      },
+      {
+        "id": "domain_comments_cc",
+        "label": "Domain Comments [CC]",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_domain",
+            "itemType": "single",
+            "term": "cc_domain",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "conformation"
+          },
+          {
+            "id": "cc_domain_exp",
+            "itemType": "single",
+            "term": "cc_domain_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "conformation"
+          }
+        ]
+      },
+      {
+        "id": "family",
+        "label": "Protein family",
+        "itemType": "single",
+        "term": "family",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "pa28"
+      },
+      {
+        "id": "coiled_coil",
+        "label": "Coiled-coil",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_coiled",
+            "itemType": "single",
+            "term": "ft_coiled",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "*"
+          },
+          {
+            "id": "ft_coiled_exp",
+            "itemType": "single",
+            "term": "ft_coiled_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "*"
+          }
+        ]
+      },
+      {
+        "id": "compositional_bias",
+        "label": "Compositional bias",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_compbias",
+            "itemType": "single",
+            "term": "ft_compbias",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "basic residues"
+          },
+          {
+            "id": "ft_compbias_exp",
+            "itemType": "single",
+            "term": "ft_compbias_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "basic residues"
+          }
+        ]
+      },
+      {
+        "id": "motif",
+        "label": "Motif",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_motif",
+            "itemType": "single",
+            "term": "ft_motif",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "motif"
+          },
+          {
+            "id": "ft_motif_exp",
+            "itemType": "single",
+            "term": "ft_motif_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "motif"
+          }
+        ]
+      },
+      {
+        "id": "region",
+        "label": "Region",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_region",
+            "itemType": "single",
+            "term": "ft_region",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "motif"
+          },
+          {
+            "id": "ft_region_exp",
+            "itemType": "single",
+            "term": "ft_region_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "motif"
+          }
+        ]
+      },
+      {
+        "id": "repeat",
+        "label": "Repeat",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_repeat",
+            "itemType": "single",
+            "term": "ft_repeat",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "motif"
+          },
+          {
+            "id": "ft_repeat_exp",
+            "itemType": "single",
+            "term": "ft_repeat_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "motif"
+          }
+        ]
+      },
+      {
+        "id": "sequence_similarity",
+        "label": "Sequence similarity",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "cc_similarity",
+            "itemType": "single",
+            "term": "cc_similarity",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "phosphatase"
+          },
+          {
+            "id": "cc_similarity_exp",
+            "itemType": "single",
+            "term": "cc_similarity_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "phosphatase"
+          }
+        ]
+      },
+      {
+        "id": "zinc_finger",
+        "label": "Zinc finger",
+        "itemType": "sibling_group",
+        "siblings": [
+          {
+            "id": "ft_zn_fing",
+            "itemType": "single",
+            "term": "ft_zn_fing",
+            "dataType": "string",
+            "fieldType": "general",
+            "example": "UBP"
+          },
+          {
+            "id": "ft_zn_fing_exp",
+            "itemType": "single",
+            "term": "ft_zn_fing_exp",
+            "dataType": "string",
+            "fieldType": "experimental_evidence",
+            "example": "UBP"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cross_references",
+    "label": "Cross-references",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "xref_source",
+        "label": "Source",
+        "itemType": "single",
+        "term": "source",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "google"
+      },
+      {
+        "id": "xref_group_any",
+        "label": "Any",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_any",
+            "label": "Any cross-reference",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_sequence_databases",
+        "label": "Sequence databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_embl",
+            "label": "EMBL",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "embl-"
+          },
+          {
+            "id": "xref_ccds",
+            "label": "CCDS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ccds-"
+          },
+          {
+            "id": "xref_pir",
+            "label": "PIR",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pir-"
+          },
+          {
+            "id": "xref_refseq",
+            "label": "RefSeq",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "refseq-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_3d_structure_databases",
+        "label": "3D structure databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_pdb",
+            "label": "PDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pdb-"
+          },
+          {
+            "id": "xref_pdbsum",
+            "label": "PDBsum",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pdbsum-"
+          },
+          {
+            "id": "xref_pcddb",
+            "label": "PCDDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pcddb-"
+          },
+          {
+            "id": "xref_sasbdb",
+            "label": "SASBDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "sasbdb-"
+          },
+          {
+            "id": "xref_bmrb",
+            "label": "BMRB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "bmrb-"
+          },
+          {
+            "id": "xref_smr",
+            "label": "SMR",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "smr-"
+          },
+          {
+            "id": "xref_alphafolddb",
+            "label": "AlphaFoldDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "alphafolddb-"
+          },
+          {
+            "id": "xref_emdb",
+            "label": "EMDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "emdb-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_protein-protein_interaction_databases",
+        "label": "Protein-protein interaction databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_biogrid",
+            "label": "BioGRID",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "biogrid-"
+          },
+          {
+            "id": "xref_complexportal",
+            "label": "ComplexPortal",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "complexportal-"
+          },
+          {
+            "id": "xref_corum",
+            "label": "CORUM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "corum-"
+          },
+          {
+            "id": "xref_dip",
+            "label": "DIP",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "dip-"
+          },
+          {
+            "id": "xref_elm",
+            "label": "ELM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "elm-"
+          },
+          {
+            "id": "xref_intact",
+            "label": "IntAct",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "intact-"
+          },
+          {
+            "id": "xref_mint",
+            "label": "MINT",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "mint-"
+          },
+          {
+            "id": "xref_string",
+            "label": "STRING",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "string-"
+          },
+          {
+            "id": "xref_ndex",
+            "label": "NDEx",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ndex-"
+          },
+          {
+            "id": "xref_funcoup",
+            "label": "FunCoup",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "funcoup-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_chemistry",
+        "label": "Chemistry",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_bindingdb",
+            "label": "BindingDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "bindingdb-"
+          },
+          {
+            "id": "xref_chembl",
+            "label": "ChEMBL",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "chembl-"
+          },
+          {
+            "id": "xref_drugbank",
+            "label": "DrugBank",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "drugbank-"
+          },
+          {
+            "id": "xref_guidetopharmacology",
+            "label": "GuidetoPHARMACOLOGY",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "guidetopharmacology-"
+          },
+          {
+            "id": "xref_swisslipids",
+            "label": "SwissLipids",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "swisslipids-"
+          },
+          {
+            "id": "xref_drugcentral",
+            "label": "DrugCentral",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "drugcentral-"
+          },
+          {
+            "id": "xref_chebi",
+            "label": "ChEBI",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "chebi-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_protein_family/group_databases",
+        "label": "Protein family/group databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_allergome",
+            "label": "Allergome",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "allergome-"
+          },
+          {
+            "id": "xref_cazy",
+            "label": "CAZy",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cazy-"
+          },
+          {
+            "id": "xref_esther",
+            "label": "ESTHER",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "esther-"
+          },
+          {
+            "id": "xref_imgt_gene-db",
+            "label": "IMGT_GENE-DB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "imgt_gene-db-"
+          },
+          {
+            "id": "xref_merops",
+            "label": "MEROPS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "merops-"
+          },
+          {
+            "id": "xref_moondb",
+            "label": "MoonDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "moondb-"
+          },
+          {
+            "id": "xref_moonprot",
+            "label": "MoonProt",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "moonprot-"
+          },
+          {
+            "id": "xref_peroxibase",
+            "label": "PeroxiBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "peroxibase-"
+          },
+          {
+            "id": "xref_rebase",
+            "label": "REBASE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "rebase-"
+          },
+          {
+            "id": "xref_tcdb",
+            "label": "TCDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "tcdb-"
+          },
+          {
+            "id": "xref_unilectin",
+            "label": "UniLectin",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "unilectin-"
+          },
+          {
+            "id": "xref_card",
+            "label": "CARD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "card-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_ptm_databases",
+        "label": "PTM databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_carbonyldb",
+            "label": "CarbonylDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "carbonyldb-"
+          },
+          {
+            "id": "xref_depod",
+            "label": "DEPOD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "depod-"
+          },
+          {
+            "id": "xref_glyconnect",
+            "label": "GlyConnect",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "glyconnect-"
+          },
+          {
+            "id": "xref_glycosmos",
+            "label": "GlyCosmos",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "glycosmos-"
+          },
+          {
+            "id": "xref_glygen",
+            "label": "GlyGen",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "glygen-"
+          },
+          {
+            "id": "xref_iptmnet",
+            "label": "iPTMnet",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "iptmnet-"
+          },
+          {
+            "id": "xref_phosphositeplus",
+            "label": "PhosphoSitePlus",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "phosphositeplus-"
+          },
+          {
+            "id": "xref_swisspalm",
+            "label": "SwissPalm",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "swisspalm-"
+          },
+          {
+            "id": "xref_unicarbkb",
+            "label": "UniCarbKB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "unicarbkb-"
+          },
+          {
+            "id": "xref_metosite",
+            "label": "MetOSite",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "metosite-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_genetic_variation_databases",
+        "label": "Genetic variation databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_biomuta",
+            "label": "BioMuta",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "biomuta-"
+          },
+          {
+            "id": "xref_dmdm",
+            "label": "DMDM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "dmdm-"
+          },
+          {
+            "id": "xref_dbsnp",
+            "label": "dbSNP",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "dbsnp-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_2d_gel_databases",
+        "label": "2D gel databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_ogp",
+            "label": "OGP",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ogp-"
+          },
+          {
+            "id": "xref_reproduction-2dpage",
+            "label": "REPRODUCTION-2DPAGE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "reproduction-2dpage-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_proteomic_databases",
+        "label": "Proteomic databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_cptac",
+            "label": "CPTAC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cptac-"
+          },
+          {
+            "id": "xref_paxdb",
+            "label": "PaxDb",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "paxdb-"
+          },
+          {
+            "id": "xref_peptideatlas",
+            "label": "PeptideAtlas",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "peptideatlas-"
+          },
+          {
+            "id": "xref_pride",
+            "label": "PRIDE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pride-"
+          },
+          {
+            "id": "xref_promex",
+            "label": "ProMEX",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "promex-"
+          },
+          {
+            "id": "xref_proteomicsdb",
+            "label": "ProteomicsDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "proteomicsdb-"
+          },
+          {
+            "id": "xref_pumba",
+            "label": "Pumba",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pumba-"
+          },
+          {
+            "id": "xref_topdownproteomics",
+            "label": "TopDownProteomics",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "topdownproteomics-"
+          },
+          {
+            "id": "xref_jpost",
+            "label": "jPOST",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "jpost-"
+          },
+          {
+            "id": "xref_massive",
+            "label": "MassIVE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "massive-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_protocols_and_materials_databases",
+        "label": "Protocols and materials databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_dnasu",
+            "label": "DNASU",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "dnasu-"
+          },
+          {
+            "id": "xref_abcd",
+            "label": "ABCD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "abcd-"
+          },
+          {
+            "id": "xref_antibodypedia",
+            "label": "Antibodypedia",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "antibodypedia-"
+          },
+          {
+            "id": "xref_cptc",
+            "label": "CPTC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cptc-"
+          },
+          {
+            "id": "xref_ycharos",
+            "label": "YCharOS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ycharos-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_genome_annotation_databases",
+        "label": "Genome annotation databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_ensembl",
+            "label": "Ensembl",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensembl-"
+          },
+          {
+            "id": "xref_ensemblbacteria",
+            "label": "EnsemblBacteria",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensemblbacteria-"
+          },
+          {
+            "id": "xref_ensemblfungi",
+            "label": "EnsemblFungi",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensemblfungi-"
+          },
+          {
+            "id": "xref_ensemblmetazoa",
+            "label": "EnsemblMetazoa",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensemblmetazoa-"
+          },
+          {
+            "id": "xref_ensemblplants",
+            "label": "EnsemblPlants",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensemblplants-"
+          },
+          {
+            "id": "xref_ensemblprotists",
+            "label": "EnsemblProtists",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ensemblprotists-"
+          },
+          {
+            "id": "xref_geneid",
+            "label": "GeneID",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "geneid-"
+          },
+          {
+            "id": "xref_gramene",
+            "label": "Gramene",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "gramene-"
+          },
+          {
+            "id": "xref_kegg",
+            "label": "KEGG",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "kegg-"
+          },
+          {
+            "id": "xref_mane-select",
+            "label": "MANE-Select",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "mane-select-"
+          },
+          {
+            "id": "xref_patric",
+            "label": "PATRIC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "patric-"
+          },
+          {
+            "id": "xref_ucsc",
+            "label": "UCSC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ucsc-"
+          },
+          {
+            "id": "xref_vectorbase",
+            "label": "VectorBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "vectorbase-"
+          },
+          {
+            "id": "xref_wbparasite",
+            "label": "WBParaSite",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "wbparasite-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_organism-specific_databases",
+        "label": "Organism-specific databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_arachnoserver",
+            "label": "ArachnoServer",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "arachnoserver-"
+          },
+          {
+            "id": "xref_araport",
+            "label": "Araport",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "araport-"
+          },
+          {
+            "id": "xref_cgd",
+            "label": "CGD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cgd-"
+          },
+          {
+            "id": "xref_conoserver",
+            "label": "ConoServer",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "conoserver-"
+          },
+          {
+            "id": "xref_ctd",
+            "label": "CTD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ctd-"
+          },
+          {
+            "id": "xref_dictybase",
+            "label": "dictyBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "dictybase-"
+          },
+          {
+            "id": "xref_disgenet",
+            "label": "DisGeNET",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "disgenet-"
+          },
+          {
+            "id": "xref_echobase",
+            "label": "EchoBASE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "echobase-"
+          },
+          {
+            "id": "xref_euhcvdb",
+            "label": "euHCVdb",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "euhcvdb-"
+          },
+          {
+            "id": "xref_veupathdb",
+            "label": "VEuPathDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "veupathdb-"
+          },
+          {
+            "id": "xref_flybase",
+            "label": "FlyBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "flybase-"
+          },
+          {
+            "id": "xref_genecards",
+            "label": "GeneCards",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "genecards-"
+          },
+          {
+            "id": "xref_genereviews",
+            "label": "GeneReviews",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "genereviews-"
+          },
+          {
+            "id": "xref_hgnc",
+            "label": "HGNC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "hgnc-"
+          },
+          {
+            "id": "xref_agr",
+            "label": "AGR",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "agr-"
+          },
+          {
+            "id": "xref_hpa",
+            "label": "HPA",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "hpa-"
+          },
+          {
+            "id": "xref_legiolist",
+            "label": "LegioList",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "legiolist-"
+          },
+          {
+            "id": "xref_leproma",
+            "label": "Leproma",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "leproma-"
+          },
+          {
+            "id": "xref_maizegdb",
+            "label": "MaizeGDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "maizegdb-"
+          },
+          {
+            "id": "xref_malacards",
+            "label": "MalaCards",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "malacards-"
+          },
+          {
+            "id": "xref_mgi",
+            "label": "MGI",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "mgi-"
+          },
+          {
+            "id": "xref_mim",
+            "label": "MIM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "mim-"
+          },
+          {
+            "id": "xref_niagads",
+            "label": "NIAGADS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "niagads-"
+          },
+          {
+            "id": "xref_opentargets",
+            "label": "OpenTargets",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "opentargets-"
+          },
+          {
+            "id": "xref_orphanet",
+            "label": "Orphanet",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "orphanet-"
+          },
+          {
+            "id": "xref_clinpgx",
+            "label": "ClinPGx",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "clinpgx-"
+          },
+          {
+            "id": "xref_pombase",
+            "label": "PomBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pombase-"
+          },
+          {
+            "id": "xref_pseudocap",
+            "label": "PseudoCAP",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pseudocap-"
+          },
+          {
+            "id": "xref_rgd",
+            "label": "RGD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "rgd-"
+          },
+          {
+            "id": "xref_sgd",
+            "label": "SGD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "sgd-"
+          },
+          {
+            "id": "xref_tair",
+            "label": "TAIR",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "tair-"
+          },
+          {
+            "id": "xref_tuberculist",
+            "label": "TubercuList",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "tuberculist-"
+          },
+          {
+            "id": "xref_vgnc",
+            "label": "VGNC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "vgnc-"
+          },
+          {
+            "id": "xref_wormbase",
+            "label": "WormBase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "wormbase-"
+          },
+          {
+            "id": "xref_xenbase",
+            "label": "Xenbase",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "xenbase-"
+          },
+          {
+            "id": "xref_zfin",
+            "label": "ZFIN",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "zfin-"
+          },
+          {
+            "id": "xref_japonicusdb",
+            "label": "JaponicusDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "japonicusdb-"
+          },
+          {
+            "id": "xref_civic",
+            "label": "CIViC",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "civic-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_phylogenomic_databases",
+        "label": "Phylogenomic databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_eggnog",
+            "label": "eggNOG",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "eggnog-"
+          },
+          {
+            "id": "xref_genetree",
+            "label": "GeneTree",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "genetree-"
+          },
+          {
+            "id": "xref_hogenom",
+            "label": "HOGENOM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "hogenom-"
+          },
+          {
+            "id": "xref_inparanoid",
+            "label": "InParanoid",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "inparanoid-"
+          },
+          {
+            "id": "xref_oma",
+            "label": "OMA",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "oma-"
+          },
+          {
+            "id": "xref_orthodb",
+            "label": "OrthoDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "orthodb-"
+          },
+          {
+            "id": "xref_phylomedb",
+            "label": "PhylomeDB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "phylomedb-"
+          },
+          {
+            "id": "xref_pan-go",
+            "label": "PAN-GO",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pan-go-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_enzyme_and_pathway_databases",
+        "label": "Enzyme and pathway databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_biocyc",
+            "label": "BioCyc",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "biocyc-"
+          },
+          {
+            "id": "xref_brenda",
+            "label": "BRENDA",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "brenda-"
+          },
+          {
+            "id": "xref_reactome",
+            "label": "Reactome",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "reactome-"
+          },
+          {
+            "id": "xref_sabio-rk",
+            "label": "SABIO-RK",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "sabio-rk-"
+          },
+          {
+            "id": "xref_signalink",
+            "label": "SignaLink",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "signalink-"
+          },
+          {
+            "id": "xref_signor",
+            "label": "SIGNOR",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "signor-"
+          },
+          {
+            "id": "xref_unipathway",
+            "label": "UniPathway",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "unipathway-"
+          },
+          {
+            "id": "xref_plantreactome",
+            "label": "PlantReactome",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "plantreactome-"
+          },
+          {
+            "id": "xref_pathwaycommons",
+            "label": "PathwayCommons",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pathwaycommons-"
+          },
+          {
+            "id": "xref_strenda-db",
+            "label": "STRENDA-DB",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "strenda-db-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_miscellaneous",
+        "label": "Miscellaneous",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_chitars",
+            "label": "ChiTaRS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "chitars-"
+          },
+          {
+            "id": "xref_evolutionarytrace",
+            "label": "EvolutionaryTrace",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "evolutionarytrace-"
+          },
+          {
+            "id": "xref_agora",
+            "label": "Agora",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "agora-"
+          },
+          {
+            "id": "xref_genewiki",
+            "label": "GeneWiki",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "genewiki-"
+          },
+          {
+            "id": "xref_genomernai",
+            "label": "GenomeRNAi",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "genomernai-"
+          },
+          {
+            "id": "xref_phi-base",
+            "label": "PHI-base",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "phi-base-"
+          },
+          {
+            "id": "xref_pro",
+            "label": "PRO",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pro-"
+          },
+          {
+            "id": "xref_pharos",
+            "label": "Pharos",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pharos-"
+          },
+          {
+            "id": "xref_rnact",
+            "label": "RNAct",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "rnact-"
+          },
+          {
+            "id": "xref_biogrid-orcs",
+            "label": "BioGRID-ORCS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "biogrid-orcs-"
+          },
+          {
+            "id": "xref_cd-code",
+            "label": "CD-CODE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cd-code-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_gene_expression_databases",
+        "label": "Gene expression databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_bgee",
+            "label": "Bgee",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "bgee-"
+          },
+          {
+            "id": "xref_cleanex",
+            "label": "CleanEx",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cleanex-"
+          },
+          {
+            "id": "xref_collectf",
+            "label": "CollecTF",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "collectf-"
+          },
+          {
+            "id": "xref_expressionatlas",
+            "label": "ExpressionAtlas",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "expressionatlas-"
+          },
+          {
+            "id": "xref_abasyatlas",
+            "label": "AbasyAtlas",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "abasyatlas-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_family_and_domain_databases",
+        "label": "Family and domain databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_antifam",
+            "label": "AntiFam",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "antifam-"
+          },
+          {
+            "id": "xref_cdd",
+            "label": "CDD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "cdd-"
+          },
+          {
+            "id": "xref_funfam",
+            "label": "FunFam",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "funfam-"
+          },
+          {
+            "id": "xref_gene3d",
+            "label": "Gene3D",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "gene3d-"
+          },
+          {
+            "id": "xref_hamap",
+            "label": "HAMAP",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "hamap-"
+          },
+          {
+            "id": "xref_ideal",
+            "label": "IDEAL",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ideal-"
+          },
+          {
+            "id": "xref_interpro",
+            "label": "InterPro",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "interpro-"
+          },
+          {
+            "id": "xref_panther",
+            "label": "PANTHER",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "panther-"
+          },
+          {
+            "id": "xref_pfam",
+            "label": "Pfam",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pfam-"
+          },
+          {
+            "id": "xref_pirsf",
+            "label": "PIRSF",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "pirsf-"
+          },
+          {
+            "id": "xref_prints",
+            "label": "PRINTS",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "prints-"
+          },
+          {
+            "id": "xref_sfld",
+            "label": "SFLD",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "sfld-"
+          },
+          {
+            "id": "xref_smart",
+            "label": "SMART",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "smart-"
+          },
+          {
+            "id": "xref_supfam",
+            "label": "SUPFAM",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "supfam-"
+          },
+          {
+            "id": "xref_ncbifam",
+            "label": "NCBIfam",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "ncbifam-"
+          },
+          {
+            "id": "xref_prosite",
+            "label": "PROSITE",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "prosite-"
+          },
+          {
+            "id": "xref_disprot",
+            "label": "DisProt",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "disprot-"
+          }
+        ]
+      },
+      {
+        "id": "xref_group_proteomes_databases",
+        "label": "Proteomes databases",
+        "itemType": "group",
+        "items": [
+          {
+            "id": "xref_proteomes",
+            "label": "Proteomes",
+            "itemType": "single",
+            "term": "xref",
+            "dataType": "string",
+            "fieldType": "general",
+            "valuePrefix": "proteomes-"
+          }
+        ]
+      },
+      {
+        "id": "database",
+        "itemType": "single",
+        "term": "database",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "Bgee"
+      }
+    ]
+  },
+  {
+    "id": "web_resources",
+    "label": "Web Resources",
+    "itemType": "sibling_group",
+    "siblings": [
+      {
+        "id": "cc_webresource",
+        "itemType": "single",
+        "term": "cc_webresource",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "lck"
+      },
+      {
+        "id": "cc_webresource_exp",
+        "itemType": "single",
+        "term": "cc_webresource_exp",
+        "dataType": "string",
+        "fieldType": "experimental_evidence",
+        "example": "lck"
+      }
+    ]
+  },
+  {
+    "id": "date_of",
+    "label": "Date Of",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "date_created",
+        "label": "Date Of Creation",
+        "itemType": "single",
+        "term": "date_created",
+        "dataType": "date",
+        "fieldType": "range",
+        "example": "[2023-05-13 TO 2024-05-13]"
+      },
+      {
+        "id": "date_modified",
+        "label": "Date of last entry modification",
+        "itemType": "single",
+        "term": "date_modified",
+        "dataType": "date",
+        "fieldType": "range",
+        "example": "[2023-05-13 TO 2024-05-13]"
+      },
+      {
+        "id": "date_sequence_modified",
+        "label": "Date of last sequence modification",
+        "itemType": "single",
+        "term": "date_sequence_modified",
+        "dataType": "date",
+        "fieldType": "range",
+        "example": "[2023-05-13 TO 2024-05-13]"
+      }
+    ]
+  },
+  {
+    "id": "gene_ontology",
+    "label": "Gene Ontology [GO]",
+    "itemType": "sibling_group",
+    "siblings": [
+      {
+        "id": "go_field",
+        "itemType": "single",
+        "term": "go",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "0009986",
+        "autoComplete": "/suggester?dict=go&query=?",
+        "autoCompleteQueryTerm": "go"
+      },
+      {
+        "id": "go_evidence",
+        "itemType": "single",
+        "term": "go",
+        "dataType": "string",
+        "fieldType": "evidence",
+        "example": "manual",
+        "evidenceGroups": [
+          {
+            "groupName": "Any",
+            "items": [
+              {
+                "name": "Any assertion method",
+                "code": "any"
+              },
+              {
+                "name": "Any manual assertion",
+                "code": "manual"
+              },
+              {
+                "name": "Any automatic assertion",
+                "code": "automatic"
+              }
+            ]
+          },
+          {
+            "groupName": "Manual assertions",
+            "items": [
+              {
+                "name": "Inferred from experiment [EXP]",
+                "code": "exp"
+              },
+              {
+                "name": "Inferred from biological aspect of ancestor [IBA]",
+                "code": "iba"
+              },
+              {
+                "name": "Inferred by curator [IC]",
+                "code": "ic"
+              },
+              {
+                "name": "Inferred from direct assay [IDA]",
+                "code": "ida"
+              },
+              {
+                "name": "Inferred from expression pattern [IEP]",
+                "code": "iep"
+              },
+              {
+                "name": "Inferred from genomic context [IGC]",
+                "code": "igc"
+              },
+              {
+                "name": "Inferred from genetic interaction [IGI]",
+                "code": "igi"
+              },
+              {
+                "name": "Inferred from mutant phenotype [IMP]",
+                "code": "imp"
+              },
+              {
+                "name": "Inferred from physical interaction [IPI]",
+                "code": "ipi"
+              },
+              {
+                "name": "Inferred from sequence alignment [ISA]",
+                "code": "isa"
+              },
+              {
+                "name": "Inferred from sequence mode [ISM]",
+                "code": "ism"
+              },
+              {
+                "name": "Inferred from sequence orthology [ISO]",
+                "code": "iso"
+              },
+              {
+                "name": "Inferred from sequence or structural similarity [ISS]",
+                "code": "iss"
+              },
+              {
+                "name": "Non-traceable author statement [NAS]",
+                "code": "nas"
+              },
+              {
+                "name": "Traceable author statement [TAS]",
+                "code": "tas"
+              },
+              {
+                "name": "Inferred from high throughput direct assay [HDA]",
+                "code": "hda"
+              },
+              {
+                "name": "Inferred from high throughput mutant phenotype [HMP]",
+                "code": "hmp"
+              },
+              {
+                "name": "Inferred from high throughput genetic interaction [HGI]",
+                "code": "hgi"
+              },
+              {
+                "name": "Interred from high throughput expression pattern [HEP]",
+                "code": "hep"
+              },
+              {
+                "name": "Inferred from high throughput experiment [HTP]",
+                "code": "htp"
+              }
+            ]
+          },
+          {
+            "groupName": "Automatic assertions",
+            "items": [
+              {
+                "name": "Inferred from electronic annotation [IEA]",
+                "code": "iea"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "small_molecule",
+    "label": "Small molecule",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "chebi_field",
+        "label": "Name or ID (CHEBI)",
+        "itemType": "single",
+        "term": "chebi",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "Search by Name or ID (CHEBI)",
+        "autoComplete": "/suggester?dict=chebi&query=?",
+        "autoCompleteQueryTerm": "chebi"
+      },
+      {
+        "id": "inchikey_field",
+        "label": "InChIKey",
+        "itemType": "single",
+        "term": "inchikey",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "XLYOFNOQVPJJNP-UHFFFAOYSA-N"
+      }
+    ]
+  },
+  {
+    "id": "keyword_field",
+    "label": "Keyword [KW]",
+    "itemType": "single",
+    "term": "keyword",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "activator",
+    "autoComplete": "/suggester?dict=keyword&query=?",
+    "autoCompleteQueryTerm": "keyword"
+  },
+  {
+    "id": "literature_citation",
+    "label": "Literature Citation",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "lit_author",
+        "label": "Author",
+        "itemType": "single",
+        "term": "lit_author",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "smith"
+      },
+      {
+        "id": "lit_journal",
+        "label": "Journal",
+        "itemType": "single",
+        "term": "lit_journal",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "nature"
+      },
+      {
+        "id": "lit_pubdate",
+        "label": "Published",
+        "itemType": "single",
+        "term": "lit_pubdate",
+        "dataType": "date",
+        "fieldType": "range",
+        "example": "[2009-01-01 TO 2019-12-31]"
+      },
+      {
+        "id": "lit_pubmed",
+        "label": "PubMed ID",
+        "itemType": "single",
+        "term": "lit_pubmed",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "15165820"
+      },
+      {
+        "id": "lit_title",
+        "label": "Title",
+        "itemType": "single",
+        "term": "lit_title",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "apoptosis"
+      },
+      {
+        "id": "lit_citation_id",
+        "label": "Citation ID",
+        "itemType": "single",
+        "term": "lit_citation_id",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "CI-6EPRJ6MFFS5LC"
+      },
+      {
+        "id": "computational_pubmed_id",
+        "label": "Computational PubMed ID",
+        "itemType": "single",
+        "term": "computational_pubmed_id",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "1697263"
+      },
+      {
+        "id": "community_pubmed_id",
+        "label": "Community PubMed ID",
+        "itemType": "single",
+        "term": "community_pubmed_id",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "30699149"
+      }
+    ]
+  },
+  {
+    "id": "proteomes",
+    "label": "Proteomes",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "proteome",
+        "label": "Proteome ID",
+        "itemType": "single",
+        "term": "proteome",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "UP000005640",
+        "regex": "(?i)^UP[0-9]{9}$"
+      },
+      {
+        "id": "proteome_component",
+        "label": "Proteome Component",
+        "itemType": "single",
+        "term": "proteomecomponent",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "chromosome"
+      },
+      {
+        "id": "is_gene_centric",
+        "label": "Gene Centric",
+        "itemType": "single",
+        "term": "is_gene_centric",
+        "dataType": "boolean",
+        "fieldType": "general",
+        "example": "true",
+        "regex": "^true|false$"
+      }
+    ]
+  },
+  {
+    "id": "cited_for",
+    "label": "Cited for",
+    "itemType": "single",
+    "term": "scope",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "function"
+  },
+  {
+    "id": "reviewed",
+    "label": "Reviewed",
+    "itemType": "single",
+    "term": "reviewed",
+    "dataType": "boolean",
+    "fieldType": "general",
+    "example": "true",
+    "regex": "^true|false$"
+  },
+  {
+    "id": "active",
+    "label": "Active",
+    "itemType": "single",
+    "term": "active",
+    "dataType": "boolean",
+    "fieldType": "general",
+    "example": "true",
+    "regex": "^true|false$"
+  },
+  {
+    "id": "uniref_group",
+    "label": "UniRef ID",
+    "itemType": "group",
+    "items": [
+      {
+        "id": "uniref_cluster_50",
+        "label": "UniRef50",
+        "itemType": "single",
+        "term": "uniref_cluster_50",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "UniRef50_P05067",
+        "regex": "^UniRef50_[\\w|-]+$"
+      },
+      {
+        "id": "uniref_cluster_90",
+        "label": "UniRef90",
+        "itemType": "single",
+        "term": "uniref_cluster_90",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "UniRef90_P05067",
+        "regex": "^UniRef90_[\\w|-]+$"
+      },
+      {
+        "id": "uniref_cluster_100",
+        "label": "UniRef100",
+        "itemType": "single",
+        "term": "uniref_cluster_100",
+        "dataType": "string",
+        "fieldType": "general",
+        "example": "UniRef100_P05067",
+        "regex": "^UniRef100_[\\w|-]+$"
+      }
+    ]
+  },
+  {
+    "id": "uniparc",
+    "label": "UniParc ID",
+    "itemType": "single",
+    "term": "uniparc",
+    "dataType": "string",
+    "fieldType": "general",
+    "example": "UPI000002DB1C",
+    "regex": "UPI[\\w]{10}"
+  }
+]
