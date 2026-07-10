@@ -4,6 +4,7 @@ import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
@@ -66,6 +67,9 @@ class SavedFilterControllerTest {
 
     @MockitoBean
     private AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
+
+    @MockitoBean
+    private UniProtApiImportJobExecutor uniProtApiImportJobExecutor;
 
     @TestConfiguration
     @Profile("test")

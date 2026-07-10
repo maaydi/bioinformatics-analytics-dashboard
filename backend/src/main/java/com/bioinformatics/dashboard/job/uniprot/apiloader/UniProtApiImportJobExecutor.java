@@ -1,27 +1,24 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader;
 
 import com.bioinformatics.dashboard.exception.ExecuteJobException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
+@Profile("!test")
 public class UniProtApiImportJobExecutor {
 
     private final JobOperator operator;
     private final Job uniProtApiImportJob;
 
-    public UniProtApiImportJobExecutor(
-            JobOperator operator,
-            @Qualifier("uniProtApiImportJob") Job uniProtApiImportJob) {
-        this.operator = operator;
-        this.uniProtApiImportJob = uniProtApiImportJob;
-    }
 
     @Async("importExecutor")
     public void execute(JobParameters parameters) {
