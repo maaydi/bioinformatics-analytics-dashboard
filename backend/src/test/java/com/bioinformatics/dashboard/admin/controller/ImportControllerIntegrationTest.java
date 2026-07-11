@@ -1,11 +1,7 @@
 package com.bioinformatics.dashboard.admin.controller;
 
-import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
-import com.bioinformatics.dashboard.batch.AsyncUniprotImportJobExecutor;
-import com.bioinformatics.dashboard.batch.counter.CounterRegistry;
-import com.bioinformatics.dashboard.batch.counter.RecordCounter;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -13,6 +9,10 @@ import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
+import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -74,10 +74,11 @@ class ImportControllerIntegrationTest {
     AppProperties appProperties;
     @Autowired
     RestTestClient restClient;
-    @Autowired
-    ImportService importService; // Keep it for testing purpose ( load beans )
+
     @MockitoBean
     AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
+    @MockitoBean
+    UniProtApiImportJobExecutor uniProtApiImportJobExecutor;
 
     @MockitoBean
     CounterRegistry counterRegistry;
@@ -225,6 +226,27 @@ class ImportControllerIntegrationTest {
                         .file(file)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    void triggerRemoteImport_returnsAccepted() {
+        doNothing().when(uniProtApiImportJobExecutor).execute(any());
+
+        restClient.post()
+                .uri("/api/admin/import/uniprot/remote")
+                .header("Authorization", "Bearer " + adminToken)
+                .exchange()
+                .expectStatus().isAccepted()
+                .expectBody(ImportJobSummary.class)
+                .consumeWith(result -> {
+                    var body = result.getResponseBody();
+                    assertThat(body).isNotNull();
+                    assertThat(body.id()).isNotBlank();
+                    assertThat(body.status()).isEqualTo(ImportStatus.RUNNING);
+                    assertThat(body.fileName()).isEqualTo("UNIPROT_API_REMOTE");
+                });
+
+        assertThat(importJobRepository.count()).isEqualTo(1);
     }
 
     // ====== GET /api/admin/import/status ======

@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.writer;
 
+import com.bioinformatics.dashboard.job.writer.ProteinAggregateItemWriter;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.CrossReference;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinComment;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;

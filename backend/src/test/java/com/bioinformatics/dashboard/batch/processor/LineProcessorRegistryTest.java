@@ -1,5 +1,8 @@
 package com.bioinformatics.dashboard.batch.processor;
 
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.LineProcessor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.LineProcessorRegistry;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

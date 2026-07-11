@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.counter;
 
+import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.TsvUniprotCounter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

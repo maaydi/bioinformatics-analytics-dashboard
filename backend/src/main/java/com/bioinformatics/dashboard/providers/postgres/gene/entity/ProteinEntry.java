@@ -190,8 +190,12 @@ public class ProteinEntry {
     @PrePersist
     void onCreate() {
         var now = Instant.now();
-        this.createdAt = now;
-        this.updatedAt = now;
+        if (createdAt == null) {
+            createdAt = now;
+        }
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
     }
 
     @PreUpdate

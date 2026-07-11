@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.batch.listener;
 
-import com.bioinformatics.dashboard.batch.service.MaterializedViewRefreshService;
 import com.bioinformatics.dashboard.job.dto.Constants;
+import com.bioinformatics.dashboard.job.listener.ImportJobRefreshViewsListener;
+import com.bioinformatics.dashboard.job.service.MaterializedViewRefreshService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.listener;
 
+import com.bioinformatics.dashboard.job.listener.ImportUniprotSkipListener;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

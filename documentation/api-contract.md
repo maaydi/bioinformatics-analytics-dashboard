@@ -455,6 +455,33 @@ Trigger a UniProt import job.
 
 ---
 
+### `POST /api/admin/import/uniprot/remote`
+
+Trigger a remote UniProt API import job (no uploaded file).
+
+**Request:** No body
+
+**Response `202 Accepted`:**
+
+```json
+{
+  "jobId": "a1b2c3d4-...",
+  "status": "RUNNING",
+  "fileName": "UNIPROT_API_REMOTE",
+  "createdAt": "2026-04-27T14:00:00Z"
+}
+```
+
+**Error Responses:**
+
+| HTTP  | Condition                                   |
+|-------|---------------------------------------------|
+| `401` | Missing or invalid JWT                      |
+| `403` | Authenticated user does not have ROLE_ADMIN |
+| `409` | Another import job is already running       |
+
+---
+
 ### `GET /api/admin/import/status`
 
 List all import jobs (most recent first).

@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.reader;
 
+import com.bioinformatics.dashboard.job.uniprot.fileloader.reader.UniprotDatItemReader;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.core.io.ByteArrayResource;

@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.batch.service;
 
+import com.bioinformatics.dashboard.job.service.ViewRefreshAlertService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.batch.processor.handlers;
 
-import com.bioinformatics.dashboard.batch.processor.ProteinParsingContext;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.handler.DateProcessor;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
