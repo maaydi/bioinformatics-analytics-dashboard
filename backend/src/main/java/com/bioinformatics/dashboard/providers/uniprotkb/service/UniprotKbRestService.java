@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.service;
 
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniprotKbResponse;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniprotKbResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;

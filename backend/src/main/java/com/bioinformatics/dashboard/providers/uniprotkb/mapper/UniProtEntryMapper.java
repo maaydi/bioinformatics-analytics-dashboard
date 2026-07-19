@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.mapper;
 
+import com.bioinformatics.dashboard.model.uniprot.dto.*;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.*;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -158,7 +158,7 @@ public class UniProtEntryMapper {
      * via a find-or-create (upsert) strategy before flushing.
      */
     private List<Keyword> mapKeywords(
-            List<com.bioinformatics.dashboard.providers.uniprotkb.dto.Keyword> keywords) {
+            List<com.bioinformatics.dashboard.model.uniprot.dto.Keyword> keywords) {
         if (keywords == null) return new ArrayList<>();
         return keywords.stream()
                 .filter(k -> k.name() != null)

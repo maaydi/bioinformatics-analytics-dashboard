@@ -1,7 +1,6 @@
-package com.bioinformatics.dashboard.providers.postgres.gene.service;
+package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
@@ -9,26 +8,17 @@ import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
-import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
+import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service for gene/protein operations.
@@ -37,14 +27,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PostgresGeneService extends AbstractPostgresProvider implements GeneService {
+public class UniprotKbGeneService extends AbstractUniprotKbProvider implements GeneService {
 
-    // Whitelisted sortable fields from ProteinSummaryDto
-    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
-            .map(Field::getName).collect(Collectors.toSet());
-    private final ProteinEntryService proteinService;
-    private final KeywordRepository keywordRepository;
-    private final GeneMapper mapper;
     private final AppProperties appProperties;
 
     /**
@@ -54,12 +38,8 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     @Override
     @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
     public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
-        var direct = Sort.Direction.fromString(direction);
-        var pageable = PageRequest.of(pageNumber, size, direct, sort);
-        log.info("Retrieving all protein entries for page: {}", pageable.getPageNumber());
-        var page = proteinService.findAll(pageable);
-        var genes = page.getContent().stream().map(mapper::toSummary).toList();
-        return new PagedResponse<>(genes, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
+        // TODO implement it
+        return PagedResponse.of(null);
     }
 
     /**
@@ -70,11 +50,8 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     @Cacheable(value = "geneSearch", key = "#request.toString()")
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
-        var page = request.getRequestPage(SORT_WHITELIST, "id");
-        var spec = GeneSpecification.fromRequest(request);
-        var result = proteinService.findAll(spec, page);
-        var genes = result.getContent().stream().map(mapper::toSummary).toList();
-        return new PagedResponse<>(genes, result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+        // TODO implement it
+        return PagedResponse.of(null);
 
     }
 
@@ -88,9 +65,8 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
     public ProteinDetailDto getGeneById(Long id) {
         log.info("Retrieving protein entry by id: {}", id);
-        var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
-        return mapper.toDetail(gene);
-
+        // TODO implement it
+        return null;
     }
 
     /**
@@ -101,12 +77,7 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     @Override
     public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
         log.info("Exporting protein entries for filters: {}", request);
-        request.getRequestPage(SORT_WHITELIST, "id");
-        var page = PageRequest.of(0, (int) totalRows);
-        var spec = GeneSpecification.fromRequest(request);
-        var genes = proteinService.findAll(spec, page);
-        var csvWriter = new CsvWriter();
-        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
+        // TODO implement it
 
     }
 
@@ -114,7 +85,7 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     public long assertWithinExportLimit(GeneSearchRequest request) {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
         var spec = GeneSpecification.fromRequest(request);
-        var totalRows = proteinService.count(spec);
+        var totalRows = 500;// proteinService.count(spec);
         if (totalRows > maxSize) {
             throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
                     .formatted(totalRows, maxSize));
@@ -127,9 +98,7 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     @Cacheable(value = "geneKeywords")
     public List<String> listKeywords() {
         log.info("Retrieving keywords for protein entries");
-        return keywordRepository.findAll()
-                .stream()
-                .map(Keyword::getName)
-                .toList();
+        // TODO implement it
+        return List.of();
     }
 }

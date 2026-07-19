@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.interfaces;
 
 
-import com.bioinformatics.dashboard.job.uniprot.apiloader.reader.UniProtApiPage;
+import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 
 /**
  * Abstraction for a paginated UniProt API data source using cursor-based pagination.

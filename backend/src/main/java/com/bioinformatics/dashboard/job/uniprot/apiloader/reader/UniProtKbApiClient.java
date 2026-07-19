@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.reader;
 
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtEntry;
+import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbRestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
