@@ -27,7 +27,8 @@ Reviewed the existing codebase to understand the provider architecture:
    unit-testable.
 3. **Cursor bridge** — UniProt cursor pagination is bridged to standard page/size; page 0 is O(1), page N requires N
    HTTP hops.
-4. **In-memory accession cache** — `getGeneById` requires reversing `Long id → accession`. A bounded `LinkedHashMap` (
+4. **In-memory accession cache** — `getGeneByAccession` requires reversing `Long id → accession`. A bounded
+   `LinkedHashMap` (
    LRU, max 5000) maintained in the service handles this without external infrastructure.
 5. **Export** — Implemented via streaming search (page 0 with size = totalRows capped at export max).
 6. **Keywords** — UniProt does not expose a flat keyword list endpoint; fallback uses facet aggregation or a curated

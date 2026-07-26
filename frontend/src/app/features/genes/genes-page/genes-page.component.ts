@@ -64,7 +64,7 @@ export class GenesPageComponent {
 
   openGeneDetails(row: ProteinSummary): void {
     this.store.selectGeneSummary(row);
-    void this.router.navigate(['/genes', row.id]);
+    void this.router.navigate(['/genes', row.accession]);
   }
 
   protected exportResultCsv() {

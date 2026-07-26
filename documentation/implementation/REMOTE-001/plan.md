@@ -107,7 +107,7 @@ UniProt REST uses **cursor-based** pagination. Bridge to page/size:
 
 ---
 
-## Detail View Strategy (`getGeneById`)
+## Detail View Strategy (`getGeneByAccession`)
 
 Since UniProt uses accession strings (e.g. `P12345`) and the `GeneService` contract uses `Long id`:
 

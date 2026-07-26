@@ -44,10 +44,10 @@ export class GenesService {
 
   /**
    * Fetches the detailed representation of one gene/protein record.
-   * @param id Gene identifier.
+   * @param accession Gene Accession identifier.
    */
-  getById(id: number): Observable<ProteinDetail> {
-    return this.http.get<ProteinDetail>(`${this.baseUrl}/${id}`);
+  getByAccession(accession: string): Observable<ProteinDetail> {
+    return this.http.get<ProteinDetail>(`${this.baseUrl}/${accession}`);
   }
 
   /**
