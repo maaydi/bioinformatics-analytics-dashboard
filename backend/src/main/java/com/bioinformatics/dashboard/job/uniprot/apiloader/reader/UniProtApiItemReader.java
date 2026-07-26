@@ -130,7 +130,7 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
 
     private void loadNextPage() {
         log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, pageSize);
-        var request = new GeneSearchRequest(null, pageSize, null, null);
+        var request = GeneSearchRequest.builder().size(pageSize).build();
         var page = apiClient.fetchPage(request, nextCursor);
         var entries = page.entries();
 

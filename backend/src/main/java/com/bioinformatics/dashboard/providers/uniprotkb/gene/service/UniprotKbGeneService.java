@@ -1,15 +1,19 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
+import com.bioinformatics.dashboard.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
+import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbPaginationCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Service for gene/protein operations.
@@ -30,16 +36,31 @@ import java.util.List;
 public class UniprotKbGeneService extends AbstractUniprotKbProvider implements GeneService {
 
     private final AppProperties appProperties;
+    private final UniProtApiClient client;
+    private final UniprotKbPaginationCacheService cursorCacheService;
+    private final UniProtProteinDtoMapper geneMapper;
+    private final UniProtProteinDtoMapper mapper;
 
     /**
      * Returns a paginated, optionally sorted list of all proteins.
      *
      */
     @Override
-    @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
+    @Cacheable(value = "geneList-kb", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
     public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
-        // TODO implement it
-        return PagedResponse.of(null);
+        var spec = GeneSearchRequest
+                .builder()
+                .page(pageNumber)
+                .size(size)
+                .sort(sort)
+                .direction(direction)
+                .build();
+        var cursor = getCursor(spec);
+        var result = client.fetchPage(spec, cursor);
+        saveCursor(spec, result.nextCursor());
+        var items = result.entries().stream().map(geneMapper::toSummary).toList();
+        var totalPages = result.totalElements() / size;
+        return new PagedResponse<>(items, pageNumber, size, result.totalElements(), (int) totalPages);
     }
 
     /**
@@ -47,11 +68,15 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
      *
      */
     @Override
-    @Cacheable(value = "geneSearch", key = "#request.toString()")
+    @Cacheable(value = "geneSearch-kb", key = "#request.toString()")
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
-        // TODO implement it
-        return PagedResponse.of(null);
+        var cursor = getCursor(request);
+        var result = client.fetchPage(request, cursor);
+        saveCursor(request, result.nextCursor());
+        var items = result.entries().stream().map(geneMapper::toSummary).toList();
+        var totalPages = result.totalElements() / request.size();
+        return new PagedResponse<>(items, request.page(), request.size(), result.totalElements(), (int) totalPages);
 
     }
 
@@ -62,11 +87,19 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
      */
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
-    public ProteinDetailDto getGeneById(Long id) {
-        log.info("Retrieving protein entry by id: {}", id);
-        // TODO implement it
-        return null;
+    @Cacheable(value = "geneDetail-kb", key = "#accession", cacheManager = "redisNonFinalAndRecordCacheManager")
+    public ProteinDetailDto getGeneByAccession(String accession) {
+        log.info("Retrieving protein entry by Accession: {}", accession);
+        var spec = GeneSearchRequest
+                .builder()
+                .accession(accession)
+                .build();
+        var result = client.fetchPage(spec, null);
+        var items = result.entries().stream().map(geneMapper::toDetail).toList();
+        if (items.isEmpty()) {
+            throw ResourceNotFoundException.forProtein(accession);
+        }
+        return items.getFirst();
     }
 
     /**
@@ -77,15 +110,26 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
     @Override
     public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
         log.info("Exporting protein entries for filters: {}", request);
-        // TODO implement it
-
+        var page = 0;
+        var items = new ArrayList<UniProtEntry>();
+        while (true) {
+            var spec = request.copy().page(page).size(500).build();
+            var cursor = getCursor(spec);
+            var result = client.fetchPage(spec, cursor);
+            items.addAll(result.entries());
+            if (!result.hasMore()) break;
+            page++;
+            saveCursor(spec, result.nextCursor());
+        }
+        var csvWriter = new CsvWriter();
+        csvWriter.write(writer, items.stream().map(mapper::toSummary).toList());
     }
 
     @Override
     public long assertWithinExportLimit(GeneSearchRequest request) {
         var maxSize = appProperties.getExport().getCsv().getMaxRows();
-        var spec = GeneSpecification.fromRequest(request);
-        var totalRows = 500;// proteinService.count(spec);
+        var result = client.fetchPage(request, null);
+        var totalRows = result.totalElements();
         if (totalRows > maxSize) {
             throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
                     .formatted(totalRows, maxSize));
@@ -100,5 +144,39 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
         log.info("Retrieving keywords for protein entries");
         // TODO implement it
         return List.of();
+    }
+
+    private String getCursor(GeneSearchRequest request) {
+        var page = Objects.requireNonNullElse(request.page(), 0);
+        if (page <= 0) {
+            return null;
+        }
+        String cursor = null;
+        int maxRetries = 5;
+        while (maxRetries > 0) {
+            cursor = cursorCacheService.getCursorForRequest(request);
+            if (cursor != null) {
+                break;
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            maxRetries--;
+        }
+        if (cursor == null) {
+            throw new IllegalArgumentException(
+                    "Cannot skip to page " + page + ". You must fetch previous pages sequentially first."
+            );
+        }
+
+        return cursor;
+    }
+
+    private void saveCursor(GeneSearchRequest request, String cursor) {
+        cursorCacheService.saveCursorForNextPage(request, cursor);
     }
 }

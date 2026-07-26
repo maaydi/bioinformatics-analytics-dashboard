@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniprotKbResponse;
 import com.bioinformatics.dashboard.providers.uniprotkb.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UniprotKbRestService {
 
     private final RestClient uniprotRestClient;
@@ -34,8 +36,7 @@ public class UniprotKbRestService {
         if (cursor != null) {
             queryParams.add("cursor", cursor);
         }
-
-
+        log.info("Search Kb API with Query : {}, Page : {}", queryValue, request.page());
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/search")
                         .queryParams(queryParams)

@@ -8,13 +8,20 @@ import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provider contract for gene/protein data operations.
  * Implementations must support pagination, filtering, detail retrieval, CSV export, and keyword listing.
  */
 public interface GeneService extends Provider {
+
+    Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
+            .map(Field::getName).collect(Collectors.toSet());
 
     /**
      * Fetch paginated list of all genes with optional sorting.

@@ -24,11 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service for gene/protein operations.
@@ -39,9 +35,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PostgresGeneService extends AbstractPostgresProvider implements GeneService {
 
-    // Whitelisted sortable fields from ProteinSummaryDto
-    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
-            .map(Field::getName).collect(Collectors.toSet());
     private final ProteinEntryService proteinService;
     private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;

@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.model.gene;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +18,33 @@ import java.util.Set;
  *
  * <p>All field-level validation rules are defined in documentation/validation-rules.md §2.
  * Validation annotations here must match those rules exactly.
+ *
+ * @param globalSearch free-text query applied across supported gene fields
+ * @param accession UniProt accession filter
+ * @param entryName UniProt entry-name filter
+ * @param geneNamePrimary primary gene-name filter
+ * @param proteinFullName protein full-name filter
+ * @param reviewed whether to include reviewed or unreviewed entries
+ * @param organism organism-name filter
+ * @param taxid NCBI taxonomy identifier
+ * @param lineage taxonomy-lineage filter
+ * @param lengthMin minimum protein length
+ * @param lengthMax maximum protein length
+ * @param molecularWeightMin minimum molecular weight
+ * @param molecularWeightMax maximum molecular weight
+ * @param evidenceLevels allowed evidence levels
+ * @param keywords keyword filters
+ * @param goTermId Gene Ontology term identifier
+ * @param goAspect Gene Ontology aspect: {@code P}, {@code F}, or {@code C}
+ * @param featureType feature-type filter
+ * @param crossRefSource cross-reference database source
+ * @param page zero-based page number
+ * @param size maximum number of results per page
+ * @param sort field used to order results
+ * @param direction sort direction, either {@code asc} or {@code desc}
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Builder
 public record GeneSearchRequest(
 
         @Size(max = 200, message = "Search query too long (max 200 characters)")
@@ -82,17 +108,14 @@ public record GeneSearchRequest(
         @Pattern(regexp = "asc|desc")
         String direction
 ) {
-    public GeneSearchRequest(Integer page, Integer size, String sort, String direction) {
-        this(
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null,
-                page, size, sort, direction
-        );
-    }
 
     /**
-     * Compare two lists ignore order, ignore duplicate elements, and ensure null safety
+     * Compares two lists as null-safe sets, ignoring order and duplicates.
      *
+     * @param listA first list
+     * @param listB second list
+     * @param <T> element type
+     * @return {@code true} if both lists are the same reference or contain the same distinct elements
      */
     private static <T> boolean listEquals(List<T> listA, List<T> listB) {
         if (listA == listB) return true;
@@ -105,7 +128,24 @@ public record GeneSearchRequest(
     }
 
     /**
-     * Cross-field validation: if both lengthMin and lengthMax are provided, lengthMin must be ≤ lengthMax.
+     * Formats a non-null, non-empty field for diagnostic output.
+     *
+     * @param fieldName field name to display
+     * @param value field value
+     * @return formatted {@code name=value} text with a trailing separator, or an empty string
+     *         when the value is null or an empty list
+     */
+    private static String fieldToString(String fieldName, Object value) {
+        if (value == null) return "";
+        if (value instanceof List<?> lst && lst.isEmpty()) return "";
+        return String.format("%s=%s, ", fieldName, value);
+    }
+
+    /**
+     * Validates that the length range is ordered when both bounds are present.
+     *
+     * @return {@code true} if either bound is absent or {@code lengthMin} is not greater than
+     *         {@code lengthMax}
      */
     @AssertTrue(message = "lengthMin must be ≤ lengthMax")
     private boolean isLengthRangeValid() {
@@ -114,8 +154,10 @@ public record GeneSearchRequest(
     }
 
     /**
-     * Cross-field validation: if both molecularWeightMin and molecularWeightMax are provided,
-     * molecularWeightMin must be ≤ molecularWeightMax.
+     * Validates that the molecular-weight range is ordered when both bounds are present.
+     *
+     * @return {@code true} if either bound is absent or {@code molecularWeightMin} is not greater
+     *         than {@code molecularWeightMax}
      */
     @AssertTrue(message = "molecularWeightMin must be ≤ molecularWeightMax")
     private boolean isMolecularWeightRangeValid() {
@@ -123,7 +165,14 @@ public record GeneSearchRequest(
         return molecularWeightMin() <= molecularWeightMax();
     }
 
-
+    /**
+     * Creates the pageable definition for this search request.
+     *
+     * @param sortFields       allowed sort-field names
+     * @param defaultSortField sort field used when no sort field was requested
+     * @return pageable containing the requested page, size, sort field, and direction
+     * @throws IllegalArgumentException if the requested sort field or direction is invalid
+     */
     public Pageable getRequestPage(Set<String> sortFields, String defaultSortField) {
         var dir = direction == null ? "asc" : direction;
         var direct = Sort.Direction.fromString(dir);
@@ -136,12 +185,11 @@ public record GeneSearchRequest(
         return PageRequest.of(page, size, direct, sortField);
     }
 
-    private static String fieldToString(String fieldName, Object value) {
-        if (value == null) return "";
-        if (value instanceof List<?> lst && lst.isEmpty()) return "";
-        return String.format("%s=%s, ", fieldName, value);
-    }
-
+    /**
+     * Returns a diagnostic representation containing populated search and pagination fields.
+     *
+     * @return a string representation of this request
+     */
     @Override
     public @NonNull String toString() {
         return "GeneSearchRequest[" + fieldsToString() +
@@ -150,6 +198,11 @@ public record GeneSearchRequest(
                 "]";
     }
 
+    /**
+     * Formats the populated search-filter fields for diagnostic output.
+     *
+     * @return formatted search-field text
+     */
     private String fieldsToString() {
         String sb = "Fields=[" + fieldToString("globalSearch", globalSearch) +
                 fieldToString("accession", accession) +
@@ -177,6 +230,11 @@ public record GeneSearchRequest(
         return s + "]";
     }
 
+    /**
+     * Formats the populated pagination fields for diagnostic output.
+     *
+     * @return formatted pagination-field text
+     */
     private String PaginationToString() {
         String sb = "Pagination=[" + fieldToString("page", page) +
                 fieldToString("size", size) +
@@ -189,15 +247,47 @@ public record GeneSearchRequest(
         return s + "]";
     }
 
-    public GeneSearchRequest withPage(Integer newPage) {
-        return new GeneSearchRequest(
-                globalSearch, accession, entryName, geneNamePrimary, proteinFullName, reviewed,
-                organism, taxid, lineage, lengthMin, lengthMax, molecularWeightMin, molecularWeightMax,
-                evidenceLevels, keywords, goTermId, goAspect, featureType, crossRefSource,
-                newPage, size, sort, direction
-        );
+    /**
+     * Creates a builder initialized with this request's values.
+     *
+     * @return a mutable builder pre-populated from this request
+     */
+    public GeneSearchRequest.GeneSearchRequestBuilder copy() {
+        return GeneSearchRequest.builder()
+                .globalSearch(globalSearch)
+                .accession(accession)
+                .entryName(entryName)
+                .geneNamePrimary(geneNamePrimary)
+                .proteinFullName(proteinFullName)
+                .reviewed(reviewed)
+                .organism(organism)
+                .taxid(taxid)
+                .lineage(lineage)
+                .lengthMin(lengthMin)
+                .lengthMax(lengthMax)
+                .molecularWeightMin(molecularWeightMin)
+                .molecularWeightMax(molecularWeightMax)
+                .evidenceLevels(evidenceLevels)
+                .keywords(keywords)
+                .goTermId(goTermId)
+                .goAspect(goAspect)
+                .featureType(featureType)
+                .crossRefSource(crossRefSource)
+                .page(page)
+                .size(size)
+                .sort(sort)
+                .direction(direction);
     }
 
+    /**
+     * Compares this request with another request by value.
+     *
+     * <p>List-valued filters are compared as sets: element order and duplicate occurrences do
+     * not affect equality.
+     *
+     * @param o object to compare with this request
+     * @return {@code true} when both requests contain equivalent values
+     */
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof GeneSearchRequest(
@@ -219,6 +309,11 @@ public record GeneSearchRequest(
                 && listEquals(keywords(), keywords1) && listEquals(evidenceLevels(), levels);
     }
 
+    /**
+     * Returns the hash code for this request.
+     *
+     * @return a hash code consistent with {@link #equals(Object)}
+     */
     @Override
     public int hashCode() {
         return Objects.hash(globalSearch(), accession(), entryName(), geneNamePrimary(), proteinFullName(), reviewed(),
