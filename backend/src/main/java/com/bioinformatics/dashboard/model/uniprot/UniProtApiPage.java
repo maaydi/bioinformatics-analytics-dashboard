@@ -12,13 +12,13 @@ import java.util.List;
  * @param nextCursor opaque cursor value extracted from the {@code Link} response header;
  *                   {@code null} when this is the last page
  */
-public record UniProtApiPage(List<UniProtEntry> entries, boolean hasMore, String nextCursor) {
+public record UniProtApiPage(List<UniProtEntry> entries, boolean hasMore, String nextCursor, long totalElements) {
 
     /**
      * Convenience factory for a terminal (last) page.
      */
-    public static UniProtApiPage lastPage(List<UniProtEntry> entries) {
-        return new UniProtApiPage(entries, false, null);
+    public static UniProtApiPage lastPage(List<UniProtEntry> entries, long totalElements) {
+        return new UniProtApiPage(entries, false, null, totalElements);
     }
 
     /**
@@ -27,8 +27,8 @@ public record UniProtApiPage(List<UniProtEntry> entries, boolean hasMore, String
      * @param entries    entries on this page
      * @param nextCursor cursor to pass on the next API call
      */
-    public static UniProtApiPage nextPage(List<UniProtEntry> entries, String nextCursor) {
-        return new UniProtApiPage(entries, true, nextCursor);
+    public static UniProtApiPage nextPage(List<UniProtEntry> entries, String nextCursor, long totalElements) {
+        return new UniProtApiPage(entries, true, nextCursor, totalElements);
     }
 }
 

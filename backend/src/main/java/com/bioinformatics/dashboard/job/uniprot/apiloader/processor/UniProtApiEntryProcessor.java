@@ -5,7 +5,6 @@ import com.bioinformatics.dashboard.job.resolver.KeywordResolver;
 import com.bioinformatics.dashboard.job.resolver.ProteinAccessionResolver;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.mapper.UniProtEntryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

@@ -1,9 +1,9 @@
-package com.bioinformatics.dashboard.job.uniprot.apiloader.reader;
+package com.bioinformatics.dashboard.providers.uniprotkb.service;
 
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbRestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +52,8 @@ public class UniProtKbApiClient implements UniProtApiClient {
     private long totalResults = -1;
 
     @Override
-    public UniProtApiPage fetchPage(String cursor, int pageSize) {
-        var response = cursor == null
-                ? restService.search(pageSize)
-                : restService.searchAll(pageSize, cursor);
+    public UniProtApiPage fetchPage(GeneSearchRequest request, String cursor) {
+        var response = restService.searchAll(request, cursor);
 
         captureTotal(response);
 
@@ -65,11 +63,11 @@ public class UniProtKbApiClient implements UniProtApiClient {
         var nextCursor = extractNextCursor(response);
         if (nextCursor == null) {
             log.info("Last page received — {} entries fetched on this page", entries.size());
-            return UniProtApiPage.lastPage(entries);
+            return UniProtApiPage.lastPage(entries, totalResults);
         }
 
         logProgress(entries.size());
-        return UniProtApiPage.nextPage(entries, nextCursor);
+        return UniProtApiPage.nextPage(entries, nextCursor, totalResults);
     }
 
     /**

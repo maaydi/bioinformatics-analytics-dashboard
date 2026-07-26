@@ -15,7 +15,8 @@ Reviewed the existing codebase to understand the provider architecture:
 - `AbstractUniprotKbProvider` already exists with `getProviderName() = "uniprotKb"`.
 - `UniprotKbRestService` currently only implements generic `(*)` search — no filter support.
 - No `GeneService` implementation exists yet for the `uniprotKb` provider.
-- `UniProtEntryMapper` maps `UniProtEntry` → JPA `ProteinEntry` (for import). Not reusable here — need a new DTO-level
+- `UniProtProteinDtoMapper` maps `UniProtEntry` → JPA `ProteinEntry` (for import). Not reusable here — need a new
+  DTO-level
   mapper.
 
 ### Architecture Decisions
@@ -63,7 +64,7 @@ Reviewed all commits merged under **RDF-001** (2026-07-03 → 2026-07-09).
 | `UniProtEntry` + all child DTOs | `providers/uniprotkb/dto/`     | Ready — no changes needed                                                                           |
 | `UniprotRestClientConfig`       | `providers/uniprotkb/config/`  | `RestClient` bean available for injection                                                           |
 | `UniprotKbRestService`          | `providers/uniprotkb/service/` | Provides `search(size)` / `searchAll(size, cursor)` — needs `searchFiltered()` + `getByAccession()` |
-| `UniProtEntryMapper`            | `providers/uniprotkb/mapper/`  | Maps to JPA entity — **not reused**; new DTO-level mapper needed                                    |
+| `UniProtProteinDtoMapper`       | `providers/uniprotkb/mapper/`  | Maps to JPA entity — **not reused**; new DTO-level mapper needed                                    |
 | `AbstractUniprotKbProvider`     | `providers/uniprotkb/`         | Base class with `getProviderName()="uniprotKb"` — extends directly                                  |
 
 **What still does NOT exist and must be created for REMOTE-001:**

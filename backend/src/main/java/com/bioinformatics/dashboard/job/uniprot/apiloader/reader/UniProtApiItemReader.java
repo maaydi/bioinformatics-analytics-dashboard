@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.reader;
 
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import java.util.Deque;
  * <ol>
  *   <li>On each call to {@link #read()}, if the internal buffer is empty and the
  *       source is not yet exhausted, the reader fetches the next page from
- *       {@link UniProtApiClient#fetchPage(String, int)}.</li>
+ *       {@link UniProtApiClient#fetchPage(com.bioinformatics.dashboard.model.gene.GeneSearchRequest, String)}.</li>
  *   <li>Pages are fetched lazily: the reader never pre-fetches ahead of what the
  *       step needs.</li>
  *   <li>When {@link UniProtApiPage#hasMore()} returns {@code false}, no further
@@ -129,8 +130,8 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
 
     private void loadNextPage() {
         log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, pageSize);
-
-        var page = apiClient.fetchPage(nextCursor, pageSize);
+        var request = new GeneSearchRequest(null, pageSize, null, null);
+        var page = apiClient.fetchPage(request, nextCursor);
         var entries = page.entries();
 
         buffer.addAll(entries);

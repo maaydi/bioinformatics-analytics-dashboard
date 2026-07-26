@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -80,6 +82,28 @@ public record GeneSearchRequest(
         @Pattern(regexp = "asc|desc")
         String direction
 ) {
+    public GeneSearchRequest(Integer page, Integer size, String sort, String direction) {
+        this(
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                page, size, sort, direction
+        );
+    }
+
+    /**
+     * Compare two lists ignore order, ignore duplicate elements, and ensure null safety
+     *
+     */
+    private static <T> boolean listEquals(List<T> listA, List<T> listB) {
+        if (listA == listB) return true;
+        if (listA == null || listB == null) return false;
+
+        var setA = new HashSet<T>(listA);
+        var setB = new HashSet<T>(listB);
+
+        return setA.equals(setB);
+    }
+
     /**
      * Cross-field validation: if both lengthMin and lengthMax are provided, lengthMin must be ≤ lengthMax.
      */
@@ -98,6 +122,7 @@ public record GeneSearchRequest(
         if (molecularWeightMin() == null || molecularWeightMax() == null) return true;
         return molecularWeightMin() <= molecularWeightMax();
     }
+
 
     public Pageable getRequestPage(Set<String> sortFields, String defaultSortField) {
         var dir = direction == null ? "asc" : direction;
@@ -162,5 +187,43 @@ public record GeneSearchRequest(
             s = s.substring(0, s.length() - 1);
         }
         return s + "]";
+    }
+
+    public GeneSearchRequest withPage(Integer newPage) {
+        return new GeneSearchRequest(
+                globalSearch, accession, entryName, geneNamePrimary, proteinFullName, reviewed,
+                organism, taxid, lineage, lengthMin, lengthMax, molecularWeightMin, molecularWeightMax,
+                evidenceLevels, keywords, goTermId, goAspect, featureType, crossRefSource,
+                newPage, size, sort, direction
+        );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof GeneSearchRequest(
+                String search, String accession1, String name, String namePrimary, String fullName, Boolean reviewed1,
+                String organism1, Integer taxid1, String lineage1, Integer min, Integer max, Integer weightMin,
+                Integer weightMax, List<Integer> levels, List<String> keywords1, String termId, String aspect,
+                String type, String refSource, Integer page1, Integer size1, String sort1, String direction1
+        ))) return false;
+        return Objects.equals(sort(), sort1) && Objects.equals(page(), page1) && Objects.equals(size(), size1)
+                && Objects.equals(taxid(), taxid1) && Objects.equals(lineage(), lineage1)
+                && Objects.equals(organism(), organism1) && Objects.equals(goTermId(), termId)
+                && Objects.equals(goAspect(), aspect) && Objects.equals(accession(), accession1)
+                && Objects.equals(entryName(), name) && Objects.equals(reviewed(), reviewed1)
+                && Objects.equals(direction(), direction1) && Objects.equals(lengthMin(), min)
+                && Objects.equals(lengthMax(), max) && Objects.equals(featureType(), type)
+                && Objects.equals(globalSearch(), search) && Objects.equals(crossRefSource(), refSource)
+                && Objects.equals(geneNamePrimary(), namePrimary) && Objects.equals(proteinFullName(), fullName)
+                && Objects.equals(molecularWeightMin(), weightMin) && Objects.equals(molecularWeightMax(), weightMax)
+                && listEquals(keywords(), keywords1) && listEquals(evidenceLevels(), levels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(globalSearch(), accession(), entryName(), geneNamePrimary(), proteinFullName(), reviewed(),
+                organism(), taxid(), lineage(), lengthMin(), lengthMax(), molecularWeightMin(), molecularWeightMax(),
+                evidenceLevels(), keywords(), goTermId(), goAspect(), featureType(), crossRefSource(), page(), size(),
+                sort(), direction());
     }
 }
