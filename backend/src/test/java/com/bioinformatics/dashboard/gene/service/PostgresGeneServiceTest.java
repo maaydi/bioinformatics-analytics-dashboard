@@ -113,9 +113,9 @@ class PostgresGeneServiceTest {
     @Test
     void getGeneById_found() {
         var entry = new ProteinEntry();
-        entry.setId(2L);
+        entry.setAccession("ACC");
 
-        when(proteinEntryService.findAdditionalDetails(2L)).thenReturn(Optional.of(entry));
+        when(proteinEntryService.findAdditionalDetails("ACC")).thenReturn(Optional.of(entry));
 
         var detail = new ProteinDetailDto(
                 2L,
@@ -133,15 +133,15 @@ class PostgresGeneServiceTest {
 
         when(mapper.toDetail(entry)).thenReturn(detail);
 
-        var res = service.getGeneById(2L);
+        var res = service.getGeneByAccession("ACC");
         assertEquals(detail, res);
     }
 
     @Test
     void getGeneById_notFound_throws() {
-        when(proteinEntryService.findAdditionalDetails(99L)).thenReturn(Optional.empty());
+        when(proteinEntryService.findAdditionalDetails("ACC99")).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.getGeneById(99L));
+        assertThrows(ResourceNotFoundException.class, () -> service.getGeneByAccession("ACC99"));
     }
 
     @Test

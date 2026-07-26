@@ -203,7 +203,7 @@ class GeneControllerIntegrationTest {
         var saved = proteinEntryRepository.save(entry);
 
         restClient.get()
-                .uri("/api/genes/{id}", saved.getId())
+                .uri("/api/genes/{accession}", saved.getAccession())
                 .header("Authorization", "Bearer " + adminToken)
                 .exchange()
                 .expectStatus().isOk()
@@ -217,7 +217,7 @@ class GeneControllerIntegrationTest {
     @Test
     void getGeneById_notFound_returnsNotFound() throws Exception {
         restClient.get()
-                .uri("/api/genes/{id}", 9999)
+                .uri("/api/genes/{accession}", "9999")
                 .header("Authorization", "Bearer " + adminToken)
                 .exchange()
                 .expectStatus().isNotFound();

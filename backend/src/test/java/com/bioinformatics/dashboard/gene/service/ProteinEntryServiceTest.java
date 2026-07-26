@@ -73,41 +73,43 @@ class ProteinEntryServiceTest {
     @DisplayName("Should find base details by ID")
     void shouldFindBaseDetails() {
         // Arrange
-        Long id = 1L;
+        var accession = "ACC";
         ProteinEntry entry = new ProteinEntry();
-        entry.setId(id);
-        when(proteinEntryRepository.findBaseDetails(id)).thenReturn(Optional.of(entry));
+        entry.setAccession(accession);
+        when(proteinEntryRepository.findBaseDetails(accession)).thenReturn(Optional.of(entry));
         // Act
-        Optional<ProteinEntry> result = proteinEntryService.findBaseDetails(id);
+        Optional<ProteinEntry> result = proteinEntryService.findBaseDetails(accession);
         // Assert
         assertThat(result).isPresent();
-        assertThat(result.get().getId()).isEqualTo(id);
-        verify(proteinEntryRepository).findBaseDetails(id);
+        assertThat(result.get().getAccession()).isEqualTo(accession);
+        verify(proteinEntryRepository).findBaseDetails(accession);
     }
 
     @Test
     @DisplayName("Should find additional details and populate transient collections")
     void shouldFindAdditionalDetails() {
         // Arrange
-        Long id = 1L;
+        var accession = "ACC";
+        var id = 1L;
         ProteinEntry entry = new ProteinEntry();
+        entry.setAccession(accession);
         entry.setId(id);
         CrossReference ref = new CrossReference();
         ProteinComment comment = new ProteinComment();
         ProteinPublication pub = new ProteinPublication();
-        when(proteinEntryRepository.findAdditionalDetails(id)).thenReturn(Optional.of(entry));
+        when(proteinEntryRepository.findAdditionalDetails(accession)).thenReturn(Optional.of(entry));
         when(crossReferenceRepository.findByProteinId(id)).thenReturn(List.of(ref));
         when(proteinCommentRepository.findByProteinId(id)).thenReturn(List.of(comment));
         when(proteinPublicationRepository.findByProteinId(id)).thenReturn(List.of(pub));
         // Act
-        Optional<ProteinEntry> result = proteinEntryService.findAdditionalDetails(id);
+        Optional<ProteinEntry> result = proteinEntryService.findAdditionalDetails(accession);
         // Assert
         assertThat(result).isPresent();
         ProteinEntry fetched = result.get();
         assertThat(fetched.getCrossReferences()).hasSize(1).contains(ref);
         assertThat(fetched.getComments()).hasSize(1).contains(comment);
         assertThat(fetched.getPublications()).hasSize(1).contains(pub);
-        verify(proteinEntryRepository).findAdditionalDetails(id);
+        verify(proteinEntryRepository).findAdditionalDetails(accession);
         verify(crossReferenceRepository).findByProteinId(id);
         verify(proteinCommentRepository).findByProteinId(id);
         verify(proteinPublicationRepository).findByProteinId(id);
@@ -117,13 +119,13 @@ class ProteinEntryServiceTest {
     @DisplayName("Should return empty optional when additional details not found")
     void shouldReturnEmptyWhenAdditionalDetailsNotFound() {
         // Arrange
-        Long id = 1L;
-        when(proteinEntryRepository.findAdditionalDetails(id)).thenReturn(Optional.empty());
+        var accession = "ACC";
+        when(proteinEntryRepository.findAdditionalDetails(accession)).thenReturn(Optional.empty());
         // Act
-        Optional<ProteinEntry> result = proteinEntryService.findAdditionalDetails(id);
+        Optional<ProteinEntry> result = proteinEntryService.findAdditionalDetails(accession);
         // Assert
         assertThat(result).isEmpty();
-        verify(proteinEntryRepository).findAdditionalDetails(id);
+        verify(proteinEntryRepository).findAdditionalDetails(accession);
         verifyNoInteractions(crossReferenceRepository, proteinCommentRepository, proteinPublicationRepository);
     }
 

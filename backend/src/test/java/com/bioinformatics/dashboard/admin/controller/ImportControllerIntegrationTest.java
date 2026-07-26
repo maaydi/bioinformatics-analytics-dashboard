@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,6 +83,11 @@ class ImportControllerIntegrationTest {
 
     @MockitoBean
     CounterRegistry counterRegistry;
+
+    @MockitoBean
+    private CacheManager cacheManager;
+
+
     private String adminToken;
     private String userToken;
 

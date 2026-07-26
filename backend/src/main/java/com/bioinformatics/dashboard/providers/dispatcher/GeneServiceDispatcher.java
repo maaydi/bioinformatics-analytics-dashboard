@@ -50,8 +50,8 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
      * Delegate getGeneById to active provider.
      */
     @Override
-    public ProteinDetailDto getGeneById(Long id) {
-        return resolve().getGeneById(id);
+    public ProteinDetailDto getGeneByAccession(String accession) {
+        return resolve().getGeneByAccession(accession);
     }
 
     /**

@@ -38,9 +38,9 @@ public interface ProteinEntryRepository
             LEFT JOIN FETCH p.keywords
             LEFT JOIN FETCH p.features
             LEFT JOIN FETCH p.goTerms
-            WHERE p.id = :id
+            WHERE p.accession = :accession
             """)
-    Optional<ProteinEntry> findBaseDetails(@Param("id") Long id);
+    Optional<ProteinEntry> findBaseDetails(@Param("accession") String accession);
 
     /**
      * Full detail fetch with the rest of  related collections in a single query.
@@ -49,9 +49,9 @@ public interface ProteinEntryRepository
     @Query("""
             SELECT p FROM ProteinEntry p
             LEFT JOIN FETCH p.hostOrganisms
-            WHERE p.id = :id
+            WHERE p.accession = :accession
             """)
-    Optional<ProteinEntry> findAdditionalDetails(@Param("id") Long id);
+    Optional<ProteinEntry> findAdditionalDetails(@Param("accession") String accession);
 
     @Query("""
                 SELECT p.accession FROM ProteinEntry p

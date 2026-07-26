@@ -85,10 +85,10 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
      */
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
-    public ProteinDetailDto getGeneById(Long id) {
-        log.info("Retrieving protein entry by id: {}", id);
-        var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+    @Cacheable(value = "geneDetail", key = "#accession", cacheManager = "redisNonFinalAndRecordCacheManager")
+    public ProteinDetailDto getGeneByAccession(String accession) {
+        log.info("Retrieving protein entry by id: {}", accession);
+        var gene = proteinService.findAdditionalDetails(accession).orElseThrow(() -> ResourceNotFoundException.forProtein(accession));
         return mapper.toDetail(gene);
 
     }

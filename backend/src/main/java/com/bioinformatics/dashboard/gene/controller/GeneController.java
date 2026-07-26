@@ -78,11 +78,11 @@ public class GeneController {
     /**
      * GET /api/genes/{id} — full protein detail.
      */
-    @GetMapping("/{id}")
-    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#id")
+    @GetMapping("/{accession}")
+    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#accession")
     @RateLimited(key = "detail")
-    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
-        return ResponseEntity.ok(geneService.getGeneById(id));
+    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable String accession) {
+        return ResponseEntity.ok(geneService.getGeneByAccession(accession));
     }
 
     /**

@@ -36,10 +36,11 @@ public interface GeneService extends Provider {
 
     /**
      * Fetch full details of a single gene by ID.
-     * @param id protein entry ID
+     *
+     * @param accession protein entry accession
      * @return gene details with all related data
      */
-    ProteinDetailDto getGeneById(Long id);
+    ProteinDetailDto getGeneByAccession(String accession);
 
     /**
      * Export filtered genes as CSV to the provided writer.
