@@ -1,5 +1,5 @@
 import {isPlatformBrowser} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {Inject, inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {Router} from '@angular/router';
 import {BehaviorSubject, catchError, map, Observable, of, tap} from 'rxjs';
@@ -46,16 +46,26 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<TokenResponse> {
-    return this.http
-      .post<TokenResponse>(`${this.baseUrl}/login`, credentials)
-      .pipe(tap((tokens) => this.storeTokens(tokens)));
+    return this.http.post<TokenResponse>(`${this.baseUrl}/login`, credentials).pipe(
+      tap((tokens) => this.storeTokens(tokens)),
+      catchError((error: HttpErrorResponse) => {
+        this.notify.error(
+          `Login failed: ${error.error?.message || error.message || 'Unknown error'}. Please try again.`,
+        );
+        throw error;
+      }),
+    );
   }
 
   refresh(): Observable<TokenResponse> {
     const refreshToken = this.isBrowser ? sessionStorage.getItem('refreshToken') : null;
-    return this.http
-      .post<TokenResponse>(`${this.baseUrl}/refresh`, {refreshToken})
-      .pipe(tap((tokens) => this.storeTokens(tokens)));
+    return this.http.post<TokenResponse>(`${this.baseUrl}/refresh`, {refreshToken}).pipe(
+      tap((tokens) => this.storeTokens(tokens)),
+      catchError((error: HttpErrorResponse) => {
+        this.notify.error('Session expired. For your security, please sign in again to continue.');
+        throw error;
+      }),
+    );
   }
 
   logout(): void {

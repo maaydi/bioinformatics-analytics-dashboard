@@ -14,7 +14,7 @@ import {catchError, switchMap, throwError} from 'rxjs';
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const token = authService.getAccessToken();
+  const token = authService.getAccessToken(); // Ensure this method exists on AuthService
 
   if (token && req.url.includes('/api')) {
     req = req.clone({
@@ -24,7 +24,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/api/auth/refresh')) {
+      // Endpoints that should NOT trigger a token refresh on 401
+      const isAuthEndpoint =
+        req.url.includes('/api/auth/login') ||
+        req.url.includes('/api/auth/refresh') ||
+        req.url.includes('/api/auth/logout');
+
+      if (error.status === 401 && !isAuthEndpoint) {
         return authService.refresh().pipe(
           switchMap((tokenResponse) => {
             const retriedReq = req.clone({
@@ -38,6 +44,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }),
         );
       }
+
       return throwError(() => error);
     }),
   );
