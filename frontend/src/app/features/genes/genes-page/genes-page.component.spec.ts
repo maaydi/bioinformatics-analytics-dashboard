@@ -129,7 +129,7 @@ describe('GenesPageComponent', () => {
     component.openGeneDetails(row);
 
     expect(selectSpy).toHaveBeenCalledWith(row);
-    expect(navigateMock).toHaveBeenCalledWith(['/genes', 42]);
+    expect(navigateMock).toHaveBeenCalledWith(['/genes', 'P12345']);
   });
 
   it('should retry search with active filters', () => {
@@ -373,7 +373,7 @@ describe('GenesPageComponent', () => {
 
       component.openGeneDetails(row);
 
-      expect(navigateMock).toHaveBeenCalledWith(['/genes', 42]);
+      expect(navigateMock).toHaveBeenCalledWith(['/genes', 'P12345']);
     });
 
     it('should select gene summary before navigation', () => {

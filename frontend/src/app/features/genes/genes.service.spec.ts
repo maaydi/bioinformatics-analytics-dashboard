@@ -137,11 +137,11 @@ describe('GenesService', () => {
   });
 
   it('getGeneById should call GET /genes/:id', () => {
-    service.getByAccession(42).subscribe((res) => {
+    service.getByAccession('P12345').subscribe((res) => {
       expect(res).toEqual(detailResponse);
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/42`);
+    const req = httpMock.expectOne(`${baseUrl}/P12345`);
     expect(req.request.method).toBe('GET');
     req.flush(detailResponse);
   });

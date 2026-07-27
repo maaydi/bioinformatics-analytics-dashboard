@@ -73,7 +73,7 @@ describe('GeneDetailComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(GeneDetailComponent);
-    fixture.componentRef.setInput('id', 42);
+    fixture.componentRef.setInput('accession', 'P12345');
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -84,8 +84,8 @@ describe('GeneDetailComponent', () => {
   });
 
   it('loads protein details on init', () => {
-    expect(genesServiceMock.getByAccession).toHaveBeenCalledWith(42);
-    expect(component.proteinDetails()?.accession).toBe('P12345');
+    expect(genesServiceMock.getByAccession).toHaveBeenCalledWith('P12345');
+    expect(component.proteinDetails()?.id).toBe(42);
     expect(component.loading()).toBe(false);
   });
 
@@ -115,7 +115,7 @@ describe('GeneDetailComponent', () => {
     genesServiceMock.getByAccession = vi.fn().mockReturnValue(throwError(() => new Error('failed')));
 
     const failingFixture = TestBed.createComponent(GeneDetailComponent);
-    failingFixture.componentRef.setInput('id', 42);
+    failingFixture.componentRef.setInput('accession', 'P12345');
     const failingComponent = failingFixture.componentInstance;
     failingFixture.detectChanges();
 
