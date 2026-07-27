@@ -26,8 +26,8 @@ public abstract class AbstractProviderDispatcher<T extends Provider> implements 
      */
     protected AbstractProviderDispatcher(List<T> services) {
         this.services = services.stream()
-                .filter(e -> !e.getProviderName().isBlank())
-                .collect(Collectors.toMap(Provider::getProviderName, e -> e));
+                .filter(this::includeService)
+                .collect(Collectors.toMap(s -> getServiceName(s).toLowerCase(), e -> e));
 
         log.info("{} Registry: found {} providers", this.getClass().getSimpleName(), this.services.size());
     }
@@ -50,11 +50,26 @@ public abstract class AbstractProviderDispatcher<T extends Provider> implements 
      * @throws RuntimeException if provider not found
      */
     protected T resolve() {
-        var name = ProviderContextHolder.get();
-        var provider = services.get(name);
+        return resolveByKey(ProviderContextHolder.get());
+    }
+
+    protected T resolveByKey(String key) {
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("Lookup key cannot be null or blank");
+        }
+
+        T provider = services.get(key.toLowerCase());
         if (provider == null) {
-            throw new RuntimeException("No provider found with name <%s>".formatted(name));
+            throw new RuntimeException("No provider found with key <%s>".formatted(key));
         }
         return provider;
+    }
+
+    protected String getServiceName(T service) {
+        return service.getProviderName();
+    }
+
+    protected boolean includeService(T service) {
+        return !service.getProviderName().isBlank();
     }
 }
