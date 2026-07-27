@@ -57,4 +57,36 @@ public interface ProteinEntryRepository
                 SELECT p.accession FROM ProteinEntry p
             """)
     List<String> findAllAccessions();
+
+    @Query(value = """
+            SELECT accession FROM protein_entry WHERE LOWER(accession) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByAccessionContainingIgnoreCase(@Param("query") String query);
+
+    @Query(value = """
+            SELECT DISTINCT entry_name FROM protein_entry WHERE LOWER(entry_name) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByEntryNameContainingIgnoreCase(@Param("query") String query);
+
+    @Query(value = """
+            SELECT DISTINCT gene_name_primary FROM protein_entry WHERE LOWER(gene_name_primary) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByGeneNamePrimaryContainingIgnoreCase(@Param("query") String query);
+
+    @Query(value = """
+            SELECT DISTINCT protein_full_name FROM protein_entry WHERE LOWER(protein_full_name) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByProteinFullNameContainingIgnoreCase(@Param("query") String query);
+
+    @Query(value = """
+            SELECT DISTINCT organism_name FROM protein_entry WHERE LOWER(organism_name) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByOrganismNameContainingIgnoreCase(@Param("query") String query);
+
+    @Query(value = """
+            SELECT DISTINCT elem FROM protein_entry, unnest(lineage) AS elem WHERE LOWER(elem) LIKE LOWER(CONCAT('%', :query, '%')) LIMIT 10
+            """, nativeQuery = true)
+    List<String> findTop10ByLineageContainingIgnoreCase(@Param("query") String query);
+
+
 }
