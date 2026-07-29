@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for primary gene names.
+ */
 @Component
 @RequiredArgsConstructor
 public class GeneNamePrimaryPostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

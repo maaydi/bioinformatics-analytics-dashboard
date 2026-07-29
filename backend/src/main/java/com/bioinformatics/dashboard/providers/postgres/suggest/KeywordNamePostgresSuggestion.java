@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for keyword names.
+ */
 @Component
 @RequiredArgsConstructor
 public class KeywordNamePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for organism names.
+ */
 @Component
 @RequiredArgsConstructor
 public class OrganismNamePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

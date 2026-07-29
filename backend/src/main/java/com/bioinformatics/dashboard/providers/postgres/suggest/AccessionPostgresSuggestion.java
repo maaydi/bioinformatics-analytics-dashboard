@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for protein accessions.
+ */
 @Component
 @RequiredArgsConstructor
 public class AccessionPostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

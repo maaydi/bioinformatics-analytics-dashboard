@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for cross-reference sources.
+ */
 @Component
 @RequiredArgsConstructor
 public class CrossReferencePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

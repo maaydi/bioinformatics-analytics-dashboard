@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.gene.autocomplete;
+package com.bioinformatics.dashboard.gene.suggest;
 
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST controller for autocomplete suggestions.
+ * Provides suggestions for protein search fields.
+ */
 @RestController
 @RequestMapping("/api/autocomplete")
 @RequiredArgsConstructor
@@ -18,12 +22,11 @@ public class AutoCompleteController {
     private final SuggestionService suggestionService;
 
     /**
-     * Returns a list of suggestions based on the provided field and query.
+     * Retrieves suggestions for a given field and query.
      *
-     * @param field The field to search for suggestions (e.g., "Accession", "EntryName", "FeatureType", "GoTermId").
-     * @param query The query string to search for suggestions.
-     * @return A list of 10 suggestions matching the query for the specified field.
-     *
+     * @param field the search field (e.g., Accession, EntryName, FeatureType)
+     * @param query the search query
+     * @return list of up to 10 matching suggestions
      */
     @GetMapping
     public List<String> suggest(@RequestParam(name = "field") String field, @RequestParam(name = "query") String query) {

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for protein full names.
+ */
 @Component
 @RequiredArgsConstructor
 public class ProteinFullNamePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

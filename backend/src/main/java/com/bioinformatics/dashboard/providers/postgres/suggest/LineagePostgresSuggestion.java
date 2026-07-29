@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for organism lineage.
+ */
 @Component
 @RequiredArgsConstructor
 public class LineagePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

@@ -5,32 +5,29 @@ import com.bioinformatics.dashboard.interfaces.Provider;
 import java.util.List;
 
 /**
- * Suggestion service interface : Retrieve list of suggestion for a given field based on a query
- *
+ * Service interface for retrieving field suggestions based on query.
  */
 public interface SuggestionService extends Provider {
     /**
-     * Concerned field for suggestion
+     * @return the target field for suggestions
      */
     String field();
 
     /**
-     * Retrieves a list of suggestions based on the provided query for one of the given fields.
+     * Retrieves suggestions matching the query.
      *
-     * @param query The input query string for which suggestions are to be retrieved.
-     * @return A list of suggestion strings that match the input query.
-     *
+     * @param query the search query
+     * @return list of up to 10 matching suggestions
      */
     List<String> suggest(String query);
 
-
     /**
-     * Retrieves a list of suggestions based on the provided field and query.
+     * Retrieves suggestions for a specific field matching the query.
+     * Default implementation delegates to {@link #suggest(String)}.
      *
-     * @param field The field for which suggestions are to be retrieved.
-     * @param query The input query string for which suggestions are to be retrieved.
-     * @return A list of 10 suggestion strings that match the input query.
-     *
+     * @param field the target field
+     * @param query the search query
+     * @return list of up to 10 matching suggestions
      */
     default List<String> suggest(String field, String query) {
         return suggest(query);

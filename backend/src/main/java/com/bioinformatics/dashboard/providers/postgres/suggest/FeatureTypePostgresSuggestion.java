@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for protein feature types.
+ */
 @Component
 @RequiredArgsConstructor
 public class FeatureTypePostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {

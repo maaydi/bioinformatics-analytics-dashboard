@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * PostgreSQL suggestion provider for GO term identifiers.
+ */
 @Component
 @RequiredArgsConstructor
 public class GoTermIdPostgresSuggestion extends AbstractPostgresProvider implements SuggestionService {
