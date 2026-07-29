@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.providers.uniprotkb.service;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniprotKbResponse;
+import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtLightEntry;
 import com.bioinformatics.dashboard.providers.uniprotkb.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +39,28 @@ public class UniprotKbRestService {
         }
         log.info("Search Kb API with Query : {}, Page : {}", queryValue, request.page());
         return uniprotRestClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/search")
+                .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
                         .queryParams(queryParams)
                         .build()
                 ).retrieve()
                 .toEntity(new ParameterizedTypeReference<UniprotKbResponse<UniProtEntry>>() {
+                });
+    }
+
+    public ResponseEntity<UniprotKbResponse<UniProtLightEntry>> searchAll(String query, int pageSize) {
+        var queryParams = new LinkedMultiValueMap<String, String>();
+        queryParams.add("format", "json");
+        assert pageSize > 0 : "Page size must be greater than zero";
+        assert pageSize <= 500 : "Page size must be less than or equal to 500";
+        queryParams.add("size", String.valueOf(pageSize));
+        queryParams.add("query", "query");
+        log.info("Search Kb API with Query : {}", query);
+        return uniprotRestClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
+                        .queryParams(queryParams)
+                        .build()
+                ).retrieve()
+                .toEntity(new ParameterizedTypeReference<UniprotKbResponse<UniProtLightEntry>>() {
                 });
     }
 }
