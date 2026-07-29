@@ -10,9 +10,7 @@ import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 /**
  * Service for gene/protein operations.
@@ -36,7 +33,6 @@ import java.util.List;
 public class PostgresGeneService extends AbstractPostgresProvider implements GeneService {
 
     private final ProteinEntryService proteinService;
-    private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
@@ -114,15 +110,5 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
         }
         return totalRows;
 
-    }
-
-    @Override
-    @Cacheable(value = "geneKeywords")
-    public List<String> listKeywords() {
-        log.info("Retrieving keywords for protein entries");
-        return keywordRepository.findAll()
-                .stream()
-                .map(Keyword::getName)
-                .toList();
     }
 }

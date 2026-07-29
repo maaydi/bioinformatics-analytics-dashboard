@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * REST Controller providing APIs for retrieving and exporting gene/protein data.
@@ -102,12 +101,5 @@ public class GeneController {
         try (var writer = response.getWriter()) {
             geneService.exportCsv(request, writer, totalRows);
         }
-    }
-
-    @GetMapping(value = "/keywords")
-    @Auditable(action = AuditAction.SEARCH_QUERY)
-    @RateLimited
-    public List<String> loadKeywords() {
-        return geneService.listKeywords();
     }
 }

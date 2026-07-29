@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,9 +64,4 @@ public interface GeneService extends Provider {
      */
     long assertWithinExportLimit(GeneSearchRequest request);
 
-    /**
-     * Fetch all available protein keywords/tags.
-     * @return list of unique keywords
-     */
-    List<String> listKeywords();
 }

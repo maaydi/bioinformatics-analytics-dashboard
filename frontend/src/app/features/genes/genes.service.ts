@@ -73,9 +73,4 @@ export class GenesService {
         }
       ));
   }
-
-  /** Loads keyword suggestions for the keywords filter control. */
-  loadKeywords(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/keywords`);
-  }
 }

@@ -163,17 +163,5 @@ describe('GenesService', () => {
     expect(req.request.responseType).toBe('blob');
     req.flush(blob);
   });
-
-  it('loadKeywords should call GET /genes/keywords', () => {
-    const keywords = ['Kinase', 'Signal'];
-
-    service.loadKeywords().subscribe((res) => {
-      expect(res).toEqual(keywords);
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/keywords`);
-    expect(req.request.method).toBe('GET');
-    req.flush(keywords);
-  });
 });
 

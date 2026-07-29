@@ -70,11 +70,4 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
         return resolve().assertWithinExportLimit(request);
     }
 
-    /**
-     * Delegate keyword listing to active provider.
-     */
-    @Override
-    public List<String> listKeywords() {
-        return resolve().listKeywords();
-    }
 }

@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -136,14 +135,6 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
         }
         return totalRows;
 
-    }
-
-    @Override
-    @Cacheable(value = "geneKeywords")
-    public List<String> listKeywords() {
-        log.info("Retrieving keywords for protein entries");
-        // TODO implement it
-        return List.of();
     }
 
     private String getCursor(GeneSearchRequest request) {
