@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output,} from '@angular/core';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {
@@ -8,14 +8,13 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import {GeneFilterFormControls, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/divider';
-import {MatInput} from '@angular/material/input';
 import {MatError, MatFormField} from '@angular/material/form-field';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
@@ -28,17 +27,18 @@ import {
   MAX_GENE_NAME_PRIMARY_LENGTH,
   MAX_KEYWORD_LENGTH,
   MAX_KEYWORDS_COUNT,
-  MAX_ORGANISM_LENGTH
+  MAX_ORGANISM_LENGTH,
 } from '@core/models/protein.model';
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
 import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
-import {getDefaultFormValue, toForm, toSnapshot} from '@features/genes/gene-filter/gene-filter.utils';
+import {getDefaultFormValue, toForm, toSnapshot,} from '@features/genes/gene-filter/gene-filter.utils';
 import {GenericAutocompleteComponent} from '@shared/components/generic-autocomplete/generic-autocomplete.component';
 
-
-const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
+const taxidPositiveIntegerValidator: ValidatorFn = (
+  control: AbstractControl<number | null>,
+): ValidationErrors | null => {
   const value = control.value;
   if (value === null) {
     return null;
@@ -49,7 +49,9 @@ const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<num
   return null;
 };
 
-const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null>): ValidationErrors | null => {
+const keywordsValidator: ValidatorFn = (
+  control: AbstractControl<string[] | null>,
+): ValidationErrors | null => {
   const keywords = control.value ?? [];
 
   if (keywords.length > MAX_KEYWORDS_COUNT) {
@@ -57,7 +59,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
       keywordsMaxCount: {
         max: MAX_KEYWORDS_COUNT,
         actual: keywords.length,
-      }
+      },
     };
   }
 
@@ -66,7 +68,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
     return {
       keywordMaxLength: {
         max: MAX_KEYWORD_LENGTH,
-      }
+      },
     };
   }
 
@@ -77,7 +79,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
  * - 'sidebar' = stacked vertical fields (default)
  * - 'grid' = compact multi-column layout (used by comparison view)
  */
-export type DisplayMode = 'sidebar' | 'grid'
+export type DisplayMode = 'sidebar' | 'grid';
 
 /**
  * Presentational filter panel for gene search criteria.
@@ -100,7 +102,6 @@ export type DisplayMode = 'sidebar' | 'grid'
     MatDivider,
     MatCardContent,
     MatFormField,
-    MatInput,
     MatButtonToggleGroup,
     MatButtonToggle,
     MatCheckbox,
