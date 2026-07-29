@@ -31,7 +31,7 @@ public class UniprotRestClientConfig {
         factory.setReadTimeout(Duration.ofHours(1));
 
 
-        return RestClient.builder().baseUrl("https://rest.uniprot.org/uniprotkb")
+        return RestClient.builder().baseUrl("https://rest.uniprot.org")
                 .configureMessageConverters(builder -> {
                     builder.registerDefaults();
                     builder.withJsonConverter(jacksonConverter);
