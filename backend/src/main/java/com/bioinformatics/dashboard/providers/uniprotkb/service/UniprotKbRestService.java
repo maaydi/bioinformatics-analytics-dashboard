@@ -21,6 +21,7 @@ import java.util.Objects;
 public class UniprotKbRestService {
 
     private final RestClient uniprotRestClient;
+    private final GeneSpecification geneSpecification;
 
     public ResponseEntity<UniprotKbResponse<UniProtEntry>> searchAll(GeneSearchRequest request, String cursor) {
         var queryParams = new LinkedMultiValueMap<String, String>();
@@ -29,7 +30,7 @@ public class UniprotKbRestService {
         assert pageSize > 0 : "Page size must be greater than zero";
         assert pageSize <= 500 : "Page size must be less than or equal to 500";
         queryParams.add("size", String.valueOf(pageSize));
-        var queryValue = GeneSpecification.fromRequest(request);
+        var queryValue = geneSpecification.fromRequest(request);
         queryParams.add("query", queryValue);
         if (request.sort() != null && request.direction() != null) {
             queryParams.add("sort", "%s %s".formatted(request.sort(), request.direction()));
@@ -43,7 +44,7 @@ public class UniprotKbRestService {
                         .queryParams(queryParams)
                         .build()
                 ).retrieve()
-                .toEntity(new ParameterizedTypeReference<UniprotKbResponse<UniProtEntry>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
     }
 
@@ -60,7 +61,7 @@ public class UniprotKbRestService {
                         .queryParams(queryParams)
                         .build()
                 ).retrieve()
-                .toEntity(new ParameterizedTypeReference<UniprotKbResponse<UniProtLightEntry>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
     }
 }

@@ -9,7 +9,6 @@ import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,9 +38,6 @@ class PostgresGeneServiceTest {
     ProteinEntryService proteinEntryService;
 
     @Mock
-    KeywordRepository keywordRepository;
-
-    @Mock
     GeneMapper mapper;
 
     AppProperties appProperties;
@@ -55,7 +51,7 @@ class PostgresGeneServiceTest {
         export.setCsv(new AppProperties.Csv());
         export.getCsv().setMaxRows(1000);
 
-        service = new PostgresGeneService(proteinEntryService, keywordRepository, mapper, appProperties);
+        service = new PostgresGeneService(proteinEntryService, mapper, appProperties);
     }
 
     private GeneSearchRequest buildRequest(

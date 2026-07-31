@@ -34,6 +34,7 @@ import static org.mockito.Mockito.*;
         classes = SavedFilterServiceCacheTest.CacheTestConfiguration.class,
         properties = {
                 "spring.main.allow-bean-definition-overriding=true",
+                "LOG_PATH=target/test-logs",
         }
 )
 @DisplayName("SavedFilterService Cache Integration Tests")
