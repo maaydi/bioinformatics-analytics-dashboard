@@ -2,10 +2,12 @@ package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
+import com.bioinformatics.dashboard.providers.uniprotkb.service.UniProtSearchFieldService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * uniprot API suggestion provider for protein feature types.
@@ -13,7 +15,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class FeatureTypeUniprotApiSuggestion extends AbstractUniprotKbProvider implements SuggestionService {
-
+    private final UniProtSearchFieldService service;
 
     @Override
     public String field() {
@@ -22,27 +24,12 @@ public class FeatureTypeUniprotApiSuggestion extends AbstractUniprotKbProvider i
 
     @Override
     public List<String> suggest(String query) {
-        // TODO extract it from https://rest.uniprot.org/configure/uniprotkb/search-fields
-        // TODO load at startup component and use them as map
-        // feature type is defined by label where siblings contains term start with "ft_"
-        /**
-         *
-         * {
-         *         "id": "glycosylation_ft",
-         *         "label": "Glycosylation [FT]", // feature type
-         *         "itemType": "sibling_group",
-         *         "siblings": [
-         *           {
-         *             "id": "ft_carbohyd", // correspond in search normalizedType
-         *             "itemType": "single",
-         *
-         * public static Optional<String> featureType(String type) {
-         *         if (!StringUtils.hasText(type)) return Optional.empty();
-         *         var normalizedType = type.trim().toLowerCase().replace(" ", "_");
-         *         return Optional.of("ft_" + normalizedType + ":*");
-         *     }
-         * */
-        throw new UnsupportedOperationException("FeatureType suggestion is not supported yet.");
+        var ft = service.getCachedFeatureTypes();
+        return ft.keySet().stream()
+                .filter(Objects::nonNull)
+                .filter(item -> item.toLowerCase().contains(query))
+                .limit(10)
+                .toList();
     }
 
 
