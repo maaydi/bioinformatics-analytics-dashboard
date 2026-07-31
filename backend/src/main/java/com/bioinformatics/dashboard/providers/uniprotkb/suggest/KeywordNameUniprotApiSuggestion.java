@@ -32,7 +32,7 @@ public class KeywordNameUniprotApiSuggestion extends AbstractUniprotKbProvider i
             var result = suggesterRestService.searchAll("keyword", query);
             if (result.hasBody() && result.getBody() != null) {
                 return result.getBody().suggestions().stream()
-                        .map(Suggestion::id)
+                        .map(Suggestion::value)
                         .distinct()
                         .limit(10)
                         .toList();

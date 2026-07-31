@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.gene.suggest;
+package com.bioinformatics.dashboard.gene.autocomplete;
 
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import lombok.RequiredArgsConstructor;

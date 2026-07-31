@@ -20,23 +20,21 @@ public class UniProtSearchFieldService {
 
     private static void traverse(SearchField field, String parentLabel,
                                  Map<String, List<String>> result) {
-        if (field.siblings() != null && !field.siblings().isEmpty()) {
-            List<String> ftIds = field.siblings().stream()
-                    .filter(s -> s.term() != null && s.term().startsWith("ft_"))
-                    .map(SearchField::id)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-            if (!ftIds.isEmpty() && parentLabel != null) {
-                result.computeIfAbsent(parentLabel, k -> new ArrayList<>()).addAll(ftIds);
+        if (!field.itemType().equalsIgnoreCase("sibling_group")
+                && field.items() != null
+                && !field.items().isEmpty()) {
+            for (var child : field.items()) {
+                traverse(child, child.label(), result);
             }
         }
-
-        if (field.items() != null) {
-            String currentLabel = field.label();
-            for (SearchField child : field.items()) {
-                traverse(child, currentLabel, result);
-            }
+        if (field.itemType().equalsIgnoreCase("sibling_group")
+                && field.siblings() != null
+                && !field.siblings().isEmpty()) {
+            var ftIds = field.siblings().stream()
+                    .filter(s -> s.term() != null && s.term().startsWith("ft_"))
+                    .map(SearchField::term)
+                    .toList();
+            result.computeIfAbsent(parentLabel, _ -> new ArrayList<>()).addAll(ftIds);
         }
     }
 
