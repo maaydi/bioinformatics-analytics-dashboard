@@ -15,6 +15,19 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Objects;
 
+/**
+ * Service for querying the UniProt KB search API.
+ *
+ * <p>Provides two overloaded methods for different data granularities:</p>
+ * <ul>
+ *   <li>{@code searchAll(GeneSearchRequest, String)} — full-fidelity protein entries with
+ *       sorting and cursor-based pagination</li>
+ *   <li>{@code searchAll(String, int)} — simplified search for lightweight entries</li>
+ * </ul>
+ *
+ * <p>Both enforce page size constraints (1-500 entries) and log the effective
+ * query for operational visibility.</p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +36,13 @@ public class UniprotKbRestService {
     private final RestClient uniprotRestClient;
     private final GeneSpecification geneSpecification;
 
+    /**
+     * Searches the UniProt KB using a gene search request with optional cursor-based pagination and sorting.
+     *
+     * @param request the search criteria and pagination state
+     * @param cursor  the pagination cursor from a prior response; {@code null} for the first page
+     * @return a {@link ResponseEntity} containing a paginated response of full protein entries
+     */
     public ResponseEntity<UniprotKbResponse<UniProtEntry>> searchAll(GeneSearchRequest request, String cursor) {
         var queryParams = new LinkedMultiValueMap<String, String>();
         queryParams.add("format", "json");
