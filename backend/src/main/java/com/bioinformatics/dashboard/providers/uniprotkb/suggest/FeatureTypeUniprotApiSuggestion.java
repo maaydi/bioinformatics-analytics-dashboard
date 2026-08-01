@@ -27,7 +27,6 @@ public class FeatureTypeUniprotApiSuggestion extends AbstractUniprotKbProvider i
     @Override
     public List<String> suggest(String query) {
         var ft = service.getCachedFeatureTypes();
-        ft.entrySet().stream().filter(e -> e.getKey() != null).forEach((e -> log.info(e.getKey().concat(" : ").concat(String.join(" | ", e.getValue())))));
         return ft.keySet().stream()
                 .filter(Objects::nonNull)
                 .filter(item -> item.toLowerCase().contains(query.toLowerCase()))
