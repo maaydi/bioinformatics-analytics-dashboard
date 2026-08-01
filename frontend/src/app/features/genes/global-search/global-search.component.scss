@@ -37,6 +37,10 @@
 /**
  * LABEL CONTAINER: Search field label
  */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+}
 .label-container {
   @include shared.table-title;
 }

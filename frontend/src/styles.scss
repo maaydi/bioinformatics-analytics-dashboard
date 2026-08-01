@@ -219,3 +219,27 @@ body {
   background: var(--chart-error-bg);
   color: var(--chart-error-text);
 }
+
+/* ── Theme Toggle Button ─────────────────────────────────────────────────── */
+.theme-toggle-btn {
+  @include ds.text-label-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: ds.$spacing-xs;
+  padding: ds.$spacing-xs ds.$spacing-sm;
+  border-radius: ds.$border-radius-full;
+  background: transparent;
+  color: inherit;
+  font-weight: ds.$font-weight-medium;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.12s ease, color 0.18s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--mat-sys-on-primary) 8%, transparent);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    @include ds.focus-ring(var(--mat-sys-on-primary));
+  }
+}
