@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.bioinformatics.dashboard.common.UniprotMapperUtils.INACTIVE_ENTRY_TYPE;
+
 /**
  * uniprot API suggestion provider for primary gene names.
  */
@@ -36,6 +38,7 @@ public class GeneNamePrimaryUniprotApiSuggestion extends AbstractUniprotKbProvid
             var result = uniprotKbRestService.searchAll("((gene:%s*))".formatted(query), 50);
             if (result.hasBody() && result.getBody() != null) {
                 return result.getBody().results().stream()
+                        .filter(e -> !INACTIVE_ENTRY_TYPE.equalsIgnoreCase(e.entryType()))
                         .map(UniProtLightEntry::genes)
                         .filter(e -> e != null && !e.isEmpty())
                         .map(List::getFirst)

@@ -75,9 +75,6 @@ public class UniProtKbApiClient implements UniProtApiClient {
      * for progress-percentage logging.
      */
     private void captureTotal(ResponseEntity<?> response) {
-        if (totalResults >= 0) {
-            return; // already captured
-        }
         var raw = response.getHeaders().getFirst(TOTAL_RESULTS_HEADER);
         if (raw != null) {
             try {

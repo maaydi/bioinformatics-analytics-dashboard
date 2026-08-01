@@ -58,7 +58,7 @@ public class UniprotKbRestService {
         if (cursor != null) {
             queryParams.add("cursor", cursor);
         }
-        log.info("Search Kb API with Query : {}, Page : {}", queryValue, request.page());
+        log.debug("Search Kb API with Query : {}, Page : {}", queryValue, request.page());
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
                         .queryParams(queryParams)
@@ -74,8 +74,8 @@ public class UniprotKbRestService {
         assert pageSize > 0 : "Page size must be greater than zero";
         assert pageSize <= 500 : "Page size must be less than or equal to 500";
         queryParams.add("size", String.valueOf(pageSize));
-        queryParams.add("query", "query");
-        log.info("Search Kb API with Query : {}", query);
+        queryParams.add("query", query);
+        log.debug("Search Kb API with Query : {}", query);
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
                         .queryParams(queryParams)

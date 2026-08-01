@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bioinformatics.dashboard.common.UniprotMapperUtils.INACTIVE_ENTRY_TYPE;
+
 /**
  * uniprot API suggestion provider for protein entry names.
  */
@@ -32,6 +34,7 @@ public class EntryNameUniprotApiSuggestion extends AbstractUniprotKbProvider imp
             var result = uniprotKbRestService.searchAll("((id:%s*))".formatted(query), 50);
             if (result.hasBody() && result.getBody() != null) {
                 return result.getBody().results().stream()
+                        .filter(e -> !INACTIVE_ENTRY_TYPE.equalsIgnoreCase(e.entryType()))
                         .map(UniProtLightEntry::uniProtkbId)
                         .distinct()
                         .limit(10)

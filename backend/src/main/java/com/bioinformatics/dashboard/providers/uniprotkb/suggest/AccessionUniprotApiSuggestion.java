@@ -2,6 +2,8 @@ package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
+import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtLightEntry;
+import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbRestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +12,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.bioinformatics.dashboard.common.UniprotMapperUtils.INACTIVE_ENTRY_TYPE;
 
 /**
  * uniprot API suggestion provider for protein accessions.
@@ -18,6 +23,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class AccessionUniprotApiSuggestion extends AbstractUniprotKbProvider implements SuggestionService {
 
+    private static final int COUNT = 100;
 
     private static final String REGEX = "(?i)([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z]([0-9][A-Z][A-Z0-9]{2}){1,2}[0-9])(-[0-9]+)?";
     private static final Pattern PATTERN = Pattern.compile("^" + REGEX + "$");
@@ -38,8 +44,7 @@ public class AccessionUniprotApiSuggestion extends AbstractUniprotKbProvider imp
             // Template 2: [A-NR-Z]([0-9][A-Z][A-Z0-9]{2}){2}[0-9] (10 chars)
             {ANRZ, DIGITS, ALPHA, ALPHANUM, ALPHANUM, DIGITS, ALPHA, ALPHANUM, ALPHANUM, DIGITS}
     };
-
-    private static final int COUNT = 10;
+    private final UniprotKbRestService uniprotKbRestService;
 
     private static List<Placement> findValidPlacements(String input) {
         var placements = new ArrayList<Placement>();
@@ -80,7 +85,22 @@ public class AccessionUniprotApiSuggestion extends AbstractUniprotKbProvider imp
     @Override
     public List<String> suggest(String query) {
         try {
-            return generateMatchingStrings(query);
+            var suggestions = generateMatchingStrings(query)
+                    .stream()
+                    .map(e -> "(accession:" + e + ")")
+                    .collect(Collectors.joining(" OR "));
+            var result = uniprotKbRestService.searchAll(suggestions, 100);
+            if (result.hasBody() && result.getBody() != null) {
+                return result.getBody()
+                        .results()
+                        .stream()
+                        .filter(e -> !INACTIVE_ENTRY_TYPE.equalsIgnoreCase(e.entryType()))
+                        .map(UniProtLightEntry::primaryAccession)
+                        .distinct()
+                        .limit(10)
+                        .toList();
+            }
+            return new ArrayList<>();
         } catch (Exception e) {
             return new ArrayList<>();
         }

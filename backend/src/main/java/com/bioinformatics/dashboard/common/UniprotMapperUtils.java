@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class UniprotMapperUtils {
     public static final String SWISSPROT_ENTRY_TYPE = "UniProtKB reviewed (Swiss-Prot)";
+    public static final String INACTIVE_ENTRY_TYPE = "Inactive";
     public static final String GO_DATABASE = "GO";
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

@@ -28,7 +28,7 @@ class EntryNameUniprotApiSuggestionTest {
     private EntryNameUniprotApiSuggestion suggestion;
 
     private static UniProtLightEntry lightEntry(String uniProtkbId) {
-        return new UniProtLightEntry(uniProtkbId, null, null, null);
+        return new UniProtLightEntry(null, "ACC", uniProtkbId, null, null, null);
     }
 
     // -------------------------------------------------------------------------

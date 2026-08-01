@@ -45,7 +45,7 @@ class GeneNamePrimaryUniprotApiSuggestionTest {
      */
     private static UniProtLightEntry entryWithGeneName(String value) {
         var gene = new GeneLight(geneName(value));
-        return new UniProtLightEntry(null, null, List.of(gene), null);
+        return new UniProtLightEntry(null, null, null, null, List.of(gene), null);
     }
 
     private static ResponseEntity<UniprotKbResponse<UniProtLightEntry>> okResponse(
@@ -135,7 +135,7 @@ class GeneNamePrimaryUniprotApiSuggestionTest {
     @Test
     void suggest_entryWithNullGenesList_isSkipped() {
         // Entry with null genes list must be filtered out without NPE
-        var entryWithNullGenes = new UniProtLightEntry(null, null, null, null);
+        var entryWithNullGenes = new UniProtLightEntry(null, null, null, null, null, null);
         var entryWithValidGene = entryWithGeneName("EGFR");
         when(uniprotKbRestService.searchAll(anyString(), anyInt()))
                 .thenReturn(okResponse(List.of(entryWithNullGenes, entryWithValidGene)));
@@ -147,7 +147,7 @@ class GeneNamePrimaryUniprotApiSuggestionTest {
 
     @Test
     void suggest_entryWithEmptyGenesList_isSkipped() {
-        var entryWithEmptyGenes = new UniProtLightEntry(null, null, List.of(), null);
+        var entryWithEmptyGenes = new UniProtLightEntry(null, null, null, null, List.of(), null);
         var entryWithValidGene = entryWithGeneName("MYC");
         when(uniprotKbRestService.searchAll(anyString(), anyInt()))
                 .thenReturn(okResponse(List.of(entryWithEmptyGenes, entryWithValidGene)));
@@ -161,7 +161,7 @@ class GeneNamePrimaryUniprotApiSuggestionTest {
     void suggest_geneWithNullGeneName_isSkipped() {
         // GeneLight whose geneName() is null must be filtered without NPE
         var geneWithNullName = new GeneLight(null);
-        var entryWithNullGeneName = new UniProtLightEntry(null, null, List.of(geneWithNullName), null);
+        var entryWithNullGeneName = new UniProtLightEntry(null, null, null, null, List.of(geneWithNullName), null);
         var entryWithValidGene = entryWithGeneName("PTEN");
         when(uniprotKbRestService.searchAll(anyString(), anyInt()))
                 .thenReturn(okResponse(List.of(entryWithNullGeneName, entryWithValidGene)));

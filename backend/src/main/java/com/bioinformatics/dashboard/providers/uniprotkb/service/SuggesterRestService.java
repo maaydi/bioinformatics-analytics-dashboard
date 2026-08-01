@@ -21,7 +21,7 @@ public class SuggesterRestService {
     private final RestClient uniprotRestClient;
 
     public ResponseEntity<SuggestionResult> searchAll(String field, String query) {
-        log.info("Search Cross reference API with Query : {}", query);
+        log.info("Search Suggestion for {} with Query : {}", field, query);
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/suggester")
                         .queryParam("dict", field)

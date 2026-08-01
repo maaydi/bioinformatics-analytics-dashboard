@@ -46,7 +46,7 @@ class ProteinFullNameUniprotApiSuggestionTest {
         var fullName = new FullName(name);
         var recommendedName = new RecommendedName(fullName);
         var proteinDescription = new ProteinDescription(recommendedName);
-        return new UniProtLightEntry(null, null, null, proteinDescription);
+        return new UniProtLightEntry(null, null, null, null, null, proteinDescription);
     }
 
     private static ResponseEntity<UniprotKbResponse<UniProtLightEntry>> okResponse(
