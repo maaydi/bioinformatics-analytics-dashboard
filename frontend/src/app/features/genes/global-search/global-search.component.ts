@@ -31,6 +31,7 @@ export class GlobalSearchComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly dataProviderService = inject(DataProviderService);
+  readonly retrySearch = output<void>();
 
 
   private debounceTimerId: ReturnType<typeof setTimeout> | null = null;
@@ -78,5 +79,11 @@ export class GlobalSearchComponent {
       clearTimeout(this.debounceTimerId);
       this.debounceTimerId = null;
     }
+  }
+
+  protected toggleProvider() {
+    this.dataProviderService.toggleProvider();
+    this.retrySearch.emit();
+
   }
 }

@@ -50,6 +50,7 @@ export class GenesPageComponent {
   }
 
   applyFilters(snapshot: GeneFilterSnapshot): void {
+    this.store.updatePaginationAndSort({page: 0});
     this.store.searchGene(snapshot);
   }
 

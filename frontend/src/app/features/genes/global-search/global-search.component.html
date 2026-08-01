@@ -9,7 +9,7 @@
         help_outline
       </mat-icon>
     </div>
-    <button (click)="dataProviderService.toggleProvider()"
+    <button (click)="toggleProvider()"
             [attr.aria-label]="dataProviderService.getProvider() === 'postgres' ? 'Switch to UniprotKB remote provider' : 'Switch to local DB provider'"
             class="theme-toggle-btn"
             mat-button>

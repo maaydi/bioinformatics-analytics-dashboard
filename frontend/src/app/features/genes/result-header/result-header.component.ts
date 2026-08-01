@@ -23,6 +23,10 @@ export class ResultHeaderComponent {
   readonly totalPages = computed<number>(() => this.data()?.totalPages ?? 0);
 
   onPageChange(event: PageEvent) {
-    this.updatePage.emit({page: event.pageIndex, size: event.pageSize});
+    let pageNumber = event.pageIndex;
+    if (event.pageSize !== this.pageSize()) {
+      pageNumber = 0;
+    }
+    this.updatePage.emit({page: pageNumber, size: event.pageSize});
   }
 }
