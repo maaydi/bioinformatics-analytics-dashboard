@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.listener.*;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinEntryItemProcessor;
+import com.bioinformatics.dashboard.job.uniprot.fileloader.reader.DelegatingItemStreamReader;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.reader.UniprotDatItemReader;
 import com.bioinformatics.dashboard.job.writer.ProteinAggregateItemWriter;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
@@ -60,13 +61,14 @@ public class UniProtImportJobConfig {
      */
     @Bean
     @StepScope
-    ItemStreamReader<String> dynamicUniprotReader(UniProtImportJobParameters params) {
+    DelegatingItemStreamReader<String> dynamicUniprotReader(UniProtImportJobParameters params) {
         var filePath = params.getFilePath();
         var resource = new FileSystemResource(filePath);
+        ItemStreamReader<String> delegate;
         if (filePath.toLowerCase().endsWith(".dat")) {
-            return new UniprotDatItemReader(resource);
+            delegate = new UniprotDatItemReader(resource);
         } else if (filePath.toLowerCase().endsWith(".tsv")) {
-            return new FlatFileItemReaderBuilder<String>()
+            delegate = new FlatFileItemReaderBuilder<String>()
                     .name("tsvReader")
                     .resource(resource)
                     .lineMapper((line, _) -> line)
@@ -75,6 +77,7 @@ public class UniProtImportJobConfig {
         } else {
             throw new IllegalArgumentException("Unsupported file extension");
         }
+        return new DelegatingItemStreamReader<>(delegate);
     }
 
     @Bean

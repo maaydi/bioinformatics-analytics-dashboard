@@ -29,7 +29,6 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         '[format_sql]': false
         '[default_batch_fetch_size]': 100  # Avoids N+1 on collections
         jdbc:
@@ -37,6 +36,7 @@ spring:
           batch_versioned_data: true
         order_inserts: true
         order_updates: true
+    open-in-view: on
 
   # ── Flyway ──────────────────────────────────────────────────────────────────
   flyway:
@@ -71,6 +71,8 @@ spring:
       connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
       client-name: ${SPRING_DATA_REDIS_CLIENT_NAME:bioinformatics-dashboard}
       client-type: lettuce
+      repositories:
+        enabled: false
 
 
 # ── Server ─────────────────────────────────────────────────────────────────────

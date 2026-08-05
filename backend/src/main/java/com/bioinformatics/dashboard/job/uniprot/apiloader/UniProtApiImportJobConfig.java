@@ -67,7 +67,7 @@ public class UniProtApiImportJobConfig {
      */
     @Bean
     @StepScope
-    ItemStreamReader<UniProtEntry> uniProtApiItemReader(UniProtApiClient apiClient) {
+    UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient) {
         return new UniProtApiItemReader(apiClient, appProperties.getUniprotApi().getBatch().getChunkSize());
     }
 
