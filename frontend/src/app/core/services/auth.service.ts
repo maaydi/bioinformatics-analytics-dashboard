@@ -75,8 +75,8 @@ export class AuthService {
           this.notify.success('Logged out successfully');
           this.clearTokens();
         },
-        error: (err) => {
-          this.notify.error(`Logout failed: ${err}`);
+        error: (err: HttpErrorResponse) => {
+          this.notify.error(`Logout failed: ${err.message}`);
           this.clearTokens();
         },
       });
