@@ -53,6 +53,7 @@ public class UniProtKbApiClient implements UniProtApiClient {
 
     @Override
     public UniProtApiPage fetchPage(GeneSearchRequest request, String cursor) {
+        log.debug("Fetching page for request {} with cursor {}", request, cursor);
         var response = restService.searchAll(request, cursor);
 
         captureTotal(response);
@@ -62,11 +63,10 @@ public class UniProtKbApiClient implements UniProtApiClient {
 
         var nextCursor = extractNextCursor(response);
         if (nextCursor == null) {
-            log.info("Last page received — {} entries fetched on this page", entries.size());
+            log.debug("Last page received — {} entries fetched on this page", entries.size());
             return UniProtApiPage.lastPage(entries, totalResults);
         }
-
-        logProgress(entries.size());
+        log.debug("Page fetched ({} entries). Total reported by API: {}.", entries.size(), totalResults);
         return UniProtApiPage.nextPage(entries, nextCursor, totalResults);
     }
 
@@ -79,9 +79,10 @@ public class UniProtKbApiClient implements UniProtApiClient {
         if (raw != null) {
             try {
                 totalResults = Long.parseLong(raw.trim());
-                log.info("UniProt total results: {}", totalResults);
+                log.debug("UniProt total results: {}", totalResults);
             } catch (NumberFormatException e) {
-                log.warn("Could not parse {} header value '{}': {}", TOTAL_RESULTS_HEADER, raw, e.getMessage());
+                log.warn("Could not parse {} header value '{}': {}",
+                        TOTAL_RESULTS_HEADER, raw, e.getMessage());
             }
         }
     }
@@ -92,6 +93,8 @@ public class UniProtKbApiClient implements UniProtApiClient {
      * @return the cursor string, or {@code null} if no {@code rel="next"} link is present
      */
     private String extractNextCursor(ResponseEntity<?> response) {
+        log.debug("Extract Next cursor from response 'link' header: {}",
+                response.getHeaders().getFirst(LINK_HEADER));
         var linkHeader = response.getHeaders().getFirst(LINK_HEADER);
         if (linkHeader == null || linkHeader.isBlank()) {
             return null;
@@ -109,16 +112,5 @@ public class UniProtKbApiClient implements UniProtApiClient {
         return null;
     }
 
-    /**
-     * Logs a progress percentage based on the accumulated entry count.
-     * The count is approximate because {@code entries.size()} is per-page only;
-     * an accumulated counter would require more state, which is not worth the
-     * complexity for a log line.
-     */
-    private void logProgress(int pageEntries) {
-        if (totalResults > 0) {
-            log.debug("Page fetched ({} entries). Total reported by API: {}.", pageEntries, totalResults);
-        }
-    }
 }
 

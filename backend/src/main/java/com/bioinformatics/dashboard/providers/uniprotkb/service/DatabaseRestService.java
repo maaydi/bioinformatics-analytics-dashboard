@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -33,19 +32,18 @@ public class DatabaseRestService {
      * @throws IllegalArgumentException if {@code pageSize} is outside the valid range
      */
     public ResponseEntity<UniprotKbResponse<CrossRefLightEntry>> searchAll(String query, int pageSize) {
-        var queryParams = new LinkedMultiValueMap<String, String>();
-        queryParams.add("format", "json");
-        assert pageSize > 0 : "Page size must be greater than zero";
-        assert pageSize <= 500 : "Page size must be less than or equal to 500";
-        queryParams.add("size", String.valueOf(pageSize));
-        queryParams.add("query", query);
+        var queryParams = new UniprotQueryParams.Builder()
+                .withPageSize(pageSize)
+                .withQuery(query)
+                .build()
+                .toQueryParams();
         log.info("Search Cross reference API with Query : {}", query);
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/database/search")
                         .queryParams(queryParams)
                         .build()
                 ).retrieve()
-                .toEntity(new ParameterizedTypeReference<UniprotKbResponse<CrossRefLightEntry>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
     }
 }

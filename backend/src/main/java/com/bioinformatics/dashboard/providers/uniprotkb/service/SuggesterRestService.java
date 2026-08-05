@@ -22,13 +22,17 @@ public class SuggesterRestService {
 
     public ResponseEntity<SuggestionResult> searchAll(String field, String query) {
         log.info("Search Suggestion for {} with Query : {}", field, query);
+        var queryParams = new UniprotQueryParams.Builder()
+                .withDict(field)
+                .withQuery(query)
+                .build()
+                .toQueryParams();
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/suggester")
-                        .queryParam("dict", field)
-                        .queryParam("query", query)
+                        .queryParams(queryParams)
                         .build()
                 ).retrieve()
-                .toEntity(new ParameterizedTypeReference<SuggestionResult>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
     }
 }

@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.util.Objects;
@@ -44,24 +43,16 @@ public class UniprotKbRestService {
      * @return a {@link ResponseEntity} containing a paginated response of full protein entries
      */
     public ResponseEntity<UniprotKbResponse<UniProtEntry>> searchAll(GeneSearchRequest request, String cursor) {
-        var queryParams = new LinkedMultiValueMap<String, String>();
-        queryParams.add("format", "json");
-        var pageSize = Objects.requireNonNullElse(request.size(), 500);
-        assert pageSize > 0 : "Page size must be greater than zero";
-        assert pageSize <= 500 : "Page size must be less than or equal to 500";
-        queryParams.add("size", String.valueOf(pageSize));
-        var queryValue = geneSpecification.fromRequest(request);
-        queryParams.add("query", queryValue);
-        if (request.sort() != null && request.direction() != null) {
-            queryParams.add("sort", "%s %s".formatted(request.sort(), request.direction()));
-        }
-        if (cursor != null) {
-            queryParams.add("cursor", cursor);
-        }
-        log.debug("Search Kb API with Query : {}, Page : {}", queryValue, request.page());
+        var queryParams = new UniprotQueryParams.Builder()
+                .withPageSize(Objects.requireNonNullElse(request.size(), 500))
+                .withQuery(geneSpecification.fromRequest(request))
+                .withSort(request.sort(), request.direction())
+                .withCursor(cursor)
+                .build();
+        log.debug("Search Kb API with Query : {}, Page : {}", queryParams.query(), request.page());
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
-                        .queryParams(queryParams)
+                        .queryParams(queryParams.toQueryParams())
                         .build()
                 ).retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
@@ -69,12 +60,11 @@ public class UniprotKbRestService {
     }
 
     public ResponseEntity<UniprotKbResponse<UniProtLightEntry>> searchAll(String query, int pageSize) {
-        var queryParams = new LinkedMultiValueMap<String, String>();
-        queryParams.add("format", "json");
-        assert pageSize > 0 : "Page size must be greater than zero";
-        assert pageSize <= 500 : "Page size must be less than or equal to 500";
-        queryParams.add("size", String.valueOf(pageSize));
-        queryParams.add("query", query);
+        var queryParams = new UniprotQueryParams.Builder()
+                .withPageSize(pageSize)
+                .withQuery(query)
+                .build()
+                .toQueryParams();
         log.debug("Search Kb API with Query : {}", query);
         return uniprotRestClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/uniprotkb/search")
