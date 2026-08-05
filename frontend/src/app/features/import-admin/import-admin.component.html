@@ -1,4 +1,5 @@
 <div aria-label="Import administration" class="import-container">
+  <div class="left-cards">
   <mat-card class="upload-card">
     <mat-card-header>
       <mat-card-title>Import Uniprot Data</mat-card-title>
@@ -71,6 +72,44 @@
       </button>
     </mat-card-actions>
   </mat-card>
+
+    <!-- Remote Import Section -->
+    <mat-card class="remote-card">
+      <mat-card-header>
+        <mat-card-title>Import Remote Uniprot KB Data</mat-card-title>
+        <mat-card-subtitle>Fetch and import data directly from the UniProt Knowledge Base API</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (remoteErrorMessage()) {
+          <div class="error-banner" role="alert">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ remoteErrorMessage() }}</span>
+          </div>
+        }
+        @if (isRemoteImporting()) {
+          <div aria-live="polite" class="progress-section">
+            <div class="progress-label">
+              <span>Remote import in progress...</span>
+              <span>{{ remoteImportProgress() }}%</span>
+            </div>
+            <mat-progress-bar [value]="remoteImportProgress()" mode="determinate"></mat-progress-bar>
+          </div>
+        }
+      </mat-card-content>
+      <mat-card-actions class="actions">
+        <button
+          (click)="submitRemoteImport()"
+          [disabled]="isRemoteImporting() || isUploading()"
+          color="primary"
+          mat-raised-button
+        >
+          <mat-icon>cloud_download</mat-icon>
+          Start Remote Import
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
   <!--History section -->
   <mat-card>
     <mat-card-header>

@@ -89,9 +89,14 @@ export class ImportAdminComponent implements OnDestroy {
   pageIndex = signal<number>(0);
   forceLoadHistory = signal<boolean>(false);
 
+  isRemoteImporting = signal<boolean>(false);
+  remoteImportProgress = signal<number>(0);
+  remoteErrorMessage = signal<string | null>(null);
+
   displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
 
   private pollingSubscription?: Subscription;
+  private remotePollingSubscription?: Subscription;
   private historySubscription?: Subscription;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -100,14 +105,12 @@ export class ImportAdminComponent implements OnDestroy {
   constructor() {
     afterNextRender(() => {
       this.loadJobHistory();
-
     });
-
   }
-
 
   ngOnDestroy(): void {
     this.stopPolling();
+    this.stopRemotePolling();
     this.stopLoadHistory();
   }
 
@@ -161,12 +164,29 @@ export class ImportAdminComponent implements OnDestroy {
     });
   }
 
+  submitRemoteImport(): void {
+    this.isRemoteImporting.set(true);
+    this.remoteErrorMessage.set(null);
+    this.remoteImportProgress.set(0);
+
+    this.importService.triggerRemoteImport().subscribe({
+      next: (job) => {
+        if (job?.id) {
+          this.startRemotePolling(job.id);
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        this.handleRemoteError(err);
+        this.isRemoteImporting.set(false);
+      },
+    });
+  }
+
   onPageChange(event: PageEvent) {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.forceLoadHistory.set(true);
     this.loadJobHistory();
-
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -186,6 +206,19 @@ export class ImportAdminComponent implements OnDestroy {
         break;
     }
     this.errorMessage.set(msg);
+  }
+
+  private handleRemoteError(error: HttpErrorResponse) {
+    let msg: string | null = null;
+    switch (error.status) {
+      case 409:
+        msg = 'Conflict: An import is already running.';
+        break;
+      default:
+        msg = 'An unexpected error occurred while triggering the remote import.';
+        break;
+    }
+    this.remoteErrorMessage.set(msg);
   }
 
   private startPolling(jobId: string): void {
@@ -225,38 +258,75 @@ export class ImportAdminComponent implements OnDestroy {
     }
   }
 
+  private startRemotePolling(jobId: string): void {
+    this.stopRemotePolling();
+    this.remotePollingSubscription = interval(5000)
+      .pipe(
+        switchMap(() => this.importService.getJobProgress(jobId)),
+        takeWhile(
+          (jobProgress) => jobProgress.status !== 'COMPLETED' && jobProgress.status !== 'FAILED',
+          true,
+        ),
+      )
+      .subscribe({
+        next: (jobProgress) => {
+          this.remoteImportProgress.set(jobProgress.progressPercent || 0);
+          if (jobProgress.status === 'COMPLETED' || jobProgress.status === 'FAILED') {
+            this.isRemoteImporting.set(false);
+            this.loadJobHistory();
+            if (jobProgress.status === 'FAILED') {
+              this.remoteErrorMessage.set(`Remote import job ${jobId} failed to complete.`);
+            }
+          }
+        },
+        error: () => {
+          this.remoteErrorMessage.set(
+            'Lost connection to server while checking remote import status.',
+          );
+          this.isRemoteImporting.set(false);
+          this.stopRemotePolling();
+        },
+      });
+  }
+
+  private stopRemotePolling(): void {
+    if (this.remotePollingSubscription) {
+      this.remotePollingSubscription.unsubscribe();
+      this.remotePollingSubscription = undefined;
+    }
+  }
+
   private loadJobHistory() {
     this.stopLoadHistory();
-    this.historySubscription = interval(2000).pipe(
-      switchMap(() => {
-        const hasRunning = this.jobHistory().some(job => job.status === 'RUNNING');
-        const hasHistory = this.jobHistory().length > 0;
+    this.historySubscription = interval(2000)
+      .pipe(
+        switchMap(() => {
+          const hasRunning = this.jobHistory().some((job) => job.status === 'RUNNING');
+          const hasHistory = this.jobHistory().length > 0;
 
-        if (!this.isUploading()
-          && !hasRunning
-          && hasHistory
-          && !this.forceLoadHistory()) {
-          return EMPTY;
-        }
-
-        return this.importService.listImportJobs(this.pageIndex(), this.pageSize()).pipe(
-          catchError(() => {
-            this.errorMessage.set('Failed to load import job history.');
+          if (!this.isUploading() && !hasRunning && hasHistory && !this.forceLoadHistory()) {
             return EMPTY;
-          })
-        );
-      })
-    ).subscribe({
-      next: (history) => {
-        this.jobHistory.set(history.content);
-        this.totalJobs.set(history.totalElements);
-        this.forceLoadHistory.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('Lost connection to server while loading job history');
-        this.stopLoadHistory();
-      }
-    });
+          }
+
+          return this.importService.listImportJobs(this.pageIndex(), this.pageSize()).pipe(
+            catchError(() => {
+              this.errorMessage.set('Failed to load import job history.');
+              return EMPTY;
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: (history) => {
+          this.jobHistory.set(history.content);
+          this.totalJobs.set(history.totalElements);
+          this.forceLoadHistory.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Lost connection to server while loading job history');
+          this.stopLoadHistory();
+        },
+      });
   }
 
   private stopLoadHistory(): void {

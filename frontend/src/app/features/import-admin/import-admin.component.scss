@@ -20,6 +20,12 @@
   align-items: start;
 }
 
+.left-cards {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-lg;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CARDS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -285,12 +291,20 @@ mat-card {
     padding: ds.$spacing-xl;
     grid-template-columns: minmax(0, 480px) 1fr;
   }
+
+  .left-cards {
+    gap: ds.$spacing-xl;
+  }
 }
 
 @include ds.respond-up-to('md') {
   .import-container {
     grid-template-columns: 1fr;
     padding: ds.$spacing-md;
+    gap: ds.$spacing-md;
+  }
+
+  .left-cards {
     gap: ds.$spacing-md;
   }
 

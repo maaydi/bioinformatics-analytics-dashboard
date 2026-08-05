@@ -12,8 +12,7 @@ import {environment} from '@env/environment';
  */
 @Injectable({ providedIn: 'root' })
 export class ImportAdminService {
-
-  private readonly http    = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/admin/import`;
 
   triggerImport(file: File, strategy = 'OVERWRITE'): Observable<ImportJobCreated> {
@@ -21,6 +20,10 @@ export class ImportAdminService {
     formData.append('file', file);
     formData.append('strategy', strategy);
     return this.http.post<ImportJobCreated>(`${this.baseUrl}/uniprot`, formData);
+  }
+
+  triggerRemoteImport(): Observable<ImportJobCreated> {
+    return this.http.post<ImportJobCreated>(`${this.baseUrl}/uniprot/remote`, {});
   }
 
   listImportJobs(page = 0, size = 20): Observable<PagedResponse<ImportJobSummary>> {
