@@ -1,112 +1,120 @@
 <div aria-label="Import administration" class="import-container">
   <div class="left-cards">
-  <mat-card class="upload-card">
-    <mat-card-header>
-      <mat-card-title>Import Uniprot Data</mat-card-title>
-      <mat-card-subtitle>Upload .dat or .tsv files(Max 2Gb)</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      @if (errorMessage()) {
-        <div class="error-banner" role="alert">
-          <mat-icon>error_outline</mat-icon>
-          <span>{{ errorMessage() }}</span>
-        </div>
-      }
-      <div class="form-section">
-        <div class="file-upload-row">
-          <input
-            type="file"
-            #fileInput
-            hidden
-            accept=".dat,.tsv"
-            (change)="onFileSelected($event)"
-          />
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="triggerFileInput()"
-            [disabled]="isUploading()"
-          >
-            <mat-icon>attach_file</mat-icon>
-            Select File
-          </button>
-          @if (selectedFile()) {
-            <span aria-live="polite" class="file-name">
-              {{ selectedFile()?.name }}
-              <span class="file-size"
-              >({{ (selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2' }} MB)
-              </span>
-            </span>
-          }
-        </div>
-        <mat-form-field appearance="outline" class="strategy-select">
-          <mat-label>Import Strategy</mat-label>
-          <mat-select
-            [ngModel]="strategy()"
-            (ngModelChange)="strategy.set($event)"
-            [disabled]="isUploading()"
-          >
-            <mat-option value="OVERWRITE">OVERWRITE</mat-option>
-          </mat-select>
-        </mat-form-field>
-        @if (isUploading()) {
-          <div aria-live="polite" class="progress-section">
-            <div class="progress-label">
-              <span>Import in progress...</span>
-              <span>{{ currentProgress() }}%</span>
-            </div>
-            <mat-progress-bar mode="determinate" [value]="currentProgress()"></mat-progress-bar>
-          </div>
-        }
-      </div>
-    </mat-card-content>
-    <mat-card-actions class="actions">
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="!selectedFile() || isUploading()"
-        (click)="submitImport()"
-      >
-        <mat-icon>cloud_upload</mat-icon>
-        Submit Import
-      </button>
-    </mat-card-actions>
-  </mat-card>
-
-    <!-- Remote Import Section -->
-    <mat-card class="remote-card">
+    <mat-card class="upload-card">
       <mat-card-header>
-        <mat-card-title>Import Remote Uniprot KB Data</mat-card-title>
-        <mat-card-subtitle>Fetch and import data directly from the UniProt Knowledge Base API</mat-card-subtitle>
+        <mat-card-title>Import UniProt Data</mat-card-title>
+        <mat-card-subtitle>Import data from a local file or the UniProt Knowledge Base API.</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        @if (remoteErrorMessage()) {
+        <div class="source-switch-row">
+          <span id="import-source-label">Import source</span>
+          <mat-slide-toggle
+            (change)="onSourceModeChange($event.checked)"
+            [checked]="isRemoteMode()"
+            [disabled]="isUploading()"
+            aria-labelledby="import-source-label"
+          >
+            {{ isRemoteMode() ? 'Remote UniProt API' : 'Local file' }}
+          </mat-slide-toggle>
+        </div>
+
+        @if (errorMessage()) {
           <div class="error-banner" role="alert">
             <mat-icon>error_outline</mat-icon>
-            <span>{{ remoteErrorMessage() }}</span>
+            <span>{{ errorMessage() }}</span>
           </div>
         }
-        @if (isRemoteImporting()) {
-          <div aria-live="polite" class="progress-section">
-            <div class="progress-label">
-              <span>Remote import in progress...</span>
-              <span>{{ remoteImportProgress() }}%</span>
+
+        <div class="form-section">
+          @if (isRemoteMode()) {
+            <div class="remote-filter-section">
+              <label for="import-filter-select">Select a filter</label>
+              @if (savedFiltersLoading()) {
+                <div aria-live="polite" class="state-message" role="status">Loading saved filters...</div>
+              } @else if (savedFiltersError()) {
+                <div class="state-message error-state" role="alert">{{ savedFiltersError() }}</div>
+                <button
+                  (click)="onSourceModeChange(true)"
+                  class="retry-button"
+                  mat-stroked-button
+                  type="button"
+                >
+                  Retry
+                </button>
+              } @else if (savedFilters().length === 0) {
+                <div aria-live="polite" class="state-message" role="status">
+                  No saved filters found. Save a filter before starting a remote import.
+                </div>
+              } @else {
+                <select
+                  (change)="onFilterSelect($event)"
+                  [disabled]="isUploading()"
+                  aria-label="Select a saved filter for remote import"
+                  class="filter-select"
+                  id="import-filter-select"
+                >
+                  <option [selected]="selectedFilterId() === null" disabled value="">
+                    -- Select a filter --
+                  </option>
+                  @for (filter of savedFilters(); track filter.id) {
+                    <option [value]="filter.id">{{ filter.name }}</option>
+                  }
+                </select>
+              }
             </div>
-            <mat-progress-bar [value]="remoteImportProgress()" mode="determinate"></mat-progress-bar>
-          </div>
-        }
+          } @else {
+            <div class="file-upload-row">
+              <input
+                #fileInput
+                (change)="onFileSelected($event)"
+                accept=".dat,.tsv"
+                hidden
+                type="file"
+              />
+              <button
+                (click)="triggerFileInput()"
+                [disabled]="isUploading()"
+                mat-stroked-button
+                type="button"
+              >
+                <mat-icon>attach_file</mat-icon>
+                Select File
+              </button>
+              @if (selectedFile()) {
+                <span aria-live="polite" class="file-name">
+                  {{ selectedFile()?.name }}
+                  <span class="file-size">
+                    ({{ (selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2' }} MB)
+                  </span>
+                </span>
+              }
+            </div>
+          }
+
+          @if (isUploading()) {
+            <div aria-live="polite" class="progress-section">
+              <div class="progress-label">
+                <span>Import in progress...</span>
+                <span>{{ currentProgress() }}%</span>
+              </div>
+              <mat-progress-bar [value]="currentProgress()" mode="determinate"></mat-progress-bar>
+            </div>
+          }
+        </div>
       </mat-card-content>
-      <mat-card-actions class="actions">
-        <button
-          (click)="submitRemoteImport()"
-          [disabled]="isRemoteImporting() || isUploading()"
-          color="primary"
-          mat-raised-button
-        >
-          <mat-icon>cloud_download</mat-icon>
-          Start Remote Import
-        </button>
-      </mat-card-actions>
+      @if (!isRemoteMode()) {
+        <mat-card-actions class="actions">
+          <button
+            (click)="submitImport()"
+            [disabled]="isUploading() || !selectedFile()"
+            color="primary"
+            mat-raised-button
+          >
+            <mat-icon>cloud_upload</mat-icon>
+            Submit Import
+          </button>
+        </mat-card-actions>
+      }
     </mat-card>
   </div>
 
@@ -122,6 +130,11 @@
           <ng-container matColumnDef="jobId">
             <th *matHeaderCellDef mat-header-cell>Job ID</th>
             <td *matCellDef="let job" mat-cell>{{ job.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="jobSource">
+            <th *matHeaderCellDef mat-header-cell>Source</th>
+            <td *matCellDef="let job" mat-cell>{{ job.fileName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">

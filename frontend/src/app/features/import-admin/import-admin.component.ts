@@ -10,8 +10,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {MatAnchor, MatButton} from '@angular/material/button';
+import {MatButton} from '@angular/material/button';
 import {
   MatCard,
   MatCardActions,
@@ -20,12 +19,13 @@ import {
   MatCardSubtitle,
   MatCardTitle,
 } from '@angular/material/card';
-import {MatFormField, MatLabel} from '@angular/material/form-field';
 import {MatIcon} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSelectModule} from '@angular/material/select';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatTableModule} from '@angular/material/table';
 import {ImportJobSummary} from '@core/models/import.model';
+import {SavedFilter} from '@core/models/saved-filter.model';
+import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 import {catchError, EMPTY, interval, Subscription, switchMap, takeWhile} from 'rxjs';
 import {ImportAdminService} from './import-admin.service';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
@@ -35,7 +35,8 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
  *
  * Features:
  * - File upload form (.dat / .tsv, max 2 GB)
- * - Strategy selector (OVERWRITE)
+ * - Local/remote source switch
+ * - Saved-filter selection for remote imports
  * - Submit → POST /api/admin/import/uniprot → 202 Accepted
  * - Progress bar (polls GET /api/admin/import/status/{jobId} every 5 s)
  * - Import job history table (GET /api/admin/import/status)
@@ -57,14 +58,10 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
     MatCardSubtitle,
     MatCardContent,
     MatIcon,
-    MatAnchor,
     DecimalPipe,
-    MatFormField,
-    MatLabel,
-    MatSelectModule,
+    MatSlideToggle,
     MatProgressBarModule,
     MatCardActions,
-    FormsModule,
     MatTableModule,
     MatButton,
     MatPaginator,
@@ -75,11 +72,15 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
 })
 export class ImportAdminComponent implements OnDestroy {
   private readonly importService = inject(ImportAdminService);
+  isRemoteMode = signal<boolean>(false);
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
   private readonly ALLOWED_EXTENSIONS = ['.dat', '.tsv'];
-
+  selectedFilterId = signal<number | null>(null);
   selectedFile = signal<File | null>(null);
-  strategy = signal<string>('OVERWRITE');
+  savedFilters = signal<SavedFilter[]>([]);
+  savedFiltersLoading = signal<boolean>(false);
+  savedFiltersError = signal<string | null>(null);
+  displayedColumns: string[] = ['jobId', 'jobSource', 'status', 'progress', 'startTime', 'endTime'];
   isUploading = signal<boolean>(false);
   currentProgress = signal<number>(0);
   errorMessage = signal<string | null>(null);
@@ -88,16 +89,11 @@ export class ImportAdminComponent implements OnDestroy {
   pageSize = signal<number>(5);
   pageIndex = signal<number>(0);
   forceLoadHistory = signal<boolean>(false);
-
-  isRemoteImporting = signal<boolean>(false);
-  remoteImportProgress = signal<number>(0);
-  remoteErrorMessage = signal<string | null>(null);
-
-  displayedColumns: string[] = ['jobId', 'status', 'progress', 'startTime', 'endTime'];
+  private readonly savedFiltersService = inject(SavedFiltersService);
 
   private pollingSubscription?: Subscription;
-  private remotePollingSubscription?: Subscription;
   private historySubscription?: Subscription;
+  private savedFiltersSubscription?: Subscription;
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -110,15 +106,58 @@ export class ImportAdminComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopPolling();
-    this.stopRemotePolling();
     this.stopLoadHistory();
+    this.stopLoadSavedFilters();
   }
 
-  triggerFileInput() {
+  onSourceModeChange(isRemote: boolean): void {
+    if (this.isUploading()) {
+      return;
+    }
+
+    this.isRemoteMode.set(isRemote);
+    this.errorMessage.set(null);
+    this.selectedFilterId.set(null);
+    this.clearSelectedFile();
+
+    if (!isRemote) {
+      this.stopLoadSavedFilters();
+      this.savedFiltersLoading.set(false);
+      this.savedFilters.set([]);
+      return;
+    }
+
+    if (this.savedFilters().length === 0 && !this.savedFiltersLoading()) {
+      this.loadSavedFilters();
+    }
+  }
+
+  onFilterSelect(event: Event): void {
+    if (this.isUploading()) {
+      return;
+    }
+
+    const filterId = Number((event.target as HTMLSelectElement).value);
+    const matchedFilter = Number.isInteger(filterId)
+      ? this.savedFilters().find((filter) => filter.id === filterId)
+      : undefined;
+    const selectedFilterId = matchedFilter?.id ?? null;
+    this.selectedFilterId.set(selectedFilterId);
+
+    if (selectedFilterId !== null && this.isRemoteMode()) {
+      this.submitRemoteImport();
+    }
+  }
+
+  triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
 
-  onFileSelected(event: Event) {
+  onFileSelected(event: Event): void {
+    if (this.isUploading()) {
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
@@ -144,6 +183,15 @@ export class ImportAdminComponent implements OnDestroy {
   }
 
   submitImport(): void {
+    if (this.isUploading()) {
+      return;
+    }
+
+    if (this.isRemoteMode()) {
+      this.submitRemoteImport();
+      return;
+    }
+
     const file = this.selectedFile();
     if (!file) return;
 
@@ -151,11 +199,15 @@ export class ImportAdminComponent implements OnDestroy {
     this.errorMessage.set(null);
     this.currentProgress.set(0);
 
-    this.importService.triggerImport(file, this.strategy()).subscribe({
+    this.importService.triggerImport(file).subscribe({
       next: (job) => {
         if (job?.id) {
           this.startPolling(job.id);
+          return;
         }
+
+        this.isUploading.set(false);
+        this.errorMessage.set('The server did not return an import job identifier.');
       },
       error: (err: HttpErrorResponse) => {
         this.handleError(err);
@@ -165,38 +217,45 @@ export class ImportAdminComponent implements OnDestroy {
   }
 
   submitRemoteImport(): void {
-    this.isRemoteImporting.set(true);
-    this.remoteErrorMessage.set(null);
-    this.remoteImportProgress.set(0);
+    const filterId = this.selectedFilterId();
+    if (filterId === null || this.isUploading()) return;
 
-    this.importService.triggerRemoteImport().subscribe({
+    this.isUploading.set(true);
+    this.errorMessage.set(null);
+    this.currentProgress.set(0);
+
+    this.importService.triggerRemoteImport(filterId).subscribe({
       next: (job) => {
         if (job?.id) {
-          this.startRemotePolling(job.id);
+          this.startPolling(job.id);
+          return;
         }
+
+        this.isUploading.set(false);
+        this.errorMessage.set('The server did not return an import job identifier.');
       },
       error: (err: HttpErrorResponse) => {
-        this.handleRemoteError(err);
-        this.isRemoteImporting.set(false);
+        this.handleError(err);
+        this.isUploading.set(false);
       },
     });
   }
 
-  onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.forceLoadHistory.set(true);
     this.loadJobHistory();
   }
 
-  private handleError(error: HttpErrorResponse) {
+  private handleError(error: HttpErrorResponse): void {
     let msg: string | null = null;
     switch (error.status) {
       case 409:
         msg = 'Conflict: An import is already running.';
         break;
       case 413:
-        msg = 'Payload Too Large : The file side exceeds the 2 GB limit.';
+        msg = 'Payload Too Large: The file size exceeds the 2 GB limit.';
         break;
       case 422:
         msg = 'Unprocessable Entity: Unsupported file type.';
@@ -206,19 +265,6 @@ export class ImportAdminComponent implements OnDestroy {
         break;
     }
     this.errorMessage.set(msg);
-  }
-
-  private handleRemoteError(error: HttpErrorResponse) {
-    let msg: string | null = null;
-    switch (error.status) {
-      case 409:
-        msg = 'Conflict: An import is already running.';
-        break;
-      default:
-        msg = 'An unexpected error occurred while triggering the remote import.';
-        break;
-    }
-    this.remoteErrorMessage.set(msg);
   }
 
   private startPolling(jobId: string): void {
@@ -239,7 +285,7 @@ export class ImportAdminComponent implements OnDestroy {
             this.selectedFile.set(null);
             this.loadJobHistory();
             if (jobProgress.status === 'FAILED') {
-              this.errorMessage.set(`import Job ${jobId} failed to complete.`);
+              this.errorMessage.set(`Import job ${jobId} failed to complete.`);
             }
           }
         },
@@ -251,52 +297,14 @@ export class ImportAdminComponent implements OnDestroy {
       });
   }
 
-  private stopPolling() {
+  private stopPolling(): void {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = undefined;
     }
   }
 
-  private startRemotePolling(jobId: string): void {
-    this.stopRemotePolling();
-    this.remotePollingSubscription = interval(5000)
-      .pipe(
-        switchMap(() => this.importService.getJobProgress(jobId)),
-        takeWhile(
-          (jobProgress) => jobProgress.status !== 'COMPLETED' && jobProgress.status !== 'FAILED',
-          true,
-        ),
-      )
-      .subscribe({
-        next: (jobProgress) => {
-          this.remoteImportProgress.set(jobProgress.progressPercent || 0);
-          if (jobProgress.status === 'COMPLETED' || jobProgress.status === 'FAILED') {
-            this.isRemoteImporting.set(false);
-            this.loadJobHistory();
-            if (jobProgress.status === 'FAILED') {
-              this.remoteErrorMessage.set(`Remote import job ${jobId} failed to complete.`);
-            }
-          }
-        },
-        error: () => {
-          this.remoteErrorMessage.set(
-            'Lost connection to server while checking remote import status.',
-          );
-          this.isRemoteImporting.set(false);
-          this.stopRemotePolling();
-        },
-      });
-  }
-
-  private stopRemotePolling(): void {
-    if (this.remotePollingSubscription) {
-      this.remotePollingSubscription.unsubscribe();
-      this.remotePollingSubscription = undefined;
-    }
-  }
-
-  private loadJobHistory() {
+  private loadJobHistory(): void {
     this.stopLoadHistory();
     this.historySubscription = interval(2000)
       .pipe(
@@ -333,6 +341,50 @@ export class ImportAdminComponent implements OnDestroy {
     if (this.historySubscription) {
       this.historySubscription.unsubscribe();
       this.historySubscription = undefined;
+    }
+  }
+
+  private loadSavedFilters(page = 0, accumulatedFilters: SavedFilter[] = []): void {
+    if (page === 0) {
+      this.stopLoadSavedFilters();
+      this.savedFiltersLoading.set(true);
+      this.savedFiltersError.set(null);
+    }
+
+    const requestSubscription = this.savedFiltersService.listSavedFilters(page, 200).subscribe({
+      next: (response) => {
+        const allFilters = [...accumulatedFilters, ...response.content];
+        if (response.totalPages <= page + 1) {
+          this.savedFilters.set(allFilters);
+          this.savedFiltersLoading.set(false);
+          return;
+        }
+
+        this.loadSavedFilters(page + 1, allFilters);
+      },
+      error: () => {
+        this.savedFiltersLoading.set(false);
+        this.savedFiltersError.set('Failed to load saved filters.');
+      },
+    });
+
+    if (!this.savedFiltersSubscription) {
+      this.savedFiltersSubscription = new Subscription();
+    }
+    this.savedFiltersSubscription.add(requestSubscription);
+  }
+
+  private stopLoadSavedFilters(): void {
+    if (this.savedFiltersSubscription) {
+      this.savedFiltersSubscription.unsubscribe();
+      this.savedFiltersSubscription = undefined;
+    }
+  }
+
+  private clearSelectedFile(): void {
+    this.selectedFile.set(null);
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
     }
   }
 }

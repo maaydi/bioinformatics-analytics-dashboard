@@ -15,15 +15,17 @@ export class ImportAdminService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/admin/import`;
 
-  triggerImport(file: File, strategy = 'OVERWRITE'): Observable<ImportJobCreated> {
+  triggerImport(file: File): Observable<ImportJobCreated> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('strategy', strategy);
+    formData.append('strategy', 'OVERWRITE');
     return this.http.post<ImportJobCreated>(`${this.baseUrl}/uniprot`, formData);
   }
 
-  triggerRemoteImport(): Observable<ImportJobCreated> {
-    return this.http.post<ImportJobCreated>(`${this.baseUrl}/uniprot/remote`, {});
+  triggerRemoteImport(filterId: number): Observable<ImportJobCreated> {
+    return this.http.post<ImportJobCreated>(`${this.baseUrl}/uniprot/remote`, null, {
+      params: {filterId},
+    });
   }
 
   listImportJobs(page = 0, size = 20): Observable<PagedResponse<ImportJobSummary>> {
