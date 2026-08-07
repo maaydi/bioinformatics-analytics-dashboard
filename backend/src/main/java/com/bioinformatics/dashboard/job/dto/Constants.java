@@ -12,6 +12,7 @@ public enum Constants {
     IMPORT_JOB_ID("importUniprotJobId"),
     FILE_PATH("filePath"),
     TIMESTAMP("timestamp"),
+    SAVED_FILTER_ID("filterId"),
 
     /**
      * API-based import job constants

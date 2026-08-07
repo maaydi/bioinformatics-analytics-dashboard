@@ -34,6 +34,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.bioinformatics.dashboard.job.dto.Constants.SAVED_FILTER_ID;
+
 /**
  * Orchestrates the execution of asynchronous UniProt import jobs.
  * Enforces single-job concurrency and validates files before delegating to Spring Batch.
@@ -80,12 +82,12 @@ public class ImportService {
     }
 
     @Transactional
-    public ImportJobSummary triggerRemoteImport() {
+    public ImportJobSummary triggerRemoteImport(long filterId) {
         checkImportAlreadyRunning();
         try {
             log.info("Triggering remote UniProt API import");
             var savedJob = saveRemoteJob();
-            executeRemoteImport(savedJob);
+            executeRemoteImport(savedJob, filterId);
             return savedJob;
         } catch (Exception e) {
             throw new ExecuteJobException("Failed to trigger remote import " + e.getMessage(), e);
@@ -161,10 +163,11 @@ public class ImportService {
         importExec.execute(parameters);
     }
 
-    private void executeRemoteImport(ImportJobSummary importJob) {
+    private void executeRemoteImport(ImportJobSummary importJob, long filterId) {
         var parameters = new JobParametersBuilder()
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .addLong(SAVED_FILTER_ID.getKey(), filterId)
                 .toJobParameters();
         remoteImportExec.execute(parameters);
     }

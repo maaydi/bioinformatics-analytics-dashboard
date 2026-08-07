@@ -47,7 +47,7 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
     private static final String PAGE_COUNT_KEY = "uniProtApiItemReader.pageCount";
 
     private final UniProtApiClient apiClient;
-    private final int pageSize;
+    private final GeneSearchRequest request;
 
     /**
      * In-memory buffer populated one page at a time.
@@ -69,10 +69,9 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
      */
     private boolean exhausted = false;
 
-    public UniProtApiItemReader(UniProtApiClient apiClient, int pageSize) {
-        if (pageSize < 1) throw new IllegalArgumentException("pageSize must be >= 1");
+    public UniProtApiItemReader(UniProtApiClient apiClient, GeneSearchRequest request) {
         this.apiClient = apiClient;
-        this.pageSize = pageSize;
+        this.request = request;
     }
 
 
@@ -129,8 +128,7 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
 
 
     private void loadNextPage() {
-        log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, pageSize);
-        var request = GeneSearchRequest.builder().size(pageSize).build();
+        log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, request.size());
         var page = apiClient.fetchPage(request, nextCursor);
         var entries = page.entries();
 
