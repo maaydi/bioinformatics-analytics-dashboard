@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.admin.service;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
 import com.bioinformatics.dashboard.job.entity.ImportJob;
@@ -15,10 +16,12 @@ import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -121,6 +124,7 @@ class ImportServiceTest {
 
     @Test
     void triggerRemoteImport_success_savesAndExecutes() {
+        var filterId = 42L;
         when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of());
 
         var inJob = new ImportJob();
@@ -134,21 +138,25 @@ class ImportServiceTest {
         var summary = new ImportJobSummary(inJob.getId().toString(), inJob.getStatus(), inJob.getFileName(), 0, 0, 0L, inJob.getCreatedAt(), inJob.getCompletedAt(), null);
         when(jobMapper.toSummary(any())).thenReturn(summary);
 
-        var result = importService.triggerRemoteImport();
+        var result = importService.triggerRemoteImport(filterId);
 
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(inJob.getId().toString());
 
-        verify(remoteImportExec, times(1)).execute(any());
+        var parametersCaptor = ArgumentCaptor.forClass(JobParameters.class);
+        verify(remoteImportExec, times(1)).execute(parametersCaptor.capture());
+        assertThat(parametersCaptor.getValue().getLong(Constants.SAVED_FILTER_ID.getKey()))
+                .isEqualTo(filterId);
         verify(importJobRep, times(1)).save(any(ImportJob.class));
     }
 
     @Test
     void triggerRemoteImport_whenAnotherRunning_throws() {
+        var filterId = 42L;
         var runningJob = ImportJob.builder().id(UUID.randomUUID()).status(ImportStatus.RUNNING).build();
         when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of(runningJob));
 
-        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport());
+        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport(filterId));
 
         verify(importJobRep, never()).save(any());
         verify(remoteImportExec, never()).execute(any());

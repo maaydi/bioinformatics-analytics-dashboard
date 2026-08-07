@@ -239,7 +239,10 @@ class ImportControllerIntegrationTest {
         doNothing().when(uniProtApiImportJobExecutor).execute(any());
 
         restClient.post()
-                .uri("/api/admin/import/uniprot/remote")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/admin/import/uniprot/remote")
+                        .queryParam("filterId", 42L)
+                        .build())
                 .header("Authorization", "Bearer " + adminToken)
                 .exchange()
                 .expectStatus().isAccepted()
