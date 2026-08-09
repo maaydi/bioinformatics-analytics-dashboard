@@ -7,15 +7,15 @@
       </mat-card-header>
       <mat-card-content>
         <div class="source-switch-row">
-          <span id="import-source-label">Import source</span>
+          <span id="import-source-label">Import source: </span>
           <mat-slide-toggle
             (change)="onSourceModeChange($event.checked)"
             [checked]="isRemoteMode()"
             [disabled]="isUploading()"
             aria-labelledby="import-source-label"
           >
-            {{ isRemoteMode() ? 'Remote UniProt API' : 'Local file' }}
           </mat-slide-toggle>
+          <span> {{ isRemoteMode() ? 'UniProt KB API' : 'Local File' }}</span>
         </div>
 
         @if (errorMessage()) {
