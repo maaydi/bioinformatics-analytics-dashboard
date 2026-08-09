@@ -106,7 +106,7 @@ public class UniProtApiImportJobConfig {
             PostImportCacheEvictionListener cacheEvictionListener,
             ImportJobRefreshViewsListener refreshViewsListener) {
 
-        return new JobBuilder(Constants.AUTOMATIC_API_IMPORT_JOB.getKey(), jobRepository)
+        return new JobBuilder(Constants.IMPORT_API_JOB.getKey(), jobRepository)
                 .start(uniProtApiImportStep)
                 .listener(databaseListener)
                 .listener(cacheEvictionListener)

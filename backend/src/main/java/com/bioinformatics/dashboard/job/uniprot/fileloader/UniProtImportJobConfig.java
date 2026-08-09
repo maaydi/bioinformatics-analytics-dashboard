@@ -110,7 +110,7 @@ public class UniProtImportJobConfig {
                          ImportJobDatabaseListener databaseListener,
                          PostImportCacheEvictionListener postImportCacheEvictionListener,
                          ImportJobRefreshViewsListener refreshViewsListener) {
-        return new JobBuilder(Constants.MANUAL_IMPORT_JOB.getKey(), jobRepository)
+        return new JobBuilder(Constants.IMPORT_FILE_JOB.getKey(), jobRepository)
                 .start(uniProtImportStep)
                 .listener(databaseListener)
                 .listener(postImportCacheEvictionListener)

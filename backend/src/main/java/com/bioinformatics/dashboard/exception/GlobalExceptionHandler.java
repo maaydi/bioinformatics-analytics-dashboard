@@ -108,7 +108,7 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        log.warn("Handle Unexpected Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Unexpected Exception: {}", ex.getMessage());
         // Do NOT expose internal details to clients (OWASP A05)
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please contact support.");
