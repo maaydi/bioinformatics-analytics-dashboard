@@ -6,6 +6,7 @@ import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.listener.ImportJobDatabaseListener;
 import com.bioinformatics.dashboard.job.listener.ImportJobRefreshViewsListener;
+import com.bioinformatics.dashboard.job.listener.ImportProgressChunkListener;
 import com.bioinformatics.dashboard.job.listener.PostImportCacheEvictionListener;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.reader.UniProtApiItemReader;
@@ -86,10 +87,11 @@ public class UniProtApiImportJobConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<UniProtEntry> uniProtApiItemReader,
             UniProtApiEntryProcessor processor,
-            ProteinAggregateItemWriter writer) {
+            ProteinAggregateItemWriter writer, ImportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.API_IMPORT_STEP.getKey(), jobRepository)
                 .<UniProtEntry, ProteinEntry>chunk(appProperties.getBatch().getChunkSize())
+                .listener(progressChunkListener)
                 .transactionManager(transactionManager)
                 .reader(uniProtApiItemReader)
                 .processor(processor)

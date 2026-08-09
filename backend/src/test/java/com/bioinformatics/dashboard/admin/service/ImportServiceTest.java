@@ -13,6 +13,9 @@ import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
+import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +59,9 @@ class ImportServiceTest {
     private CounterRegistry registry;
     @InjectMocks
     private ImportService importService;
+
+    @Mock
+    SavedFilterService savedFilterService;
 
     @Test
     void listImportJobs_returnsPagedSummary() {
@@ -137,7 +144,11 @@ class ImportServiceTest {
 
         var summary = new ImportJobSummary(inJob.getId().toString(), inJob.getStatus(), inJob.getFileName(), 0, 0, 0L, inJob.getCreatedAt(), inJob.getCompletedAt(), null);
         when(jobMapper.toSummary(any())).thenReturn(summary);
-
+        when(savedFilterService.getSavedFilterById(anyLong())).thenReturn(
+                Optional.of(
+                        new SavedFilterDto(42L, "example-filter", GeneSearchRequest.builder().accession("ACC").build(), Instant.now())
+                )
+        );
         var result = importService.triggerRemoteImport(filterId);
 
         assertThat(result).isNotNull();
