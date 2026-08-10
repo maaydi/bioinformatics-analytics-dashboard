@@ -52,7 +52,7 @@ endpoints used and their response structures.
 Added missing `orfNames` field to `Gene` record.
 
 **Commit `5f7c27d` — Mapper UniProtKB api to ProteinEntry Postgres**  
-`UniProtEntryMapper` created (413 lines) — maps `UniProtEntry` to fully populated `ProteinEntry`
+`UniProtProteinDtoMapper` created (413 lines) — maps `UniProtEntry` to fully populated `ProteinEntry`
 JPA aggregate including keywords, features, GO terms (from cross-references), cross-references,
 comments (polymorphic), and publications.
 
@@ -69,7 +69,7 @@ Full Spring Batch API loader job created:
 - `UniProtApiImportJobExecutor` — async launcher
 - `UniProtApiItemReader` — cursor-paged `ItemReader<ProteinEntry>`
 - `UniProtApiPage` — page model for API pagination
-- `UniProtApiEntryProcessor` — `ItemProcessor` using `UniProtEntryMapper`
+- `UniProtApiEntryProcessor` — `ItemProcessor` using `UniProtProteinDtoMapper`
 
 **Commit `cd79fca` — Fix GoTerm relation + GoTermResolver**  
 `GoTermResolver` created — find-or-create semantics for `GoTerm` entities during batch write.  

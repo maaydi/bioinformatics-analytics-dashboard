@@ -20,6 +20,12 @@
   align-items: start;
 }
 
+.left-cards {
+  display: flex;
+  flex-direction: column;
+  gap: ds.$spacing-lg;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CARDS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,6 +102,23 @@ mat-card {
   flex-direction: column;
   gap: ds.$spacing-lg;
 
+  .source-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: ds.$spacing-md;
+    padding: ds.$spacing-md;
+    border: 1px solid ds.$color-border-light;
+    border-radius: ds.$border-radius-md;
+    background: ds.$color-surface-subtle;
+
+    > span {
+      @include ds.text-body-sm;
+      color: ds.$color-on-surface-variant;
+      font-weight: ds.$font-weight-medium;
+    }
+  }
+
   .file-upload-row {
     display: flex;
     align-items: center;
@@ -122,9 +145,51 @@ mat-card {
     }
   }
 
-  .strategy-select {
+  .remote-filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: ds.$spacing-sm;
+
+    label {
+      @include ds.text-body-sm;
+      color: ds.$color-on-surface-variant;
+      font-weight: ds.$font-weight-medium;
+    }
+  }
+
+  .filter-select {
     width: 100%;
-    max-width: 320px;
+    min-height: 48px;
+    padding: 0 ds.$spacing-md;
+    border: 1px solid ds.$color-border-medium;
+    border-radius: ds.$border-radius-md;
+    background: ds.$color-surface;
+    color: ds.$color-on-surface;
+    font: inherit;
+
+    &:focus-visible {
+      outline: 3px solid var(--mat-sys-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .state-message {
+    padding: ds.$spacing-md;
+    border: 1px solid ds.$color-border-light;
+    border-radius: ds.$border-radius-md;
+    background: ds.$color-surface-subtle;
+    color: ds.$color-on-surface-variant;
+    @include ds.text-body-sm;
+
+    &.error-state {
+      color: var(--mat-sys-error);
+      border-color: var(--banner-error-border);
+      background-color: var(--banner-error-bg);
+    }
+  }
+
+  .retry-button {
+    align-self: flex-start;
   }
 }
 
@@ -285,6 +350,10 @@ mat-card {
     padding: ds.$spacing-xl;
     grid-template-columns: minmax(0, 480px) 1fr;
   }
+
+  .left-cards {
+    gap: ds.$spacing-xl;
+  }
 }
 
 @include ds.respond-up-to('md') {
@@ -294,8 +363,13 @@ mat-card {
     gap: ds.$spacing-md;
   }
 
-  .form-section .strategy-select {
-    max-width: 100%;
+  .left-cards {
+    gap: ds.$spacing-md;
+  }
+
+  .form-section .source-switch-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .actions {

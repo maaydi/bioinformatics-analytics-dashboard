@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.model.gene;
 
 import com.bioinformatics.dashboard.csv.CsvSerializable;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
  *
  * <p>Schema defined in documentation/api-contract.md — Shared Schemas — {@code ProteinDetail}.
  */
+@Builder
 public record ProteinDetailDto(
 
         Long id,

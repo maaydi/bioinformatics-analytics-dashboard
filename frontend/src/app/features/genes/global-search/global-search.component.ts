@@ -4,6 +4,8 @@ import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MAX_GLOBAL_SEARCH_LENGTH} from '@core/models/protein.model';
+import {MatButton} from '@angular/material/button';
+import {DataProviderService} from '@core/provider/data-provider.service';
 
 @Component({
   selector: 'app-global-search',
@@ -12,7 +14,8 @@ import {MAX_GLOBAL_SEARCH_LENGTH} from '@core/models/protein.model';
     MatInput,
     MatIcon,
     MatSuffix,
-    MatTooltip
+    MatTooltip,
+    MatButton
   ],
   templateUrl: './global-search.component.html',
   styleUrl: './global-search.component.scss',
@@ -26,6 +29,10 @@ export class GlobalSearchComponent {
 
   readonly globalSearchValue = linkedSignal(() => this.filters()?.globalSearch ?? '');
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly dataProviderService = inject(DataProviderService);
+  readonly retrySearch = output<void>();
+
 
   private debounceTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -72,5 +79,11 @@ export class GlobalSearchComponent {
       clearTimeout(this.debounceTimerId);
       this.debounceTimerId = null;
     }
+  }
+
+  protected toggleProvider() {
+    this.dataProviderService.toggleProvider();
+    this.retrySearch.emit();
+
   }
 }

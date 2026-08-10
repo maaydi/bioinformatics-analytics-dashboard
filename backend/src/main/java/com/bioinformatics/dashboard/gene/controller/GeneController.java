@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * REST Controller providing APIs for retrieving and exporting gene/protein data.
@@ -78,11 +77,11 @@ public class GeneController {
     /**
      * GET /api/genes/{id} — full protein detail.
      */
-    @GetMapping("/{id}")
-    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#id")
+    @GetMapping("/{accession}")
+    @Auditable(action = AuditAction.DETAIL_VIEW, targetId = "#accession")
     @RateLimited(key = "detail")
-    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable Long id) {
-        return ResponseEntity.ok(geneService.getGeneById(id));
+    public ResponseEntity<ProteinDetailDto> getGeneById(@PathVariable String accession) {
+        return ResponseEntity.ok(geneService.getGeneByAccession(accession));
     }
 
     /**
@@ -102,12 +101,5 @@ public class GeneController {
         try (var writer = response.getWriter()) {
             geneService.exportCsv(request, writer, totalRows);
         }
-    }
-
-    @GetMapping(value = "/keywords")
-    @Auditable(action = AuditAction.SEARCH_QUERY)
-    @RateLimited
-    public List<String> loadKeywords() {
-        return geneService.listKeywords();
     }
 }

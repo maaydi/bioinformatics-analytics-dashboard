@@ -10,8 +10,8 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public static ResourceNotFoundException forProtein(Long id) {
-        return new ResourceNotFoundException("Protein not found with id: " + id);
+    public static ResourceNotFoundException forProtein(String accession) {
+        return new ResourceNotFoundException("Protein not found with accession: " + accession);
     }
 
     public static ResourceNotFoundException forImportJob(String jobId) {

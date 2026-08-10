@@ -50,8 +50,8 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
      * Delegate getGeneById to active provider.
      */
     @Override
-    public ProteinDetailDto getGeneById(Long id) {
-        return resolve().getGeneById(id);
+    public ProteinDetailDto getGeneByAccession(String accession) {
+        return resolve().getGeneByAccession(accession);
     }
 
     /**
@@ -70,11 +70,4 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
         return resolve().assertWithinExportLimit(request);
     }
 
-    /**
-     * Delegate keyword listing to active provider.
-     */
-    @Override
-    public List<String> listKeywords() {
-        return resolve().listKeywords();
-    }
 }

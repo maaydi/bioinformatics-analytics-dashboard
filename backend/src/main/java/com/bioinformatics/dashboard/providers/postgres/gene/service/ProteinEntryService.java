@@ -57,8 +57,8 @@ public class ProteinEntryService {
      * Fetch base details for a protein (lightweight join of core fields and small collections).
      * Intended for summary/detail endpoints that do not require the full children sets.
      */
-    public Optional<ProteinEntry> findBaseDetails(@Param("id") Long id) {
-        return proteinEntryRepository.findBaseDetails(id);
+    public Optional<ProteinEntry> findBaseDetails(@Param("accession") String accession) {
+        return proteinEntryRepository.findBaseDetails(accession);
     }
 
     /**
@@ -66,8 +66,8 @@ public class ProteinEntryService {
      * This method populates transient child sets (cross-references, comments, publications)
      * by querying dedicated repositories to avoid loading huge object graphs via JPA.
      */
-    public Optional<ProteinEntry> findAdditionalDetails(@Param("id") Long id) {
-        var protein = proteinEntryRepository.findAdditionalDetails(id);
+    public Optional<ProteinEntry> findAdditionalDetails(@Param("accession") String accession) {
+        var protein = proteinEntryRepository.findAdditionalDetails(accession);
         protein.ifPresent(p -> {
             p.setCrossReferences(new HashSet<>(crossReferenceRepository.findByProteinId(p.getId())));
             p.setComments(new HashSet<>(proteinCommentRepository.findByProteinId(p.getId())));

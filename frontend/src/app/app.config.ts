@@ -14,13 +14,14 @@ import {catchError, of} from 'rxjs';
 import {routes} from './app.routes';
 import {authInterceptor} from '@core/interceptors/auth.interceptor';
 import {ErrorInterceptor} from '@shared/directive/error-interceptor';
+import {dataProviderInterceptor} from '@core/provider/data-provider.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(withEventReplay()),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor]), withInterceptorsFromDi()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, dataProviderInterceptor]), withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,

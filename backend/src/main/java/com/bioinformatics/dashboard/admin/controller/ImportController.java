@@ -52,8 +52,8 @@ public class ImportController {
     @PostMapping("/uniprot/remote")
     @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#result.id")
     @RateLimited(key = "import")
-    public ResponseEntity<ImportJobSummary> triggerRemoteImport() {
-        var job = service.triggerRemoteImport();
+    public ResponseEntity<ImportJobSummary> triggerRemoteImport(@RequestParam("filterId") long filterId) {
+        var job = service.triggerRemoteImport(filterId);
         return ResponseEntity.accepted().body(job);
     }
 

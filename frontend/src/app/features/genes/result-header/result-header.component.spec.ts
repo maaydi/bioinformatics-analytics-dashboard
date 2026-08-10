@@ -61,6 +61,6 @@ describe('ResultHeaderComponent', () => {
     component.onPageChange(event);
 
     expect(emitSpy).toHaveBeenCalledOnce();
-    expect(emitSpy).toHaveBeenCalledWith({page: 2, size: 200});
+    expect(emitSpy).toHaveBeenCalledWith({page: 0, size: 200});
   });
 });

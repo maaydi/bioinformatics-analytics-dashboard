@@ -1,8 +1,4 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.service;
-/**
- * Service for gene/protein operations.
- *
- */
 
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
@@ -14,9 +10,7 @@ import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service for gene/protein operations.
@@ -43,11 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PostgresGeneService extends AbstractPostgresProvider implements GeneService {
 
-    // Whitelisted sortable fields from ProteinSummaryDto
-    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
-            .map(Field::getName).collect(Collectors.toSet());
     private final ProteinEntryService proteinService;
-    private final KeywordRepository keywordRepository;
     private final GeneMapper mapper;
     private final AppProperties appProperties;
 
@@ -89,10 +74,10 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
      */
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "geneDetail", key = "#id", cacheManager = "redisNonFinalAndRecordCacheManager")
-    public ProteinDetailDto getGeneById(Long id) {
-        log.info("Retrieving protein entry by id: {}", id);
-        var gene = proteinService.findAdditionalDetails(id).orElseThrow(() -> ResourceNotFoundException.forProtein(id));
+    @Cacheable(value = "geneDetail", key = "#accession", cacheManager = "redisNonFinalAndRecordCacheManager")
+    public ProteinDetailDto getGeneByAccession(String accession) {
+        log.info("Retrieving protein entry by id: {}", accession);
+        var gene = proteinService.findAdditionalDetails(accession).orElseThrow(() -> ResourceNotFoundException.forProtein(accession));
         return mapper.toDetail(gene);
 
     }
@@ -125,15 +110,5 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
         }
         return totalRows;
 
-    }
-
-    @Override
-    @Cacheable(value = "geneKeywords")
-    public List<String> listKeywords() {
-        log.info("Retrieving keywords for protein entries");
-        return keywordRepository.findAll()
-                .stream()
-                .map(Keyword::getName)
-                .toList();
     }
 }

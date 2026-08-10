@@ -1,7 +1,9 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.reader;
 
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtEntry;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
@@ -22,7 +24,7 @@ import java.util.Deque;
  * <ol>
  *   <li>On each call to {@link #read()}, if the internal buffer is empty and the
  *       source is not yet exhausted, the reader fetches the next page from
- *       {@link UniProtApiClient#fetchPage(String, int)}.</li>
+ *       {@link UniProtApiClient#fetchPage(com.bioinformatics.dashboard.model.gene.GeneSearchRequest, String)}.</li>
  *   <li>Pages are fetched lazily: the reader never pre-fetches ahead of what the
  *       step needs.</li>
  *   <li>When {@link UniProtApiPage#hasMore()} returns {@code false}, no further
@@ -45,7 +47,7 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
     private static final String PAGE_COUNT_KEY = "uniProtApiItemReader.pageCount";
 
     private final UniProtApiClient apiClient;
-    private final int pageSize;
+    private final GeneSearchRequest request;
 
     /**
      * In-memory buffer populated one page at a time.
@@ -67,10 +69,9 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
      */
     private boolean exhausted = false;
 
-    public UniProtApiItemReader(UniProtApiClient apiClient, int pageSize) {
-        if (pageSize < 1) throw new IllegalArgumentException("pageSize must be >= 1");
+    public UniProtApiItemReader(UniProtApiClient apiClient, GeneSearchRequest request) {
         this.apiClient = apiClient;
-        this.pageSize = pageSize;
+        this.request = request;
     }
 
 
@@ -127,9 +128,8 @@ public class UniProtApiItemReader implements ItemStreamReader<UniProtEntry> {
 
 
     private void loadNextPage() {
-        log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, pageSize);
-
-        var page = apiClient.fetchPage(nextCursor, pageSize);
+        log.debug("Fetching UniProt API page {} (cursor={}, pageSize={})", pageCount, nextCursor, request.size());
+        var page = apiClient.fetchPage(request, nextCursor);
         var entries = page.entries();
 
         buffer.addAll(entries);

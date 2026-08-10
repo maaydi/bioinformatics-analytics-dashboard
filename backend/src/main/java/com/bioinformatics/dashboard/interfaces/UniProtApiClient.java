@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.interfaces;
 
 
-import com.bioinformatics.dashboard.job.uniprot.apiloader.reader.UniProtApiPage;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 
 /**
  * Abstraction for a paginated UniProt API data source using cursor-based pagination.
@@ -18,12 +19,12 @@ public interface UniProtApiClient {
     /**
      * Fetches one page of UniProt entries.
      *
+     * @param request {@link GeneSearchRequest} Search Query parameters
      * @param cursor   opaque cursor value from the previous page's {@code Link} header;
      *                 pass {@code null} to start from the first page
-     * @param pageSize maximum number of entries to return per page (1–500)
      * @return a page of entries, a flag indicating whether more pages follow,
      * and the cursor to use for the next call
      */
-    UniProtApiPage fetchPage(String cursor, int pageSize);
+    UniProtApiPage fetchPage(GeneSearchRequest request, String cursor);
 }
 

@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.model.gene;
 
 import com.bioinformatics.dashboard.csv.CsvSerializable;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
  *
  * <p>Schema defined in documentation/api-contract.md — Shared Schemas — {@code ProteinSummary}.
  */
+@Builder
 public record ProteinSummaryDto(
         Long id,
         String accession,

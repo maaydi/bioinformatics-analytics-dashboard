@@ -1,12 +1,25 @@
 <div class="table-header-actions">
-  <div class="label-container">
-    <label class="section-label">Global Search</label>
-    <mat-icon
-      class="help-icon"
-      matTooltip="Search across all indexed fields"
-      matTooltipPosition="above">
-      help_outline
-    </mat-icon>
+  <div class="header-container">
+    <div class="label-container">
+      <label class="section-label">Global Search</label>
+      <mat-icon
+        class="help-icon"
+        matTooltip="Search across all indexed fields"
+        matTooltipPosition="above">
+        help_outline
+      </mat-icon>
+    </div>
+    <button (click)="toggleProvider()"
+            [attr.aria-label]="dataProviderService.getProvider() === 'postgres' ? 'Switch to UniprotKB remote provider' : 'Switch to local DB provider'"
+            class="theme-toggle-btn"
+            mat-button>
+      @if (dataProviderService.getProvider() === 'postgres') {
+        <span class="icon"><mat-icon>signal_wifi_off</mat-icon>Local</span>
+      } @else {
+        <span class="icon"><mat-icon>signal_wifi_4_bar</mat-icon>Remote</span>
+
+      }
+    </button>
   </div>
   <mat-form-field appearance="outline" class="global-search-field">
     <input (input)="onSearchInput($event)"

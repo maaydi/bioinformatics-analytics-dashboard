@@ -1,0 +1,67 @@
+@use "design-system" as ds;
+
+.autocomplete-search-field {
+  width: 100%;
+  display: block;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    min-height: 40px;
+  }
+
+  ::ng-deep input.mat-mdc-form-field-input {
+    @include ds.text-body-sm;
+    height: 40px;
+    padding: ds.$spacing-sm ds.$spacing-md;
+  }
+
+  // Styles the [hintLabel] native to mat-form-field
+  ::ng-deep .mat-mdc-form-field-hint {
+    @include ds.text-label-sm;
+    color: var(--mat-sys-primary);
+    font-weight: ds.$font-weight-bold;
+  }
+}
+
+/**
+ * SELECTED COUNT: Optional badge styling if you decide to use a custom prefix/suffix
+ * instead of the standard mat-form-field hintLabel.
+ */
+.selected-count-badge {
+  @include ds.text-label-sm;
+  color: var(--mat-sys-primary);
+  font-weight: ds.$font-weight-bold;
+  margin-right: ds.$spacing-xs;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--selected-count-bg);
+  border-radius: ds.$border-radius-sm;
+  display: inline-block;
+}
+
+/**
+ * AUTOCOMPLETE OPTION: Custom option styling inside dropdown
+ * Adapts to both single (text only) and multi-select (checkbox)
+ */
+.autocomplete-option {
+  ::ng-deep(.mat-mdc-option-text) {
+    width: 100%;
+    @include ds.text-body-sm; // Ensures single-select text matches checkbox text size
+  }
+
+  // Checkbox styles will only apply when multiSelect() is true
+  mat-checkbox {
+    width: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+
+    ::ng-deep(.mdc-form-field) {
+      width: 100%;
+    }
+
+    ::ng-deep(.mat-mdc-checkbox-label) {
+      @include ds.text-body-sm;
+      color: ds.$color-on-surface;
+      margin-left: ds.$spacing-xs;
+    }
+  }
+}

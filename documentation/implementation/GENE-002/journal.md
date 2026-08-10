@@ -59,7 +59,7 @@
   `frontend/src/app/features/genes/state/filters.store.ts`).
 - [x] Filter state is not persistent across page navigation because `GenesStore` is provided at page component level (
   `frontend/src/app/features/genes/genes-page/genes-page.component.ts`).
-- [x] `GenesService` is not aligned with the planned/contract method surface (`search`, `getById`, `exportCsv`
+- [x] `GenesService` is not aligned with the planned/contract method surface (`search`, `getByAccession`, `exportCsv`
   contract-centric naming/signature) (`frontend/src/app/features/genes/genes.service.ts`,
   `documentation/implementation/GENE-002/plan.md`).
 - [ ] `GenesService` unit tests are missing (`frontend/src/app/features/genes`).
@@ -90,7 +90,7 @@
 - [x] Shared controls `input` and `range-input` explicitly use `ChangeDetectionStrategy.OnPush` (
   `frontend/src/app/shared/components/input/input.component.ts`,
   `frontend/src/app/shared/components/range-input/range-input.component.ts`).
-- [x] Added `GenesService` unit tests with success-path coverage for `listGenes`, `searchGenes`, `getGeneById`,
+- [x] Added `GenesService` unit tests with success-path coverage for `listGenes`, `searchGenes`, `getGeneByAccession`,
   `exportCsv`, and `loadKeywords`, including request URL/method/body/params assertions (
   `frontend/src/app/features/genes/genes.service.spec.ts`).
 

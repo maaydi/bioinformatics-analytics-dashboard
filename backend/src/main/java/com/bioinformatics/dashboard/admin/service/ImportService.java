@@ -5,6 +5,7 @@ import com.bioinformatics.dashboard.exception.ExecuteJobException;
 import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
 import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
@@ -16,6 +17,8 @@ import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
+import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
+import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
@@ -34,6 +37,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.bioinformatics.dashboard.job.dto.Constants.SAVED_FILTER_ID;
+
 /**
  * Orchestrates the execution of asynchronous UniProt import jobs.
  * Enforces single-job concurrency and validates files before delegating to Spring Batch.
@@ -43,14 +48,14 @@ import java.util.UUID;
 @Slf4j
 public class ImportService {
 
-    private static final String REMOTE_UNIPROT_API_SOURCE = "UNIPROT_API_REMOTE";
-
     private final ImportJobRepository importJobRep;
     private final ImportJobMapper jobMapper;
     private final AsyncUniprotImportJobExecutor importExec;
     private final UniProtApiImportJobExecutor remoteImportExec;
     private final AppProperties appProperties;
     private final CounterRegistry registry;
+    private final SavedFilterService savedFilterService;
+    private final UniProtApiClient uniProtApiClient;
 
     public PagedResponse<ImportJobSummary> listImportJobs(int page, int size) {
         log.info("listImportJobs page: {}, size: {}", page, size);
@@ -80,12 +85,14 @@ public class ImportService {
     }
 
     @Transactional
-    public ImportJobSummary triggerRemoteImport() {
+    public ImportJobSummary triggerRemoteImport(long filterId) {
         checkImportAlreadyRunning();
         try {
-            log.info("Triggering remote UniProt API import");
-            var savedJob = saveRemoteJob();
-            executeRemoteImport(savedJob);
+            var filter = savedFilterService.getSavedFilterById(filterId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Saved Filter with id %d not found".formatted(filterId)));
+            log.info("Triggering remote UniProt API import for filter {}", filter.name());
+            var savedJob = saveRemoteJob(filter);
+            executeRemoteImport(savedJob, filterId);
             return savedJob;
         } catch (Exception e) {
             throw new ExecuteJobException("Failed to trigger remote import " + e.getMessage(), e);
@@ -133,12 +140,13 @@ public class ImportService {
         return jobMapper.toSummary(savedJob);
     }
 
-    private ImportJobSummary saveRemoteJob() {
+    private ImportJobSummary saveRemoteJob(SavedFilterDto filter) {
+        var totalRecords = countRemoteUniprotEntries(filter);
         var job = new ImportJob();
         job.setStatus(ImportStatus.RUNNING);
-        job.setFileName(REMOTE_UNIPROT_API_SOURCE);
+        job.setFileName("Filter <%s>".formatted(filter.name()));
         job.setStrategy("OVERWRITE");
-        job.setTotalEstimated(0);
+        job.setTotalEstimated(totalRecords);
         var savedJob = importJobRep.save(job);
         return jobMapper.toSummary(savedJob);
     }
@@ -152,6 +160,17 @@ public class ImportService {
         }
     }
 
+    private int countRemoteUniprotEntries(SavedFilterDto filter) {
+        try {
+            var query = filter.filterJson().copy().size(1).page(0).build();
+            var result = uniProtApiClient.fetchPage(query, null);
+            return Math.toIntExact(result.totalElements());
+        } catch (Exception e) {
+            log.error("Failed to retrieve total count entries for saved filter {}", filter.name());
+            return 0;
+        }
+    }
+
     private void executeImport(ImportJobSummary importJob, Path file) {
         var parameters = new JobParametersBuilder()
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
@@ -161,10 +180,11 @@ public class ImportService {
         importExec.execute(parameters);
     }
 
-    private void executeRemoteImport(ImportJobSummary importJob) {
+    private void executeRemoteImport(ImportJobSummary importJob, long filterId) {
         var parameters = new JobParametersBuilder()
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .addLong(SAVED_FILTER_ID.getKey(), filterId)
                 .toJobParameters();
         remoteImportExec.execute(parameters);
     }

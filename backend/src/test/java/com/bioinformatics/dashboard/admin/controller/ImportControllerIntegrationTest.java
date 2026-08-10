@@ -13,7 +13,10 @@ import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
+import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
+import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
+import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,11 +41,11 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -81,7 +85,15 @@ class ImportControllerIntegrationTest {
     UniProtApiImportJobExecutor uniProtApiImportJobExecutor;
 
     @MockitoBean
+    SavedFilterService savedFilterService;
+
+    @MockitoBean
     CounterRegistry counterRegistry;
+
+    @MockitoBean
+    private CacheManager cacheManager;
+
+
     private String adminToken;
     private String userToken;
 
@@ -231,9 +243,15 @@ class ImportControllerIntegrationTest {
     @Test
     void triggerRemoteImport_returnsAccepted() {
         doNothing().when(uniProtApiImportJobExecutor).execute(any());
+        when(savedFilterService.getSavedFilterById(anyLong())).thenReturn(Optional.of(
+                new SavedFilterDto(42L, "example-filter", GeneSearchRequest.builder().accession("ACC").build(), Instant.now())
+        ));
 
         restClient.post()
-                .uri("/api/admin/import/uniprot/remote")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/admin/import/uniprot/remote")
+                        .queryParam("filterId", 42L)
+                        .build())
                 .header("Authorization", "Bearer " + adminToken)
                 .exchange()
                 .expectStatus().isAccepted()
@@ -243,7 +261,7 @@ class ImportControllerIntegrationTest {
                     assertThat(body).isNotNull();
                     assertThat(body.id()).isNotBlank();
                     assertThat(body.status()).isEqualTo(ImportStatus.RUNNING);
-                    assertThat(body.fileName()).isEqualTo("UNIPROT_API_REMOTE");
+                    assertThat(body.fileName()).contains("example-filter");
                 });
 
         assertThat(importJobRepository.count()).isEqualTo(1);

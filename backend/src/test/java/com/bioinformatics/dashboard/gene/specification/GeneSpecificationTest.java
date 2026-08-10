@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.gene.specification;
 
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.CrossReference;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.specification.GeneSpecification;
 import jakarta.persistence.criteria.*;
@@ -263,12 +264,40 @@ class GeneSpecificationTest {
 
     @Test
     void crossRefSource_ValidValue() {
-        Specification<ProteinEntry> spec = GeneSpecification.crossRefSource("Pfam");
+        // 1. Arrange Mocks
+        var testSource = "Pfam";
+        Subquery<Integer> subquery = mock(Subquery.class);
+        Root<CrossReference> crossRefRoot = mock(Root.class);
+        Expression<Integer> literalExpression = mock(Expression.class);
+
+        Path<Object> proteinEntryPath = mock(Path.class);
+        Path<Object> sourcePath = mock(Path.class);
+
+        Predicate equalProteinEntryPredicate = mock(Predicate.class);
+        Predicate equalSourcePredicate = mock(Predicate.class);
+        Predicate existsPredicate = mock(Predicate.class);
+
+        when(query.subquery(Integer.class)).thenReturn(subquery);
+        when(subquery.from(CrossReference.class)).thenReturn(crossRefRoot);
+        when(cb.literal(1)).thenReturn(literalExpression);
+        when(subquery.select(literalExpression)).thenReturn(subquery);
+        when(crossRefRoot.get("protein")).thenReturn(proteinEntryPath);
+        when(cb.equal(proteinEntryPath, root)).thenReturn(equalProteinEntryPredicate);
+        when(crossRefRoot.get("source")).thenReturn(sourcePath);
+        when(cb.equal(sourcePath, testSource)).thenReturn(equalSourcePredicate);
+        when(subquery.where(equalProteinEntryPredicate, equalSourcePredicate)).thenReturn(subquery);
+        when(cb.exists(subquery)).thenReturn(existsPredicate);
+
+        var spec = GeneSpecification.crossRefSource(testSource);
         assertNotNull(spec);
-        when(root.join("crossReferences")).thenReturn(join);
-        when(join.get("source")).thenReturn((Path) path);
-        when(cb.equal(path, "Pfam")).thenReturn(predicate);
-        assertEquals(predicate, spec.toPredicate(root, query, cb));
-        verify(query).distinct(true);
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(existsPredicate, result);
+
+        verify(query).subquery(Integer.class);
+        verify(subquery).from(CrossReference.class);
+        verify(subquery).select(literalExpression);
+        verify(subquery).where(equalProteinEntryPredicate, equalSourcePredicate);
+        verify(cb).exists(subquery);
     }
 }

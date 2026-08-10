@@ -1,16 +1,19 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader;
 
 import com.bioinformatics.dashboard.config.AppProperties;
+import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.listener.ImportJobDatabaseListener;
 import com.bioinformatics.dashboard.job.listener.ImportJobRefreshViewsListener;
+import com.bioinformatics.dashboard.job.listener.ImportProgressChunkListener;
 import com.bioinformatics.dashboard.job.listener.PostImportCacheEvictionListener;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.reader.UniProtApiItemReader;
 import com.bioinformatics.dashboard.job.writer.ProteinAggregateItemWriter;
+import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtEntry;
+import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
@@ -59,6 +62,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class UniProtApiImportJobConfig {
 
     private final AppProperties appProperties;
+    private final SavedFilterService savedFilterService;
 
 
     /**
@@ -67,8 +71,13 @@ public class UniProtApiImportJobConfig {
      */
     @Bean
     @StepScope
-    ItemStreamReader<UniProtEntry> uniProtApiItemReader(UniProtApiClient apiClient) {
-        return new UniProtApiItemReader(apiClient, appProperties.getUniprotApi().getBatch().getChunkSize());
+    UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient, UniProtApiImportJobParameters params) {
+        var filter = savedFilterService.getSavedFilterById(params.getFilterId());
+        if (filter.isEmpty()) {
+            throw new ResourceNotFoundException("Filter with id %d not found".formatted(params.getFilterId()));
+        }
+        var request = filter.get().filterJson().copy().page(0).size(appProperties.getUniprotApi().getBatch().getChunkSize()).build();
+        return new UniProtApiItemReader(apiClient, request);
     }
 
 
@@ -78,10 +87,11 @@ public class UniProtApiImportJobConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<UniProtEntry> uniProtApiItemReader,
             UniProtApiEntryProcessor processor,
-            ProteinAggregateItemWriter writer) {
+            ProteinAggregateItemWriter writer, ImportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.API_IMPORT_STEP.getKey(), jobRepository)
                 .<UniProtEntry, ProteinEntry>chunk(appProperties.getBatch().getChunkSize())
+                .listener(progressChunkListener)
                 .transactionManager(transactionManager)
                 .reader(uniProtApiItemReader)
                 .processor(processor)
@@ -98,7 +108,7 @@ public class UniProtApiImportJobConfig {
             PostImportCacheEvictionListener cacheEvictionListener,
             ImportJobRefreshViewsListener refreshViewsListener) {
 
-        return new JobBuilder(Constants.AUTOMATIC_API_IMPORT_JOB.getKey(), jobRepository)
+        return new JobBuilder(Constants.IMPORT_API_JOB.getKey(), jobRepository)
                 .start(uniProtApiImportStep)
                 .listener(databaseListener)
                 .listener(cacheEvictionListener)

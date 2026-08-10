@@ -8,6 +8,7 @@
       <app-global-search
         (filterChange)="applyFilters($event)"
         [filters]="store.activeFilters()"
+        (retrySearch)="retrySearch()"
       ></app-global-search>
     </div>
     <div class="result-card__search">

@@ -42,7 +42,7 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'genes/:id',
+        path: 'genes/:accession',
         loadComponent: () =>
           import('./features/gene-detail/gene-detail.component').then((m) => m.GeneDetailComponent),
       },

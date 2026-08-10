@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.specification;
 
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.dashboard.providers.postgres.gene.entity.CrossReference;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -178,11 +179,19 @@ public final class GeneSpecification {
 
     public static Specification<ProteinEntry> crossRefSource(String source) {
         if (!StringUtils.hasText(source)) return null;
-        return (root, query, cb) ->
-        {
-            query.distinct(true);
-            var crossRefJoin = root.join("crossReferences");
-            return cb.equal(crossRefJoin.get("source"), source);
+
+        return (root, query, cb) -> {
+            var subquery = query.subquery(Integer.class);
+            var crossRefRoot = subquery.from(CrossReference.class);
+
+            subquery.select(cb.literal(1));
+
+            subquery.where(
+                    cb.equal(crossRefRoot.get("protein"), root),
+                    cb.equal(crossRefRoot.get("source"), source)
+            );
+
+            return cb.exists(subquery);
         };
     }
 }

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output,} from '@angular/core';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {
@@ -8,14 +8,13 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import {GeneFilterFormControls, GeneFilterSnapshot} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/divider';
-import {MatInput} from '@angular/material/input';
 import {MatError, MatFormField} from '@angular/material/form-field';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
@@ -28,17 +27,18 @@ import {
   MAX_GENE_NAME_PRIMARY_LENGTH,
   MAX_KEYWORD_LENGTH,
   MAX_KEYWORDS_COUNT,
-  MAX_ORGANISM_LENGTH
+  MAX_ORGANISM_LENGTH,
 } from '@core/models/protein.model';
 import {InputComponent} from '@shared/components/input/input.component';
 import {RangeInputComponent} from '@shared/components/range-input/range-input.component';
-import {KeywordsFilterComponent} from '@features/genes/keywords-filter/keywords-filter.component';
 import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
-import {getDefaultFormValue, toForm, toSnapshot} from '@features/genes/gene-filter/gene-filter.utils';
+import {getDefaultFormValue, toForm, toSnapshot,} from '@features/genes/gene-filter/gene-filter.utils';
+import {GenericAutocompleteComponent} from '@shared/components/generic-autocomplete/generic-autocomplete.component';
 
-
-const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<number | null>): ValidationErrors | null => {
+const taxidPositiveIntegerValidator: ValidatorFn = (
+  control: AbstractControl<number | null>,
+): ValidationErrors | null => {
   const value = control.value;
   if (value === null) {
     return null;
@@ -49,7 +49,9 @@ const taxidPositiveIntegerValidator: ValidatorFn = (control: AbstractControl<num
   return null;
 };
 
-const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null>): ValidationErrors | null => {
+const keywordsValidator: ValidatorFn = (
+  control: AbstractControl<string[] | null>,
+): ValidationErrors | null => {
   const keywords = control.value ?? [];
 
   if (keywords.length > MAX_KEYWORDS_COUNT) {
@@ -57,7 +59,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
       keywordsMaxCount: {
         max: MAX_KEYWORDS_COUNT,
         actual: keywords.length,
-      }
+      },
     };
   }
 
@@ -66,7 +68,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
     return {
       keywordMaxLength: {
         max: MAX_KEYWORD_LENGTH,
-      }
+      },
     };
   }
 
@@ -77,7 +79,7 @@ const keywordsValidator: ValidatorFn = (control: AbstractControl<string[] | null
  * - 'sidebar' = stacked vertical fields (default)
  * - 'grid' = compact multi-column layout (used by comparison view)
  */
-export type DisplayMode = 'sidebar' | 'grid'
+export type DisplayMode = 'sidebar' | 'grid';
 
 /**
  * Presentational filter panel for gene search criteria.
@@ -92,14 +94,14 @@ export type DisplayMode = 'sidebar' | 'grid'
  */
 @Component({
   selector: 'app-gene-filter',
-  imports: [ReactiveFormsModule,
+  imports: [
+    ReactiveFormsModule,
     MatCardHeader,
     MatIcon,
     MatButton,
     MatDivider,
     MatCardContent,
     MatFormField,
-    MatInput,
     MatButtonToggleGroup,
     MatButtonToggle,
     MatCheckbox,
@@ -108,15 +110,15 @@ export type DisplayMode = 'sidebar' | 'grid'
     MatOption,
     InputComponent,
     RangeInputComponent,
-    KeywordsFilterComponent,
     MatDialogModule,
-    MatSnackBarModule],
+    MatSnackBarModule,
+    GenericAutocompleteComponent,
+  ],
   templateUrl: './gene-filter.component.html',
   styleUrls: ['./gene-filter.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
-
   displayMode = input<DisplayMode>('sidebar');
   /** Title shown in the header. Parent may override it */
   title = input<string>('Filters');
@@ -126,30 +128,33 @@ export class GeneFilterComponent {
   readonly evidenceLevels = EVIDENCE_LEVELS;
   readonly form = new FormGroup<GeneFilterFormControls>({
     globalSearch: new FormControl('', {
-      nonNullable: false
+      nonNullable: false,
     }),
     accession: new FormControl('', {
       nonNullable: false,
-      validators: [Validators.maxLength(MAX_ACCESSION_LENGTH)]
+      validators: [Validators.maxLength(MAX_ACCESSION_LENGTH)],
     }),
     entryName: new FormControl('', {nonNullable: false}),
     geneNamePrimary: new FormControl('', {
       nonNullable: false,
-      validators: [Validators.maxLength(MAX_GENE_NAME_PRIMARY_LENGTH)]
+      validators: [Validators.maxLength(MAX_GENE_NAME_PRIMARY_LENGTH)],
     }),
     proteinFullName: new FormControl('', {nonNullable: false}),
     reviewed: new FormControl<boolean | null>(null),
     organism: new FormControl('', {
       nonNullable: false,
-      validators: [Validators.maxLength(MAX_ORGANISM_LENGTH)]
+      validators: [Validators.maxLength(MAX_ORGANISM_LENGTH)],
     }),
     taxid: new FormControl<number | null>(null, {
-      validators: [Validators.min(1), taxidPositiveIntegerValidator]
+      validators: [Validators.min(1), taxidPositiveIntegerValidator],
     }),
     lineage: new FormControl('', {nonNullable: false}),
 
     length: new FormControl<{ min: number | null; max: number | null }>({min: null, max: null}),
-    molecularWeight: new FormControl<{ min: number | null; max: number | null }>({min: null, max: null}),
+    molecularWeight: new FormControl<{ min: number | null; max: number | null }>({
+      min: null,
+      max: null,
+    }),
 
     evidenceLevels: new FormControl<EvidenceLevel[]>([]),
     keywords: new FormControl<string[]>([], {
@@ -157,7 +162,7 @@ export class GeneFilterComponent {
     }),
     goTermId: new FormControl('', {
       nonNullable: false,
-      validators: [Validators.pattern(/^GO:\d{7}$/)]
+      validators: [Validators.pattern(/^GO:\d{7}$/)],
     }),
     goAspect: new FormControl<'P' | 'F' | 'C' | null>(null),
     featureType: new FormControl('', {nonNullable: false}),
@@ -206,7 +211,6 @@ export class GeneFilterComponent {
     }
   }
 
-
   /** Validates and emits the current filter snapshot. */
   applyFilters(): void {
     if (this.form.invalid) {
@@ -236,30 +240,31 @@ export class GeneFilterComponent {
   /** Opens the Save Filters dialog. The dialog handles submit/cancel logging. */
   protected openSaveFiltersDialog(): void {
     const dialogRef = this.dialog.open(SaveFiltersDialogComponent, {
-      width: '420px'
+      width: '420px',
     });
 
     dialogRef.afterClosed().subscribe((response: { name: string } | null) => {
       const filters = this.value();
       if (response && filters) {
-        this.savedFiltersService.createSavedFilter({name: response.name, filterJson: filters})
+        this.savedFiltersService
+          .createSavedFilter({name: response.name, filterJson: filters})
           .subscribe({
-            next: _saved => {
+            next: (_saved) => {
               this.snackBar.open(`Saved filter "${response.name}"`, 'Close', {
                 duration: 4000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
-                panelClass: ['success-snackbar']
+                panelClass: ['success-snackbar'],
               });
             },
-            error: _err => {
+            error: (_err) => {
               this.snackBar.open(`Failed to save filter "${response?.name}"`, 'Retry', {
                 duration: 6000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
-                panelClass: ['error-snackbar']
+                panelClass: ['error-snackbar'],
               });
-            }
+            },
           });
       }
     });

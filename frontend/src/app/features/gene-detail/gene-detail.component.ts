@@ -29,7 +29,7 @@ import {formatDate} from '@shared/utils/date-formatter';
  * Gene Detail page — Epic 5 (US-15, US-16, US-17).
  *
  * Displays a single protein entry with tabs:
- *   Summary | Sequence | Features | Cross References | Taxonomy | Publications | Similar Proteins
+ *   Summary | Sequence | Features | Cross-References | Taxonomy | Publications | Similar Proteins
  *
  * Route: /genes/:id  (id bound via input() with withComponentInputBinding)
  * Data source: GET /api/genes/{id} → ProteinDetail
@@ -55,7 +55,7 @@ import {formatDate} from '@shared/utils/date-formatter';
 })
 export class GeneDetailComponent implements OnInit {
   loading = signal<boolean>(true);
-  readonly id = input.required<number>();
+  readonly accession = input.required<string>();
   proteinDetails = signal<ProteinDetail | null>(null);
   notFound = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
@@ -73,7 +73,7 @@ export class GeneDetailComponent implements OnInit {
   private clearCopyMessageTimerId: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.service.getById(this.id())
+    this.service.getByAccession(this.accession())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {

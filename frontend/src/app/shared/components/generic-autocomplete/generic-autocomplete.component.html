@@ -1,0 +1,42 @@
+<mat-form-field [hintLabel]="getHintLabel()" appearance="outline" class="autocomplete-search-field">
+  <input
+    (blur)="onTouched()"
+    [formControl]="searchCtrl"
+    [matAutocomplete]="auto"
+    [placeholder]="placeholder()"
+    aria-label="Search and select options"
+    matInput
+  />
+</mat-form-field>
+
+<mat-autocomplete
+  #auto="matAutocomplete"
+  (optionSelected)="onOptionSelected($event)"
+  [panelWidth]="'auto'"
+  class="autocomplete-panel"
+>
+  @if (filteredOptions$ | async; as options) {
+    @if (options.length === 0 && searchCtrl.value.length > 0) {
+      <mat-option disabled>No matches found</mat-option>
+    }
+
+    @for (option of options; track option) {
+      <mat-option [value]="option" class="autocomplete-option">
+
+        @if (multiSelect()) {
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            [aria-label]="option"
+            [checked]="isSelected(option)"
+            tabindex="-1"
+          >
+            {{ option }}
+          </mat-checkbox>
+        } @else {
+          {{ option }}
+        }
+
+      </mat-option>
+    }
+  }
+</mat-autocomplete>

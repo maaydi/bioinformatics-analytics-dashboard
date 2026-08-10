@@ -43,7 +43,8 @@
 
 ### Service (`features/genes/genes.service.ts`)
 
-- [x] `getById(id: number): Observable<ProteinDetail>` — `GET /api/genes/:id` (currently implemented as `getGeneById`)
+- [x] `getById(id: number): Observable<ProteinDetail>` — `GET /api/genes/:id` (currently implemented as
+  `getGeneByAccession`)
 - [x] Error mapping: HTTP 404 -> propagate as `ProteinNotFoundError` for component handling
 
 ### `GeneDetailComponent` (`features/gene-detail/`)

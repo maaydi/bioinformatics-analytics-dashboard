@@ -137,11 +137,11 @@ describe('GenesService', () => {
   });
 
   it('getGeneById should call GET /genes/:id', () => {
-    service.getById(42).subscribe((res) => {
+    service.getByAccession('P12345').subscribe((res) => {
       expect(res).toEqual(detailResponse);
     });
 
-    const req = httpMock.expectOne(`${baseUrl}/42`);
+    const req = httpMock.expectOne(`${baseUrl}/P12345`);
     expect(req.request.method).toBe('GET');
     req.flush(detailResponse);
   });
@@ -162,18 +162,6 @@ describe('GenesService', () => {
     expect(req.request.body).toEqual(filter);
     expect(req.request.responseType).toBe('blob');
     req.flush(blob);
-  });
-
-  it('loadKeywords should call GET /genes/keywords', () => {
-    const keywords = ['Kinase', 'Signal'];
-
-    service.loadKeywords().subscribe((res) => {
-      expect(res).toEqual(keywords);
-    });
-
-    const req = httpMock.expectOne(`${baseUrl}/keywords`);
-    expect(req.request.method).toBe('GET');
-    req.flush(keywords);
   });
 });
 

@@ -77,7 +77,7 @@ public class CacheConfig {
         registerTypedCache(builder, baseMapper, List.class, OrganismCountDto.class, "byOrganism", "filtered-byOrganism");
         registerTypedCache(builder, baseMapper, List.class, LengthHistogramBucketDto.class, "lengthHistogram", "filtered-lengthHistogram");
         registerTypedCache(builder, baseMapper, PagedResponse.class, SavedFilterDto.class, "savedFilters");
-        registerTypedCache(builder, baseMapper, PagedResponse.class, ProteinSummaryDto.class, "geneList", "geneSearch");
+        registerTypedCache(builder, baseMapper, PagedResponse.class, ProteinSummaryDto.class, "geneList", "geneSearch", "geneList-kb", "geneSearch-kb");
         registerTypedCache(builder, baseMapper, List.class, ReviewedRatioDto.class, "reviewedRatio", "filtered-reviewedRatio");
         registerTypedCache(builder, baseMapper, List.class, EvidenceDistributionDto.class, "evidenceLevels", "filtered-evidenceLevels");
         registerTypedCache(builder, baseMapper, List.class, KeywordFrequencyDto.class, "keywordFrequency", "filtered-keywordFrequency");

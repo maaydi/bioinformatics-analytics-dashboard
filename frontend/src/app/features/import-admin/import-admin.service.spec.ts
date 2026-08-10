@@ -27,7 +27,7 @@ describe('ImportAdminService', () => {
     const fakeFile = new File(['abc'], 'u.fasta', {type: 'text/plain'});
 
     let called = false;
-    service.triggerImport(fakeFile, 'OVERWRITE').subscribe({
+    service.triggerImport(fakeFile).subscribe({
       next: () => {
         called = true;
       },
@@ -40,9 +40,21 @@ describe('ImportAdminService', () => {
     expect(req.request.method).toBe('POST');
     // body should be FormData
     expect(req.request.body instanceof FormData).toBe(true);
+    expect((req.request.body as FormData).get('strategy')).toBe('OVERWRITE');
 
     req.flush({id: '1'});
     expect(called).toBe(true);
+  });
+
+  it('should POST the selected filter id when triggering remote import', () => {
+    service.triggerRemoteImport(42).subscribe();
+
+    const req = httpMock.expectOne(
+      request => request.method === 'POST' && request.url === `${environment.apiBaseUrl}/admin/import/uniprot/remote`,
+    );
+    expect(req.request.params.get('filterId')).toBe('42');
+    expect(req.request.body).toBeNull();
+    req.flush({id: 'remote-job'});
   });
 
   it('should GET paged jobs', () => {
