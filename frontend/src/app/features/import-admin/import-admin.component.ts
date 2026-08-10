@@ -89,6 +89,7 @@ export class ImportAdminComponent implements OnDestroy {
   pageSize = signal<number>(5);
   pageIndex = signal<number>(0);
   forceLoadHistory = signal<boolean>(false);
+  activeJobId = signal<string | null>(null);
   private readonly savedFiltersService = inject(SavedFiltersService);
 
   private pollingSubscription?: Subscription;
@@ -202,6 +203,7 @@ export class ImportAdminComponent implements OnDestroy {
     this.importService.triggerImport(file).subscribe({
       next: (job) => {
         if (job?.id) {
+          this.activeJobId.set(job.id);
           this.startPolling(job.id);
           return;
         }
@@ -227,6 +229,7 @@ export class ImportAdminComponent implements OnDestroy {
     this.importService.triggerRemoteImport(filterId).subscribe({
       next: (job) => {
         if (job?.id) {
+          this.activeJobId.set(job.id);
           this.startPolling(job.id);
           return;
         }
@@ -269,7 +272,7 @@ export class ImportAdminComponent implements OnDestroy {
 
   private startPolling(jobId: string): void {
     this.stopPolling();
-    this.pollingSubscription = interval(5000)
+    this.pollingSubscription = interval(3000)
       .pipe(
         switchMap(() => this.importService.getJobProgress(jobId)),
         takeWhile(
@@ -279,10 +282,19 @@ export class ImportAdminComponent implements OnDestroy {
       )
       .subscribe({
         next: (jobProgress) => {
-          this.currentProgress.set(jobProgress.progressPercent || 0);
+          const newProgress = jobProgress.progressPercent || 0;
+          this.currentProgress.set(newProgress);
+          this.jobHistory.update(history =>
+            history.map(job => job.id === jobId ? {
+              ...job,
+              progressPercent: newProgress,
+              status: jobProgress.status
+            } : job)
+          );
           if (jobProgress.status === 'COMPLETED' || jobProgress.status === 'FAILED') {
             this.isUploading.set(false);
             this.selectedFile.set(null);
+            this.activeJobId.set(null);
             this.loadJobHistory();
             if (jobProgress.status === 'FAILED') {
               this.errorMessage.set(`Import job ${jobId} failed to complete.`);
@@ -292,6 +304,7 @@ export class ImportAdminComponent implements OnDestroy {
         error: () => {
           this.errorMessage.set('Lost connection to server while checking import status');
           this.isUploading.set(false);
+          this.activeJobId.set(null);
           this.stopPolling();
         },
       });
@@ -306,7 +319,7 @@ export class ImportAdminComponent implements OnDestroy {
 
   private loadJobHistory(): void {
     this.stopLoadHistory();
-    this.historySubscription = interval(2000)
+    this.historySubscription = interval(3000)
       .pipe(
         switchMap(() => {
           const hasRunning = this.jobHistory().some((job) => job.status === 'RUNNING');
@@ -329,6 +342,13 @@ export class ImportAdminComponent implements OnDestroy {
           this.jobHistory.set(history.content);
           this.totalJobs.set(history.totalElements);
           this.forceLoadHistory.set(false);
+          const activeId = this.activeJobId();
+          if (activeId) {
+            const activeRow = history.content.find(j => j.id === activeId);
+            if (activeRow) {
+              this.currentProgress.set(activeRow.progressPercent || 0);
+            }
+          }
         },
         error: () => {
           this.errorMessage.set('Lost connection to server while loading job history');
