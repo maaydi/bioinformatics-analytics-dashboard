@@ -1,17 +1,20 @@
 # Bioinformatics Analytics Dashboard
 
-> Explore, visualize, and analyze **UniProt protein/gene data** — from raw `.dat` import to interactive charts, all in
-> one platform.
+> **v2.0** — Explore, visualize, and analyze **UniProt protein/gene data** from both **remote UniProt.org API** (150M+
+> entries)
+> and **local database** (570K+ entries). Filter, import, visualize, and export — all in one unified platform.
 > Built with **Angular 21**, **Spring Boot 4**, and **PostgreSQL 16**.
 ---
 
 ## ✨ What It Does
 
-|                                                                                      |                                                                                              |
-|--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| 🔬 **Explore** 570K+ UniProt protein entries with multi-field search and filters     | 📊 **Visualize** protein distributions via histograms, bar charts, pie charts, and KPI cards |
-| 📥 **Import** UniProt `.dat` / `.tsv` files (up to 2 GB) with live progress tracking | 📋 **Inspect** full protein detail: sequence, GO terms, features, cross-references           |
-| 💾 **Export** filtered results as CSV                                                | 🔖 **Save** and reload filter combinations across sessions                                   |
+|                                                                                                |                                                                                              |
+|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| 🌐 **Remote Explore** 150+ million UniProt proteins directly from UniProt.org API              | 📊 **Visualize** protein distributions via histograms, bar charts, pie charts, and KPI cards |
+| 🔬 **Local Explore** 570K+ imported UniProt entries with advanced multi-field search & filters | 📥 **Import** remote data into local PostgreSQL with live progress tracking                  |
+| 💾 **Export** filtered results (local or remote) as RFC 4180 CSV                               | 🔖 **Save** and reload filter combinations across sessions                                   |
+| 🌙 **Dark Mode** Full dark theme support for comfortable extended exploration                  | 🔐 **Update Password** Secure user profile management with password reset                    |
+| 📋 **Inspect** full protein detail: sequence, GO terms, features, cross-references             | ⚡ **Filter Remote Data** Apply 15+ filter dimensions to 150M UniProt entries in real-time   |
 
 ---
 
@@ -59,7 +62,7 @@
 # Clone and configure
 git clone <repo-url>
 cd bioinformatics-analytics-dashboard
-cp .env.example .env   # fill in DB credentials + JWT secret
+cp .env.example .env   # fill in DB credentials + JWT secret + UniProt API base URL
 # Start everything with Docker
 docker compose up --build
 # → Frontend: http://localhost
@@ -78,17 +81,37 @@ cd frontend && npm install && npm start        # http://localhost:4200
 |---|---|---|
 | `user_test` | `password` | User |
 | `admin_test` | `admin123` | Admin |
+
+---
+
+## 🔄 Dual-Mode Data Exploration
+
+### Remote Mode (UniProt.org API)
+
+- **150M+ live protein entries** from UniProt.org
+- **Real-time filtering** on 15+ dimensions (accession, organism, GO terms, length, etc.)
+- **No local storage required** — query remote API directly
+- **Fast read-only access** for discovery and analysis
+
+### Local Mode (PostgreSQL)
+
+- **Import remote data** into local database for persistence
+- **Materialized views** for instant analytics and KPI dashboards
+- **Full-text search** on sequence, description, and keywords
+- **Batch processing** with 570K+ entries for heavy lifting
+
 ---
 
 ## 🛠 Tech Stack
 
-| Layer    | Technology                                                        |
-|----------|-------------------------------------------------------------------|
-| Frontend | Angular 21 — signals, standalone components, AG Grid, ECharts     |
-| Backend  | Spring Boot 4, Java 25 — layered REST API, Spring Batch import    |
-| Database | PostgreSQL 16 — materialized views, GIN indexes, full-text search |
-| Auth     | Spring Security + JWT (HS256)                                     |
-| Infra    | Docker Compose, Flyway migrations, nginx                          |
+| Layer    | Technology                                                               |
+|----------|--------------------------------------------------------------------------|
+| Frontend | Angular 21 — signals, standalone components, AG Grid, ECharts, dark mode |
+| Backend  | Spring Boot 4, Java 25 — layered REST API, Spring Batch, UniProt proxy   |
+| Database | PostgreSQL 16 — materialized views, GIN indexes, full-text search        |
+| APIs     | UniProt REST API integration for live 150M+ protein dataset              |
+| Auth     | Spring Security + JWT (HS256), password management                       |
+| Infra    | Docker Compose, Flyway migrations, nginx, Redis caching                  |
 ---
 
 ## 📁 Project Structure
@@ -105,13 +128,42 @@ Full details in [`documentation/`](documentation/).
 
 ## ⚡ Performance Targets
 
-| Operation              | Target      |
-|------------------------|-------------|
-| Gene list load         | ≤ 1 s (p95) |
-| Filtered search        | ≤ 2 s (p95) |
-| Dashboard KPIs         | ≤ 500 ms    |
-| CSV export (10K rows)  | ≤ 5 s       |
-| Full Swiss-Prot import | No timeout  |
+| Operation                      | Target      |
+|--------------------------------|-------------|
+| Remote UniProt API search      | ≤ 3 s (p95) |
+| Local gene list load           | ≤ 1 s (p95) |
+| Local filtered search          | ≤ 2 s (p95) |
+| Dashboard KPIs                 | ≤ 500 ms    |
+| CSV export (up to 100K rows)   | ≤ 5 s       |
+| Remote data import to local DB | Streaming   |
+| Full Swiss-Prot import         | No timeout  |
+
+---
+
+## 🎯 v2.0 Key Features
+
+### Remote Data Access
+
+- **Live UniProt.org integration** — access 150+ million protein entries without local storage
+- **Advanced filtering** — search by accession, organism, protein length, GO terms, reviewed status, and more
+- **Pagination & sorting** — handle large result sets efficiently
+- **Caching layer** — optimized API queries with Redis
+
+### Local Import & Visualization
+
+- **Selective import** — cherry-pick filtered results from UniProt and import into local PostgreSQL
+- **Batch processing** — handle millions of records with Spring Batch
+- **Real-time progress** — live import tracking with cancel support
+- **Materialized views** — pre-aggregated analytics for instant dashboard KPIs
+
+### User Experience
+
+- **🌙 Dark Mode** — full UI theme toggle for comfortable nighttime browsing
+- **🔐 Password Management** — secure profile updates and password reset workflows
+- **💾 CSV Export** — download filtered datasets (up to 100K rows) in RFC 4180 CSV format
+- **📌 Saved Filters** — persist and reload custom filter combinations for repeated queries
+- **Responsive design** — works seamlessly on desktop, tablet, and mobile devices
+
 ---
 
 ## 🤝 Contributing
