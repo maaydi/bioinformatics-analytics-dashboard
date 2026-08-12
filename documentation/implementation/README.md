@@ -56,6 +56,7 @@ documentation/implementation/
 | `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                | `not-started` |
 | `NLQ-001`       | Natural Language Query & AI Summarization Engine                             | `not-started` |
 | `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `not-started` |
+| `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                         | `not-started` | 
 
 ## Chronological Implementation Order (Recommended)
 
@@ -83,6 +84,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 18    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                              | Users can interactively explore a protein's 3D structure directly from its Gene Detail page                                             |
 | 19    | `NLQ-001`       | `not-started` | Natural Language Query & AI Summarization Engine                           | Users can ask questions about proteins in plain English and receive relevant results with AI-generated summaries                        |
 | 20    | `PIPE-001`      | `not-started` | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
+| 21    | `ARCH-001`      | `not-started` | Microservices Architecture Migration (Strangler Fig)                       | No changes for Users                                                                                                                    |
 
 ## End-User Validation Milestones
 
@@ -102,3 +104,4 @@ Use these milestone checks after each phase to confirm user-visible progress.
    other uniprot source REST.
 8. **Strategic Features** leverage existing architecture (`STRUCT-001` + `NLQ-001` + `PIPE-001`) to deliver genuine
    added value.
+9. **Microservice Architecture** migration (`ARCH-001`)
