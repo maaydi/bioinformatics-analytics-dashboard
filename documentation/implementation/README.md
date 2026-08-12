@@ -52,31 +52,33 @@ documentation/implementation/
 | `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                | `done`        |     
 | `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `done`        |
 | `REFACTOR-001`  | Refctoring - Pluggable Data Provider Architecture                            | `done`        |
-| `RDF-001`       | User can fetch data from uniprot RDF data source                             | `in-progress` |
+| `REMOTE-001`    | User can fetch data from UniProtKB Remote Provider (GeneService over REST)   | `done`        |
+| `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                | `not-started` |
 
 ## Chronological Implementation Order (Recommended)
 
 Implement tickets in this order so dependencies are respected and each increment is visible to end users.
 
-| Order | Ticket          | Status        | Why Now                                                      | End-User Visible Result                                                            |
-|-------|-----------------|---------------|--------------------------------------------------------------|------------------------------------------------------------------------------------|
-| 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access | Users can log in/out, refresh sessions, and access only authorized pages           |
-| 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration      | Admin can upload UniProt files and monitor import jobs                             |
-| 3     | `GENE-001`      | `done`        | Core backend APIs needed by all gene views                   | `/api/genes` list/search/detail/export endpoints become functional                 |
-| 4     | `GENE-002`      | `done`        | Filter UX depends on search contract from `GENE-001`         | Users can apply complex filters and see active filter chips                        |
-| 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs             | Users can browse, sort, paginate, and open gene rows                               |
-| 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                  | Users can inspect full protein details, sequence, annotations, and references      |
-| 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources              | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets           |
-| 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                       | Users see dashboard KPI cards and charts with fast load times                      |
-| 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational      | Users can save, reload, and delete personal filter presets                         |
-| 10    | `EXPORT-001`    | `done`        | Export is meaningful after search/table/charts are stable    | Users can export filtered CSV and chart PNG images                                 |
-| 11    | `COMPARE-001`   | `done`        | Compare mode reuses filters + analytics foundation           | Users can compare two populations side by side                                     |
-| 12    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins        | Improve import performance for the whole UNIPROT data                              |     
-| 13    | `OPS-001`       | `done`        | Hardening after core features are in place                   | Better reliability: health probes, throttling, auditability, safe page-size limits |
-| 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                | Distributed Caching with Batch Eviction Hooks                                      |     
-| 15    | `A11Y-001`      | `done`        | Final polish/certification after features are complete       | Improved accessibility, theme toggle, consistent states, password update flow      |
-| 15    | `REFACTOR-001`  | `done`        | Pluggable Data Provider Architecture                         | No changes for end-user                                                            |
-| 15    | `RDF-001`       | `in-progress` | User can fetch data from uniprot RDF data source             | Toggle data source to use local DB or remote uniprot RDF data                      |
+| Order | Ticket          | Status        | Why Now                                                                    | End-User Visible Result                                                            |
+|-------|-----------------|---------------|----------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access               | Users can log in/out, refresh sessions, and access only authorized pages           |
+| 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration                    | Admin can upload UniProt files and monitor import jobs                             |
+| 3     | `GENE-001`      | `done`        | Core backend APIs needed by all gene views                                 | `/api/genes` list/search/detail/export endpoints become functional                 |
+| 4     | `GENE-002`      | `done`        | Filter UX depends on search contract from `GENE-001`                       | Users can apply complex filters and see active filter chips                        |
+| 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs                           | Users can browse, sort, paginate, and open gene rows                               |
+| 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                                | Users can inspect full protein details, sequence, annotations, and references      |
+| 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources                            | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets           |
+| 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                                     | Users see dashboard KPI cards and charts with fast load times                      |
+| 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational                    | Users can save, reload, and delete personal filter presets                         |
+| 10    | `EXPORT-001`    | `done`        | Export is meaningful after search/table/charts are stable                  | Users can export filtered CSV and chart PNG images                                 |
+| 11    | `COMPARE-001`   | `done`        | Compare mode reuses filters + analytics foundation                         | Users can compare two populations side by side                                     |
+| 12    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins                      | Improve import performance for the whole UNIPROT data                              |     
+| 13    | `OPS-001`       | `done`        | Hardening after core features are in place                                 | Better reliability: health probes, throttling, auditability, safe page-size limits |
+| 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                              | Distributed Caching with Batch Eviction Hooks                                      |     
+| 15    | `A11Y-001`      | `done`        | Final polish/certification after features are complete                     | Improved accessibility, theme toggle, consistent states, password update flow      |
+| 15    | `REFACTOR-001`  | `done`        | Pluggable Data Provider Architecture                                       | No changes for end-user                                                            |
+| 15    | `REMOTE-001`    | `done`        | User can fetch data from UniProtKB Remote Provider (GeneService over REST) | Toggle data source to use local DB or remote UniProtKB Remote Provider             |
+| 15    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                              | Integrate an interactive 3D protein structure viewer into the Gene Detail page     |
 
 ## End-User Validation Milestones
 
@@ -92,5 +94,6 @@ Use these milestone checks after each phase to confirm user-visible progress.
    compare cohorts.
 6. **Production Ready UX/Ops** (`OPS-001` + `CACHE-001` + `A11Y-001`): platform is hardened and accessible with reliable
    runtime behavior.
-7. **Multi-Data Provider** (`REFACTOR-001` + `RDF-001`) : Users can search/filter/sort/save filters, export data from
-   other uniprot source RDF.
+7. **Multi-Data Provider** (`REFACTOR-001` + `REMOTE-001`) : Users can search/filter/sort/save filters, export data from
+   other uniprot source REST.
+8. **Strategic Features** leverage existing architecture (`STRUCT-001`) to deliver genuine added value.
