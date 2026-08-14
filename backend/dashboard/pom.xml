@@ -143,6 +143,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- ── Test ────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
