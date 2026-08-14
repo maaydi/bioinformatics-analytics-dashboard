@@ -50,3 +50,6 @@ logging:
   file:
     name: bioinformatic.log
     path: ${java.io.tmpdir}/bio-logs
+
+common:
+  enabled: false
