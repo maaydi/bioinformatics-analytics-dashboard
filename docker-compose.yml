@@ -44,14 +44,14 @@ services:
   # ── Spring Boot Backend ────────────────────────────────────────────────────
   backend:
     build:
-      context: ./backend
-      dockerfile: ../devops/docker/backend/Dockerfile
+      context: ./backend/dashboard
+      dockerfile: ../../devops/docker/backend/Dockerfile
     container_name: bio_backend
     restart: unless-stopped
     env_file: .env
     environment:
       # Database configuration
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       # JWT configuration

@@ -72,7 +72,7 @@ docker compose up --build
 **Local development** (without Docker):
 ```bash
 # Start PostgreSQL, then:
-cd backend  && ./mvnw spring-boot:run          # http://localhost:8080
+cd backend/dashboard  && ./mvnw spring-boot:run          # http://localhost:8080
 cd frontend && npm install && npm start        # http://localhost:4200
 ```
 
@@ -117,10 +117,10 @@ cd frontend && npm install && npm start        # http://localhost:4200
 ## 📁 Project Structure
 
 ```
-backend/       → Spring Boot (controller → service → repository → dto)
-frontend/      → Angular features: dashboard, genes, analytics, import-admin, auth
-documentation/ → Specs: api-contract, domain-model, validation-rules, overview
-devops/        → Dockerfiles, nginx config, shell scripts
+backend/dashboard       → Spring Boot (controller → service → repository → dto)
+frontend/               → Angular features: dashboard, genes, analytics, import-admin, auth
+documentation/          → Specs: api-contract, domain-model, validation-rules, overview
+devops/                 → Dockerfiles, nginx config, shell scripts
 ```
 
 Full details in [`documentation/`](documentation/).

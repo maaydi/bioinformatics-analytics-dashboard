@@ -82,7 +82,7 @@ restart_redis() {
 
 start_backend() {
   echo "==> [Backend] Building Spring Boot application..."
-  cd "$ROOT_DIR/backend"
+  cd "$ROOT_DIR/backend/dashboard"
   mvn clean install -DskipTests
 
   echo "==> [Backend] Starting Spring Boot application..."
