@@ -125,11 +125,27 @@
 
 ---
 
+### 2026-08-14 — Common Starter Implementation Completed
+
+**Action:** Implemented the shared `common-starter` module under `backend/libs/common-starter/` with the foundational
+Spring Boot auto-configuration needed by the extracted services.
+
+**Outcome:** Phase 0.1 is now complete at the code level:
+
+- Shared auto-configuration entry point is in place
+- JWT validation, security defaults, and global exception handling are provided centrally
+- Routing data source support, Kafka producer/consumer configuration, resilience defaults, tracing, and WebClient
+  configuration are available for downstream services
+
+**Notes:** Local publication and service dependency adoption remain tracked separately in `plan.md`.
+
+---
+
 ## Coverage Tracking
 
 | Component            | Coverage Target | Current | Status         |
 |----------------------|-----------------|---------|----------------|
-| common-starter       | ≥ 80%           | 0%      | ⏳ Not started |
+| common-starter       | ≥ 80%           | TBD     | ✅ Implemented |
 | api-gateway          | ≥ 75%           | 0%      | ⏳ Not started |
 | auth-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
@@ -143,4 +159,4 @@
 
 ---
 
-**Last Updated:** 2026-08-12
+**Last Updated:** 2026-08-14

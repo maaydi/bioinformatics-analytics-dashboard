@@ -83,17 +83,17 @@ decommissioned.
 
 #### 0.1 Shared Common Library (`libs/common-starter/`)
 
-- [ ] Create `common-starter` Spring Boot starter module:
-    - [ ] `CommonAutoConfiguration` — `@AutoConfiguration` with `@ConditionalOnProperty`
-    - [ ] `JwtDecoderConfig` — validates JWT using shared secret (from Config Server)
-    - [ ] `Resilience4jConfig` — default circuit breaker, retry, rate limiter beans
-    - [ ] `RoutingDataSourceConfig` — `AbstractRoutingDataSource` with PRIMARY/REPLICA keys
-    - [ ] `KafkaProducerConfig` — `KafkaTemplate` with JSON serializer for domain events
-    - [ ] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
-    - [ ] `TracingConfig` — Micrometer tracing with Brave propagation
-    - [ ] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
-    - [ ] `SecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
-    - [ ] `GlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
+- [x] Create `common-starter` Spring Boot starter module:
+  - [x] `CommonAutoConfiguration` — `@AutoConfiguration` with `@ConditionalOnProperty`
+  - [x] `JwtDecoderConfig` — validates JWT using shared secret (from Config Server)
+  - [x] `Resilience4jConfig` — default circuit breaker, retry, rate limiter beans
+  - [x] `RoutingDataSourceConfig` — `AbstractRoutingDataSource` with PRIMARY/REPLICA keys
+  - [x] `KafkaProducerConfig` — `KafkaTemplate` with JSON serializer for domain events
+  - [x] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
+  - [x] `TracingConfig` — Micrometer tracing with Brave propagation
+  - [x] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
+  - [x] `SecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
+  - [x] `GlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
 - [ ] Publish to local Maven repository (`./mvnw install`)
 - [ ] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
 
