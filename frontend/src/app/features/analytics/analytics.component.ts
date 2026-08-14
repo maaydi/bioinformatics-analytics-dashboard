@@ -130,6 +130,7 @@ export class AnalyticsComponent {
    * Toggles the interactive layout view between Analytics and Comparison mode.
    */
   protected switchMode(): void {
+    this.errors.set(null);
     this.isCompareMode.update(mode => !mode);
   }
 
@@ -138,6 +139,12 @@ export class AnalyticsComponent {
     const size = 200;
     this.service.listSavedFilters(page, size).subscribe({
       next: (sf) => {
+        if (sf.totalElements === 0) {
+          this.errors.set(null);
+          this.filters.set([]);
+          this.loading.set(false);
+          return;
+        }
         const allFilters = [...accumulatedFilters, ...(sf.content || [])];
         const isLastPage = sf.totalPages === page + 1;
         if (isLastPage) {

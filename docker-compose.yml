@@ -75,6 +75,12 @@ services:
     volumes:
       - import_uploads:/tmp/import
       - backend_logs:/app/logs
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # ── Angular Frontend (served by nginx) ─────────────────────────────────────
   frontend:
@@ -83,10 +89,14 @@ services:
       dockerfile: ./devops/docker/frontend/Dockerfile
     container_name: bio_frontend
     restart: unless-stopped
+    environment:
+      ANGULAR_API_BASE_URL: http://backend:8080
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+
 
 volumes:
   postgres_data:
