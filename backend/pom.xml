@@ -20,8 +20,8 @@
 
     <modules>
         <module>libs/common-starter</module>
-        <module>dashboard</module>
         <module>infrastructure/discovery-server</module>
+        <module>dashboard</module>
     </modules>
 
     <properties>
