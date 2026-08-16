@@ -41,6 +41,24 @@ services:
       timeout: 3s
       retries: 5
 
+  # ── Server Discovery Eureka ────────────────────────────────────────────────
+  discovery-server:
+    build:
+      context: ./backend/infrastructure/discovery-server
+      dockerfile: ../../../devops/docker/backend/infra/server-discovery/Dockerfile
+    container_name: discovery_server
+    ports:
+      - "8761:8761"
+    environment:
+      - SERVER_PORT=8761
+      - EUREKA_INSTANCE_HOSTNAME=discovery-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ] # SERVER_PORT=8761
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
   # ── Spring Boot Backend ────────────────────────────────────────────────────
   backend:
     build:
@@ -50,6 +68,8 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      # Server configuration
+      SERVER_PORT: ${BACKEND_PORT:-8080}
       # Database configuration
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -65,6 +85,8 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Server discovery
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
@@ -72,11 +94,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      discovery-server:
+        condition: service_healthy
     volumes:
       - import_uploads:/tmp/import
       - backend_logs:/app/logs
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ] # BACKEND_PORT=8080
       interval: 30s
       timeout: 10s
       retries: 3

@@ -110,7 +110,7 @@ decommissioned.
         fetch-registry: false
     ```
 - [x] Health endpoint: `/actuator/health` returns UP
-- [ ] Docker service in `docker-compose.infra.yml`
+- [x] Docker service in `docker-compose.infra.yml`
 
 #### 0.3 Config Server (`infrastructure/config-server/`)
 

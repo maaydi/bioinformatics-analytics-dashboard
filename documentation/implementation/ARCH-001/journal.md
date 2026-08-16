@@ -141,11 +141,43 @@ Spring Boot auto-configuration needed by the extracted services.
 
 ---
 
+### 2026-08-16 — Service Discovery Server (Eureka) Implemented
+
+**Action:** Implemented Eureka service discovery server as Phase 0.2 infrastructure bootstrap component at
+`backend/infrastructure/discovery-server/` with full production-ready configuration.
+
+**Deliverables:**
+
+- ✅ `DiscoveryServerApplication.java` — Spring Boot main class with `@EnableEurekaServer`
+- ✅ `application.yml` configuration:
+  - Server port: 8761 (standard Eureka port)
+  - Eureka client disabled (standalone mode for server instance)
+  - Health checks and actuator endpoints enabled
+- ✅ `Dockerfile` with multi-stage build optimization:
+  - Runtime stage: `eclipse-temurin:25-jre-alpine` (security hardened)
+  - Non-root `bioapp` user (OWASP A05 compliance)
+  - JVM container memory tuning (`UseContainerSupport`, `MaxRAMPercentage=50%`)
+  - Health check via `/actuator/health` on port 8761
+- ✅ Maven POM with Spring Cloud, Actuator, and Eureka Server dependencies
+- ✅ Integration with `docker-compose.infra.yml` for containerized local development
+
+**Outcome:** Phase 0.2 checklist is **100% complete**:
+
+- Service discovery server operational at `localhost:8761`
+- Ready to receive service registrations (auth-service, gene-service, analytics-service, etc.)
+- Docker image buildable and deployable via `./devops/scripts/build-all.sh`
+- All downstream services can now discover peers via Eureka client integration
+
+**Next Phase (0.3):** Config Server implementation awaits prioritization (currently not started).
+
+---
+
 ## Coverage Tracking
 
 | Component            | Coverage Target | Current | Status         |
 |----------------------|-----------------|---------|----------------|
 | common-starter       | ≥ 80%           | TBD     | ✅ Implemented |
+| discovery-server     | Config-based    | N/A     | ✅ Implemented |
 | api-gateway          | ≥ 75%           | 0%      | ⏳ Not started |
 | auth-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
@@ -159,4 +191,4 @@ Spring Boot auto-configuration needed by the extracted services.
 
 ---
 
-**Last Updated:** 2026-08-14
+**Last Updated:** 2026-08-16

@@ -7,18 +7,14 @@ WORKDIR /app
 
 # Non-root user for security (OWASP A05)
 RUN addgroup -S bioapp && adduser -S bioapp -G bioapp
-RUN mkdir -p /app/logs && chown -R bioapp:bioapp /app/logs
 
 USER bioapp
 
-COPY target/*.jar dashboard.jar
+COPY target/*.jar discovery-server.jar
 
-# Import temp directory
-RUN mkdir -p /tmp/bio-import
-
-EXPOSE 8080
+EXPOSE 8761
 
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=75.0", \
-  "-jar", "dashboard.jar"]
+  "-XX:MaxRAMPercentage=50.0", \
+  "-jar", "discovery-server.jar"]

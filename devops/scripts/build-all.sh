@@ -6,9 +6,11 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-echo "==> Building Spring Boot backend..."
-cd "$ROOT_DIR/backend/dashboard"
+echo "==> Building Spring Boot backend services..."
+cd "$ROOT_DIR/backend"
+mvn dependency:go-offline -q
 mvn clean package -DskipTests -q
+echo "    Discovery Server JAR: backend/infrastructure/discovery-server/target/discovery-server-*.jar"
 echo "    Backend JAR: backend/dashboard/target/dashboard-*.jar"
 
 echo "==> Installing frontend dependencies..."

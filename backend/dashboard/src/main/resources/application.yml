@@ -77,7 +77,7 @@ spring:
 
 # ── Server ─────────────────────────────────────────────────────────────────────
 server:
-  port: 0 # randomly picked
+  port: ${SERVER_PORT:0} # randomly picked
 
 # ── Application-specific properties ───────────────────────────────────────────
 app:
@@ -167,12 +167,16 @@ management:
     health:
       probes:
         enabled: true
+  tracing:
+    export:
+      zipkin:
+        enabled: false # TODO change it when enabling zipkin
 
 # ── Eureka configurations ──────────────────────────────────────────────────────
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
     healthcheck:
       enabled: true
     register-with-eureka: true
@@ -185,3 +189,5 @@ eureka:
     metadata-map:
       version: ${application.version}
       profile: ${spring.profiles.active:default}
+common:
+  enabled: false
