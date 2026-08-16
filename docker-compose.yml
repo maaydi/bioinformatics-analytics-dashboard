@@ -162,6 +162,8 @@ services:
     environment:
       # Server configuration
       SERVER_PORT: ${BACKEND_PORT:-8080}
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       # Database configuration
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -182,6 +184,8 @@ services:
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
+      config-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:

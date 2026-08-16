@@ -129,10 +129,10 @@ decommissioned.
               default-label: main
     ```
 - [x] Initialize `config-repo` Git repository with:
-    - [ ] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
+  - [x] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
     - [ ] `api-gateway.yml` — routing table, JWT secret, rate limits
     - [ ] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
-    - [ ] `*-dev.yml`, `*-prod.yml` environment overrides
+  - [x] `*-dev.yml`, `*-prod.yml` environment overrides
 - [ ] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
 - [x] Docker service in `docker-compose.infra.yml`
 

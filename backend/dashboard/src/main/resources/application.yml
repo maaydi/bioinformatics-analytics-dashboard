@@ -6,7 +6,11 @@ application:
 # ── Spring configurations ──────────────────────────────────────────────────────
 spring:
   application:
-    name: bioinformatics-dashboard
+    name: dashboard
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:dev}"
+  config:
+    import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
   devtools:
     livereload:
       enabled: true

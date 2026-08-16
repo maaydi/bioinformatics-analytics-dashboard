@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: ""
   datasource:
     # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
     url:      ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
