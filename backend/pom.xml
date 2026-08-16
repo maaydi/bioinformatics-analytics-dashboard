@@ -21,6 +21,7 @@
     <modules>
         <module>libs/common-starter</module>
         <module>infrastructure/discovery-server</module>
+        <module>infrastructure/config-server</module>
         <module>dashboard</module>
     </modules>
 

@@ -114,8 +114,8 @@ decommissioned.
 
 #### 0.3 Config Server (`infrastructure/config-server/`)
 
-- [ ] `ConfigServerApplication` — `@EnableConfigServer`
-- [ ] `application.yml`:
+- [x] `ConfigServerApplication` — `@EnableConfigServer`
+- [x] `application.yml`:
     ```yaml
     server:
       port: 8888
