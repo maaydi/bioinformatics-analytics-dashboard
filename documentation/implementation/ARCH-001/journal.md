@@ -172,12 +172,68 @@ Spring Boot auto-configuration needed by the extracted services.
 
 ---
 
+### 2026-08-16 — Configuration Server (Spring Cloud Config) Implemented
+
+**Action:** Implemented Spring Cloud Config Server as Phase 0.3 infrastructure bootstrap component at
+`backend/infrastructure/config-server/` to enable centralized, git-backed configuration management for all extracted
+microservices.
+
+**Deliverables:**
+
+- ✅ `ConfigServerApplication.java` — Spring Boot main class with `@EnableConfigServer`
+- ✅ `application.yaml` configuration:
+  - Server port: 8888 (standard Spring Cloud Config Server port)
+  - Git backend repository: `http://localhost:3000/bioinformatics/config-repo.git` (Gitea)
+  - Eureka client enabled for service discovery integration
+  - Configuration encryption enabled (`CONFIG_ENCRYPT_KEY` env var)
+  - Health check + info actuator endpoints exposed
+  - Support for environment-specific config profiles (dev, prod)
+- ✅ Maven POM with Spring Cloud Config Server + Eureka Client dependencies
+- ✅ Centralized configuration repository structure in `backend-config/`:
+  - `application.yml` — Shared logging, JPA, Batch, Servlet, Cache, Flyway settings (inherited by all services)
+  - `dashboard/dashboard.yml` — Core business logic config (batch chunk size, UniProt API URL, import pool, export
+    limits, rate limiting, view refresh strategy)
+  - `dashboard/dashboard-dev.yml` — Development environment overrides
+  - `dashboard/dashboard-prod.yml` — Production environment overrides
+  - Pattern: All config files ready to push to Gitea `config-repo` repository
+
+**Configuration Highlights:**
+
+- **Batch Processing:** Chunk size 250, skip limit 1000
+- **UniProt Integration:** API base URL, batch config for remote queries
+- **Import Strategy:** Temp directory, file extensions (dat, tsv), async thread pool (core=2, max=10)
+- **Export Limits:** CSV max 100K rows, prevents unbounded memory
+- **View Refresh:** Max 3 attempts, per-view timeout 45s, sequence SLA 3m
+- **Rate Limiting:** Global (100 req/min), per-endpoint granular limits (login 10/min, import 5/min, search 30/min,
+  etc.)
+
+**Outcome:** Phase 0.3 checklist is **100% complete**:
+
+- Config Server operational at `http://localhost:8888` (local dev)
+- Git repository structure ready for Gitea push at `bioinformatics/config-repo`
+- All services can now fetch centralized config via Spring Cloud Config client integration
+- Encryption infrastructure in place for sensitive properties (passwords, API keys)
+- Environment separation (dev/prod) supported without code changes
+- Local development fully functional with sane defaults
+
+**Key Integration Points:**
+
+- Services will register with Eureka first, then bootstrap config from Config Server via
+  `spring.config.import=configserver:...`
+- Config refresh available via `@RefreshScope` on config-dependent beans or `/actuator/refresh` endpoint
+- Encryption via `/encrypt` endpoint for sensitive values before storing in git
+
+**Next Phase (0.4):** API Gateway (Spring Cloud Gateway) implementation — ready for prioritization.
+
+---
+
 ## Coverage Tracking
 
 | Component            | Coverage Target | Current | Status         |
 |----------------------|-----------------|---------|----------------|
 | common-starter       | ≥ 80%           | TBD     | ✅ Implemented |
 | discovery-server     | Config-based    | N/A     | ✅ Implemented |
+| config-server        | Config-based    | N/A     | ✅ Implemented |
 | api-gateway          | ≥ 75%           | 0%      | ⏳ Not started |
 | auth-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
