@@ -99,8 +99,8 @@ decommissioned.
 
 #### 0.2 Service Discovery — Eureka Server (`infrastructure/discovery-server/`)
 
-- [ ] `DiscoveryServerApplication` — `@EnableEurekaServer`
-- [ ] `application.yml`:
+- [x] `DiscoveryServerApplication` — `@EnableEurekaServer`
+- [x] `application.yml`:
     ```yaml
     server:
       port: 8761
@@ -109,7 +109,7 @@ decommissioned.
         register-with-eureka: false
         fetch-registry: false
     ```
-- [ ] Health endpoint: `/actuator/health` returns UP
+- [x] Health endpoint: `/actuator/health` returns UP
 - [ ] Docker service in `docker-compose.infra.yml`
 
 #### 0.3 Config Server (`infrastructure/config-server/`)
