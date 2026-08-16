@@ -44,12 +44,8 @@ jobs:
           cache: maven
       - name: Verify Docker
         run: docker version
-      - name: Build common-starter
-        working-directory: backend/libs/common-starter
-        run: mvn -B clean install
-      - name: Test dashboard
-        working-directory: backend/dashboard
-        run: mvn -B test
+      - name: Test with Maven
+        run: mvn -B test --file pom.xml
   frontend-test:
     name: Frontend Tests - Angular
     runs-on: ubuntu-latest

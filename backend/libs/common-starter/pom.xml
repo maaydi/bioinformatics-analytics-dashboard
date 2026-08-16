@@ -8,7 +8,7 @@
         <groupId>com.bioinformatics</groupId>
         <artifactId>bioinformatics</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../../../backend/pom.xml</relativePath>
     </parent>
 
     <artifactId>common-starter</artifactId>
