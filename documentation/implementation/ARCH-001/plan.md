@@ -128,13 +128,13 @@ decommissioned.
               clone-on-start: true
               default-label: main
     ```
-- [ ] Initialize `config-repo` Git repository with:
+- [x] Initialize `config-repo` Git repository with:
     - [ ] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
     - [ ] `api-gateway.yml` — routing table, JWT secret, rate limits
     - [ ] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
     - [ ] `*-dev.yml`, `*-prod.yml` environment overrides
 - [ ] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
-- [ ] Docker service in `docker-compose.infra.yml`
+- [x] Docker service in `docker-compose.infra.yml`
 
 #### 0.4 API Gateway (`infrastructure/api-gateway/`)
 

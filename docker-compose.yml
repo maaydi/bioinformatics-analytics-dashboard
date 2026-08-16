@@ -1,4 +1,112 @@
 services:
+  # ===========================================================================
+  #  INFRASTRUCTURE: Discovery
+  # ===========================================================================
+  discovery-server:
+    build:
+      context: ./backend/infrastructure/discovery-server
+      dockerfile: ../../../devops/docker/backend/infra/server-discovery/Dockerfile
+    container_name: discovery_server
+    ports:
+      - "8761:8761"
+    environment:
+      SERVER_PORT: 8761
+      EUREKA_INSTANCE_HOSTNAME: discovery-server
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ] # SERVER_PORT=8761
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ===========================================================================
+  #  INFRASTRUCTURE: Gitea + Dedicated Postgres
+  # ===========================================================================
+  gitea-db:
+    image: postgres:16-alpine
+    container_name: gitea_db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${GITEA_DB_NAME}
+      POSTGRES_USER: ${GITEA_DB_USER}
+      POSTGRES_PASSWORD: ${GITEA_DB_PASSWORD}
+    volumes:
+      - gitea_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  gitea-server:
+    image: gitea/gitea:latest
+    container_name: gitea-server
+    env_file: .env
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: gitea-db:5432
+      GITEA__database__NAME: ${GITEA_DB_NAME}
+      GITEA__database__USER: ${GITEA_DB_USER}
+      GITEA__database__PASSWD: ${GITEA_DB_PASSWORD:-gitea_secure_password}
+      GITEA__server__ROOT_URL: http://localhost:3000
+      GITEA__server__HTTP_PORT: 3000
+      GITEA__service__DISABLE_REGISTRATION: false
+    volumes:
+      - gitea_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${GITEA_HTTP_PORT:-3000}:3000"
+      - "${GITEA_SSH_PORT:-222}:22"
+    depends_on:
+      gitea-db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/healthz" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ===========================================================================
+  #  INFRASTRUCTURE: Config Server
+  # ===========================================================================
+  config-server:
+    build:
+      context: ./backend/infrastructure/config-server
+      dockerfile: ../../../devops/docker/backend/infra/config-server/Dockerfile
+    container_name: config_server
+    environment:
+      SERVER_PORT: 8888
+      CONFIG_REPO_URI: http://gitea-server:3000/bioinformatics/config-repo.git
+      GITEA_USER: ${GITEA_CONFIG_USER:-config-user}
+      GITEA_PASSWORD: ${GITEA_CONFIG_PASSWORD:-config-pass}
+      CONFIG_ENCRYPT_KEY: ${CONFIG_ENCRYPT_KEY:-ChangeMeInProduction-32CharKey!!}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: config-server
+    ports:
+      - "${CONFIG_SERVER_PORT:-8888}:8888"
+    depends_on:
+      gitea-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+
+  # ===========================================================================
+  #  Application
+  # ===========================================================================
 
   # ── PostgreSQL 16 ───────────────────────────────────────────────────────────
   postgres:
@@ -42,23 +150,7 @@ services:
       retries: 5
 
   # ── Server Discovery Eureka ────────────────────────────────────────────────
-  discovery-server:
-    build:
-      context: ./backend/infrastructure/discovery-server
-      dockerfile: ../../../devops/docker/backend/infra/server-discovery/Dockerfile
-    container_name: discovery_server
-    ports:
-      - "8761:8761"
-    environment:
-      - SERVER_PORT=8761
-      - EUREKA_INSTANCE_HOSTNAME=discovery-server
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ] # SERVER_PORT=8761
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+
   # ── Spring Boot Backend ────────────────────────────────────────────────────
   backend:
     build:
@@ -127,3 +219,5 @@ volumes:
   import_uploads:
   redis_data:
   backend_logs:
+  gitea_db_data:
+  gitea_data:
