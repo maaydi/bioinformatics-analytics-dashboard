@@ -102,6 +102,38 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+  # ===========================================================================
+  #  INFRASTRUCTURE: API Gateway Server
+  # ===========================================================================
+  api-gateway:
+    build:
+      context: ./backend/infrastructure/api-gateway
+      dockerfile: ../../../devops/docker/backend/infra/api-gateway/Dockerfile
+    container_name: api_gateway
+    environment:
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: ${JWT_SECRET}
+      # Redis configuration
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Server discovery
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 
   # ===========================================================================
@@ -181,8 +213,6 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       # Server discovery
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       config-server:
         condition: service_healthy
@@ -210,7 +240,7 @@ services:
     container_name: bio_frontend
     restart: unless-stopped
     environment:
-      ANGULAR_API_BASE_URL: http://backend:8080
+      ANGULAR_API_BASE_URL: http://api-gateway:8080
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:

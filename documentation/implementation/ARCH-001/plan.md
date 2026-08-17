@@ -195,7 +195,7 @@ decommissioned.
   - [x] Fallback: 503 with `Retry-After` header
   - [x] Excludes `/api/v1/auth/**` from CB (auth must fail fast with 401/403)
 - [x] `CorsGatewayConfig` — central CORS configuration (replaces monolith CORS)
-- [ ] Docker service in `docker-compose.infra.yml` exposing port 8080
+- [x] Docker service in `docker-compose.infra.yml` exposing port 8080
 
 #### 0.5 Message Broker — Kafka (`docker-compose.infra.yml`)
 
