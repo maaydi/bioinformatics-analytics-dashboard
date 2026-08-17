@@ -23,6 +23,7 @@
         <module>infrastructure/discovery-server</module>
         <module>infrastructure/config-server</module>
         <module>dashboard</module>
+        <module>libs/shared-models</module>
     </modules>
 
     <properties>

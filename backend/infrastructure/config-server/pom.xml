@@ -12,9 +12,6 @@
     <artifactId>config-server</artifactId>
     <name>config-server</name>
     <description>Configuration Server</description>
-    <properties>
-        <spring-cloud.version>2025.1.2</spring-cloud.version>
-    </properties>
 
     <dependencies>
         <dependency>
