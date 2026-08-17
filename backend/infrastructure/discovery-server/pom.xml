@@ -10,8 +10,8 @@
     </parent>
 
     <artifactId>discovery-server</artifactId>
-    <name>discovery-server</name>
-    <description>Service Discovery - Eureka Server</description>
+    <name>Discovery Server</name>
+    <description>Bioinformatics Analytics Dashboard - Discovery Server</description>
 
     <dependencies>
         <dependency>
@@ -31,6 +31,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/banner.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

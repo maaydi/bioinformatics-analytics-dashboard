@@ -9,8 +9,8 @@
         <relativePath>../../../backend/pom.xml</relativePath>
     </parent>
     <artifactId>api-gateway</artifactId>
-    <name>api-gateway</name>
-    <description>API Gateway server</description>
+    <name>API Gateway Server</name>
+    <description>Bioinformatics Analytics Dashboard — API Gateway Server</description>
 
     <dependencies>
         <dependency>
@@ -67,6 +67,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/banner.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -15,8 +15,14 @@
     <artifactId>bioinformatics</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-    <name>bioinformatics</name>
-    <description>Parent POM for Bioinformatics microservices</description>
+    <name>BioInformatics Analytics Dashboard</name>
+    <description>Bioinformatics Analytics Dashboard - Microservices</description>
+    <developers>
+        <developer>
+            <id>maaydi</id>
+            <name>Mohamed Ali AIDI</name>
+        </developer>
+    </developers>
 
     <modules>
         <module>libs/common-starter</module>

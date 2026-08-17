@@ -10,8 +10,8 @@
     </parent>
 
     <artifactId>config-server</artifactId>
-    <name>config-server</name>
-    <description>Configuration Server</description>
+    <name>Configuration Server</name>
+    <description>Bioinformatics Analytics Dashboard — Configuration Server</description>
 
     <dependencies>
         <dependency>
@@ -36,6 +36,15 @@
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/banner.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

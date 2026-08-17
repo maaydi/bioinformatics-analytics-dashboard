@@ -12,8 +12,8 @@
     </parent>
 
     <artifactId>dashboard</artifactId>
-    <name>bioinformatics-dashboard</name>
-    <description>Bioinformatics Analytics Dashboard — Spring Boot Backend</description>
+    <name>Analytics Dashboard</name>
+    <description>Bioinformatics Analytics Dashboard — Backend Application</description>
 
 
     <dependencies>
@@ -209,6 +209,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/banner.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
