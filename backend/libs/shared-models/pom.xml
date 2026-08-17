@@ -13,7 +13,7 @@
 
 
     <artifactId>shared-models</artifactId>
-    <name>Archetype - shared-models</name>
+    <name>shared-models</name>
     <description>Shared common library for Bioinformatics microservices</description>
 
     <dependencies>
