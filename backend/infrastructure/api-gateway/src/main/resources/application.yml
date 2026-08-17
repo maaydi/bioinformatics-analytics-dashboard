@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:dev}"
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: dashboard
+              uri: lb://dashboard
+              predicates:
+                - Path=/api/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: dashboardCircuitBreaker
+                    fallbackUri: forward:/fallback/dashboard
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+      connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
+      client-name: bioinformatics-api-gateway
+      client-type: lettuce
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true

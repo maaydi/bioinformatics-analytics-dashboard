@@ -138,8 +138,8 @@ decommissioned.
 
 #### 0.4 API Gateway (`infrastructure/api-gateway/`)
 
-- [ ] `GatewayApplication` — `@EnableDiscoveryClient`
-- [ ] `application.yml` — routing predicates per service:
+- [x] `GatewayApplication` — `@EnableDiscoveryClient`
+- [x] `application.yml` — routing predicates per service:
     ```yaml
     spring:
       cloud:
@@ -182,19 +182,19 @@ decommissioned.
               predicates:
                 - Path=/api/v1/audit/**
     ```
-- [ ] `JwtGatewayFilter` — `GlobalFilter` that:
-    - [ ] Extracts `Authorization: Bearer <token>` header
-    - [ ] Validates JWT signature and expiry
-    - [ ] Adds `X-User-Id`, `X-User-Role`, `X-Data-Provider` headers to downstream requests
-    - [ ] Returns 401 if token missing/invalid (no downstream call)
-- [ ] `RateLimitGatewayFilter` — Redis-backed rate limiter (Bucket4j or Spring Cloud Gateway Redis RateLimiter):
-    - [ ] Default: 100 req/min per user per route
-    - [ ] `/api/v1/nlq/**`: 10 req/min (protects LLM cost)
-    - [ ] `/api/v1/exports/**`: 20 req/min
-- [ ] `CircuitBreakerGatewayFilter` — Resilience4j for each route:
-    - [ ] Fallback: 503 with `Retry-After` header
-    - [ ] Excludes `/api/v1/auth/**` from CB (auth must fail fast with 401/403)
-- [ ] `CorsGatewayConfig` — central CORS configuration (replaces monolith CORS)
+- [x] `JwtGatewayFilter` — `GlobalFilter` that:
+  - [x] Extracts `Authorization: Bearer <token>` header
+  - [x] Validates JWT signature and expiry
+  - [x] Adds `X-User-Id`, `X-User-Role`, `X-Data-Provider` headers to downstream requests
+  - [x] Returns 401 if token missing/invalid (no downstream call)
+- [x] `RateLimitGatewayFilter` — Redis-backed rate limiter (Bucket4j or Spring Cloud Gateway Redis RateLimiter):
+  - [x] Default: 100 req/min per user per route
+  - [x] `/api/v1/nlq/**`: 10 req/min (protects LLM cost)
+  - [x] `/api/v1/exports/**`: 20 req/min
+- [x] `CircuitBreakerGatewayFilter` — Resilience4j for each route:
+  - [x] Fallback: 503 with `Retry-After` header
+  - [x] Excludes `/api/v1/auth/**` from CB (auth must fail fast with 401/403)
+- [x] `CorsGatewayConfig` — central CORS configuration (replaces monolith CORS)
 - [ ] Docker service in `docker-compose.infra.yml` exposing port 8080
 
 #### 0.5 Message Broker — Kafka (`docker-compose.infra.yml`)
