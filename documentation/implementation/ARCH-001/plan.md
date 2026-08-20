@@ -275,7 +275,7 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.2 Database & Schema
 
-- [ ] Flyway migration `V1__auth_schema.sql`:
+- [x] Flyway migration `V1__auth_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS auth;
     CREATE TABLE auth.app_user (
