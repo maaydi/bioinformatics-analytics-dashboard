@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: auth-service
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:dev}"
+  config:
+    import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
+
+
+# ── Server ─────────────────────────────────────────────────────────────────────
+server:
+  port: ${SERVER_PORT:0} # randomly picked
+
+# ── Eureka configurations ──────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    metadata-map:
+      version: ${application.version}
+      profile: ${spring.profiles.active:default}
+
+common:
+  enabled: true

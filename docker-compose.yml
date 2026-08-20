@@ -181,7 +181,43 @@ services:
       timeout: 3s
       retries: 5
 
-  # ── Server Discovery Eureka ────────────────────────────────────────────────
+  # ── Authentication Service ────────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: ../../devops/docker/backend/services/auth-service/Dockerfile
+    container_name: auth_service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Server configuration
+      SERVER_PORT: ${AUTH_SERVICE_PORT:-8081}
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      # Database configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # JWT configuration
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
+      JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ] # AUTH_SERVICE_PORT=8081
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # ── Spring Boot Backend ────────────────────────────────────────────────────
   backend:

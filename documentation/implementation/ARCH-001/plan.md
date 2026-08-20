@@ -267,11 +267,11 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.1 Service Setup
 
-- [ ] `AuthServiceApplication` — `@SpringBootApplication`, `@EnableDiscoveryClient`
-- [ ] `bootstrap.yml` — Config Server location, Eureka registration, profile
-- [ ] Dependencies: `common-starter`, `spring-cloud-starter-netflix-eureka-client`, `spring-boot-starter-data-jpa`,
+- [x] `AuthServiceApplication` — `@SpringBootApplication`, `@EnableDiscoveryClient`
+- [x] `bootstrap.yml` — Config Server location, Eureka registration, profile
+- [x] Dependencies: `common-starter`, `spring-cloud-starter-netflix-eureka-client`, `spring-boot-starter-data-jpa`,
   `spring-boot-starter-security`, `jjwt`, `bcrypt`
-- [ ] Port: `8081`
+- [x] Port: `8081` Could be `0` as the application use Eureka for registration
 
 #### 1.2 Database & Schema
 
