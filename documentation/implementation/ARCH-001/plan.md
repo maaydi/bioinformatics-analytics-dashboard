@@ -297,7 +297,7 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ```
-- [ ] `AppUser` entity — `@Table(schema = "auth", name = "app_user")`
+- [x] `AppUser` entity — `@Table(schema = "auth", name = "app_user")`
 - [ ] `RefreshToken` entity — `@Table(schema = "auth", name = "refresh_token")`
 - [ ] `AppUserRepository`, `RefreshTokenRepository`
 - [ ] Routing DataSource: auth-service uses PRIMARY only (writes)
