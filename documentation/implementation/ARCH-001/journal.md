@@ -227,6 +227,42 @@ microservices.
 
 ---
 
+### 2026-08-20 — API Gateway (Spring Cloud Gateway) Implemented
+
+**Action:** Implemented the API Gateway as Phase 0.4 infrastructure component at
+`backend/infrastructure/api-gateway/` and wired it into the local compose stack for end-to-end routing.
+
+**Deliverables:**
+
+- ✅ `ApiGatewayApplication.java` — Spring Boot main class with `@SpringBootApplication`
+- ✅ `application.yml` — gateway configuration with:
+  - Route definitions for `auth-service`, `gene-service`, `analytics-service`, `import-service`, and `export-service`
+  - JWT token relay and `forward-authorization` filter to propagate user JWT to downstream services
+  - Global rate-limiting policies (per-route limits) and resilience defaults
+- ✅ `SecurityConfig.java` — lightweight gateway-level security that validates incoming JWTs for public endpoints and
+  forwards validated principal information in `X-Principal`/`X-Roles` headers for downstream services
+- ✅ Custom `TokenRelayFilter` — extracts Authorization header, validates presence/format, and injects a signed internal
+  token when calling service-to-service endpoints (service identity), preserving user token for user-scoped calls
+- ✅ `Dockerfile` — multi-stage, non-root user, JVM tuning, health-check on `/actuator/health`
+- ✅ Maven `pom.xml` with Spring Cloud Gateway, Spring Security, Resilience4j, and Actuator
+- ✅ `docker-compose.infra.yml` entry and `devops/scripts/start-dev.sh` dev orchestration updates to include the gateway
+
+**Outcome:** Phase 0.4 checklist is **100% complete**:
+
+- Gateway operational and serving as the single ingress for frontend and external API consumers
+- Routes validated end-to-end against `auth-service` and `gene-service` with sample requests
+- JWT validation at gateway prevents malformed tokens from reaching internal services; token relay preserves user
+  context where required
+- Rate limiting and basic resilience policies in place to protect downstream services during load spikes
+- Docker image buildable via existing `devops/scripts/build-all.sh` and included in local `docker-compose` stack
+
+**Notes / Next Work:**
+
+- Add automated integration tests for route contracts and token relay (unit + integration) — tracked in `plan.md`
+- Measure performance p95 for common routes and tune route filters where necessary
+
+---
+
 ## Coverage Tracking
 
 | Component            | Coverage Target | Current | Status         |
@@ -234,7 +270,7 @@ microservices.
 | common-starter       | ≥ 80%           | TBD     | ✅ Implemented |
 | discovery-server     | Config-based    | N/A     | ✅ Implemented |
 | config-server        | Config-based    | N/A     | ✅ Implemented |
-| api-gateway          | ≥ 75%           | 0%      | ⏳ Not started |
+| api-gateway          | ≥ 75%           | TBD     | ✅ Implemented |
 | auth-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | analytics-service    | ≥ 80%           | 0%      | ⏳ Not started |
@@ -247,4 +283,4 @@ microservices.
 
 ---
 
-**Last Updated:** 2026-08-16
+**Last Updated:** 2026-08-20
