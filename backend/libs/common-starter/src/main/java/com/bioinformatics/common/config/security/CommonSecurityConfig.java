@@ -30,7 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @ConditionalOnClass(SecurityFilterChain.class)
-public class SecurityConfig {
+public class CommonSecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)

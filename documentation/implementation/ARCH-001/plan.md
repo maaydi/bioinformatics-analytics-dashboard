@@ -92,7 +92,7 @@ decommissioned.
   - [x] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
   - [x] `TracingConfig` — Micrometer tracing with Brave propagation
   - [x] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
-  - [x] `SecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
+  - [x] `CommonSecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
   - [x] `GlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
 - [ ] Publish to local Maven repository (`./mvnw install`)
 - [ ] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
@@ -304,23 +304,23 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.3 API Implementation
 
-- [ ] `AuthController`:
-    - [ ] `POST /api/v1/auth/login` → `TokenResponse`
-    - [ ] `POST /api/v1/auth/refresh` → `TokenResponse`
-    - [ ] `PUT /api/v1/auth/password` → `200` (change password)
-    - [ ] `POST /api/v1/auth/logout` → `204` (revoke refresh token)
-    - [ ] `POST /api/v1/auth/service-token` → internal JWT for service-to-service calls (ADMIN only)
-- [ ] `AuthService` — bcrypt verification, JWT signing, refresh token lifecycle
-- [ ] `JwtService` — access token (1h) + refresh token (24h) + service token (5m)
-- [ ] `UserDetailsService` implementation
-- [ ] `SecurityConfig` — stateless session, JWT filter, role-based access
+- [x] `AuthController`:
+  - [x] `POST /api/v1/auth/login` → `TokenResponse`
+  - [x] `POST /api/v1/auth/refresh` → `TokenResponse`
+  - [x] `PUT /api/v1/auth/password` → `200` (change password)
+  - [x] `POST /api/v1/auth/logout` → `204` (revoke refresh token)
+  - [x] `POST /api/v1/auth/service-token` → internal JWT for service-to-service calls (ADMIN only)
+- [x] `AuthService` — bcrypt verification, JWT signing, refresh token lifecycle
+- [x] `JwtService` — access token (1h) + refresh token (24h) + service token (5m)
+- [x] `UserDetailsService` implementation
+- [x] `CommonSecurityConfig` — stateless session, JWT filter, role-based access
 
 #### 1.4 Monolith Adaptation
 
 - [ ] Monolith `AuthController` deprecated:
     - [ ] All endpoints return `307 Temporary Redirect` to Gateway `/api/v1/auth/**`
     - [ ] Or `410 Gone` with `Location` header (configurable)
-- [ ] Monolith `SecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
+- [ ] Monolith `CommonSecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
     - [ ] Fallback: if auth-service unreachable, use cached public key
 
 #### 1.5 Gateway Integration
@@ -330,12 +330,13 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### Phase 1 — Tests
 
-- [ ] `AuthServiceTest` — unit (mock repo):
-    - [ ] `login_validCredentials_returnsTokens`
-    - [ ] `login_invalidCredentials_throws401`
-    - [ ] `refresh_validToken_returnsNewAccessToken`
-    - [ ] `changePassword_wrongCurrentPassword_throws401`
-    - [ ] `serviceToken_adminRequest_returnsShortLivedJwt`
+- [x] `AuthServiceTest` — unit (mock repo):
+  - [x] `login_validCredentials_returnsTokens`
+  - [x] `login_invalidCredentials_throws401`
+  - [x] `refresh_validToken_returnsNewAccessToken`
+  - [x] `changePassword_wrongCurrentPassword_throws401`
+  - [x] `serviceToken_adminRequest_returnsShortLivedJwt`
+- [x] `AuthControllerTest` — WebMvc unit (login/refresh/logout/password/service-token + validation)
 - [ ] `AuthControllerIntegrationTest` — Testcontainers:
     - [ ] Full login/refresh/password flow
     - [ ] Service-token issuance

@@ -263,6 +263,45 @@ microservices.
 
 ---
 
+### 2026-08-21 — Auth Service API (Phase 1.3) Implemented
+
+**Action:** Implemented the Phase 1.3 authentication API in `backend/services/auth-service/` and aligned
+endpoint/security behavior with the microservice migration target (`/api/v1/auth/**`).
+
+**Deliverables:**
+
+- ✅ `AuthController` migrated to versioned routes only (`/api/v1/auth`) with endpoints:
+  - `POST /api/v1/auth/login`
+  - `POST /api/v1/auth/refresh`
+  - `PUT /api/v1/auth/password`
+  - `POST /api/v1/auth/logout`
+  - `POST /api/v1/auth/service-token` (ADMIN only)
+- ✅ Method-level authorization added on service-token issuance via `@PreAuthorize("hasRole('ADMIN')")`
+- ✅ `AuthService`, `JwtService`, `AppUserDetailsService`, and `CommonSecurityConfig` wired for stateless JWT auth flow
+- ✅ Security hardening aligned to migration target:
+  - Removed legacy public path allowance (`/api/auth/login`, `/api/auth/refresh`) in auth-service
+  - JWT filter bypass now applies only to `POST /api/v1/auth/login` and `POST /api/v1/auth/refresh`
+- ✅ Response contract simplification for service-token:
+  - Removed `ServiceTokenResponse`
+  - Standardized service-token payload on `TokenResponse` (with `refreshToken = null`)
+  - Added dedicated `TokenResponse.serviceBearer(...)` factory
+- ✅ Unit tests updated to reflect the migrated behavior:
+  - `AuthControllerTest` updated for versioned routing and service-token response shape
+  - `AuthServiceTest` updated for unified `TokenResponse` assertions
+
+**Outcome:**
+
+- Phase 1.3 implementation tasks are complete at code level in `auth-service`
+- Phase 1.4 (monolith redirect/deprecation), gateway auth-route integration tests, and Testcontainers integration tests
+  remain pending
+
+**Notes:**
+
+- Test execution was attempted locally but blocked by Maven environment/revision resolution (`${revision}` parent
+  descriptor not resolvable from current local setup); checklist progress is based on code implementation status.
+
+---
+
 ## Coverage Tracking
 
 | Component            | Coverage Target | Current | Status         |
@@ -271,7 +310,7 @@ microservices.
 | discovery-server     | Config-based    | N/A     | ✅ Implemented |
 | config-server        | Config-based    | N/A     | ✅ Implemented |
 | api-gateway          | ≥ 75%           | TBD     | ✅ Implemented |
-| auth-service         | ≥ 85%           | 0%      | ⏳ Not started |
+| auth-service         | ≥ 85%           | TBD     | ⏳ In progress |
 | gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
 | analytics-service    | ≥ 80%           | 0%      | ⏳ Not started |
 | import-service       | ≥ 80%           | 0%      | ⏳ Not started |
@@ -283,4 +322,4 @@ microservices.
 
 ---
 
-**Last Updated:** 2026-08-20
+**Last Updated:** 2026-08-21

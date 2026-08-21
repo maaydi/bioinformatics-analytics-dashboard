@@ -21,5 +21,12 @@ public record TokenResponse(
     public static TokenResponse bearer(String accessToken, String refreshToken, long expiresIn) {
         return new TokenResponse(accessToken, refreshToken, expiresIn, "Bearer");
     }
+
+    /**
+     * Factory for service-to-service tokens that do not include a refresh token.
+     */
+    public static TokenResponse serviceBearer(String accessToken, long expiresIn) {
+        return new TokenResponse(accessToken, null, expiresIn, "Bearer");
+    }
 }
 
