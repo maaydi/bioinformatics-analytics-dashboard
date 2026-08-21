@@ -67,7 +67,7 @@ class AuthServiceTest {
     @Test
     void login_validCredentials_returnsTokensAndPersistsRefreshToken() {
         var request = new LoginRequest("alice", "secret");
-        var user = activeUser(1L, "alice");
+        var user = activeUser();
 
         when(userDetailsService.loadUserByUsername("alice")).thenReturn(user);
         when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
@@ -108,7 +108,7 @@ class AuthServiceTest {
 
     @Test
     void refresh_validToken_returnsNewPairAndRevokesOldToken() {
-        var user = activeUser(1L, "alice");
+        var user = activeUser();
         var request = new RefreshRequest("old-refresh-token");
         var storedToken = RefreshToken.builder()
                 .id(10L)
@@ -139,7 +139,7 @@ class AuthServiceTest {
 
     @Test
     void refresh_unknownRefreshToken_throwsUnauthorized() {
-        var user = activeUser(1L, "alice");
+        var user = activeUser();
         var request = new RefreshRequest("refresh-token");
 
         when(jwtService.isRefreshToken("refresh-token")).thenReturn(true);
@@ -158,13 +158,13 @@ class AuthServiceTest {
 
     @Test
     void changePassword_wrongCurrentPassword_throwsUnauthorized() {
-        var user = activeUser(1L, "alice");
+        var user = activeUser();
         var request = new ChangePasswordRequest("wrong-current", "ValidPassword123");
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Invalid credentials"));
 
-        assertThatThrownBy(() -> authService.updatePassword(request, user))
+        assertThatThrownBy(() -> authService.updatePassword(request, user.getUsername()))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid username or current password");
 
@@ -174,13 +174,13 @@ class AuthServiceTest {
 
     @Test
     void serviceToken_adminRequest_returnsShortLivedJwt() {
-        var admin = adminUser(10L, "admin");
+        var admin = adminUser();
 
         when(appUserRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
         when(jwtService.generateServiceToken(admin)).thenReturn("service-token");
         when(jwtService.getServiceTokenExpirySeconds()).thenReturn(300L);
 
-        var response = authService.issueServiceToken(admin);
+        var response = authService.issueServiceToken(admin.getUsername());
 
         assertThat(response.accessToken()).isEqualTo("service-token");
         assertThat(response.refreshToken()).isNull();
@@ -192,9 +192,9 @@ class AuthServiceTest {
 
     @Test
     void serviceToken_nonAdminRequest_throwsForbidden() {
-        var user = activeUser(1L, "alice");
+        var user = activeUser();
 
-        assertThatThrownBy(() -> authService.issueServiceToken(user))
+        assertThatThrownBy(() -> authService.issueServiceToken(user.getUsername()))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessage("Only administrators can issue service tokens");
 
@@ -202,20 +202,20 @@ class AuthServiceTest {
         verify(jwtService, never()).generateServiceToken(any());
     }
 
-    private AppUser activeUser(long id, String username) {
+    private AppUser activeUser() {
         return AppUser.builder()
-                .id(id)
-                .username(username)
+                .id(1L)
+                .username("alice")
                 .password("bcrypt")
                 .role("ROLE_USER")
                 .status(UserStatus.ACTIVE)
                 .build();
     }
 
-    private AppUser adminUser(long id, String username) {
+    private AppUser adminUser() {
         return AppUser.builder()
-                .id(id)
-                .username(username)
+                .id(10L)
+                .username("admin")
                 .password("bcrypt")
                 .role("ROLE_ADMIN")
                 .status(UserStatus.ACTIVE)

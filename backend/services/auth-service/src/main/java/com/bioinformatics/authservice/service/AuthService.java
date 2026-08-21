@@ -92,14 +92,14 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(final AppUser currentUser) {
-        var authenticatedUser = Objects.requireNonNull(currentUser, "Authenticated user is required");
+    public void logout(final String username) {
+        var authenticatedUser = Objects.requireNonNull(currentUser(username), "Authenticated user is required");
         refreshTokenRepository.revokeAllByUserId(authenticatedUser.getId());
         SecurityContextHolder.clearContext();
     }
 
-    public TokenResponse issueServiceToken(final AppUser currentUser) {
-        var authenticatedUser = Objects.requireNonNull(currentUser, "Authenticated user is required");
+    public TokenResponse issueServiceToken(final String username) {
+        var authenticatedUser = Objects.requireNonNull(currentUser(username), "Authenticated user is required");
 
         if (!authenticatedUser.isAdmin()) {
             throw new AccessDeniedException("Only administrators can issue service tokens");
@@ -117,8 +117,8 @@ public class AuthService {
     }
 
     @Transactional
-    public ChangePasswordResponse updatePassword(final ChangePasswordRequest request, final AppUser currentUser) {
-        var authenticatedUser = Objects.requireNonNull(currentUser, "Authenticated user is required");
+    public ChangePasswordResponse updatePassword(final ChangePasswordRequest request, final String username) {
+        var authenticatedUser = Objects.requireNonNull(currentUser(username), "Authenticated user is required");
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -128,15 +128,11 @@ public class AuthService {
         } catch (BadCredentialsException _) {
             throw new BadCredentialsException("Invalid username or current password");
         }
+        authenticatedUser.setPassword(passwordEncoder.encode(request.newPassword()));
+        appUserRepository.save(authenticatedUser);
+        refreshTokenRepository.revokeAllByUserId(authenticatedUser.getId());
 
-        var managedUser = appUserRepository.findByUsername(authenticatedUser.getUsername())
-                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-
-        managedUser.setPassword(passwordEncoder.encode(request.newPassword()));
-        appUserRepository.save(managedUser);
-        refreshTokenRepository.revokeAllByUserId(managedUser.getId());
-
-        log.info("Password updated for user {}", managedUser.getUsername());
+        log.info("Password updated for user {}", authenticatedUser.getUsername());
         SecurityContextHolder.clearContext();
         return ChangePasswordResponse.succeed();
     }
@@ -159,6 +155,11 @@ public class AuthService {
                 .build();
 
         refreshTokenRepository.save(refreshToken);
+    }
+
+    private AppUser currentUser(String username) {
+        return appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
     }
 }
 

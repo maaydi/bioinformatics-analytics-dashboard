@@ -16,12 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureRestTestClient
-class AuthControllerTest {
+class AuthControllerIntegrationTest {
 
     private static final String AUTH_BASE_URL = "/api/v1/auth";
 
@@ -114,7 +116,7 @@ class AuthControllerTest {
 
         restClient.post()
                 .uri(AUTH_BASE_URL + "/logout")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.accessToken())
+                .header(USER_ID_HEADER, "alice")
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -131,7 +133,7 @@ class AuthControllerTest {
 
         restClient.put()
                 .uri(AUTH_BASE_URL + "/password")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.accessToken())
+                .header(USER_ID_HEADER, "alice")
                 .body(new ChangePasswordRequest("secret", "NewPassword123"))
                 .exchange()
                 .expectStatus().isOk()
@@ -164,7 +166,7 @@ class AuthControllerTest {
 
         restClient.put()
                 .uri(AUTH_BASE_URL + "/password")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.accessToken())
+                .header(USER_ID_HEADER, "alice")
                 .body(new ChangePasswordRequest("secret", "Abcdef"))
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -182,7 +184,8 @@ class AuthControllerTest {
 
         restClient.post()
                 .uri(AUTH_BASE_URL + "/service-token")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminLogin.accessToken())
+                .header(USER_ID_HEADER, "admin")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(TokenResponse.class)
@@ -202,7 +205,7 @@ class AuthControllerTest {
 
         restClient.post()
                 .uri(AUTH_BASE_URL + "/service-token")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + userLogin.accessToken())
+                .header(USER_ID_HEADER, "alice")
                 .exchange()
                 .expectStatus().isForbidden();
     }
