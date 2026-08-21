@@ -54,7 +54,7 @@ logging:
     path: ${java.io.tmpdir}/bio-logs
 
 common:
-  enabled: false
+  enabled: true
 
 eureka:
   client:

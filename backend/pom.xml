@@ -27,10 +27,10 @@
     <modules>
         <module>libs/common-starter</module>
         <module>libs/shared-models</module>
-        <module>infrastructure/discovery-server</module>
-        <module>infrastructure/config-server</module>
-        <module>infrastructure/api-gateway</module>
-        <module>services/auth-service</module>
+        <!--        <module>infrastructure/discovery-server</module>-->
+        <!--        <module>infrastructure/config-server</module>-->
+        <!--        <module>infrastructure/api-gateway</module>-->
+        <!--        <module>services/auth-service</module>-->
         <module>dashboard</module>
     </modules>
 

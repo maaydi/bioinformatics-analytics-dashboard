@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.savedfilter.mapper;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
@@ -16,5 +15,5 @@ public interface SavedFilterMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "owner", source = "owner")
-    SavedFilter toEntity(SavedFilterCreateRequest request, AppUser owner);
+    SavedFilter toEntity(SavedFilterCreateRequest request, String owner);
 }

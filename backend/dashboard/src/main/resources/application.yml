@@ -189,4 +189,4 @@ eureka:
       version: ${application.version}
       profile: ${spring.profiles.active:default}
 common:
-  enabled: false
+  enabled: true

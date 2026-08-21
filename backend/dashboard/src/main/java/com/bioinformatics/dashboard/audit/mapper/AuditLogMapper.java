@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 public interface AuditLogMapper {
 
     @Mapping(target = "username", source = "actorUsername")
-    @Mapping(target = "userId", source = "actorId")
     /**
      * Map an AuditLog JPA entity to its DTO projection.
      *

@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.savedfilter.service;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
@@ -48,16 +47,13 @@ class SavedFilterServiceCacheTest {
     private SavedFilterService service;
     @Autowired
     private CacheManager cacheManager;
-    private AppUser testUser;
+    private String testUser;
 
     @BeforeEach
     void setUp() {
         Objects.requireNonNull(cacheManager.getCache("savedFilters")).clear();
 
-        testUser = new AppUser();
-        testUser.setId(1L);
-        testUser.setUsername("testuser");
-        testUser.setRole("ROLE_USER");
+        testUser = "testuser";
     }
 
     @Test
@@ -73,7 +69,7 @@ class SavedFilterServiceCacheTest {
         service.listForCurrentUser(testUser, 0, 20);
         verify(repository, times(1)).findByOwner(eq(testUser), any());
 
-        var cachedValue = Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser.getId());
+        var cachedValue = Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser);
         assertNotNull(cachedValue, "Cache should contain the paged response");
 
         service.listForCurrentUser(testUser, 0, 20);
@@ -93,13 +89,13 @@ class SavedFilterServiceCacheTest {
         when(mapper.toDto(any(SavedFilter.class))).thenReturn(dto);
 
         service.listForCurrentUser(testUser, 0, 20);
-        assertNotNull(Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser.getId()));
+        assertNotNull(Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser));
 
         var request = new SavedFilterCreateRequest("New Filter", null);
         service.create(request, testUser);
 
         assertNull(Objects.requireNonNull(cacheManager.getCache("savedFilters"))
-                .get(testUser.getId()), "Cache should be empty after creation");
+                .get(testUser), "Cache should be empty after creation");
     }
 
     @Test
@@ -111,12 +107,12 @@ class SavedFilterServiceCacheTest {
                 .thenReturn(new PageImpl<>(List.of(entity)));
 
         service.listForCurrentUser(testUser, 0, 20);
-        assertNotNull(Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser.getId()));
+        assertNotNull(Objects.requireNonNull(cacheManager.getCache("savedFilters")).get(testUser));
 
         service.deleteAndEvict(1L, testUser);
 
         assertNull(Objects.requireNonNull(cacheManager.getCache("savedFilters"))
-                .get(testUser.getId()), "Cache should be evicted after deletion");
+                .get(testUser), "Cache should be evicted after deletion");
         verify(repository, times(1)).deleteById(1L);
     }
 

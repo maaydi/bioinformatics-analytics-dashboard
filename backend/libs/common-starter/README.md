@@ -60,7 +60,7 @@ common:
 | `ConcurrentKafkaListenerContainerFactory` | Kafka on CP                             | JSON consumer with error handling                        |
 | `Tracing`                                 | Brave on CP                             | B3 propagation → Zipkin                                  |
 | `WebClient.Builder`                       | WebFlux on CP                           | Plain + `@LoadBalanced` builders                         |
-| `GlobalExceptionHandler`                  | always                                  | RFC 7807 `ProblemDetail` responses                       |
+| `CommonGlobalExceptionHandler`            | always                                  | RFC 7807 `ProblemDetail` responses                       |
 
 ## Overriding in a Service
 

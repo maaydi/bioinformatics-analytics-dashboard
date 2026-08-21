@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.savedfilter.service;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
@@ -43,7 +42,7 @@ class SavedFilterServiceTest {
 
     @Test
     void listForCurrentUser_returnsMappedDtos() {
-        var user = mock(AppUser.class);
+        var user = "test_user";
         var entity = mock(SavedFilter.class);
         var dto = mock(SavedFilterDto.class);
 
@@ -68,7 +67,7 @@ class SavedFilterServiceTest {
     void create_success_returnsDto() {
         var request = mock(SavedFilterCreateRequest.class);
         when(request.name()).thenReturn("my-filter");
-        var owner = mock(AppUser.class);
+        var owner = "test_user";
 
         var entity = mock(SavedFilter.class);
         var savedEntity = mock(SavedFilter.class);
@@ -91,7 +90,7 @@ class SavedFilterServiceTest {
     void create_duplicateName_throwsDuplicateFilterNameException() {
         var request = mock(SavedFilterCreateRequest.class);
         when(request.name()).thenReturn("dup-filter");
-        var owner = mock(AppUser.class);
+        var owner = "test_user";
 
         var entity = mock(SavedFilter.class);
         when(mapper.toEntity(request, owner)).thenReturn(entity);
@@ -105,28 +104,27 @@ class SavedFilterServiceTest {
     @Test
     void delete_notFound_throwsResourceNotFoundException() {
         when(repository.findById(42L)).thenReturn(Optional.empty());
-        var user = mock(AppUser.class);
+        var user = "test_user";
+        var role = "USER";
 
-        assertThrows(ResourceNotFoundException.class, () -> service.delete(42L, user));
+        assertThrows(ResourceNotFoundException.class, () -> service.delete(42L, user, role));
         verify(repository).findById(42L);
         verify(repository, never()).delete(any());
     }
 
     @Test
     void delete_forbidden_throwsAccessDeniedException() {
-        AppUser storedOwner = new AppUser();
-        storedOwner.setUsername("other-user");
+        var storedOwner = "owner-user";
 
-        SavedFilter entity = new SavedFilter();
+        var entity = new SavedFilter();
         entity.setOwner(storedOwner);
 
-        AppUser currentUser = new AppUser();
-        currentUser.setUsername("owner-user");
-        currentUser.setRole("ADMIN");
+        var currentUser = "other-user";
+        var currentUserRole = "USER";
 
         when(repository.findById(7L)).thenReturn(Optional.of(entity));
 
-        assertThrows(AccessDeniedException.class, () -> service.delete(7L, currentUser));
+        assertThrows(AccessDeniedException.class, () -> service.delete(7L, currentUser, currentUserRole));
 
         verify(repository).findById(7L);
         verify(repository, never()).delete(any());
@@ -135,18 +133,16 @@ class SavedFilterServiceTest {
 
     @Test
     void delete_success_deletesEntity() {
-        var currentUser = new AppUser();
-        currentUser.setUsername("same-user");
+        var currentUser = "same-user";
 
-        var storedOwner = new AppUser();
-        storedOwner.setUsername("same-user");
+        var storedOwner = "same-user";
 
         var entity = new SavedFilter();
         entity.setId(99L);
         entity.setOwner(storedOwner);
 
         when(repository.findById(99L)).thenReturn(Optional.of(entity));
-        service.delete(99L, currentUser);
+        service.delete(99L, currentUser, "USER");
 
         verify(repository).findById(99L);
         verify(repository).deleteById(99L);

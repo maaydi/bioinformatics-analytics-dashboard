@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.savedfilter.entity;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +13,7 @@ import java.time.Instant;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "ux_saved_filter_user_name",
-                        columnNames = {"user_id", "name"}
+                        columnNames = {"username", "name"}
                 )
         }
 )
@@ -28,9 +27,8 @@ public class SavedFilter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private AppUser owner;
+    @Column(name = "username", nullable = false)
+    private String owner;
 
     @Column(length = 100, nullable = false)
     private String name;

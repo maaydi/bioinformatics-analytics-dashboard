@@ -21,9 +21,6 @@ public class AuditLog {
     @SequenceGenerator(name = "audit_log_seq", sequenceName = "audit_log_seq", allocationSize = 500)
     private Long id;
 
-    @Column(name = "actor_user_id")
-    private Long actorId;
-
     @Column(name = "actor_username", nullable = false)
     private String actorUsername;
 

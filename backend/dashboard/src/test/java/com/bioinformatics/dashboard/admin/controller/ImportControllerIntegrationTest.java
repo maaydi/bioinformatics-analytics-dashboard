@@ -1,7 +1,5 @@
 package com.bioinformatics.dashboard.admin.controller;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.exception.ErrorResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
@@ -17,7 +15,6 @@ import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +28,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,16 +36,16 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,18 +58,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class ImportControllerIntegrationTest {
 
-
-    private static final String ADMIN_ROLE = "ROLE_ADMIN";
-    private static final String USER_ROLE = "ROLE_USER";
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     MockMvc mockMvc;
     @Autowired
     ImportJobRepository importJobRepository;
-    @Autowired
-    AppUserRepository userRepository;
-    @Autowired
-    PasswordEncoder passwordEncoder;
+
     @Autowired
     AppProperties appProperties;
     @Autowired
@@ -94,36 +83,12 @@ class ImportControllerIntegrationTest {
     private CacheManager cacheManager;
 
 
-    private String adminToken;
-    private String userToken;
-
     @BeforeEach
-    void setUp(@TempDir Path tempDir) throws Exception {
+    void setUp(@TempDir Path tempDir) {
         importJobRepository.deleteAll();
-        userRepository.deleteAll();
 
         // Setup temp directory for imports
         appProperties.getImportConfig().setTempDir(tempDir.toString());
-
-        // Create admin user
-        var adminUser = AppUser.builder()
-                .username("admin_user")
-                .password(passwordEncoder.encode("admin_pass"))
-                .role(ADMIN_ROLE)
-                .build();
-        userRepository.save(adminUser);
-        userRepository.flush();
-        adminToken = generateToken("admin_user", "admin_pass");
-
-        // Create regular user
-        var regularUser = AppUser.builder()
-                .username("regular_user")
-                .password(passwordEncoder.encode("user_pass"))
-                .role(USER_ROLE)
-                .build();
-        userRepository.save(regularUser);
-        userRepository.flush();
-        userToken = generateToken("regular_user", "user_pass");
     }
 
     // ====== POST /api/admin/import/uniprot ======
@@ -141,7 +106,8 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, "ADMIN"))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.status").value(ImportStatus.RUNNING.toString()))
@@ -164,7 +130,8 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "append")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, "ADMIN"))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value(ImportStatus.RUNNING.toString()));
 
@@ -180,7 +147,7 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
-                        .header("Authorization", "Bearer " + userToken))
+                        .header(USER_ID_HEADER, "regular_user"))
                 .andExpect(status().isForbidden());
     }
 
@@ -215,7 +182,8 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, "ADMIN"))
                 .andExpect(status().isConflict());
 
         // Verify no new job was created
@@ -226,7 +194,8 @@ class ImportControllerIntegrationTest {
     void triggerImport_missingFileParameter_returnsBadRequest() throws Exception {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .param("strategy", "overwrite")
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, "ADMIN"))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -236,7 +205,8 @@ class ImportControllerIntegrationTest {
 
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
-                        .header("Authorization", "Bearer " + adminToken))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, "ADMIN"))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -252,7 +222,8 @@ class ImportControllerIntegrationTest {
                         .path("/api/admin/import/uniprot/remote")
                         .queryParam("filterId", 42L)
                         .build())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isAccepted()
                 .expectBody(ImportJobSummary.class)
@@ -299,7 +270,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -332,7 +304,8 @@ class ImportControllerIntegrationTest {
         // Execute first page
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -349,7 +322,8 @@ class ImportControllerIntegrationTest {
         // Execute second page
         restClient.get()
                 .uri("/api/admin/import/status?page=1&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -364,7 +338,8 @@ class ImportControllerIntegrationTest {
         // Execute third page (partial)
         restClient.get()
                 .uri("/api/admin/import/status?page=2&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -395,7 +370,8 @@ class ImportControllerIntegrationTest {
         // Execute with default pagination
         restClient.get()
                 .uri("/api/admin/import/status")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -432,7 +408,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -450,7 +427,7 @@ class ImportControllerIntegrationTest {
     void listImportJobs_withoutAdminRole_returnsForbidden() {
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
-                .header("Authorization", "Bearer " + userToken)
+                .header(USER_ID_HEADER, "regular_user")
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -468,7 +445,8 @@ class ImportControllerIntegrationTest {
         // Execute on empty repository
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -501,7 +479,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", job.getId().toString())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -534,7 +513,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", job.getId().toString())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -564,7 +544,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", job.getId().toString())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -583,7 +564,8 @@ class ImportControllerIntegrationTest {
         // Execute
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", invalidJobId)
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorResponse.class)
@@ -602,7 +584,7 @@ class ImportControllerIntegrationTest {
 
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", jobId)
-                .header("Authorization", "Bearer " + userToken)
+                .header(USER_ID_HEADER, "regular_user")
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -621,29 +603,13 @@ class ImportControllerIntegrationTest {
     void getImportJobStatus_withMalformedUUID_returnsBadRequest() {
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", "not-a-uuid")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
     }
 
     // ====== Helper Methods ======
-
-    /**
-     * Generates a JWT token for authentication via login endpoint.
-     */
-    private String generateToken(String username, String password) throws Exception {
-        var loginPayload = objectMapper.writeValueAsString(Map.of("username", username, "password", password));
-
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginPayload))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        var responseBody = result.getResponse().getContentAsString();
-        var jsonNode = objectMapper.readTree(responseBody);
-        return jsonNode.get("accessToken").asText();
-    }
 
     /**
      * Creates a mock multipart file.

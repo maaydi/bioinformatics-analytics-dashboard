@@ -5,7 +5,7 @@ import com.bioinformatics.dashboard.audit.entity.AuditLog;
 import com.bioinformatics.dashboard.audit.mapper.AuditLogMapper;
 import com.bioinformatics.dashboard.audit.repository.AuditLogRepository;
 import com.bioinformatics.dashboard.audit.service.AuditService;
-import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,11 +37,9 @@ class AuditServiceTest {
 
     @Test
     void save_shouldSaveAuditLog_whenActorIsProvided() {
-        AppUser actor = new AppUser();
-        actor.setId(1L);
-        actor.setUsername("testuser");
+        var actor = new UserPrincipal("testuser", "USER", "");
 
-        AuditWebDetails webDetails = new AuditWebDetails("GET", "/api/test", "127.0.0.1");
+        var webDetails = new AuditWebDetails("GET", "/api/test", "127.0.0.1");
 
         auditService.save(actor, null, AuditAction.LOGIN, "target123", AuditStatus.SUCCESS, webDetails);
 
@@ -53,7 +51,6 @@ class AuditServiceTest {
         assertThat(savedLog.getTarget()).isEqualTo(AuditTarget.AUTH);
         assertThat(savedLog.getTargetId()).isEqualTo("target123");
         assertThat(savedLog.getStatus()).isEqualTo(AuditStatus.SUCCESS);
-        assertThat(savedLog.getActorId()).isEqualTo(1L);
         assertThat(savedLog.getActorUsername()).isEqualTo("testuser");
         assertThat(savedLog.getHttpMethod()).isEqualTo("GET");
         assertThat(savedLog.getEndpoint()).isEqualTo("/api/test");
@@ -68,7 +65,6 @@ class AuditServiceTest {
         verify(auditLogRepository).save(captor.capture());
 
         AuditLog savedLog = captor.getValue();
-        assertThat(savedLog.getActorId()).isNull();
         assertThat(savedLog.getActorUsername()).isEqualTo("attemptedUser");
         assertThat(savedLog.getHttpMethod()).isEqualTo("SYSTEM");
         assertThat(savedLog.getEndpoint()).isEqualTo("INTERNAL");
@@ -77,17 +73,17 @@ class AuditServiceTest {
 
     @Test
     void findByUserId_shouldReturnMappedDtoPage() {
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        var pageRequest = PageRequest.of(0, 10);
         AuditLog log = new AuditLog();
         Page<AuditLog> page = new PageImpl<>(List.of(log));
 
-        when(auditLogRepository.findByActorId(1L, pageRequest)).thenReturn(page);
-        when(mapper.toDto(log)).thenReturn(new AuditLogDto(1L, 1L, "testuser", AuditAction.LOGIN, AuditTarget.AUTH, null, AuditStatus.SUCCESS, null, "GET", "/api/test", Instant.now()));
+        when(auditLogRepository.findByActorUsername("testuser", pageRequest)).thenReturn(page);
+        when(mapper.toDto(log)).thenReturn(new AuditLogDto(1L, "testuser", AuditAction.LOGIN, AuditTarget.AUTH, null, AuditStatus.SUCCESS, null, "GET", "/api/test", Instant.now()));
 
-        Page<AuditLogDto> result = auditService.findByUserId(1L, pageRequest);
+        Page<AuditLogDto> result = auditService.findByUser("testuser", pageRequest);
 
         assertThat(result.getContent()).hasSize(1);
-        verify(auditLogRepository).findByActorId(1L, pageRequest);
+        verify(auditLogRepository).findByActorUsername("testuser", pageRequest);
         verify(mapper).toDto(log);
     }
 }

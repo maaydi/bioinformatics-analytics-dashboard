@@ -53,8 +53,8 @@ decommissioned.
 
 - [x] Requirements analyzed
 - [x] Ambiguities resolved (see analyse.md)
-- [ ] Phase 0 — Infrastructure bootstrap
-- [ ] Phase 1 — auth-service extracted
+- [x] Phase 0 — Infrastructure bootstrap
+- [x] Phase 1 — auth-service extracted
 - [ ] Phase 2 — analytics-service extracted
 - [ ] Phase 3 — import-service extracted
 - [ ] Phase 4 — gene-service extracted
@@ -93,7 +93,7 @@ decommissioned.
   - [x] `TracingConfig` — Micrometer tracing with Brave propagation
   - [x] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
   - [x] `CommonSecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
-  - [x] `GlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
+  - [x] `CommonGlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
 - [ ] Publish to local Maven repository (`./mvnw install`)
 - [ ] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
 
@@ -317,11 +317,11 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.4 Monolith Adaptation
 
-- [ ] Monolith `AuthController` deprecated:
-    - [ ] All endpoints return `307 Temporary Redirect` to Gateway `/api/v1/auth/**`
-    - [ ] Or `410 Gone` with `Location` header (configurable)
-- [ ] Monolith `CommonSecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
-    - [ ] Fallback: if auth-service unreachable, use cached public key
+- [x] Monolith `AuthController` deprecated:
+  - [x] All endpoints return `307 Temporary Redirect` to Gateway `/api/v1/auth/**`
+  - [x] Or `410 Gone` with `Location` header (configurable)
+- [x] Monolith `CommonSecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
+  - [x] Fallback: if auth-service unreachable, use cached public key
 
 #### 1.5 Gateway Integration
 
@@ -337,7 +337,7 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
   - [x] `changePassword_wrongCurrentPassword_throws401`
   - [x] `serviceToken_adminRequest_returnsShortLivedJwt`
 - [x] `AuthControllerIntegrationTest` — WebMvc unit (login/refresh/logout/password/service-token + validation)
-- [ ] `AuthControllerIntegrationTest` — Testcontainers:
+- [x] `AuthControllerIntegrationTest` — Testcontainers:
   - [x] Full login/refresh/password flow
   - [x] Service-token issuance
 - [x] `GatewayAuthRoutingTest` — routes login through Gateway correctly

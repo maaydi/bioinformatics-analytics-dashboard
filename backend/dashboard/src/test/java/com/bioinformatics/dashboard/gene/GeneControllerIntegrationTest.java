@@ -1,14 +1,11 @@
 package com.bioinformatics.dashboard.gene;
 
 import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.auth.entity.AppUser;
-import com.bioinformatics.dashboard.auth.repository.AppUserRepository;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +19,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.time.Instant;
 import java.util.List;
 
+import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
@@ -43,18 +37,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
 class GeneControllerIntegrationTest {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    @Autowired
-    MockMvc mockMvc;
     @Autowired
     RestTestClient restClient;
     @Autowired
     ProteinEntryRepository proteinEntryRepository;
-    @Autowired
-    AppUserRepository userRepository;
-    @Autowired
-    PasswordEncoder passwordEncoder;
+
     @MockitoBean
     ImportService importService;
     @MockitoBean
@@ -70,50 +57,14 @@ class GeneControllerIntegrationTest {
         }
     }
 
-
-    private String adminToken;
-    private String userToken;
-
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         proteinEntryRepository.deleteAll();
-        userRepository.deleteAll();
-
-        // create admin
-        var admin = AppUser.builder()
-                .username("admin_user")
-                .password(passwordEncoder.encode("admin_pass"))
-                .role("ROLE_ADMIN")
-                .build();
-        userRepository.save(admin);
-        userRepository.flush();
-        adminToken = obtainToken("admin_user", "admin_pass");
-
-        var user = AppUser.builder()
-                .username("regular_user")
-                .password(passwordEncoder.encode("user_pass"))
-                .role("ROLE_USER")
-                .build();
-        userRepository.save(user);
-        userRepository.flush();
-        userToken = obtainToken("regular_user", "user_pass");
     }
 
-    private String obtainToken(String username, String password) throws Exception {
-        var payload = objectMapper.writeValueAsString(java.util.Map.of("username", username, "password", password));
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        var body = result.getResponse().getContentAsString();
-        var node = objectMapper.readTree(body);
-        return node.get("accessToken").asText();
-    }
 
     @Test
-    void getGenes_returnsPagedResponse() throws Exception {
+    void getGenes_returnsPagedResponse() {
         var entry = ProteinEntry.builder()
                 .accession("ACC1")
                 .entryName("entry1")
@@ -132,7 +83,8 @@ class GeneControllerIntegrationTest {
                         .queryParam("page", "0")
                         .queryParam("size", "10")
                         .build())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new org.springframework.core.ParameterizedTypeReference<PagedResponse<ProteinSummaryDto>>() {
@@ -145,7 +97,7 @@ class GeneControllerIntegrationTest {
     }
 
     @Test
-    void postSearch_returnsFilteredResults() throws Exception {
+    void postSearch_returnsFilteredResults() {
         var e1 = ProteinEntry.builder()
                 .accession("A1")
                 .entryName("alpha")
@@ -173,7 +125,7 @@ class GeneControllerIntegrationTest {
         var request = java.util.Map.<String, Object>of("organism", "Org1", "page", 0, "size", 10);
         restClient.post()
                 .uri("/api/genes/search")
-                .header("Authorization", "Bearer " + userToken)
+                .header(USER_ID_HEADER, "regular_user")
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -188,7 +140,7 @@ class GeneControllerIntegrationTest {
     }
 
     @Test
-    void getGeneById_returnsDetail() throws Exception {
+    void getGeneById_returnsDetail() {
         var entry = ProteinEntry.builder()
                 .accession("ID123")
                 .entryName("entryX")
@@ -204,7 +156,8 @@ class GeneControllerIntegrationTest {
 
         restClient.get()
                 .uri("/api/genes/{accession}", saved.getAccession())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -215,36 +168,38 @@ class GeneControllerIntegrationTest {
     }
 
     @Test
-    void getGeneById_notFound_returnsNotFound() throws Exception {
+    void getGeneById_notFound_returnsNotFound() {
         restClient.get()
                 .uri("/api/genes/{accession}", "9999")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().isNotFound();
     }
 
     @Test
-    void getGenes_invalidSort_returnsBadRequest() throws Exception {
+    void getGenes_invalidSort_returnsBadRequest() {
         restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/api/genes").queryParam("sort", "not_a_field").build())
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
 
     @Test
-    void postSearch_lengthRangeInvalid_returnsBadRequest() throws Exception {
+    void postSearch_lengthRangeInvalid_returnsBadRequest() {
         var request = java.util.Map.<String, Object>of("lengthMin", 200, "lengthMax", 10, "page", 0, "size", 10);
         restClient.post()
                 .uri("/api/genes/search")
-                .header("Authorization", "Bearer " + userToken)
+                .header(USER_ID_HEADER, "regular_user")
                 .body(request)
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
 
     @Test
-    void postExportCsv_returnsCsv() throws Exception {
+    void postExportCsv_returnsCsv() {
         var entry = ProteinEntry.builder()
                 .accession("ECX1")
                 .entryName("csv1")
@@ -261,7 +216,8 @@ class GeneControllerIntegrationTest {
         var request = java.util.Map.<String, Object>of("page", 0, "size", 10);
         restClient.post()
                 .uri("/api/genes/export-csv")
-                .header("Authorization", "Bearer " + adminToken)
+                .header(USER_ID_HEADER, "admin_user")
+                .header(USER_ROLE_HEADER, "ADMIN")
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()

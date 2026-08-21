@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.exception.AccessDeniedException;
 import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
 import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
@@ -35,11 +34,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.Instant;
 import java.util.List;
 
+import static com.bioinformatics.shared.models.security.Constants.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -81,21 +80,12 @@ class SavedFilterControllerTest {
         }
     }
 
-
-    private AppUser testUser;
     private SavedFilterCreateRequest validRequest;
     private SavedFilterDto testFilterDto;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        testUser = AppUser.builder()
-                .id(1L)
-                .username("test_user")
-                .password("encoded_password")
-                .role("ROLE_USER")
-                .createdAt(Instant.now())
-                .build();
         // Setup valid request
         var geneSearchRequest = new GeneSearchRequest(
                 "kinase", // globalSearch
@@ -138,49 +128,45 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void listSavedFilters_withAuthenticatedUser_returnsFilters() throws Exception {
         var filters = List.of(testFilterDto);
-        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
+        when(service.listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].id", is(1)))
                 .andExpect(jsonPath("$.content[0].name", is("My Filter")))
                 .andExpect(jsonPath("$.content[0].createdAt", notNullValue()));
-        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
+        verify(service).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
     @DisplayName("GET /api/saved-filters - Should list empty filters when user has none")
     @WithMockUser(roles = "USER")
     void listSavedFilters_withNoFilters_returnsEmptyList() throws Exception {
-        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(), 0, 1, 1, 1));
+        when(service.listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content", hasSize(0)));
-        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
+        verify(service).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
     @DisplayName("GET /api/saved-filters - Should list filters for ADMIN user")
     @WithMockUser(roles = "ADMIN")
     void listSavedFilters_withAdminRole_returnsFilters() throws Exception {
-        var adminUser = AppUser.builder()
-                .id(2L)
-                .username("admin_user")
-                .password("encoded_password")
-                .role("ROLE_ADMIN")
-                .createdAt(Instant.now())
-                .build();
         var filters = List.of(testFilterDto);
-        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
+        when(service.listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
-                        .with(user(adminUser)))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)));
-        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
+        verify(service).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
@@ -188,7 +174,7 @@ class SavedFilterControllerTest {
     void listSavedFilters_withoutAuthentication_returnsForbidden() throws Exception {
         mockMvc.perform(get("/api/saved-filters"))
                 .andExpect(status().isForbidden());
-        verify(service, never()).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
+        verify(service, never()).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
     }
 
     @Test
@@ -208,15 +194,16 @@ class SavedFilterControllerTest {
                 Instant.now().plusSeconds(120)
         );
         var filters = List.of(testFilterDto, filter2, filter3);
-        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 3, 3));
+        when(service.listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 3, 3));
         mockMvc.perform(get("/api/saved-filters")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
                 .andExpect(jsonPath("$.content[0].name", is("My Filter")))
                 .andExpect(jsonPath("$.content[1].name", is("Filter 2")))
                 .andExpect(jsonPath("$.content[2].name", is("Filter 3")));
-        verify(service).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
+        verify(service).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
     }
 
     // ====== POST /api/saved-filters ======
@@ -224,11 +211,12 @@ class SavedFilterControllerTest {
     @DisplayName("POST /api/saved-filters - Should create filter with valid request")
     @WithMockUser(roles = "USER")
     void createSavedFilter_withValidRequest_returnsCreatedFilter() throws Exception {
-        when(service.create(any(SavedFilterCreateRequest.class), any(AppUser.class)))
+        when(service.create(any(SavedFilterCreateRequest.class), any(String.class)))
                 .thenReturn(testFilterDto);
         var requestJson = objectMapper.writeValueAsString(validRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isCreated())
@@ -236,7 +224,7 @@ class SavedFilterControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("My Filter")))
                 .andExpect(jsonPath("$.createdAt", notNullValue()));
-        verify(service).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -246,11 +234,12 @@ class SavedFilterControllerTest {
         var invalidRequest = new SavedFilterCreateRequest("", validRequest.filterJson());
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -260,11 +249,12 @@ class SavedFilterControllerTest {
         var invalidRequest = new SavedFilterCreateRequest(null, validRequest.filterJson());
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -275,11 +265,12 @@ class SavedFilterControllerTest {
         var invalidRequest = new SavedFilterCreateRequest(longName, validRequest.filterJson());
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -289,26 +280,28 @@ class SavedFilterControllerTest {
         var invalidRequest = new SavedFilterCreateRequest("Valid Name", null);
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
     @DisplayName("POST /api/saved-filters - Should handle duplicate filter name exception")
     @WithMockUser(roles = "USER")
     void createSavedFilter_withDuplicateName_returnsConflict() throws Exception {
-        when(service.create(any(SavedFilterCreateRequest.class), any(AppUser.class)))
+        when(service.create(any(SavedFilterCreateRequest.class), any(String.class)))
                 .thenThrow(new DuplicateFilterNameException("Duplicated filter name My Filter", new Exception()));
         var requestJson = objectMapper.writeValueAsString(validRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isConflict());
-        verify(service).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -319,30 +312,24 @@ class SavedFilterControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isForbidden());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
     @DisplayName("POST /api/saved-filters - Should create filter with ROLE_ADMIN")
     @WithMockUser(roles = "ADMIN")
     void createSavedFilter_withAdminRole_returnsCreatedFilter() throws Exception {
-        var adminUser = AppUser.builder()
-                .id(2L)
-                .username("admin_user")
-                .password("encoded_password")
-                .role("ROLE_ADMIN")
-                .createdAt(Instant.now())
-                .build();
-        when(service.create(any(SavedFilterCreateRequest.class), any(AppUser.class)))
+        when(service.create(any(SavedFilterCreateRequest.class), any(String.class)))
                 .thenReturn(testFilterDto);
         var requestJson = objectMapper.writeValueAsString(validRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(adminUser))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)));
-        verify(service).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     @Test
@@ -350,11 +337,12 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void createSavedFilter_withMalformedJson_returnsServerError() throws Exception {
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{invalid json}"))
                 .andExpect(status().isInternalServerError());
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
     }
 
     // ====== DELETE /api/saved-filters/{id} ======
@@ -362,12 +350,13 @@ class SavedFilterControllerTest {
     @DisplayName("DELETE /api/saved-filters/{id} - Should delete filter owned by current user")
     @WithMockUser(roles = "USER")
     void deleteSavedFilter_withValidId_returnsNoContent() throws Exception {
-        doNothing().when(service).delete(eq(1L), any(AppUser.class));
+        doNothing().when(service).delete(eq(1L), any(String.class), any(String.class));
         mockMvc.perform(delete("/api/saved-filters/1")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
-        verify(service).delete(eq(1L), any(AppUser.class));
+        verify(service).delete(eq(1L), any(String.class), any(String.class));
     }
 
     @Test
@@ -375,11 +364,12 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void deleteSavedFilter_withNonExistentId_returnsNotFound() throws Exception {
         doThrow(ResourceNotFoundException.forSavedFilter(999L))
-                .when(service).delete(eq(999L), any(AppUser.class));
+                .when(service).delete(eq(999L), any(String.class), any(String.class));
         mockMvc.perform(delete("/api/saved-filters/999")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isNotFound());
-        verify(service).delete(eq(999L), any(AppUser.class));
+        verify(service).delete(eq(999L), any(String.class), any(String.class));
     }
 
     @Test
@@ -387,11 +377,12 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void deleteSavedFilter_withoutPermission_returnsForbidden() throws Exception {
         doThrow(new AccessDeniedException("You don't have permission to delete this filter"))
-                .when(service).delete(eq(1L), any(AppUser.class));
+                .when(service).delete(eq(1L), any(String.class), any(String.class));
         mockMvc.perform(delete("/api/saved-filters/1")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isForbidden());
-        verify(service).delete(eq(1L), any(AppUser.class));
+        verify(service).delete(eq(1L), any(String.class), any(String.class));
     }
 
     @Test
@@ -399,25 +390,19 @@ class SavedFilterControllerTest {
     void deleteSavedFilter_withoutAuthentication_returnsForbidden() throws Exception {
         mockMvc.perform(delete("/api/saved-filters/1"))
                 .andExpect(status().isForbidden());
-        verify(service, never()).delete(any(Long.class), any(AppUser.class));
+        verify(service, never()).delete(any(Long.class), any(String.class), any(String.class));
     }
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Admin should delete any filter")
     @WithMockUser(roles = "ADMIN")
     void deleteSavedFilter_withAdminRole_deletesAnyFilter() throws Exception {
-        var adminUser = AppUser.builder()
-                .id(2L)
-                .username("admin_user")
-                .password("encoded_password")
-                .role("ROLE_ADMIN")
-                .createdAt(Instant.now())
-                .build();
-        doNothing().when(service).delete(eq(1L), any(AppUser.class));
+        doNothing().when(service).delete(eq(1L), any(String.class), any(String.class));
         mockMvc.perform(delete("/api/saved-filters/1")
-                        .with(user(adminUser)))
+                        .header(USER_ID_HEADER, "admin_user")
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().isNoContent());
-        verify(service).delete(eq(1L), any(AppUser.class));
+        verify(service).delete(eq(1L), any(String.class), any(String.class));
     }
 
     @Test
@@ -425,26 +410,30 @@ class SavedFilterControllerTest {
     @WithMockUser(roles = "USER")
     void deleteSavedFilter_withInvalidIdFormat_returnsServerError() throws Exception {
         mockMvc.perform(delete("/api/saved-filters/invalid")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isInternalServerError());
-        verify(service, never()).delete(any(Long.class), any(AppUser.class));
+        verify(service, never()).delete(any(Long.class), any(String.class), any(String.class));
     }
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should handle multiple sequential deletes")
     @WithMockUser(roles = "USER")
     void deleteSavedFilter_multipleDeletionsInSequence_succeeds() throws Exception {
-        doNothing().when(service).delete(any(Long.class), any(AppUser.class));
+        doNothing().when(service).delete(any(Long.class), any(String.class), any(String.class));
         mockMvc.perform(delete("/api/saved-filters/1")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isNoContent());
         mockMvc.perform(delete("/api/saved-filters/2")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isNoContent());
         mockMvc.perform(delete("/api/saved-filters/3")
-                        .with(user(testUser)))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isNoContent());
-        verify(service, times(3)).delete(any(Long.class), any(AppUser.class));
+        verify(service, times(3)).delete(any(Long.class), any(String.class), any(String.class));
     }
 
     // ====== Authorization Tests ======
@@ -460,9 +449,9 @@ class SavedFilterControllerTest {
                 .andExpect(status().isForbidden());
         mockMvc.perform(delete("/api/saved-filters/1"))
                 .andExpect(status().isForbidden());
-        verify(service, never()).listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class));
-        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(AppUser.class));
-        verify(service, never()).delete(any(Long.class), any(AppUser.class));
+        verify(service, never()).listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class));
+        verify(service, never()).create(any(SavedFilterCreateRequest.class), any(String.class));
+        verify(service, never()).delete(any(Long.class), any(String.class), any(String.class));
     }
 
     // ====== Response Content Type Tests ======
@@ -470,9 +459,10 @@ class SavedFilterControllerTest {
     @DisplayName("GET /api/saved-filters - Should return JSON content type")
     @WithMockUser(roles = "USER")
     void listSavedFilters_shouldReturnJsonContentType() throws Exception {
-        when(service.listForCurrentUser(any(AppUser.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(testFilterDto), 0, 1, 1, 1));
+        when(service.listForCurrentUser(any(String.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(testFilterDto), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
@@ -482,11 +472,12 @@ class SavedFilterControllerTest {
     @DisplayName("POST /api/saved-filters - Should return JSON content type")
     @WithMockUser(roles = "USER")
     void createSavedFilter_shouldReturnJsonContentType() throws Exception {
-        when(service.create(any(SavedFilterCreateRequest.class), any(AppUser.class)))
+        when(service.create(any(SavedFilterCreateRequest.class), any(String.class)))
                 .thenReturn(testFilterDto);
         var requestJson = objectMapper.writeValueAsString(validRequest);
         mockMvc.perform(post("/api/saved-filters")
-                        .with(user(testUser))
+                        .header(USER_ID_HEADER, "test_user")
+                        .header(USER_ROLE_HEADER, USER_ROLE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson)
                         .accept(MediaType.APPLICATION_JSON))

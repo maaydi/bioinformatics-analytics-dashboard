@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class CommonGlobalExceptionHandler {
 
     private static final String BASE_TYPE = "https://api.bioinformatics.com/errors";
 

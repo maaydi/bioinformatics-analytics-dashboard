@@ -4,7 +4,7 @@ import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.dto.AuditStatus;
 import com.bioinformatics.dashboard.audit.service.AuditContextHolder;
 import com.bioinformatics.dashboard.audit.service.AuditService;
-import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -35,11 +35,12 @@ public class AuditAspect {
 
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
+
     /**
      * Handles successful method executions annotated with {@code @Auditable} and records a success audit.
      *
      * @param joinPoint the join point of the executed method
-     * @param result the returned value from the method (may be {@code null})
+     * @param result    the returned value from the method (maybe {@code null})
      */
     @AfterReturning(
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
@@ -55,11 +56,12 @@ public class AuditAspect {
         var targetId = evaluateSPEL(joinPoint, auditable.targetId(), result);
         recordAudit(auditable, targetId, AuditStatus.SUCCESS);
     }
+
     /**
      * Handles exceptions thrown by methods annotated with {@code @Auditable} and records a failure audit.
      *
      * @param joinPoint the join point of the executed method
-     * @param ex the exception that was thrown
+     * @param ex        the exception that was thrown
      */
     @AfterThrowing(
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
@@ -78,10 +80,10 @@ public class AuditAspect {
                              AuditStatus status
     ) {
         try {
-            AppUser usr = null;
+            UserPrincipal usr = null;
             String userName = null;
             var authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof AppUser user) {
+            if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal user) {
                 usr = user;
                 userName = authentication.getName();
             }

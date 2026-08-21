@@ -6,7 +6,6 @@ import java.time.Instant;
  * Immutable projection of an audit log entry for API responses.
  *
  * @param id         audit record id
- * @param userId     actor user id
  * @param username   actor username
  * @param action     audited action
  * @param target     audited target type
@@ -19,7 +18,6 @@ import java.time.Instant;
  */
 public record AuditLogDto(
         long id,
-        long userId,
         String username,
         AuditAction action,
         AuditTarget target,

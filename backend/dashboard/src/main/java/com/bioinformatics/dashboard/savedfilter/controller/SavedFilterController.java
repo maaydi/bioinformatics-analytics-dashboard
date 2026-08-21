@@ -3,7 +3,6 @@ package com.bioinformatics.dashboard.savedfilter.controller;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
-import com.bioinformatics.dashboard.auth.entity.AppUser;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
@@ -15,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 
 /**
  * REST Controller responsible for persisting and managing user-specific filter variants.
@@ -48,24 +49,24 @@ public class SavedFilterController {
             @Min(value = 1, message = "Page size should be greater than 0")
             @Max(value = 200, message = "Page size should be lower than 201")
             @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal AppUser currentUser) {
-        return service.listForCurrentUser(currentUser, page, size);
+            @RequestHeader(USER_ID_HEADER) String username) {
+        return service.listForCurrentUser(username, page, size);
     }
 
     @PostMapping
     @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.id")
     @RateLimited
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request,
-                                                            @AuthenticationPrincipal AppUser currentUser) {
-        var res = service.create(request, currentUser);
+                                                            @RequestHeader(USER_ID_HEADER) String username) {
+        var res = service.create(request, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     @DeleteMapping("/{id}")
     @Auditable(action = AuditAction.FILTER_DELETE, targetId = "#id")
     @RateLimited
-    public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @AuthenticationPrincipal AppUser currentUser) {
-        service.delete(id, currentUser);
+    public ResponseEntity<Void> deleteSavedFilter(@PathVariable Long id, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) String role) {
+        service.delete(id, username, role);
         return ResponseEntity.noContent().build();
     }
 }
