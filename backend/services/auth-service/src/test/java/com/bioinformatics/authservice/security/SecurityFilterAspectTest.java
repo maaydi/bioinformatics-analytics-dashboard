@@ -1,6 +1,6 @@
-package com.bioinformatics.dashboard.security;
+package com.bioinformatics.authservice.security;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Filter;
 import org.hibernate.Session;
@@ -49,7 +49,7 @@ class SecurityFilterAspectTest {
 
     @Test
     void configureFilters_UserIsAdmin_EnablesFilterExcludingDeletedFalse() {
-        AppUser adminUser = mock(AppUser.class);
+        UserPrincipal adminUser = mock(UserPrincipal.class);
         when(adminUser.isAdmin()).thenReturn(true);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -66,7 +66,7 @@ class SecurityFilterAspectTest {
 
     @Test
     void configureFilters_UserIsNotAdmin_EnablesFilterExcludingDeletedTrue() {
-        AppUser regularUser = mock(AppUser.class);
+        UserPrincipal regularUser = mock(UserPrincipal.class);
         when(regularUser.isAdmin()).thenReturn(false);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);

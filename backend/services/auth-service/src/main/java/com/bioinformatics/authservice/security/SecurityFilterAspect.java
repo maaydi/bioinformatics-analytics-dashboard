@@ -1,6 +1,6 @@
-package com.bioinformatics.dashboard.security;
+package com.bioinformatics.authservice.security;
 
-import com.bioinformatics.dashboard.auth.entity.AppUser;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.persistence.EntityManager;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -23,10 +23,8 @@ public class SecurityFilterAspect {
         var session = entityManager.unwrap(Session.class);
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof AppUser user) {
-            boolean isAdmin = user.isAdmin();
-
-            if (isAdmin) {
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserPrincipal user) {
+            if (user.isAdmin()) {
                 session.enableFilter("excludeDeletedFilter")
                         .setParameter("isDeletedExcluded", false);
                 return;

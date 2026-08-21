@@ -163,6 +163,7 @@ class AuthServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Invalid credentials"));
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> authService.updatePassword(request, user.getUsername()))
                 .isInstanceOf(BadCredentialsException.class)
@@ -193,12 +194,11 @@ class AuthServiceTest {
     @Test
     void serviceToken_nonAdminRequest_throwsForbidden() {
         var user = activeUser();
-
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         assertThatThrownBy(() -> authService.issueServiceToken(user.getUsername()))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessage("Only administrators can issue service tokens");
 
-        verify(appUserRepository, never()).findByUsername(any());
         verify(jwtService, never()).generateServiceToken(any());
     }
 

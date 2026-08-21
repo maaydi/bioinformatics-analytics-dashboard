@@ -16,8 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
-import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -117,6 +116,7 @@ class AuthControllerIntegrationTest {
         restClient.post()
                 .uri(AUTH_BASE_URL + "/logout")
                 .header(USER_ID_HEADER, "alice")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -134,6 +134,7 @@ class AuthControllerIntegrationTest {
         restClient.put()
                 .uri(AUTH_BASE_URL + "/password")
                 .header(USER_ID_HEADER, "alice")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .body(new ChangePasswordRequest("secret", "NewPassword123"))
                 .exchange()
                 .expectStatus().isOk()
