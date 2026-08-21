@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+app:
+  jwt:
+    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
+
 spring:
   application:
     name: api-gateway

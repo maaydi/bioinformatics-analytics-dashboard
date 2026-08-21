@@ -7,10 +7,13 @@ services:
       context: ./backend/infrastructure/discovery-server
       dockerfile: ../../../devops/docker/backend/infra/server-discovery/Dockerfile
     container_name: discovery_server
+    env_file: .env
     ports:
       - "8761:8761"
     environment:
       SERVER_PORT: 8761
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
       EUREKA_INSTANCE_HOSTNAME: discovery-server
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     healthcheck:
@@ -80,14 +83,16 @@ services:
       context: ./backend/infrastructure/config-server
       dockerfile: ../../../devops/docker/backend/infra/config-server/Dockerfile
     container_name: config_server
+    env_file: .env
     environment:
       SERVER_PORT: 8888
-      CONFIG_REPO_URI: http://gitea-server:3000/bioinformatics/config-repo.git
-      GITEA_USER: ${GITEA_CONFIG_USER:-config-user}
-      GITEA_PASSWORD: ${GITEA_CONFIG_PASSWORD:-config-pass}
+      SPRING_CLOUD_CONFIG_SERVER_GIT_URI: http://gitea-server:3000/bioinformatics/config-repo.git # GITEA_HTTP_PORT=3000
+      SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME: ${GITEA_CONFIG_USER:-config-user}
+      SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD: ${GITEA_CONFIG_PASSWORD:-config-pass}
       CONFIG_ENCRYPT_KEY: ${CONFIG_ENCRYPT_KEY:-ChangeMeInProduction-32CharKey!!}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      EUREKA_INSTANCE_HOSTNAME: config-server
+      EUREKA_CLIENT_SHOULDUNREGISTERONSHUTDOWN: "true"
+      SPRING_APPLICATION_NAME: config-server
     ports:
       - "${CONFIG_SERVER_PORT:-8888}:8888"
     depends_on:
@@ -110,16 +115,19 @@ services:
       context: ./backend/infrastructure/api-gateway
       dockerfile: ../../../devops/docker/backend/infra/api-gateway/Dockerfile
     container_name: api_gateway
+    env_file: .env
     environment:
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
-      JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_SECRET: ${JWT_SECRET}
       # Redis configuration
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       # Server discovery
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      EUREKA_CLIENT_SHOULDUNREGISTERONSHUTDOWN: "true"
+      SPRING_APPLICATION_NAME: api-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -185,7 +193,7 @@ services:
   auth-service:
     build:
       context: ./backend/services/auth-service
-      dockerfile: ../../devops/docker/backend/services/auth-service/Dockerfile
+      dockerfile: ../../../devops/docker/backend/services/auth-service/Dockerfile
     container_name: auth_service
     restart: unless-stopped
     env_file: .env
@@ -193,11 +201,16 @@ services:
       # Server configuration
       SERVER_PORT: ${AUTH_SERVICE_PORT:-8081}
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 #CONFIG_SERVER_PORT=8888
       # Database configuration
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # Db Primary
+      DB_PRIMARY_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
+      DB_PRIMARY_USERNAM: bio_user
+      DB_PRIMARY_PASSWORD: password
+      # DB Replica
+      DB_REPLICA_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
+      DB_REPLICA_USERNAME: bio_user
+      DB_REPLICA_PASSWORD: password
       # JWT configuration
       JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
@@ -231,13 +244,13 @@ services:
       # Server configuration
       SERVER_PORT: ${BACKEND_PORT:-8080}
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 #CONFIG_SERVER_PORT=8888
       # Database configuration
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       # JWT configuration
-      JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
       JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
       # File upload configuration
@@ -246,9 +259,11 @@ services:
       # Redis configuration
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       # Server discovery
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      EUREKA_CLIENT_SHOULDUNREGISTERONSHUTDOWN: "true"
+      SPRING_APPLICATION_NAME: backend
     depends_on:
       config-server:
         condition: service_healthy
