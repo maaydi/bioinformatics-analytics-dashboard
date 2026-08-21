@@ -6,19 +6,6 @@ spring:
   config:
     import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
 
-  # ── Datasource ──────────────────────────────────────────────────────────────
-  datasource:
-    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}"
-    username: "${SPRING_DATASOURCE_USERNAME:bio_user}"
-    password: "${SPRING_DATASOURCE_PASSWORD:password}"
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      pool-name: AuthServicePool
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
 
   # ── JPA / Hibernate ──────────────────────────────────────────────────────────
   jpa:
@@ -32,7 +19,7 @@ spring:
           order_inserts: true
           order_updates: true
         format_sql: false
-    open-in-view: false           # Avoid OSIV anti-pattern
+    open-in-view: false           # Avoid OSIV antipattern
 
   # ── Flyway ───────────────────────────────────────────────────────────────────
   flyway:
@@ -78,3 +65,15 @@ management:
 
 common:
   enabled: true
+  # Auth-service uses a single node; replica falls back to primary when no replica is provisioned.
+  datasource:
+    primary-url: "${DB_PRIMARY_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}"
+    primary-username: "${DB_PRIMARY_USERNAME:bio_user}"
+    primary-password: "${DB_PRIMARY_PASSWORD:password}"
+    replica-url: "${DB_REPLICA_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}"
+    replica-username: "${DB_REPLICA_USERNAME:bio_user}"
+    replica-password: "${DB_REPLICA_PASSWORD:password}"
+    pool:
+      max-size: 10
+      min-idle: 2
+      connection-timeout-ms: 30000
