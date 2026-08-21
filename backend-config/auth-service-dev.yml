@@ -1,0 +1,63 @@
+# ── Auth-service dev overrides ────────────────────────────────────────────────
+server:
+  port: 0   # random port for local dev + Eureka
+
+spring:
+  # ── Datasource (common-starter primary/replica) ───────────────────────────
+  datasource:
+    url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    username: bio_user
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      pool-name: auth-dev-pool
+
+  # ── Logging verbosity for dev ─────────────────────────────────────────────
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.bioinformatics.auth: DEBUG
+    org.springframework.security: DEBUG
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_AT_LEAST_256_BITS_REPLACE_IN_PROD}
+    access-token-expiry-seconds: 3600
+    refresh-token-expiry-seconds: 86400
+
+  # Relax password constraints for local test accounts
+  password:
+    bcrypt-strength: 4             # Lower cost for fast test cycles
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# ── Common datasource (common-starter) ───────────────────────────────────────
+common:
+  datasource:
+    primary-url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    primary-username: bio_user
+    primary-password: password
+    replica-url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    replica-username: bio_user
+    replica-password: password
+    pool:
+      max-size: 10
+      min-idle: 2
+      connection-timeout-ms: 30000
+

@@ -1,0 +1,89 @@
+# ── Auth-service specific config (all profiles) ──────────────────────────────
+
+# ── JPA / Hibernate ───────────────────────────────────────────────────────────
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate          # Flyway owns the schema; Hibernate only validates
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: auth
+        '[format_sql]': false
+        '[default_batch_fetch_size]': 25
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+    open-in-view: false           # Avoid OSIV antipattern
+
+  # ── Flyway ─────────────────────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: auth
+    default-schema: auth
+    create-schemas: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+# ── JWT / Security config ─────────────────────────────────────────────────────
+app:
+  jwt:
+    # Overridden per profile (dev/prod)
+    secret: ${JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
+    access-token-expiry-seconds: 3600          # 1 h
+    refresh-token-expiry-seconds: 604800       # 7 days
+    issuer: bioinformatics-dashboard
+    audience: bioinformatics-dashboard-clients
+
+  # ── Token rotation & security ─────────────────────────────────────────────
+  token:
+    refresh-rotation-enabled: true             # Issue new refresh token on every refresh
+    max-active-sessions-per-user: 5            # Concurrent device limit
+
+  # ── Password policy ───────────────────────────────────────────────────────
+  password:
+    min-length: 8
+    require-uppercase: true
+    require-digit: true
+    require-special-char: false
+    bcrypt-strength: 12                        # BCrypt cost factor
+
+  # ── Rate limiting (auth endpoints) ────────────────────────────────────────
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 200
+      tokens: 200
+      seconds: 60
+    endpoints:
+      - name: login
+        capacity: 10
+        tokens: 10
+        seconds: 60                            # Brute-force protection
+      - name: register
+        capacity: 5
+        tokens: 5
+        seconds: 60
+      - name: refresh
+        capacity: 20
+        tokens: 20
+        seconds: 60
+      - name: logout
+        capacity: 30
+        tokens: 30
+        seconds: 60
+      - name: change-password
+        capacity: 5
+        tokens: 5
+        seconds: 60
+
+  # ── Audit pool ────────────────────────────────────────────────────────────
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 50
+    thread-name-prefix: auth-audit-
+

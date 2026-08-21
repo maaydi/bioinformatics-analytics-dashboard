@@ -1,0 +1,67 @@
+# ── Auth-service prod overrides ───────────────────────────────────────────────
+server:
+  port: 8081   # Fixed port; reverse-proxy / API gateway routes /auth/** here
+
+spring:
+  # ── Datasource ────────────────────────────────────────────────────────────
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      connection-timeout: 30000
+      pool-name: auth-prod-pool
+      keepalive-time: 30000
+
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.bioinformatics.auth: INFO
+    org.springframework.security: WARN
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}                              # Must be ≥ 256-bit random value
+    access-token-expiry-seconds: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
+    refresh-token-expiry-seconds: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:604800}
+
+  password:
+    bcrypt-strength: 12           # Full cost factor in production
+
+  token:
+    refresh-rotation-enabled: true
+    max-active-sessions-per-user: ${MAX_ACTIVE_SESSIONS_PER_USER:5}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# ── Common datasource (common-starter) ───────────────────────────────────────
+common:
+  datasource:
+    primary-url: ${DB_PRIMARY_URL}
+    primary-username: ${DB_PRIMARY_USERNAME}
+    primary-password: ${DB_PRIMARY_PASSWORD}
+    replica-url: ${DB_REPLICA_URL:${DB_PRIMARY_URL}}   # Falls back to primary if no replica
+    replica-username: ${DB_REPLICA_USERNAME:${DB_PRIMARY_USERNAME}}
+    replica-password: ${DB_REPLICA_PASSWORD:${DB_PRIMARY_PASSWORD}}
+    pool:
+      max-size: 30
+      min-idle: 5
+      connection-timeout-ms: 30000
+
