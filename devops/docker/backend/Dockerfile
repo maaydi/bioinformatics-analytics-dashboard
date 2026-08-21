@@ -3,6 +3,8 @@
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM eclipse-temurin:25-jre-alpine AS runtime
 
+ENV EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE='http://localhost:8761/eureka/'
+
 WORKDIR /app
 
 # Non-root user for security (OWASP A05)
@@ -18,7 +20,4 @@ RUN mkdir -p /tmp/bio-import
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", \
-  "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=75.0", \
-  "-jar", "dashboard.jar"]
+ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Deureka.client.serviceUrl.defaultZone=$EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE -jar dashboard.jar"]
