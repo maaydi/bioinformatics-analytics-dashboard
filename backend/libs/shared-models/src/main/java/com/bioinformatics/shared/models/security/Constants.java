@@ -1,0 +1,9 @@
+package com.bioinformatics.shared.models.security;
+
+public class Constants {
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String BEARER = "Bearer ";
+    public static final String USER_ID_HEADER = "X-User-Id";
+    public static final String USER_ROLE_HEADER = "X-User-Role";
+    public static final String DATA_PROVIDER_HEADER = "X-Data-Provider";
+}

@@ -286,7 +286,7 @@ endpoint/security behavior with the microservice migration target (`/api/v1/auth
   - Standardized service-token payload on `TokenResponse` (with `refreshToken = null`)
   - Added dedicated `TokenResponse.serviceBearer(...)` factory
 - ✅ Unit tests updated to reflect the migrated behavior:
-  - `AuthControllerTest` updated for versioned routing and service-token response shape
+  - `AuthControllerIntegrationTest` updated for versioned routing and service-token response shape
   - `AuthServiceTest` updated for unified `TokenResponse` assertions
 
 **Outcome:**

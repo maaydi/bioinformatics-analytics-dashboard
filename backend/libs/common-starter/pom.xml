@@ -39,6 +39,12 @@
             <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>shared-models</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- ── Tracing ──────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

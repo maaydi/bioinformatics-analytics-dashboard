@@ -325,8 +325,8 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.5 Gateway Integration
 
-- [ ] Gateway route `/api/v1/auth/**` → `lb://auth-service`
-- [ ] Gateway JWT filter skips token validation for `/api/v1/auth/login` and `/api/v1/auth/refresh`
+- [x] Gateway route `/api/v1/auth/**` → `lb://auth-service`
+- [x] Gateway JWT filter skips token validation for `/api/v1/auth/login` and `/api/v1/auth/refresh`
 
 #### Phase 1 — Tests
 
@@ -336,11 +336,11 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
   - [x] `refresh_validToken_returnsNewAccessToken`
   - [x] `changePassword_wrongCurrentPassword_throws401`
   - [x] `serviceToken_adminRequest_returnsShortLivedJwt`
-- [x] `AuthControllerTest` — WebMvc unit (login/refresh/logout/password/service-token + validation)
+- [x] `AuthControllerIntegrationTest` — WebMvc unit (login/refresh/logout/password/service-token + validation)
 - [ ] `AuthControllerIntegrationTest` — Testcontainers:
-    - [ ] Full login/refresh/password flow
-    - [ ] Service-token issuance
-- [ ] `GatewayAuthRoutingTest` — routes login through Gateway correctly
+  - [x] Full login/refresh/password flow
+  - [x] Service-token issuance
+- [x] `GatewayAuthRoutingTest` — routes login through Gateway correctly
 
 ---
 

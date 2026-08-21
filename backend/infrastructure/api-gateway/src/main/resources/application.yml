@@ -16,6 +16,23 @@ spring:
               enabled: true
               lower-case-service-id: true
           routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - RewritePath=/api/auth/(?<segment>.*), /api/v1/auth/${segment}
+
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+
+                - name: CircuitBreaker
+                  args:
+                    name: authServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/auth
             - id: dashboard
               uri: lb://dashboard
               predicates:
@@ -42,6 +59,10 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
+  security:
+    public-endpoints:
+      - auth/login
+      - auth/refresh
 
 eureka:
   client:
