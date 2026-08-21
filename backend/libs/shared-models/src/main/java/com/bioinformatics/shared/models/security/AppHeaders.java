@@ -10,8 +10,8 @@ import static com.bioinformatics.shared.models.security.Constants.*;
 public enum AppHeaders {
 
     USER_ID(USER_ID_HEADER, ""),
-    USER_ROLE(USER_ROLE_HEADER, "USER"),
-    DATA_PROVIDER(DATA_PROVIDER_HEADER, "postgres");
+    USER_ROLE(USER_ROLE_HEADER, Constants.USER_ROLE),
+    DATA_PROVIDER(DATA_PROVIDER_HEADER, POSTGRES_DATA_PROVIDER);
 
     private final String header;
     private final String defaultValue;
