@@ -1,5 +1,6 @@
 package com.bioinformatics.authservice.service;
 
+import com.bioinformatics.authservice.config.ApplicationProperties;
 import com.bioinformatics.authservice.dto.ChangePasswordRequest;
 import com.bioinformatics.authservice.dto.LoginRequest;
 import com.bioinformatics.authservice.dto.RefreshRequest;
@@ -50,7 +51,11 @@ class AuthServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
+    private static ApplicationProperties.Jwt MOCKED_JWT = new ApplicationProperties.Jwt("", "", "", 3600, 86000, 300, 32);
+
     private AuthService authService;
+    @Mock
+    private ApplicationProperties properties;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +65,8 @@ class AuthServiceTest {
                 jwtService,
                 passwordEncoder,
                 appUserRepository,
-                refreshTokenRepository
+                refreshTokenRepository,
+                properties
         );
     }
 
@@ -74,7 +80,7 @@ class AuthServiceTest {
         when(jwtService.generateAccessToken(user)).thenReturn("access-token");
         when(jwtService.generateRefreshToken(user)).thenReturn("refresh-token");
         when(jwtService.extractExpiration("refresh-token")).thenReturn(Instant.now().plusSeconds(86_400));
-        when(jwtService.getAccessTokenExpirySeconds()).thenReturn(3_600L);
+        when(properties.jwt()).thenReturn(MOCKED_JWT);
 
         var response = authService.login(request);
 
@@ -117,7 +123,7 @@ class AuthServiceTest {
                 .expiresAt(Instant.now().plusSeconds(300))
                 .revoked(false)
                 .build();
-
+        when(properties.jwt()).thenReturn(MOCKED_JWT);
         when(jwtService.isRefreshToken("old-refresh-token")).thenReturn(true);
         when(jwtService.extractUsername("old-refresh-token")).thenReturn("alice");
         when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
@@ -126,7 +132,6 @@ class AuthServiceTest {
         when(jwtService.generateAccessToken(user)).thenReturn("new-access-token");
         when(jwtService.generateRefreshToken(user)).thenReturn("new-refresh-token");
         when(jwtService.extractExpiration("new-refresh-token")).thenReturn(Instant.now().plusSeconds(86_400));
-        when(jwtService.getAccessTokenExpirySeconds()).thenReturn(3_600L);
 
         var response = authService.refresh(request);
 
@@ -179,7 +184,7 @@ class AuthServiceTest {
 
         when(appUserRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
         when(jwtService.generateServiceToken(admin)).thenReturn("service-token");
-        when(jwtService.getServiceTokenExpirySeconds()).thenReturn(300L);
+        when(properties.jwt()).thenReturn(MOCKED_JWT);
 
         var response = authService.issueServiceToken(admin.getUsername());
 
@@ -194,6 +199,7 @@ class AuthServiceTest {
     @Test
     void serviceToken_nonAdminRequest_throwsForbidden() {
         var user = activeUser();
+
         when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         assertThatThrownBy(() -> authService.issueServiceToken(user.getUsername()))
                 .isInstanceOf(AccessDeniedException.class)

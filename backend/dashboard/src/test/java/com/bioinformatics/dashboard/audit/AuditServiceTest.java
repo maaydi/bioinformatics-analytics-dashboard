@@ -37,7 +37,7 @@ class AuditServiceTest {
 
     @Test
     void save_shouldSaveAuditLog_whenActorIsProvided() {
-        var actor = new UserPrincipal("testuser", "USER", "");
+        var actor = new UserPrincipal("testuser", List.of("USER"), "");
 
         var webDetails = new AuditWebDetails("GET", "/api/test", "127.0.0.1");
 

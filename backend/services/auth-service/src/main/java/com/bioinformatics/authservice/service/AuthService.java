@@ -1,5 +1,6 @@
 package com.bioinformatics.authservice.service;
 
+import com.bioinformatics.authservice.config.ApplicationProperties;
 import com.bioinformatics.authservice.dto.*;
 import com.bioinformatics.authservice.entity.AppUser;
 import com.bioinformatics.authservice.entity.RefreshToken;
@@ -38,6 +39,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AppUserRepository appUserRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ApplicationProperties properties;
 
     private static String hashToken(final String token) {
         try {
@@ -113,7 +115,7 @@ public class AuthService {
         }
 
         var serviceToken = jwtService.generateServiceToken(managedUser);
-        return TokenResponse.serviceBearer(serviceToken, jwtService.getServiceTokenExpirySeconds());
+        return TokenResponse.serviceBearer(serviceToken, properties.jwt().serviceTokenExpirySeconds());
     }
 
     @Transactional
@@ -143,7 +145,7 @@ public class AuthService {
 
         saveRefreshToken(user, refreshToken);
 
-        return TokenResponse.bearer(accessToken, refreshToken, jwtService.getAccessTokenExpirySeconds());
+        return TokenResponse.bearer(accessToken, refreshToken, properties.jwt().accessTokenExpirySeconds());
     }
 
     private void saveRefreshToken(final AppUser user, final String rawRefreshToken) {
