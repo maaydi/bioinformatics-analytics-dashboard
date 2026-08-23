@@ -37,10 +37,6 @@ app:
       tokens: 100
       seconds: 60
     endpoints:
-      - name: login
-        capacity: 10
-        tokens: 10
-        seconds: 60
       - name: import
         capacity: 5
         tokens: 5

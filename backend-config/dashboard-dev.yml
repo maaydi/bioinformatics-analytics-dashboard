@@ -1,6 +1,6 @@
 # ── Dev overrides ────────────────────────────────────────────────────────────
 server:
-  port: 0   # random port for local dev + Eureka
+  port: 0
 
 spring:
   datasource:
@@ -16,12 +16,6 @@ spring:
     redis:
       host: redis
       password: password
-
-app:
-  jwt:
-    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
-    access-token-expiry-seconds: 3600
-    refresh-token-expiry-seconds: 86400
 
 eureka:
   client:

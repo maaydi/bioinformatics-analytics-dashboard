@@ -26,17 +26,7 @@ spring:
     create-schemas: true
     baseline-on-migrate: false
     validate-on-migrate: true
-
-# ── JWT / Security config ─────────────────────────────────────────────────────
 app:
-  jwt:
-    # Overridden per profile (dev/prod)
-    secret: ${JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
-    access-token-expiry-seconds: 3600          # 1 h
-    refresh-token-expiry-seconds: 604800       # 7 days
-    issuer: bioinformatics-dashboard
-    audience: bioinformatics-dashboard-clients
-
   # ── Token rotation & security ─────────────────────────────────────────────
   token:
     refresh-rotation-enabled: true             # Issue new refresh token on every refresh
@@ -48,7 +38,7 @@ app:
     require-uppercase: true
     require-digit: true
     require-special-char: false
-    bcrypt-strength: 12                        # BCrypt cost factor
+    bcrypt-strength: 12                        # Bcrypt cost factor
 
   # ── Rate limiting (auth endpoints) ────────────────────────────────────────
   rate-limiter:

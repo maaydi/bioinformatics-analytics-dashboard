@@ -27,9 +27,7 @@ logging:
 
 app:
   jwt:
-    secret: ${JWT_SECRET}                              # Must be ≥ 256-bit random value
-    access-token-expiry-seconds: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
-    refresh-token-expiry-seconds: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:604800}
+    secret: ${JWT_SECRET}   # REQUIRED
 
   password:
     bcrypt-strength: 12           # Full cost factor in production

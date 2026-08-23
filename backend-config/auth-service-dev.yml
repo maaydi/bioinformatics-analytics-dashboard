@@ -15,7 +15,6 @@ spring:
       connection-timeout: 30000
       pool-name: auth-dev-pool
 
-  # ── Logging verbosity for dev ─────────────────────────────────────────────
   jpa:
     show-sql: false
 
@@ -23,12 +22,6 @@ logging:
   level:
     com.bioinformatics.auth: DEBUG
     org.springframework.security: DEBUG
-
-app:
-  jwt:
-    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_AT_LEAST_256_BITS_REPLACE_IN_PROD}
-    access-token-expiry-seconds: 3600
-    refresh-token-expiry-seconds: 86400
 
   # Relax password constraints for local test accounts
   password:
