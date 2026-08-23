@@ -105,6 +105,7 @@ public class JwtService {
     private Claims parseClaims(final String token) {
         return Jwts.parser()
                 .verifyWith(buildSignKey())
+                .clockSkewSeconds(60)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

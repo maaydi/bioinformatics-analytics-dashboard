@@ -52,6 +52,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
         try {
             var claims = Jwts.parser()
                     .verifyWith(getSigningKey())
+                    .clockSkewSeconds(60)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();

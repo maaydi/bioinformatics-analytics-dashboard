@@ -119,7 +119,6 @@ services:
     environment:
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
-      APP_JWT_SECRET: ${JWT_SECRET}
       # Redis configuration
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
@@ -134,6 +133,8 @@ services:
       redis:
         condition: service_healthy
       discovery-server:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -211,10 +212,6 @@ services:
       DB_REPLICA_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       DB_REPLICA_USERNAME: bio_user
       DB_REPLICA_PASSWORD: password
-      # JWT configuration
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
-      JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
       config-server:
@@ -222,6 +219,10 @@ services:
       postgres:
         condition: service_healthy
       discovery-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api-gateway:
         condition: service_healthy
     volumes:
       - backend_logs:/app/logs
@@ -249,10 +250,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bioinformatics_db
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      # JWT configuration
-      APP_JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_TOKEN_EXPIRY_SECONDS: ${JWT_ACCESS_TOKEN_EXPIRY_SECONDS:-3600}
-      JWT_REFRESH_TOKEN_EXPIRY_SECONDS: ${JWT_REFRESH_TOKEN_EXPIRY_SECONDS:-86400}
       # File upload configuration
       SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:-2GB}
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:-2GB}
@@ -272,6 +269,8 @@ services:
       redis:
         condition: service_healthy
       discovery-server:
+        condition: service_healthy
+      api-gateway:
         condition: service_healthy
     volumes:
       - import_uploads:/tmp/import
@@ -295,7 +294,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
-      backend:
+      api-gateway:
         condition: service_healthy
 
 
