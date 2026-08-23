@@ -1,6 +1,6 @@
 package com.bioinformatics.authservice;
 
-import com.bioinformatics.authservice.security.ApplicationProperties;
+import com.bioinformatics.authservice.config.ApplicationProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

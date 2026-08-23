@@ -51,11 +51,11 @@ CREATE INDEX idx_rt_active ON auth.refresh_token (user_id, revoked, expires_at)
 -- constraint on role is intentionally satisfied by both values.
 INSERT INTO auth.app_user (username, password, role, status)
 VALUES ('user_test',
-        '$2a$12$uNS15QUniN5RL3rIvJkV5.KdZ7c9p5y2Fx1gBBc0.2i.iMKB3V/XO',
+        '$2b$10$sd7Wth3x55Z/0F/iZ9qyzu5g0Ndz25F3Beez6qBPAMHQY7C.88Bsu',
         'ROLE_USER',
         'ACTIVE'),
        ('admin_test',
-        '$2a$12$Mq4N.7V8qHV1Jn5YA1OyFOKCxZ2D3.RkL2j1oq8d9gM5Ei8/DlqX6',
+        '$2b$10$oFip6L2K1z7zDJHFvehoy.axDZHiFVuMZK4Xx8G9pHRkoGqewgSQa',
         'ROLE_ADMIN',
         'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
