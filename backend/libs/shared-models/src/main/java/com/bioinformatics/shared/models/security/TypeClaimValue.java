@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum AppClaims {
-    ROLE("role"),
-    TYPE("type"),
-    DATA_PROVIDER("dataProvider");
-    private final String claim;
+public enum TypeClaimValue {
+    ACCESS_TOKEN("access"),
+    REFRESH_TOKEN("refresh"),
+    SERVICE_TOKEN("service");
+    private final String value;
 }

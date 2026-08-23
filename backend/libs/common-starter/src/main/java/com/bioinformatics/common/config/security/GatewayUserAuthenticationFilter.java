@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.bioinformatics.shared.models.security.AppHeaders.*;
@@ -23,14 +24,17 @@ public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String ROLE = "ROLE_";
 
-    private static UsernamePasswordAuthenticationToken getAuthentication(final String userId, final String role, final String dataProvider) {
-        var principal = new UserPrincipal(userId, role, dataProvider);
 
-        var formattedRole = (role != null && !role.startsWith(ROLE))
-                ? ROLE + role
-                : (role != null ? role : ROLE.concat(USER_ROLE.getDefaultValue()));
+    private static UsernamePasswordAuthenticationToken getAuthentication(final String userId, final List<String> roles, final String dataProvider) {
+        var principal = new UserPrincipal(userId, roles, dataProvider);
 
-        var authorities = List.of(new SimpleGrantedAuthority(formattedRole));
+        var authorities = roles
+                .stream()
+                .map(role -> (role != null && !role.startsWith(ROLE))
+                        ? ROLE + role
+                        : (role != null ? role : ROLE.concat(USER_ROLE.getDefaultValue())))
+                .map(SimpleGrantedAuthority::new)
+                .toList();
 
         return new UsernamePasswordAuthenticationToken(principal, null, authorities);
     }
@@ -43,16 +47,16 @@ public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         var userId = request.getHeader(USER_ID.getHeader());
-        var role = request.getHeader(USER_ROLE.getHeader());
+        var roles = new ArrayList<String>();
+        request.getHeaders(USER_ROLE.getHeader()).asIterator().forEachRemaining(roles::add);
         var dataProvider = request.getHeader(DATA_PROVIDER.getHeader());
 
         if (userId != null && !userId.isBlank()) {
-            var authentication = getAuthentication(userId, role, dataProvider);
+            var authentication = getAuthentication(userId, roles, dataProvider);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         filterChain.doFilter(request, response);
     }
+
 }

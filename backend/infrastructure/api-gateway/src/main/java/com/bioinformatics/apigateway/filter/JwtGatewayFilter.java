@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.bioinformatics.shared.models.security.AppHeaders.*;
@@ -47,7 +48,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
             return unauthorized(exchange);
         }
 
-        var token = authHeader.substring(7);
+        var token = authHeader.substring(BEARER.length());
         try {
             var claims = Jwts.parser()
                     .verifyWith(getSigningKey())
@@ -61,13 +62,12 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
             }
 
             var userId = claims.getSubject();
-            var role = claims.get(AppClaims.ROLE.getClaim(), String.class);
-            var provider = claims.get(AppClaims.DATA_PROVIDER.getClaim(), String.class);
-
+            var role = getRoleClaim(claims.get(AppClaims.ROLE.getClaim()));
             var mutated = exchange.getRequest().mutate()
                     .header(USER_ID.getHeader(), Objects.requireNonNullElse(userId, USER_ID.getDefaultValue()))
-                    .header(USER_ROLE.getHeader(), Objects.requireNonNullElse(role, USER_ROLE.getDefaultValue()))
-                    .header(DATA_PROVIDER.getHeader(), Objects.requireNonNullElse(provider, DATA_PROVIDER.getDefaultValue()))
+                    .header(USER_ROLE.getHeader(), role.toArray(String[]::new))
+                    // TODO change this logic for provider
+                    .header(DATA_PROVIDER.getHeader(), Objects.requireNonNullElse(null, DATA_PROVIDER.getDefaultValue()))
                     .build();
 
             return chain.filter(exchange.mutate().request(mutated).build());
@@ -85,13 +85,21 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
     }
 
     private SecretKey getSigningKey() {
+        var hs256KeyBytes = properties.jwt().keyBytesLen();
         byte[] keyBytes = properties.jwt().secret().getBytes(StandardCharsets.UTF_8);
-        if (keyBytes.length < 32) {               // pad short secrets for HS256
-            byte[] padded = new byte[32];
+        if (keyBytes.length < hs256KeyBytes) {
+            byte[] padded = new byte[hs256KeyBytes];
             System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
             keyBytes = padded;
         }
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private List<String> getRoleClaim(Object role) {
+        if (role instanceof List<?> roles) {
+            return roles.stream().map(Object::toString).toList();
+        }
+        return List.of(USER_ROLE.getDefaultValue());
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
