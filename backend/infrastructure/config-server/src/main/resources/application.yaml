@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: ${SERVER_PORT:8888}
 
 spring:
   application:
@@ -8,22 +8,22 @@ spring:
     config:
       server:
         git:
-          uri: ${CONFIG_REPO_URI:http://localhost:3000/bioinformatics/config-repo.git}
+          uri: ${SPRING_CLOUD_CONFIG_SERVER_GIT_URI:http://localhost:3000/bioinformatics/config-repo.git}
           clone-on-start: true
           default-label: main
-          username: ${GITEA_USER:config-user}
-          password: ${GITEA_PASSWORD:config-pass}
+          username: ${SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME:config-user}
+          password: ${SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD:config-pass}
           skip-ssl-validation: true   # local dev only
         encrypt:
           enabled: true
 
 encrypt:
-  key: ${CONFIG_ENCRYPT_KEY:ChangeMeInProduction-32CharKey!!}
+  key: ${ENCRYPT_KEY:ChangeMeInProduction-32CharKey!!}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:

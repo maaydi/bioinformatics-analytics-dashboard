@@ -6,74 +6,25 @@ spring:
   config:
     import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
 
-
-  # ── JPA / Hibernate ──────────────────────────────────────────────────────────
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}
+    username: ${SPRING_DATASOURCE_USERNAME:bio_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
   jpa:
-    hibernate:
-      ddl-auto: validate          # Flyway owns the schema; Hibernate only validates
-    properties:
-      hibernate:
-        default_schema: auth      # All unqualified table references resolve to auth.*
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
-        format_sql: false
-    open-in-view: false           # Avoid OSIV antipattern
+    open-in-view: false
 
-  # ── Flyway ───────────────────────────────────────────────────────────────────
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    schemas: auth                 # Flyway manages only the auth schema
     default-schema: auth
-    create-schemas: true
-    baseline-on-migrate: false
-    validate-on-migrate: true
 
-# ── Server ─────────────────────────────────────────────────────────────────────
 server:
-  port: ${SERVER_PORT:0} # randomly picked — Eureka handles discovery
+  port: ${SERVER_PORT:0}
 
-# ── Eureka configurations ──────────────────────────────────────────────────────
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
-    healthcheck:
-      enabled: true
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
-    metadata-map:
-      version: ${application.version:dev}
-      profile: ${spring.profiles.active:default}
-
-# ── Actuator ───────────────────────────────────────────────────────────────────
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,flyway
-  endpoint:
-    health:
-      show-details: when-authorized
-
-common:
-  enabled: true
-  # Auth-service uses a single node; replica falls back to primary when no replica is provisioned.
-  datasource:
-    primary-url: "${DB_PRIMARY_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}"
-    primary-username: "${DB_PRIMARY_USERNAME:bio_user}"
-    primary-password: "${DB_PRIMARY_PASSWORD:password}"
-    replica-url: "${DB_REPLICA_URL:jdbc:postgresql://localhost:5432/bioinformatics_db}"
-    replica-username: "${DB_REPLICA_USERNAME:bio_user}"
-    replica-password: "${DB_REPLICA_PASSWORD:password}"
-    pool:
-      max-size: 10
-      min-idle: 2
-      connection-timeout-ms: 30000

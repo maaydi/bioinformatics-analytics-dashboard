@@ -1,9 +1,11 @@
-# ── Auth-service dev overrides ────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Auth Service — development overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
 server:
-  port: 0   # random port for local dev + Eureka
+  port: 0
 
 spring:
-  # ── Datasource (common-starter primary/replica) ───────────────────────────
   datasource:
     url: jdbc:postgresql://postgres:5432/bioinformatics_db
     username: bio_user
@@ -23,10 +25,6 @@ logging:
     com.bioinformatics.auth: DEBUG
     org.springframework.security: DEBUG
 
-  # Relax password constraints for local test accounts
-  password:
-    bcrypt-strength: 4             # Lower cost for fast test cycles
-
 eureka:
   client:
     service-url:
@@ -40,7 +38,6 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# ── Common datasource (common-starter) ───────────────────────────────────────
 common:
   datasource:
     primary-url: jdbc:postgresql://postgres:5432/bioinformatics_db
@@ -54,3 +51,6 @@ common:
       min-idle: 2
       connection-timeout-ms: 30000
 
+app:
+  password:
+    bcrypt-strength: 4

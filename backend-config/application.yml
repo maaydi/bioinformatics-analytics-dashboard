@@ -1,4 +1,8 @@
-# ── Common Spring settings ───────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared configuration inherited by ALL services via Spring Cloud Config Server
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Spring ───────────────────────────────────────────────────────────────────
 spring:
   jpa:
     hibernate:
@@ -13,19 +17,24 @@ spring:
           batch_versioned_data: true
         order_inserts: true
         order_updates: true
-    open-in-view: on
+    open-in-view: false
+
   batch:
     jdbc:
       initialize-schema: always
+
   servlet:
     multipart:
       max-file-size: 2GB
       max-request-size: 2GB
+
   web:
     error:
       include-message: never
+
   cache:
     type: redis
+
   data:
     redis:
       port: 6379
@@ -40,18 +49,19 @@ flyway:
   locations: classpath:db/migration
   baseline-on-migrate: true
   validate-on-migrate: true
-# ── Shared App configuration (inherited by all services) ─────────────────────
+
+# ── Application: JWT (shared) ────────────────────────────────────────────────
 app:
   jwt:
-    secret: ${JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
+    secret: ${APP_JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
     issuer: bioinformatics-auth
     audience: bioinformatics-dashboard-clients
-    access-token-expiry-seconds: 3600
-    refresh-token-expiry-seconds: 604800
+    access-token-expiry-seconds: ${APP_JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
+    refresh-token-expiry-seconds: ${APP_JWT_REFRESH_TOKEN_EXPIRY_SECONDS:604800}
     service-token-expiry-seconds: 300
     key-bytes-len: 32
 
-# ── Shared logging & management ──────────────────────────────────────────────
+# ── Logging ──────────────────────────────────────────────────────────────────
 logging:
   config: classpath:logback-spring.xml
   file:
@@ -61,6 +71,7 @@ logging:
     org.hibernate.SQL: WARN
     org.springframework.cloud.config: DEBUG
 
+# ── Management / Actuator ────────────────────────────────────────────────────
 management:
   endpoints:
     web:

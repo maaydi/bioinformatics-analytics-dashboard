@@ -1,4 +1,7 @@
-# ── Prod overrides ───────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Dashboard Service — production overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
 server:
   port: 8080
 
@@ -12,6 +15,7 @@ spring:
       maximum-pool-size: 50
       minimum-idle: 10
       connection-timeout: 30000
+
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST}

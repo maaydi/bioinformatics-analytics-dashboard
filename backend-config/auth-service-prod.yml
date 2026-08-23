@@ -1,9 +1,11 @@
-# ── Auth-service prod overrides ───────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Auth Service — production overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
 server:
-  port: 8081   # Fixed port; reverse-proxy / API gateway routes /auth/** here
+  port: 8081
 
 spring:
-  # ── Datasource ────────────────────────────────────────────────────────────
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -25,17 +27,6 @@ logging:
     com.bioinformatics.auth: INFO
     org.springframework.security: WARN
 
-app:
-  jwt:
-    secret: ${JWT_SECRET}   # REQUIRED
-
-  password:
-    bcrypt-strength: 12           # Full cost factor in production
-
-  token:
-    refresh-rotation-enabled: true
-    max-active-sessions-per-user: ${MAX_ACTIVE_SESSIONS_PER_USER:5}
-
 eureka:
   client:
     service-url:
@@ -49,17 +40,26 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
-# ── Common datasource (common-starter) ───────────────────────────────────────
 common:
   datasource:
-    primary-url: ${DB_PRIMARY_URL}
-    primary-username: ${DB_PRIMARY_USERNAME}
-    primary-password: ${DB_PRIMARY_PASSWORD}
-    replica-url: ${DB_REPLICA_URL:${DB_PRIMARY_URL}}   # Falls back to primary if no replica
-    replica-username: ${DB_REPLICA_USERNAME:${DB_PRIMARY_USERNAME}}
-    replica-password: ${DB_REPLICA_PASSWORD:${DB_PRIMARY_PASSWORD}}
+    primary-url: ${COMMON_DATASOURCE_PRIMARY_URL}
+    primary-username: ${COMMON_DATASOURCE_PRIMARY_USERNAME}
+    primary-password: ${COMMON_DATASOURCE_PRIMARY_PASSWORD}
+    replica-url: ${COMMON_DATASOURCE_REPLICA_URL:${COMMON_DATASOURCE_PRIMARY_URL}}
+    replica-username: ${COMMON_DATASOURCE_REPLICA_USERNAME:${COMMON_DATASOURCE_PRIMARY_USERNAME}}
+    replica-password: ${COMMON_DATASOURCE_REPLICA_PASSWORD:${COMMON_DATASOURCE_PRIMARY_PASSWORD}}
     pool:
       max-size: 30
       min-idle: 5
       connection-timeout-ms: 30000
 
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}   # REQUIRED
+
+  password:
+    bcrypt-strength: 12
+
+  token:
+    refresh-rotation-enabled: true
+    max-active-sessions-per-user: ${APP_TOKEN_MAX_ACTIVE_SESSIONS_PER_USER:5}

@@ -1,59 +1,72 @@
-# ── App-specific business config ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Dashboard Service — business configuration (all profiles)
+# ─────────────────────────────────────────────────────────────────────────────
+
 app:
   batch:
-    chunk-size: 250
-    skip-limit: 1000
+    chunk-size: ${APP_BATCH_CHUNK_SIZE:250}
+    skip-limit: ${APP_BATCH_SKIP_LIMIT:1000}
+
   uniprot-api:
-    base-url: https://rest.uniprot.org
+    base-url: ${APP_UNIPROT_API_BASE_URL:https://rest.uniprot.org}
     batch:
-      chunk-size: 100
-      skip-limit: 1000
+      chunk-size: ${APP_UNIPROT_API_BATCH_CHUNK_SIZE:100}
+      skip-limit: ${APP_UNIPROT_API_BATCH_SKIP_LIMIT:1000}
+
   import-config:
-    temp-dir: ${APP_DIR}/.bio-import
+    temp-dir: ${APP_IMPORT_CONFIG_TEMP_DIR:${user.home}/.bio-import}
     extensions: dat,tsv
     pool:
       core-size: 2
       max-size: 10
       queue-capacity: 25
       thread-name-prefix: BatchAsync-
+
   export:
     csv:
       max-rows: 100000
+
   view-refresh:
-    max-attempts: 3
-    per-view-timeout-ms: 45000
-    retry-backoff-ms: 2000
-    sequence-sla-ms: 180000
+    max-attempts: ${APP_VIEW_REFRESH_MAX_ATTEMPTS:3}
+    per-view-timeout-ms: ${APP_VIEW_REFRESH_PER_VIEW_TIMEOUT_MS:45000}
+    retry-backoff-ms: ${APP_VIEW_REFRESH_RETRY_BACKOFF_MS:2000}
+    sequence-sla-ms: ${APP_VIEW_REFRESH_SEQUENCE_SLA_MS:180000}
+
   audit-pool:
     core-size: 1
     max-size: 10
     queue-capacity: 25
     thread-name-prefix: audit-
+
   rate-limiter:
     enabled: true
     global:
       name: global
-      capacity: 100
-      tokens: 100
-      seconds: 60
+      capacity: ${APP_RATE_LIMITER_GLOBAL_CAPACITY:100}
+      tokens: ${APP_RATE_LIMITER_GLOBAL_TOKENS:100}
+      seconds: ${APP_RATE_LIMITER_GLOBAL_SECONDS:60}
     endpoints:
+      - name: login
+        capacity: ${APP_RATE_LIMITER_LOGIN_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_LOGIN_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_LOGIN_SECONDS:60}
       - name: import
-        capacity: 5
-        tokens: 5
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_IMPORT_CAPACITY:5}
+        tokens: ${APP_RATE_LIMITER_IMPORT_TOKENS:5}
+        seconds: ${APP_RATE_LIMITER_IMPORT_SECONDS:60}
       - name: search
-        capacity: 30
-        tokens: 30
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_SEARCH_CAPACITY:30}
+        tokens: ${APP_RATE_LIMITER_SEARCH_TOKENS:30}
+        seconds: ${APP_RATE_LIMITER_SEARCH_SECONDS:60}
       - name: detail
-        capacity: 60
-        tokens: 60
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_DETAIL_CAPACITY:60}
+        tokens: ${APP_RATE_LIMITER_DETAIL_TOKENS:60}
+        seconds: ${APP_RATE_LIMITER_DETAIL_SECONDS:60}
       - name: analysis
-        capacity: 20
-        tokens: 20
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_ANALYSIS_CAPACITY:20}
+        tokens: ${APP_RATE_LIMITER_ANALYSIS_TOKENS:20}
+        seconds: ${APP_RATE_LIMITER_ANALYSIS_SECONDS:60}
       - name: export
-        capacity: 10
-        tokens: 10
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_EXPORT_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_EXPORT_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_EXPORT_SECONDS:60}

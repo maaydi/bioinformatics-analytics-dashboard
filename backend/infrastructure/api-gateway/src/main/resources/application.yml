@@ -1,89 +1,21 @@
-server:
-  port: ${SERVER_PORT:8080}
-
 spring:
   application:
     name: api-gateway
   profiles:
     active: "${SPRING_PROFILES_ACTIVE:dev}"
+  config:
+    import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
 
-  cloud:
-    gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: true
-              lower-case-service-id: true
-          routes:
-            - id: auth-service
-              uri: lb://auth-service
-              predicates:
-                - Path=/api/auth/**
-              filters:
-                - RewritePath=/api/auth/(?<segment>.*), /api/v1/auth/${segment}
-
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 10
-                    key-resolver: "#{@userRouteKeyResolver}"
-
-                - name: CircuitBreaker
-                  args:
-                    name: authServiceCircuitBreaker
-                    fallbackUri: forward:/fallback/auth
-            - id: dashboard
-              uri: lb://dashboard
-              predicates:
-                - Path=/api/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 10
-                    key-resolver: "#{@userRouteKeyResolver}"
-                - name: CircuitBreaker
-                  args:
-                    name: dashboardCircuitBreaker
-                    fallbackUri: forward:/fallback/dashboard
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: password
-      connect-timeout: 2000
-      client-name: bioinformatics-api-gateway
-      client-type: lettuce
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
 
-app:
-  jwt:
-    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
-  security:
-    public-endpoints:
-      - auth/login
-      - auth/refresh
+server:
+  port: ${SERVER_PORT:8080}
 
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
-    healthcheck:
-      enabled: true
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,gateway
-  endpoint:
-    health:
-      probes:
-        enabled: true

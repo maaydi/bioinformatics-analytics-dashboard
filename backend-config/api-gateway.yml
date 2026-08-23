@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: api-gateway
-  profiles:
-    active: "${SPRING_PROFILES_ACTIVE:dev}"
 
   cloud:
     gateway:
@@ -47,10 +45,10 @@ spring:
                     fallbackUri: forward:/fallback/dashboard
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: password
-      connect-timeout: 2000
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+      connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
       client-name: bioinformatics-api-gateway
       client-type: lettuce
 
