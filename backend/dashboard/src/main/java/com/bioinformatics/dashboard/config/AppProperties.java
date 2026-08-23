@@ -12,7 +12,6 @@ import java.util.List;
 @Getter
 public class AppProperties {
 
-    private final Jwt jwt = new Jwt();
     private final Batch batch = new Batch();
     private final ImportConfig importConfig = new ImportConfig();
     private final Export export = new Export();
@@ -20,14 +19,6 @@ public class AppProperties {
     private final ThreadPoolSettings auditPool = new ThreadPoolSettings();
     private final RateLimiter rateLimiter = new RateLimiter();
     private final UniProtApi uniprotApi = new UniProtApi();
-
-    @Getter
-    @Setter
-    public static class Jwt {
-        private String secret;
-        private long accessTokenExpirySeconds;
-        private long refreshTokenExpirySeconds;
-    }
 
     @Getter
     @Setter

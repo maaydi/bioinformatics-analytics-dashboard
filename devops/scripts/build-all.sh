@@ -10,8 +10,6 @@ echo "==> Building Spring Boot backend services..."
 cd "$ROOT_DIR/backend"
 mvn dependency:go-offline -q
 mvn clean package -DskipTests -q
-echo "    Discovery Server JAR: backend/infrastructure/discovery-server/target/discovery-server-*.jar"
-echo "    Backend JAR: backend/dashboard/target/dashboard-*.jar"
 
 echo "==> Installing frontend dependencies..."
 cd "$ROOT_DIR/frontend"
