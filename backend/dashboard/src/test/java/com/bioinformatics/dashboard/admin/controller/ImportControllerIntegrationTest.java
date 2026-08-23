@@ -147,7 +147,8 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
-                        .header(USER_ID_HEADER, "regular_user"))
+                        .header(USER_ID_HEADER, "regular_user")
+                        .header(USER_ROLE_HEADER, "USER"))
                 .andExpect(status().isForbidden());
     }
 
@@ -428,6 +429,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "regular_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -585,6 +587,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", jobId)
                 .header(USER_ID_HEADER, "regular_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .exchange()
                 .expectStatus().isForbidden();
     }

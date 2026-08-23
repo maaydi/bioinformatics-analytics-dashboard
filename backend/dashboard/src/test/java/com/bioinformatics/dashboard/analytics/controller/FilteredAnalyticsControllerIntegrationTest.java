@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import java.util.List;
 
 import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -76,6 +77,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/dashboard-kpis")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -97,6 +99,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/length-histogram")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -117,6 +120,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/by-organism?limit=50")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -140,6 +144,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/reviewed-ratio")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -154,6 +159,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/evidence-levels")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -174,6 +180,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/keyword-frequency?limit=100")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -194,6 +201,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/length-weight")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -218,6 +226,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/compare")
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(compareRequest)
                 .exchange()
                 .expectStatus().isOk()
@@ -235,6 +244,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/by-organism?limit=201") // Limit max is 200
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -254,6 +264,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         restClient.post()
                 .uri("/api/analytics/filters/keyword-frequency?limit=501") // Limit max is 500
                 .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
                 .exchange()
                 .expectStatus().isBadRequest()

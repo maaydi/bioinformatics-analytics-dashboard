@@ -32,3 +32,14 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+app:
+  audit-pool:
+    core-size: 1
+    max-size: 10
+    queue-capacity: 25
+    thread-name-prefix: audit-
+
+  export:
+    csv:
+      max-rows: 100000

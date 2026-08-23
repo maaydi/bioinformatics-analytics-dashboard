@@ -126,6 +126,7 @@ class GeneControllerIntegrationTest {
         restClient.post()
                 .uri("/api/genes/search")
                 .header(USER_ID_HEADER, "regular_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -193,6 +194,7 @@ class GeneControllerIntegrationTest {
         restClient.post()
                 .uri("/api/genes/search")
                 .header(USER_ID_HEADER, "regular_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(request)
                 .exchange()
                 .expectStatus().is4xxClientError();

@@ -25,3 +25,13 @@ common:
     replica-username: ${TEST_DB_USER:bio_user}
     replica-password: ${TEST_DB_PASS:bio_password}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
+    issuer: bioinformatics-auth
+    audience: bioinformatics-dashboard-clients
+    access-token-expiry-seconds: ${APP_JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
+    refresh-token-expiry-seconds: ${APP_JWT_REFRESH_TOKEN_EXPIRY_SECONDS:604800}
+    service-token-expiry-seconds: 300
+    key-bytes-len: 32

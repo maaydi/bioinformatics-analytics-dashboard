@@ -167,7 +167,8 @@ class AuthControllerIntegrationTest {
 
         restClient.put()
                 .uri(AUTH_BASE_URL + "/password")
-                .header(USER_ID_HEADER, "alice")
+                .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .body(new ChangePasswordRequest("secret", "Abcdef"))
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -206,7 +207,8 @@ class AuthControllerIntegrationTest {
 
         restClient.post()
                 .uri(AUTH_BASE_URL + "/service-token")
-                .header(USER_ID_HEADER, "alice")
+                .header(USER_ID_HEADER, "analytics_user")
+                .header(USER_ROLE_HEADER, "USER")
                 .exchange()
                 .expectStatus().isForbidden();
     }
