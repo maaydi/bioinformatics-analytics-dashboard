@@ -47,7 +47,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getDashboardKpis(any(GeneSearchRequest.class))).thenReturn(dto);
 
         restClient.post()
-                .uri("/api/analytics/filters/dashboard-kpis")
+                .uri("/api/v1/analytics/filters/dashboard-kpis")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -69,7 +69,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getLengthHistogram(any(GeneSearchRequest.class))).thenReturn(List.of(dto));
 
         restClient.post()
-                .uri("/api/analytics/filters/length-histogram")
+                .uri("/api/v1/analytics/filters/length-histogram")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -90,7 +90,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getByOrganism(eq(50), any(GeneSearchRequest.class))).thenReturn(List.of(dto));
 
         restClient.post()
-                .uri("/api/analytics/filters/by-organism?limit=50")
+                .uri("/api/v1/analytics/filters/by-organism?limit=50")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -114,7 +114,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getEvidenceLevels(any(GeneSearchRequest.class))).thenReturn(List.of(evidence));
 
         restClient.post()
-                .uri("/api/analytics/filters/reviewed-ratio")
+                .uri("/api/v1/analytics/filters/reviewed-ratio")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -129,7 +129,7 @@ class FilteredAnalyticsControllerIntegrationTest {
                 });
 
         restClient.post()
-                .uri("/api/analytics/filters/evidence-levels")
+                .uri("/api/v1/analytics/filters/evidence-levels")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -150,7 +150,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getKeywordFrequency(eq(100), any(GeneSearchRequest.class))).thenReturn(List.of(dto));
 
         restClient.post()
-                .uri("/api/analytics/filters/keyword-frequency?limit=100")
+                .uri("/api/v1/analytics/filters/keyword-frequency?limit=100")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -171,7 +171,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         when(analyticsService.getProteinLengthWeightCount(any(GeneSearchRequest.class))).thenReturn(List.of());
 
         restClient.post()
-                .uri("/api/analytics/filters/length-weight")
+                .uri("/api/v1/analytics/filters/length-weight")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -196,7 +196,7 @@ class FilteredAnalyticsControllerIntegrationTest {
         doReturn(responseDto).when(analyticsService).compare(any(CompareRequestDto.class));
 
         restClient.post()
-                .uri("/api/analytics/filters/compare")
+                .uri("/api/v1/analytics/filters/compare")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(compareRequest)
@@ -214,7 +214,7 @@ class FilteredAnalyticsControllerIntegrationTest {
     @Test
     void getByOrganism_withInvalidLimit_returnsBadRequestWithoutServiceCall() {
         restClient.post()
-                .uri("/api/analytics/filters/by-organism?limit=201") // Limit max is 200
+                .uri("/api/v1/analytics/filters/by-organism?limit=201") // Limit max is 200
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)
@@ -234,7 +234,7 @@ class FilteredAnalyticsControllerIntegrationTest {
     @Test
     void getKeywordFrequency_withInvalidLimit_returnsBadRequestWithoutServiceCall() {
         restClient.post()
-                .uri("/api/analytics/filters/keyword-frequency?limit=501") // Limit max is 500
+                .uri("/api/v1/analytics/filters/keyword-frequency?limit=501") // Limit max is 500
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .body(emptySearchRequest)

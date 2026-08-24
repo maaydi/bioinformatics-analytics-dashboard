@@ -36,7 +36,7 @@ class AnalyticsControllerIntegrationTest {
         doReturn(dto).when(postgresAnalyticsService).getDashboardKpis();
 
         restClient.get()
-                .uri("/api/analytics/dashboard-kpis")
+                .uri("/api/v1/analytics/dashboard-kpis")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -57,7 +57,7 @@ class AnalyticsControllerIntegrationTest {
         when(postgresAnalyticsService.getLengthHistogram()).thenReturn(List.of(dto));
 
         restClient.get()
-                .uri("/api/analytics/length-histogram")
+                .uri("/api/v1/analytics/length-histogram")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -77,7 +77,7 @@ class AnalyticsControllerIntegrationTest {
         when(postgresAnalyticsService.getByOrganism(1)).thenReturn(List.of(dto));
 
         restClient.get()
-                .uri("/api/analytics/by-organism?limit=1")
+                .uri("/api/v1/analytics/by-organism?limit=1")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -99,7 +99,7 @@ class AnalyticsControllerIntegrationTest {
         when(postgresAnalyticsService.getEvidenceLevels()).thenReturn(List.of(evidence));
 
         restClient.get()
-                .uri("/api/analytics/reviewed-ratio")
+                .uri("/api/v1/analytics/reviewed-ratio")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -113,7 +113,7 @@ class AnalyticsControllerIntegrationTest {
                 });
 
         restClient.get()
-                .uri("/api/analytics/evidence-levels")
+                .uri("/api/v1/analytics/evidence-levels")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -133,7 +133,7 @@ class AnalyticsControllerIntegrationTest {
         when(postgresAnalyticsService.getKeywordFrequency(1)).thenReturn(List.of(dto));
 
         restClient.get()
-                .uri("/api/analytics/keyword-frequency?limit=1")
+                .uri("/api/v1/analytics/keyword-frequency?limit=1")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -150,7 +150,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getByOrganism_withInvalidLimit_returnsBadRequestWithoutServiceCall() {
         restClient.get()
-                .uri("/api/analytics/by-organism?limit=201")
+                .uri("/api/v1/analytics/by-organism?limit=201")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -169,7 +169,7 @@ class AnalyticsControllerIntegrationTest {
     @Test
     void getKeywordFrequency_withInvalidLimit_returnsBadRequestWithoutServiceCall() {
         restClient.get()
-                .uri("/api/analytics/keyword-frequency?limit=501")
+                .uri("/api/v1/analytics/keyword-frequency?limit=501")
                 .header(USER_ID_HEADER, "analytics_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()

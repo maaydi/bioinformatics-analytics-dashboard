@@ -29,7 +29,7 @@ import java.util.List;
  */
 @RestController
 @Validated
-@RequestMapping("/api/analytics/filters")
+@RequestMapping("/api/v1/analytics/filters")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN','USER')")
 public class FilteredAnalyticsController {

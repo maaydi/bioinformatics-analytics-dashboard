@@ -378,13 +378,13 @@ routing and serves as a performance benchmark.
 #### 2.3 API Implementation
 
 - [x] `AnalyticsController` — same endpoints as monolith, prefixed `/api/v1/analytics/`:
-    - [ ] `GET /api/v1/analytics/dashboard-kpis`
-    - [ ] `GET /api/v1/analytics/length-histogram`
-    - [ ] `GET /api/v1/analytics/by-organism`
-    - [ ] `GET /api/v1/analytics/reviewed-ratio`
-    - [ ] `GET /api/v1/analytics/evidence-levels`
-    - [ ] `GET /api/v1/analytics/keyword-frequency`
-    - [ ] `POST /api/v1/analytics/compare` (moved from monolith)
+  - [x] `GET /api/v1/analytics/dashboard-kpis`
+  - [x] `GET /api/v1/analytics/length-histogram`
+  - [x] `GET /api/v1/analytics/by-organism`
+  - [x] `GET /api/v1/analytics/reviewed-ratio`
+  - [x] `GET /api/v1/analytics/evidence-levels`
+  - [x] `GET /api/v1/analytics/keyword-frequency`
+  - [x] `POST /api/v1/analytics/compare` (moved from monolith)
 - [x] `AnalyticsService` — delegates to repositories, validates `limit` params
 - [x] DTOs: `DashboardKpisDto`, `LengthBucketDto`, etc. (copied from monolith)
 
@@ -402,8 +402,8 @@ routing and serves as a performance benchmark.
 
 #### Phase 2 — Tests
 
-- [ ] `AnalyticsServiceTest` — unit
-- [ ] `AnalyticsControllerIntegrationTest` — Testcontainers with read replica
+- [x] `AnalyticsServiceTest` — unit
+- [x] `AnalyticsControllerIntegrationTest` — Testcontainers with read replica
 - [ ] `ProteinImportedEventListenerTest` — `@EmbeddedKafka`
 - [ ] `ReadReplicaRoutingTest` — verifies zero primary connections during analytics queries
 
