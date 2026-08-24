@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.service;
 
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import lombok.RequiredArgsConstructor;

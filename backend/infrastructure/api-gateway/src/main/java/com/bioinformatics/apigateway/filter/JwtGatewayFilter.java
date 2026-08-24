@@ -26,7 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.bioinformatics.shared.models.security.AppHeaders.*;
+import static com.bioinformatics.shared.models.security.AppHeaders.USER_ID;
+import static com.bioinformatics.shared.models.security.AppHeaders.USER_ROLE;
 
 @Component
 @Slf4j
@@ -67,8 +68,6 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
             var mutated = exchange.getRequest().mutate()
                     .header(USER_ID.getHeader(), Objects.requireNonNullElse(userId, USER_ID.getDefaultValue()))
                     .header(USER_ROLE.getHeader(), role.toArray(String[]::new))
-                    // TODO change this logic for provider
-                    .header(DATA_PROVIDER.getHeader(), Objects.requireNonNullElse(null, DATA_PROVIDER.getDefaultValue()))
                     .build();
 
             return chain.filter(exchange.mutate().request(mutated).build());

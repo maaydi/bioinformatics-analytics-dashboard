@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader.processor.handler;
 
+import com.bioinformatics.common.gene.entity.ProteinComment;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.LineProcessor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinComment;
 import org.springframework.stereotype.Component;
 
 @Component

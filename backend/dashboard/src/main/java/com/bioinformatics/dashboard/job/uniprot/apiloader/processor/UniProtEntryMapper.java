@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.processor;
 
 
+import com.bioinformatics.common.gene.entity.*;
+import com.bioinformatics.common.gene.entity.Keyword;
 import com.bioinformatics.dashboard.model.uniprot.dto.*;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.*;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.Keyword;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

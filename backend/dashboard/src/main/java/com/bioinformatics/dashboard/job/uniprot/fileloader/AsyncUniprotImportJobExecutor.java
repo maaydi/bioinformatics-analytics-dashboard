@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader;
 
-import com.bioinformatics.dashboard.exception.ExecuteJobException;
+import com.bioinformatics.common.exception.ExecuteJobException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;

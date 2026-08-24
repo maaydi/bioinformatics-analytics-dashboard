@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.batch.counter;
 
-import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
+import com.bioinformatics.common.exception.UnsupportedFileTypeException;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.admin.service;
 
+import com.bioinformatics.common.exception.ExecuteJobException;
+import com.bioinformatics.common.exception.ImportAlreadyRunningException;
+import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.ExecuteJobException;
-import com.bioinformatics.dashboard.exception.ImportAlreadyRunningException;
-import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
-import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;

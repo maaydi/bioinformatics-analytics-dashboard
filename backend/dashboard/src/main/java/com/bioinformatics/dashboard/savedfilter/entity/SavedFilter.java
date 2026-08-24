@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.savedfilter.entity;
 
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
+import com.bioinformatics.common.providers.Provider;
 
 /**
  * Abstract base class for UniProt KB provider implementations.

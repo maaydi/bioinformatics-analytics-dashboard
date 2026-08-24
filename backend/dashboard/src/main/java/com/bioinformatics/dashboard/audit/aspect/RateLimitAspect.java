@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.audit.aspect;
 
+import com.bioinformatics.common.exception.RateLimitExceededException;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.RateLimitExceededException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.annotation.PostConstruct;

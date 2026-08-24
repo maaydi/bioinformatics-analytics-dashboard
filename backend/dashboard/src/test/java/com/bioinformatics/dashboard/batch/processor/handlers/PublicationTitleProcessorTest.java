@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.batch.processor.handlers;
 
+import com.bioinformatics.common.gene.entity.ProteinPublication;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.handler.PublicationTitleProcessor;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinPublication;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

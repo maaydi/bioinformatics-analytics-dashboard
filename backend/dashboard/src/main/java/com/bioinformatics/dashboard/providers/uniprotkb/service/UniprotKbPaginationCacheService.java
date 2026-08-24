@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.service;
 
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;

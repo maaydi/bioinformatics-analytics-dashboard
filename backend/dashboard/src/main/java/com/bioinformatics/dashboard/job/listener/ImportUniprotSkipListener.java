@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.job.listener;
 
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.listener.SkipListener;
 import org.springframework.stereotype.Component;

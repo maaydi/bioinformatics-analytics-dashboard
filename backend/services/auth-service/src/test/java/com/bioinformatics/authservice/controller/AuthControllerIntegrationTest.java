@@ -105,7 +105,7 @@ class AuthControllerIntegrationTest {
                 .consumeWith(result -> {
                     var body = result.getResponseBody();
                     assertThat(body).isNotNull();
-                    assertThat(body.getTitle()).isEqualTo("Validation Failed");
+                    assertThat(body.getTitle()).isEqualTo("Bad Request");
                 });
     }
 
@@ -176,7 +176,9 @@ class AuthControllerIntegrationTest {
                 .consumeWith(result -> {
                     var body = result.getResponseBody();
                     assertThat(body).isNotNull();
-                    assertThat(body.getProperties()).containsKey("errors");
+                    assertThat(body.getProperties()).containsKey("error");
+                    assert body.getProperties() != null;
+                    assertThat(body.getProperties().get("error").equals("Bad Request"));
                 });
     }
 

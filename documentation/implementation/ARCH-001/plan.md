@@ -370,14 +370,14 @@ routing and serves as a performance benchmark.
     CREATE MATERIALIZED VIEW analytics.mv_evidence_distribution AS ...;
     CREATE MATERIALIZED VIEW analytics.mv_keyword_frequency AS ...;
     ```
-- [ ] `AnalyticsRepository` — native `@Query` reading from `analytics.*` views
+- [x] `AnalyticsRepository` — native `@Query` reading from `analytics.*` views
 - [ ] **Routing DataSource:** analytics-service uses REPLICA exclusively (all endpoints read-only)
     - [ ] `@Transactional(readOnly = true)` at class level on service
     - [ ] Connection pool sized for read-heavy load (HikariCP max 50)
 
 #### 2.3 API Implementation
 
-- [ ] `AnalyticsController` — same endpoints as monolith, prefixed `/api/v1/analytics/`:
+- [x] `AnalyticsController` — same endpoints as monolith, prefixed `/api/v1/analytics/`:
     - [ ] `GET /api/v1/analytics/dashboard-kpis`
     - [ ] `GET /api/v1/analytics/length-histogram`
     - [ ] `GET /api/v1/analytics/by-organism`
@@ -385,8 +385,8 @@ routing and serves as a performance benchmark.
     - [ ] `GET /api/v1/analytics/evidence-levels`
     - [ ] `GET /api/v1/analytics/keyword-frequency`
     - [ ] `POST /api/v1/analytics/compare` (moved from monolith)
-- [ ] `AnalyticsService` — delegates to repositories, validates `limit` params
-- [ ] DTOs: `DashboardKpisDto`, `LengthBucketDto`, etc. (copied from monolith)
+- [x] `AnalyticsService` — delegates to repositories, validates `limit` params
+- [x] DTOs: `DashboardKpisDto`, `LengthBucketDto`, etc. (copied from monolith)
 
 #### 2.4 Event Consumer
 
@@ -397,8 +397,8 @@ routing and serves as a performance benchmark.
 
 #### 2.5 Monolith Adaptation
 
-- [ ] Monolith `AnalyticsController` deprecated — returns `307` or `410`
-- [ ] Monolith analytics repositories removed
+- [x] Monolith `AnalyticsController` deprecated — returns `307` or `410`
+- [x] Monolith analytics repositories removed
 
 #### Phase 2 — Tests
 

@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.admin.controller;
 
+import com.bioinformatics.common.exception.ErrorResponse;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.ErrorResponse;
 import com.bioinformatics.dashboard.job.dto.ImportJobProgress;
 import com.bioinformatics.dashboard.job.dto.ImportJobSummary;
 import com.bioinformatics.dashboard.job.dto.ImportStatus;
@@ -11,7 +12,6 @@ import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.counter.RecordCounter;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;

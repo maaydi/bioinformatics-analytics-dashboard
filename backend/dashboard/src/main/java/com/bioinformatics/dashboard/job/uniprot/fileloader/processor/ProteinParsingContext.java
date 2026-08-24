@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader.processor;
 
-import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.*;
+import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.gene.entity.*;
 import lombok.Data;
 
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.providers.dispatcher;
 
+import com.bioinformatics.common.providers.AbstractProviderDispatcher;
+import com.bioinformatics.common.providers.ProviderContextHolder;
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
-import com.bioinformatics.dashboard.providers.ProviderContextHolder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 

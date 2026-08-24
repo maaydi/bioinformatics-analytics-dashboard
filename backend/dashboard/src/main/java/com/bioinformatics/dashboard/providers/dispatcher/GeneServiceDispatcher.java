@@ -1,7 +1,8 @@
 package com.bioinformatics.dashboard.providers.dispatcher;
 
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.AbstractProviderDispatcher;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;

@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.specification;
 
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.providers.uniprotkb.service.UniProtSearchFieldService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

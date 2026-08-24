@@ -1,12 +1,12 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
+import com.bioinformatics.common.exception.ExportRowCapExceededException;
+import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
-import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
-import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;

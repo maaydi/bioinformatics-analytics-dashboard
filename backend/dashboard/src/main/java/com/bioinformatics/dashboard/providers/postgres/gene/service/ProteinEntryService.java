@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.service;
 
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.CrossReferenceRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinCommentRepository;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;

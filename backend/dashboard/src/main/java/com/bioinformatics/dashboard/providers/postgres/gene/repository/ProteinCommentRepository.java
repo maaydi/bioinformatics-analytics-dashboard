@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.repository;
 
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinComment;
+import com.bioinformatics.common.gene.entity.ProteinComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

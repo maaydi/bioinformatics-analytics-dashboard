@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader.counter;
 
-import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
+import com.bioinformatics.common.exception.UnsupportedFileTypeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

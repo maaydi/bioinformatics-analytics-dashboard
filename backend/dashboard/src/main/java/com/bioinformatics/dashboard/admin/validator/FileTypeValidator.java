@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.admin.validator;
 
+import com.bioinformatics.common.exception.UnsupportedFileTypeException;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.UnsupportedFileTypeException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

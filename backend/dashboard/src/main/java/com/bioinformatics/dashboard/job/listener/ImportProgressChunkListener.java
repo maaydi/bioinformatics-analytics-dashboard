@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.job.listener;
 
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.job.repository.ImportJobRepository;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.UniProtImportJobParameters;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

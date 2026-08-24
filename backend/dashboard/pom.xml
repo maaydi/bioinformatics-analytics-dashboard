@@ -139,6 +139,7 @@
         <dependency>
             <groupId>com.bioinformatics</groupId>
             <artifactId>common-starter</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- ── Test ────────────────────────────────────────────────────── -->

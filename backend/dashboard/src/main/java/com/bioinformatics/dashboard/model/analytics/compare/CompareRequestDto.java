@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.model.analytics.compare;
 
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import jakarta.validation.Valid;
 
 /**

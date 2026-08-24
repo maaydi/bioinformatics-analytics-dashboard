@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.interfaces.analytics;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
+import com.bioinformatics.common.providers.Provider;
 import com.bioinformatics.dashboard.model.analytics.*;
 
 import java.util.List;

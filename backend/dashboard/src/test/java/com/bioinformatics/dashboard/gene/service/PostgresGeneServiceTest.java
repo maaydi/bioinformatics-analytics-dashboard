@@ -1,13 +1,13 @@
 package com.bioinformatics.dashboard.gene.service;
 
+import com.bioinformatics.common.exception.ExportRowCapExceededException;
+import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.entity.ProteinEntry;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.ExportRowCapExceededException;
-import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.ProteinEntryService;

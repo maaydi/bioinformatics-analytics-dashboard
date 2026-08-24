@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.interfaces;
 
 
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
 
 /**

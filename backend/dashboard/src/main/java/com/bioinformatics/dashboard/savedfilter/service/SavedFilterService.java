@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.savedfilter.service;
 
-import com.bioinformatics.dashboard.exception.AccessDeniedException;
-import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
-import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.common.exception.AccessDeniedException;
+import com.bioinformatics.common.exception.DuplicateFilterNameException;
+import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;

@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.repository;
 
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinFeature;
+import com.bioinformatics.common.gene.entity.ProteinFeature;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

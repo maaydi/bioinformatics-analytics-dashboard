@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.postgres;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
+import com.bioinformatics.common.providers.Provider;
 
 public abstract class AbstractPostgresProvider implements Provider {
     @Override

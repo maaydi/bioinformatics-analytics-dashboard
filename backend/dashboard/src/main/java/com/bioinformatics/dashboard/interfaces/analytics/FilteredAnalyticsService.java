@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.interfaces.analytics;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.Provider;
 import com.bioinformatics.dashboard.model.analytics.*;
 import com.bioinformatics.dashboard.model.analytics.compare.CompareRequestDto;
 import com.bioinformatics.dashboard.model.analytics.compare.CompareResponseDto;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 
 import java.util.List;
 

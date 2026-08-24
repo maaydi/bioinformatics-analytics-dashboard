@@ -1,14 +1,14 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader;
 
+import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.exception.MalformedUniprotFileException;
 import com.bioinformatics.dashboard.job.dto.Constants;
 import com.bioinformatics.dashboard.job.listener.*;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinEntryItemProcessor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.reader.DelegatingItemStreamReader;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.reader.UniprotDatItemReader;
 import com.bioinformatics.dashboard.job.writer.ProteinAggregateItemWriter;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;

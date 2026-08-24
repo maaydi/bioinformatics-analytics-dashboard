@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader.processor;
 
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.job.resolver.KeywordResolver;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.interfaces.gene;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.Provider;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;

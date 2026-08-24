@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.interfaces.suggest;
 
-import com.bioinformatics.dashboard.interfaces.Provider;
+import com.bioinformatics.common.providers.Provider;
 
 import java.util.List;
 

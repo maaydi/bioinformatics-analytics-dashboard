@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.job.uniprot.fileloader.processor.handler;
 
+import com.bioinformatics.common.gene.entity.HostOrganism;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.LineProcessor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.processor.ProteinParsingContext;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.HostOrganism;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;

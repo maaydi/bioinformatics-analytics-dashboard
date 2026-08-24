@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
-import com.bioinformatics.dashboard.exception.AccessDeniedException;
-import com.bioinformatics.dashboard.exception.DuplicateFilterNameException;
-import com.bioinformatics.dashboard.exception.ResourceNotFoundException;
+import com.bioinformatics.common.exception.AccessDeniedException;
+import com.bioinformatics.common.exception.DuplicateFilterNameException;
+import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
-import com.bioinformatics.dashboard.model.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;

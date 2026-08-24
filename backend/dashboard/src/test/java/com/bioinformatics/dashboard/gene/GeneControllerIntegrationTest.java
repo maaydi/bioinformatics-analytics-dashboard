@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.gene;
 
+import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.admin.service.ImportService;
 import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.gene.entity.ProteinEntry;
 import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinEntryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
