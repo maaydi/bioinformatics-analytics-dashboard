@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Analytics Service — development overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 0
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      pool-name: analytics-dev-pool
+
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.bioinformatics.analyticsservice: DEBUG
+    org.springframework.security: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+common:
+  datasource:
+    primary-url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    primary-username: bio_user
+    primary-password: password
+    replica-url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    replica-username: bio_user
+    replica-password: password
+    pool:
+      max-size: 50
+      min-idle: 10
+      connection-timeout-ms: 30000
+
