@@ -359,7 +359,7 @@ routing and serves as a performance benchmark.
 
 #### 2.2 Database & Schema
 
-- [ ] Flyway `V1__analytics_schema.sql`:
+- [x] Flyway `V1__analytics_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS analytics;
     -- Materialized views moved from public schema
