@@ -11,11 +11,11 @@ RUN mkdir -p /app/logs && chown -R bioapp:bioapp /app/logs
 
 USER bioapp
 
-COPY target/*.jar auth-service.jar
+COPY target/*.jar analytics-service.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=50.0", \
-  "-jar", "auth-service.jar"]
+  "-XX:MaxRAMPercentage=75.0", \
+  "-jar", "analytics-service.jar"]
