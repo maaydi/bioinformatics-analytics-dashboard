@@ -137,6 +137,7 @@ public class ProteinEntry {
     // ── Relationships ─────────────────────────────────────────────────────────
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
+            schema = "public",
             name = "protein_keyword",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
@@ -150,6 +151,7 @@ public class ProteinEntry {
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
+            schema = "public",
             name = "protein_go_term",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "go_term_id")

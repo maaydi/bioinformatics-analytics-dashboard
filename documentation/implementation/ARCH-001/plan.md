@@ -371,9 +371,9 @@ routing and serves as a performance benchmark.
     CREATE MATERIALIZED VIEW analytics.mv_keyword_frequency AS ...;
     ```
 - [x] `AnalyticsRepository` — native `@Query` reading from `analytics.*` views
-- [ ] **Routing DataSource:** analytics-service uses REPLICA exclusively (all endpoints read-only)
-    - [ ] `@Transactional(readOnly = true)` at class level on service
-    - [ ] Connection pool sized for read-heavy load (HikariCP max 50)
+- [x] **Routing DataSource:** analytics-service uses REPLICA exclusively (all endpoints read-only)
+  - [x] `@Transactional(readOnly = true)` at class level on service
+  - [x] Connection pool sized for read-heavy load (HikariCP max 50)
 
 #### 2.3 API Implementation
 
