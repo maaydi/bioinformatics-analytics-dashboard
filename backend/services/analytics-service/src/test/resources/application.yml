@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: analytics-service
+  flyway:
+    enabled: true
+    create-schemas: true
+    schemas:
+      - public
+      - analytics
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false
+common:
+  enabled: true
+  datasource:
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    replica-url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
+    replica-username: ${TEST_DB_USER:bio_user}
+    replica-password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver

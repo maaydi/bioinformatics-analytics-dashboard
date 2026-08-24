@@ -353,9 +353,9 @@ routing and serves as a performance benchmark.
 
 #### 2.1 Service Setup
 
-- [ ] `AnalyticsServiceApplication` — port `8082`
-- [ ] Dependencies: `common-starter`, `spring-data-jpa`, no Spring Batch, no security (relies on Gateway)
-- [ ] `bootstrap.yml` — Config Server, Eureka
+- [x] `AnalyticsServiceApplication` — port `8082`
+- [x] Dependencies: `common-starter`, `spring-data-jpa`, no Spring Batch, no security (relies on Gateway)
+- [x] `bootstrap.yml` — Config Server, Eureka
 
 #### 2.2 Database & Schema
 
