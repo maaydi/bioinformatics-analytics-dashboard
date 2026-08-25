@@ -32,6 +32,7 @@
         <module>infrastructure/api-gateway</module>
         <module>services/auth-service</module>
         <module>services/analytics-service</module>
+        <module>services/import-service</module>
         <module>dashboard</module>
     </modules>
 

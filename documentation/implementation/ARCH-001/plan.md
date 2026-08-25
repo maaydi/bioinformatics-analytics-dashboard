@@ -419,9 +419,9 @@ domain events on completion.
 
 #### 3.1 Service Setup
 
-- [ ] `ImportServiceApplication` — port `8083`
-- [ ] Dependencies: `common-starter`, `spring-boot-starter-batch`, `spring-batch-core`, `spring-kafka`
-- [ ] `bootstrap.yml`
+- [x] `ImportServiceApplication` — port `8083`
+- [x] Dependencies: `common-starter`, `spring-boot-starter-batch`, `spring-batch-core`, `spring-kafka`
+- [x] `bootstrap.yml`
 
 #### 3.2 Database & Schema
 
