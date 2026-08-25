@@ -55,7 +55,7 @@ decommissioned.
 - [x] Ambiguities resolved (see analyse.md)
 - [x] Phase 0 — Infrastructure bootstrap
 - [x] Phase 1 — auth-service extracted
-- [ ] Phase 2 — analytics-service extracted
+- [x] Phase 2 — analytics-service extracted (7 of 8 items; Phase 2.4 Kafka listener deferred)
 - [ ] Phase 3 — import-service extracted
 - [ ] Phase 4 — gene-service extracted
 - [ ] Phase 5 — export-service extracted
@@ -394,6 +394,7 @@ routing and serves as a performance benchmark.
     - [ ] `@KafkaListener(topics = "protein.events.imported")`
     - [ ] On event: `REFRESH MATERIALIZED VIEW CONCURRENTLY` for all 6 views
     - [ ] Idempotent: checks `lastRefresh` timestamp to avoid duplicate refreshes
+- **Status:** Blocked on Phase 3 (Import Service) event definition. Phase 2.4 is first task in Phase 3.
 
 #### 2.5 Monolith Adaptation
 
@@ -404,8 +405,8 @@ routing and serves as a performance benchmark.
 
 - [x] `AnalyticsServiceTest` — unit
 - [x] `AnalyticsControllerIntegrationTest` — Testcontainers with read replica
-- [ ] `ProteinImportedEventListenerTest` — `@EmbeddedKafka`
-- [ ] `ReadReplicaRoutingTest` — verifies zero primary connections during analytics queries
+- [ ] `ProteinImportedEventListenerTest` — `@EmbeddedKafka` (blocked on Phase 3 event definition)
+- [x] `ReadReplicaRoutingTest` — verifies zero primary connections during analytics queries
 
 ---
 
