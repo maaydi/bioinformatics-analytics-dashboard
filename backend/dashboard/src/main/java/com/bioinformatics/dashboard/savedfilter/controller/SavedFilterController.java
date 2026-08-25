@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
+import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
-import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -60,6 +60,15 @@ public class SavedFilterController {
                                                             @RequestHeader(USER_ID_HEADER) String username) {
         var res = service.create(request, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    @GetMapping("/{id}")
+    @Auditable(action = AuditAction.FILTER_LOAD, targetId = "#id")
+    @RateLimited
+    public ResponseEntity<SavedFilterDto> getSavedFilterById(@PathVariable Long id, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) String role) {
+        return service.getSavedFilterById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

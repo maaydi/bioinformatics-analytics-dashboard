@@ -425,7 +425,7 @@ domain events on completion.
 
 #### 3.2 Database & Schema
 
-- [ ] Flyway `V1__import_schema.sql`:
+- [x] Flyway `V1__import_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS import_batch;
     CREATE TABLE import_batch.import_job (
@@ -442,17 +442,17 @@ domain events on completion.
         completed_at TIMESTAMPTZ
     );
     ```
-- [ ] `ImportJob` entity
-- [ ] `ImportJobRepository`
-- [ ] **Routing DataSource:** import-service uses PRIMARY only (writes + batch inserts)
+- [x] `ImportJob` entity
+- [x] `ImportJobRepository`
+- [x] **Routing DataSource:** import-service uses PRIMARY only (writes + batch inserts)
 
 #### 3.3 Batch Job Migration
 
-- [ ] Migrate `UniprotDatItemReader`, `UniprotTsvItemReader`, `ProteinEntryItemProcessor`, `ProteinAggregateWriter` from
+- [x] Migrate `UniprotDatItemReader`, `UniprotTsvItemReader`, `ProteinEntryItemProcessor`, `ProteinAggregateWriter` from
   monolith
-- [ ] `ImportJobConfig` — Spring Batch job configuration
-- [ ] Chunk size: 250 (from PERF-001 tuning)
-- [ ] `JobExecutionListener` — `afterJob()` publishes `ProteinImportedEvent` to Kafka if COMPLETED
+- [x] `ImportJobConfig` — Spring Batch job configuration
+- [x] Chunk size: 250 (from PERF-001 tuning)
+- [x] `JobExecutionListener` — `afterJob()` publishes `ProteinImportedEvent` to Kafka if COMPLETED
 
 #### 3.4 API Implementation
 

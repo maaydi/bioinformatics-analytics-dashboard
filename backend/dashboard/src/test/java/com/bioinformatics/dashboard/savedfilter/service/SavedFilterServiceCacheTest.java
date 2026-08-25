@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.service;
 
+import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
-import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
 import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;
 import com.bioinformatics.dashboard.savedfilter.repository.SavedFilterRepository;

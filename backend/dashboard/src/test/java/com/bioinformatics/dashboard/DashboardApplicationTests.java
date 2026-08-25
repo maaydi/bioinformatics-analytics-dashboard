@@ -1,7 +1,5 @@
 package com.bioinformatics.dashboard;
 
-import com.bioinformatics.dashboard.job.uniprot.apiloader.UniProtApiImportJobExecutor;
-import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
@@ -18,13 +16,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @ActiveProfiles("test")
 class DashboardApplicationTests {
-
-    @MockitoBean
-    AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
-
-    @MockitoBean
-    private UniProtApiImportJobExecutor uniProtApiImportJobExecutor;
-
 
     @MockitoBean
     private CacheManager cacheManager;

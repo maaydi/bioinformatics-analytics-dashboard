@@ -2,8 +2,6 @@ package com.bioinformatics.dashboard.gene;
 
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.admin.service.ImportService;
-import com.bioinformatics.dashboard.job.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +19,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.time.Instant;
@@ -41,11 +38,6 @@ class GeneControllerIntegrationTest {
     RestTestClient restClient;
     @Autowired
     ProteinEntryRepository proteinEntryRepository;
-
-    @MockitoBean
-    ImportService importService;
-    @MockitoBean
-    AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
 
     @TestConfiguration
     @Profile("test")
