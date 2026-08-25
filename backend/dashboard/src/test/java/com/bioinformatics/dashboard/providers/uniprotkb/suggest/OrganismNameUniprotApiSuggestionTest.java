@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.Suggestion;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.SuggestionResult;
-import com.bioinformatics.dashboard.providers.uniprotkb.service.SuggesterRestService;
+import com.bioinformatics.common.providers.uniprotkb.dto.Suggestion;
+import com.bioinformatics.common.providers.uniprotkb.dto.SuggestionResult;
+import com.bioinformatics.common.providers.uniprotkb.service.SuggesterRestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

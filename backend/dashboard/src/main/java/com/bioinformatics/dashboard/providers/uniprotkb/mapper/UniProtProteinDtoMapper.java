@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.mapper;
 
+import com.bioinformatics.common.uniprot.dto.*;
 import com.bioinformatics.dashboard.model.gene.*;
-import com.bioinformatics.dashboard.model.uniprot.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.bioinformatics.dashboard.common.UniprotMapperUtils.*;
+import static com.bioinformatics.common.uniprot.UniprotMapperUtils.*;
 
 /**
  * Maps a {@link UniProtEntry} (UniProtKB REST response DTO) to a {@link ProteinSummaryDto} and {@link ProteinDetailDto}.

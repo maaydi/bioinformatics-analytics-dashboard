@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.postgres.suggest;
 
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.ProteinFeatureRepository;
+import com.bioinformatics.common.gene.repository.ProteinFeatureRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

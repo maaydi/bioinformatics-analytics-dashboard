@@ -1,12 +1,12 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.uniprotkb.dto.UniProtLightEntry;
+import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbRestService;
+import com.bioinformatics.common.uniprot.dto.FullName;
+import com.bioinformatics.common.uniprot.dto.ProteinDescription;
+import com.bioinformatics.common.uniprot.dto.RecommendedName;
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
-import com.bioinformatics.dashboard.model.uniprot.dto.FullName;
-import com.bioinformatics.dashboard.model.uniprot.dto.ProteinDescription;
-import com.bioinformatics.dashboard.model.uniprot.dto.RecommendedName;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtLightEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbRestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bioinformatics.dashboard.common.UniprotMapperUtils.INACTIVE_ENTRY_TYPE;
+import static com.bioinformatics.common.uniprot.UniprotMapperUtils.INACTIVE_ENTRY_TYPE;
 
 /**
  * uniprot API suggestion provider for protein full names.

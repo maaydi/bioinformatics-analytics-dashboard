@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
-import com.bioinformatics.dashboard.model.uniprot.dto.UniprotKbResponse;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.UniProtLightEntry;
-import com.bioinformatics.dashboard.providers.uniprotkb.service.UniprotKbRestService;
+import com.bioinformatics.common.providers.uniprotkb.dto.UniProtLightEntry;
+import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbRestService;
+import com.bioinformatics.common.uniprot.dto.UniprotKbResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

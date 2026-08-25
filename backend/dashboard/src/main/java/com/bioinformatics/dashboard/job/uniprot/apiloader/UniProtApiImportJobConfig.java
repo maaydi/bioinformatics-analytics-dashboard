@@ -2,6 +2,7 @@ package com.bioinformatics.dashboard.job.uniprot.apiloader;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
+import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
 import com.bioinformatics.dashboard.job.dto.Constants;
@@ -12,7 +13,6 @@ import com.bioinformatics.dashboard.job.listener.PostImportCacheEvictionListener
 import com.bioinformatics.dashboard.job.uniprot.apiloader.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.dashboard.job.uniprot.apiloader.reader.UniProtApiItemReader;
 import com.bioinformatics.dashboard.job.writer.ProteinAggregateItemWriter;
-import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;

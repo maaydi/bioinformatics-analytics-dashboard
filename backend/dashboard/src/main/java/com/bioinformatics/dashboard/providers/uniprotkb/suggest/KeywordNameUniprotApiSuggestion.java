@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.uniprotkb.dto.Suggestion;
+import com.bioinformatics.common.providers.uniprotkb.service.SuggesterRestService;
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
-import com.bioinformatics.dashboard.providers.uniprotkb.dto.Suggestion;
-import com.bioinformatics.dashboard.providers.uniprotkb.service.SuggesterRestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

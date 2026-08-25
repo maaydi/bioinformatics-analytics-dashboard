@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.providers.postgres.suggest;
 
+import com.bioinformatics.common.gene.repository.KeywordRepository;
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.KeywordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

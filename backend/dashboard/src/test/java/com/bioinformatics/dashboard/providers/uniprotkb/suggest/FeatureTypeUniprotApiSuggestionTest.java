@@ -1,6 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
-import com.bioinformatics.dashboard.providers.uniprotkb.service.UniProtSearchFieldService;
+import com.bioinformatics.common.providers.uniprotkb.service.UniProtSearchFieldService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

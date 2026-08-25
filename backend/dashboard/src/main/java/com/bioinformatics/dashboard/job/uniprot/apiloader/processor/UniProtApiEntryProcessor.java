@@ -1,10 +1,10 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.processor;
 
 import com.bioinformatics.common.gene.entity.ProteinEntry;
+import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.job.resolver.GoTermResolver;
 import com.bioinformatics.dashboard.job.resolver.KeywordResolver;
 import com.bioinformatics.dashboard.job.resolver.ProteinAccessionResolver;
-import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

@@ -3,13 +3,13 @@ package com.bioinformatics.dashboard.job.uniprot.apiloader.processor;
 
 import com.bioinformatics.common.gene.entity.*;
 import com.bioinformatics.common.gene.entity.Keyword;
-import com.bioinformatics.dashboard.model.uniprot.dto.*;
+import com.bioinformatics.common.uniprot.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.bioinformatics.dashboard.common.UniprotMapperUtils.*;
+import static com.bioinformatics.common.uniprot.UniprotMapperUtils.*;
 
 /**
  * Maps a {@link UniProtEntry} (UniProtKB REST response DTO) to a {@link ProteinEntry} JPA aggregate.
@@ -128,7 +128,7 @@ public class UniProtEntryMapper {
      * via a find-or-create (upsert) strategy before flushing.
      */
     private List<Keyword> mapKeywords(
-            List<com.bioinformatics.dashboard.model.uniprot.dto.Keyword> keywords) {
+            List<com.bioinformatics.common.uniprot.dto.Keyword> keywords) {
         if (keywords == null) return new ArrayList<>();
         return keywords.stream()
                 .filter(k -> k.name() != null)

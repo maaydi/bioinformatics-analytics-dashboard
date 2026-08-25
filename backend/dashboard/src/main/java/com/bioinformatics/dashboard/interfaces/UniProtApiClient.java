@@ -2,7 +2,7 @@ package com.bioinformatics.dashboard.interfaces;
 
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
+import com.bioinformatics.common.uniprot.UniProtApiPage;
 
 /**
  * Abstraction for a paginated UniProt API data source using cursor-based pagination.

@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.job.resolver;
 
 import com.bioinformatics.common.gene.entity.GoTerm;
-import com.bioinformatics.dashboard.providers.postgres.gene.repository.GoTermRepository;
+import com.bioinformatics.common.gene.repository.GoTermRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.Locked;
 import lombok.RequiredArgsConstructor;

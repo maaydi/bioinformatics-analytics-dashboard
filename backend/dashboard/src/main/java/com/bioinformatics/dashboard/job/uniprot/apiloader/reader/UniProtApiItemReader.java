@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.job.uniprot.apiloader.reader;
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.uniprot.UniProtApiPage;
+import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.interfaces.UniProtApiClient;
-import com.bioinformatics.dashboard.model.uniprot.UniProtApiPage;
-import com.bioinformatics.dashboard.model.uniprot.dto.UniProtEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
