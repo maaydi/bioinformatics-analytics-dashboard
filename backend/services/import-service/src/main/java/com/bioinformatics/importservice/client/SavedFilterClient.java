@@ -1,0 +1,17 @@
+package com.bioinformatics.importservice.client;
+
+import com.bioinformatics.common.models.filter.SavedFilterDto;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+
+@FeignClient(name = "filter-service", url = "http://localhost:8080/api/saved-filters")
+public interface SavedFilterClient {
+    @GetMapping("/{id}")
+    ResponseEntity<SavedFilterDto> getSavedFilterById(@PathVariable Long id, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) String role);
+}
