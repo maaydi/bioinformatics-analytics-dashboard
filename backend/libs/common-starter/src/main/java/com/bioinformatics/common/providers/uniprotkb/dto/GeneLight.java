@@ -1,6 +1,7 @@
 package com.bioinformatics.common.providers.uniprotkb.dto;
 
-import com.bioinformatics.dashboard.model.uniprot.dto.GeneName;
+
+import com.bioinformatics.common.uniprot.dto.GeneName;
 
 /**
  * A lightweight representation of gene information associated with a protein.
