@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.Instant;
 
+import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
+
 /**
  * Persisted refresh-token record for the {@code auth.refresh_token} table.
  *
@@ -16,7 +18,7 @@ import java.time.Instant;
  * Expired rows can be purged by a scheduled job without affecting active sessions.
  */
 @Entity
-@Table(schema = "auth", name = "refresh_token")
+@Table(schema = AUTH_SCHEMA, name = "refresh_token")
 @Getter
 @Setter
 @NoArgsConstructor

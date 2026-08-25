@@ -3,6 +3,8 @@ package com.bioinformatics.common.gene.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
+
 /**
  * JPA entity for {@code keyword} table.
  * Shared vocabulary mapped from KW lines in UniProt .dat files.
@@ -10,7 +12,7 @@ import lombok.*;
  * @see <a href="{@docRoot}/documentation/domain-model.md">Domain Model §2</a>
  */
 @Entity
-@Table(schema = "public", name = "keyword")
+@Table(schema = GENES_SCHEMA, name = "keyword")
 @Getter
 @Setter
 @NoArgsConstructor

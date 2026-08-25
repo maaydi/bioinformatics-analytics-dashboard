@@ -3,8 +3,10 @@ package com.bioinformatics.common.gene.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
+
 @Entity
-@Table(schema = "public", name = "protein_publication")
+@Table(schema = GENES_SCHEMA, name = "protein_publication")
 @Getter
 @Setter
 @NoArgsConstructor

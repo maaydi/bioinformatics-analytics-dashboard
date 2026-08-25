@@ -3,6 +3,8 @@ package com.bioinformatics.common.gene.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
+
 /**
  * JPA entity for {@code protein_feature} table.
  * Annotated sequence regions (CHAIN, DOMAIN, SIGNAL, BINDING …) from FT lines.
@@ -10,7 +12,7 @@ import lombok.*;
  * @see <a href="{@docRoot}/documentation/domain-model.md">Domain Model §7</a>
  */
 @Entity
-@Table(schema = "public", name = "protein_feature")
+@Table(schema = GENES_SCHEMA, name = "protein_feature")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
+
 /**
  * JPA entity for {@code protein_entry} table.
  *
@@ -22,7 +24,7 @@ import java.util.Set;
  * JOIN FETCH in the repository for detail queries (see domain-model.md design goals).
  */
 @Entity
-@Table(schema = "public", name = "protein_entry")
+@Table(schema = GENES_SCHEMA, name = "protein_entry")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -137,7 +139,7 @@ public class ProteinEntry {
     // ── Relationships ─────────────────────────────────────────────────────────
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
-            schema = "public",
+            schema = GENES_SCHEMA,
             name = "protein_keyword",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
@@ -151,7 +153,7 @@ public class ProteinEntry {
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
-            schema = "public",
+            schema = GENES_SCHEMA,
             name = "protein_go_term",
             joinColumns = @JoinColumn(name = "protein_id"),
             inverseJoinColumns = @JoinColumn(name = "go_term_id")

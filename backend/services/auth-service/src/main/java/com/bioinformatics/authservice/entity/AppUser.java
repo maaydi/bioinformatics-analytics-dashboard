@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
+
 /**
  * JPA entity for the {@code auth.app_user} table.
  *
@@ -28,7 +30,7 @@ import java.util.Objects;
  * across all entities in this service.
  */
 @Entity
-@Table(schema = "auth", name = "app_user")
+@Table(schema = AUTH_SCHEMA, name = "app_user")
 @Getter
 @Setter
 @NoArgsConstructor
