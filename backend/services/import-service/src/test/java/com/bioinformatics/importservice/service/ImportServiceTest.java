@@ -62,6 +62,10 @@ class ImportServiceTest {
     @Mock
     SavedFilterService savedFilterService;
 
+    private static ApplicationProperties.ImportConfig importConfig(Path tempDir) {
+        return new ApplicationProperties.ImportConfig(tempDir.toString(), List.of(), null);
+    }
+
     @Test
     void listImportJobs_returnsPagedSummary() {
         var jobEntity = ImportJob.builder()
@@ -98,7 +102,7 @@ class ImportServiceTest {
 
     @Test
     void triggerImport_success_savesAndExecutes(@TempDir Path tempDir) throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir.toString());
+        when(appProperties.importConfig()).thenReturn(importConfig(tempDir));
 
         when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of());
 

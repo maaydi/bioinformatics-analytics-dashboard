@@ -20,6 +20,16 @@ spring:
   flyway:
     default-schema: import_batch
 
+  batch:
+    job:
+      enabled: false
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+
 server:
   port: ${SERVER_PORT:0}
 

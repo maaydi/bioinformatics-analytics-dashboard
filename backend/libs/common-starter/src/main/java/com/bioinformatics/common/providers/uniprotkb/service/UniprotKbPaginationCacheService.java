@@ -12,7 +12,7 @@ import java.util.Objects;
  * Cache management service for UniProt KB cursor-based pagination.
  *
  * <p>Maintains an in-memory cache of pagination cursors keyed by {@link GeneSearchRequest},
- * enabling seamless continuation of multi-page searches. The UniProt API uses opaque cursor
+ * enabling seamless continuation of multipage searches. The UniProt API uses opaque cursor
  * tokens (rather than offset-based pagination) to navigate result sets, and this service
  * persists those cursors for the next page lookup.</p>
  *

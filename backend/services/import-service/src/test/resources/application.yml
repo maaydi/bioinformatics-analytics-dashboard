@@ -37,3 +37,8 @@ common:
     replica-username: ${TEST_DB_USER:bio_user}
     replica-password: ${TEST_DB_PASS:bio_password}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+app:
+  batch:
+    chunk-size: ${APP_BATCH_CHUNK_SIZE:250}
+    skip-limit: ${APP_BATCH_SKIP_LIMIT:1000}

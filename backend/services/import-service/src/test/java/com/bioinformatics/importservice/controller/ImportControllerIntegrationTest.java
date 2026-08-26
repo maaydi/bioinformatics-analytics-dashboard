@@ -29,13 +29,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,7 +52,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@TestPropertySource(properties = "app.rate-limiter.enabled=false")
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
 @Slf4j
@@ -82,14 +81,15 @@ class ImportControllerIntegrationTest {
     @MockitoBean
     private CacheManager cacheManager;
 
-    private String tempDir = null;
+    private ApplicationProperties.ImportConfig importConfig = null;
 
 
     @BeforeEach
-    void setUp(@TempDir Path temp) {
+    void setUp(@TempDir Path tempDir) {
         importJobRepository.deleteAll();
         // Setup temp directory for imports
-        tempDir = temp.toString();
+        importConfig = new ApplicationProperties.ImportConfig(tempDir.toString(), List.of(), null);
+
     }
 
     // ====== POST /api/admin/import/uniprot ======
@@ -97,7 +97,7 @@ class ImportControllerIntegrationTest {
     @Test
     void triggerImport_withValidFile_returnsAccepted() throws Exception {
         // Setup
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
         var mockCounter = mockCounter(5L);
         when(counterRegistry.getCounter(anyString())).thenReturn(mockCounter);
         doNothing().when(asyncUniprotImportJobExecutor).execute(any());
@@ -122,7 +122,7 @@ class ImportControllerIntegrationTest {
     @Test
     void triggerImport_withAppendStrategy_succeeds() throws Exception {
         // Setup
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
         var mockCounter = mockCounter(3L);
         when(counterRegistry.getCounter(anyString())).thenReturn(mockCounter);
         doNothing().when(asyncUniprotImportJobExecutor).execute(any());
@@ -145,7 +145,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerImport_withoutAdminRole_returnsForbidden() throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var file = createMockFile("test.dat", "data");
 
@@ -159,7 +159,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerImport_withoutAuthentication_returnsUnauthorized() throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var file = createMockFile("test.dat", "data");
 
@@ -171,7 +171,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerImport_withConcurrentRunningImport_returnsConflict() throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create an existing running job
         var runningJob = ImportJob.builder()
@@ -202,7 +202,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerImport_missingFileParameter_returnsBadRequest() throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         mockMvc.perform(multipart("/api/admin/import/uniprot")
                         .param("strategy", "overwrite")
@@ -213,7 +213,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerImport_missingStrategyParameter_returnsBadRequest() throws Exception {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var file = createMockFile("test.dat", "data");
 
@@ -226,7 +226,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void triggerRemoteImport_returnsAccepted() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         doNothing().when(uniProtApiImportJobExecutor).execute(any());
         when(savedFilterService.getSavedFilterById(anyLong())).thenReturn(Optional.of(
@@ -258,7 +258,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_returnsPagedSummaries() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create multiple import jobs
         var job1 = ImportJob.builder()
@@ -306,7 +306,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_withPagination_returnsCorrectPage() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create 25 jobs
         for (int i = 0; i < 25; i++) {
@@ -374,7 +374,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_withDefaultPagination_returnsFirstPage() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create 25 jobs
         for (int i = 0; i < 25; i++) {
@@ -408,7 +408,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_resultsOrderedByCreatedAtDescending() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create jobs with different timestamps
         var job1 = ImportJob.builder()
@@ -449,7 +449,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_withoutAdminRole_returnsForbidden() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
@@ -461,7 +461,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_withoutAuthentication_returnsUnauthorized() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         restClient.get()
                 .uri("/api/admin/import/status?page=0&size=10")
@@ -471,7 +471,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void listImportJobs_emptyList_returnsEmptyPagedResponse() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Execute on empty repository
         restClient.get()
@@ -495,7 +495,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withValidJobId_returnsProgress() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create a job
         var job = ImportJob.builder()
@@ -530,7 +530,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withCompletedJob_returnsCompletedStatus() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create a completed job
         var job = ImportJob.builder()
@@ -563,7 +563,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withFailedJob_returnsErrorMessage() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         // Setup: create a failed job
         var job = ImportJob.builder()
@@ -596,7 +596,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withInvalidJobId_returnsFailedStatus() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var invalidJobId = UUID.randomUUID().toString();
 
@@ -619,7 +619,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withoutAdminRole_returnsForbidden() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var jobId = UUID.randomUUID().toString();
 
@@ -633,7 +633,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withoutAuthentication_returnsForbidden() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         var jobId = UUID.randomUUID().toString();
 
@@ -645,7 +645,7 @@ class ImportControllerIntegrationTest {
 
     @Test
     void getImportJobStatus_withMalformedUUID_returnsBadRequest() {
-        when(appProperties.importConfig().tempDir()).thenReturn(tempDir);
+        when(appProperties.importConfig()).thenReturn(importConfig);
 
         restClient.get()
                 .uri("/api/admin/import/status/{jobId}", "not-a-uuid")
