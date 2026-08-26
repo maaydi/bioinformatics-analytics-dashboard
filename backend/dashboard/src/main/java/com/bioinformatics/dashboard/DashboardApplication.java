@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
@@ -34,6 +35,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EntityScan(basePackages = {
         "com.bioinformatics.dashboard",
         "com.bioinformatics.common.gene.entity"
+})
+@EnableJpaRepositories(basePackages = {
+        "com.bioinformatics.dashboard",
+        "com.bioinformatics.common"
 })
 public class DashboardApplication {
 
