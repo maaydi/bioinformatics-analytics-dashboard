@@ -10,6 +10,11 @@ spring:
       retry:
         initial-interval: 1000
         max-attempts: 6
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
 
 eureka:
   client:
@@ -63,3 +68,9 @@ common:
     rate-limiter:
       limit-for-period: 100
       limit-refresh-period-ms: 1000
+  cache:
+    enabled: true
+    allowed-base-packages:
+      - com.bioinformatics
+      - java.util
+    entry-ttl-duration: PT6H #  ISO-8601 duration format: 6 hours

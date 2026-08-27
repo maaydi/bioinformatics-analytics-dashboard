@@ -3,6 +3,8 @@ package com.bioinformatics.common.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import java.util.List;
+
 /**
  * Centralised configuration properties for the common starter.
  * All keys live under the {@code common} prefix and are overridable
@@ -17,7 +19,8 @@ public record CommonProperties(
         @DefaultValue DataSource datasource,
         @DefaultValue Kafka kafka,
         @DefaultValue Resilience4j resilience4j,
-        @DefaultValue Tracing tracing
+        @DefaultValue Tracing tracing,
+        @DefaultValue Cache cache
 ) {
 
     public record Jwt(
@@ -109,5 +112,10 @@ public record CommonProperties(
             @DefaultValue("http://localhost:9411/api/v2/spans") String zipkinEndpoint,
             @DefaultValue("b3") String propagation
     ) {
+    }
+
+    public record Cache(@DefaultValue("true") boolean enabled,
+                        @DefaultValue("com.bioinformatics,java.util") List<String> allowedBasePackages,
+                        @DefaultValue("PT6H") String entryTtlDuration) {
     }
 }
