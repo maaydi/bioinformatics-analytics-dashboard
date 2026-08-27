@@ -20,10 +20,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Authorization checks and edge cases are explicitly tested.
  */
 @Testcontainers
-@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
 @AutoConfigureMockMvc
@@ -63,7 +60,6 @@ class SavedFilterControllerTest {
     private SavedFilterService service;
 
     @TestConfiguration
-    @Profile("test")
     static class CacheTestConfig {
         @Bean
         @Primary

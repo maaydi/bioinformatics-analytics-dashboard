@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: ""
   datasource:
     # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
     url:      ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
@@ -17,6 +15,11 @@ spring:
       enabled: false  # No batch jobs in test; UniProtImportJobConfig excluded via @Profile("!test")
     jdbc:
       initialize-schema: always
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
 
 app:
   jwt:
@@ -46,6 +49,14 @@ app:
         capacity: 5
         tokens: 5
         seconds: 60
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 10
+    thread-name-prefix: audit-
+  export:
+    csv:
+      max-rows: 100000
 
 logging:
   config: classpath:logback-spring.xml
@@ -55,6 +66,8 @@ logging:
 
 common:
   enabled: true
+  cache:
+    enabled: false
 
 eureka:
   client:

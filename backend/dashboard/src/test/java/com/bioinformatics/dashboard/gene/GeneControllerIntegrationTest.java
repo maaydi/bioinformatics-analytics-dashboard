@@ -15,9 +15,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -30,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
 class GeneControllerIntegrationTest {
@@ -40,7 +37,6 @@ class GeneControllerIntegrationTest {
     ProteinEntryRepository proteinEntryRepository;
 
     @TestConfiguration
-    @Profile("test")
     static class CacheTestConfig {
         @Bean
         @Primary

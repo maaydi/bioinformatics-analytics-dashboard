@@ -70,3 +70,8 @@ app:
         capacity: ${APP_RATE_LIMITER_EXPORT_CAPACITY:10}
         tokens: ${APP_RATE_LIMITER_EXPORT_TOKENS:10}
         seconds: ${APP_RATE_LIMITER_EXPORT_SECONDS:60}
+
+common:
+  enabled: true
+  cache:
+    enabled: true

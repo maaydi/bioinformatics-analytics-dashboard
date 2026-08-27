@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard;
 
+import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -14,8 +14,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers
 @SpringBootTest
-@ActiveProfiles("test")
 class DashboardApplicationTests {
+
+    @MockitoBean
+    UniprotKbPaginationCacheService uniprotKbPaginationCacheService;
 
     @MockitoBean
     private CacheManager cacheManager;
