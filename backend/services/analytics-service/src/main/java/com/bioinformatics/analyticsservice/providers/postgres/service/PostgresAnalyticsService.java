@@ -8,6 +8,7 @@ import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.providers.postgres.AbstractPostgresProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return current dashboard KPIs from cache or materialized record.
      */
     @Override
+    @Cacheable(value = "dashboardKpis", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis() {
         log.info("Retrieving Dashboard KPIs from materialized view");
         var entity = dashboardKpisRepository.findFirstBy()
@@ -57,6 +59,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return bucketed length frequency map natively computed in DB.
      */
     @Override
+    @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
         log.info("Retrieving Length Histogram from materialized view");
         return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
@@ -70,6 +73,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return global occurrences of organisms sorted descending.
      */
     @Override
+    @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
         log.info("Retrieving Organism Count from materialized view");
         return organismCountRepository.findAll(Limit.of(limit))
@@ -82,6 +86,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return ratio tracking verified vs newly-found sequences.
      */
     @Override
+    @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
         log.info("Retrieving Reviewed Ratio from materialized view");
         return reviewedRatioRepository.findAll()
@@ -94,6 +99,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return distribution grouped by evidence confirmation level.
      */
     @Override
+    @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
         log.info("Retrieving Evidence Levels from materialized view");
         return evidenceDistributionRepository.findAll()
@@ -107,6 +113,7 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
      * @return common trait occurrences over entire domain dataset.
      */
     @Override
+    @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
         log.info("Retrieving Keyword Frequency from materialized view");
         return keywordFrequencyRepository.findAll(Limit.of(limit))

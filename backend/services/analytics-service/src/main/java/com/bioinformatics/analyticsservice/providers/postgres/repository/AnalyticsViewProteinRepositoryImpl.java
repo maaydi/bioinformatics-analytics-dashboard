@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
-public class AnalyticsProteinRepositoryImpl implements AnalyticsProteinRepository {
+public class AnalyticsViewProteinRepositoryImpl implements AnalyticsViewProteinRepository {
 
     @PersistenceContext
     private EntityManager entityManager;

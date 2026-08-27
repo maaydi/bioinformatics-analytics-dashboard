@@ -16,6 +16,11 @@ spring:
   jpa:
     show-sql: false
 
+  data:
+    redis:
+      host: redis
+      password: password
+
 logging:
   level:
     com.bioinformatics.analyticsservice: DEBUG

@@ -13,6 +13,10 @@ spring:
       connection-timeout: 30000
       pool-name: analytics-prod-pool
       keepalive-time: 30000
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      password: ${REDIS_PASSWORD}
 
   jpa:
     show-sql: false

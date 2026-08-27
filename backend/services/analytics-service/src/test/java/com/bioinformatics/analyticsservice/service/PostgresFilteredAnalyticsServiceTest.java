@@ -3,7 +3,7 @@ package com.bioinformatics.analyticsservice.service;
 import com.bioinformatics.analyticsservice.models.*;
 import com.bioinformatics.analyticsservice.models.compare.AnalyticsSubsetDto;
 import com.bioinformatics.analyticsservice.models.compare.CompareRequestDto;
-import com.bioinformatics.analyticsservice.providers.postgres.repository.ProteinEntryRepository;
+import com.bioinformatics.analyticsservice.providers.postgres.repository.AnalyticsProteinRepository;
 import com.bioinformatics.analyticsservice.providers.postgres.service.PostgresFilteredAnalyticsService;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import org.jspecify.annotations.NonNull;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 class PostgresFilteredAnalyticsServiceTest {
 
     @Mock
-    private ProteinEntryRepository proteinEntryRepository;
+    private AnalyticsProteinRepository analyticsProteinRepository;
 
     @InjectMocks
     private PostgresFilteredAnalyticsService postgresFilteredAnalyticsService;
@@ -64,26 +64,26 @@ class PostgresFilteredAnalyticsServiceTest {
     @DisplayName("getDashboardKpis should delegate to repository and return KPIs")
     void getDashboardKpis_ShouldReturnKpis() {
         var expectedKpis = mock(DashboardKpisDto.class);
-        when(proteinEntryRepository.getDashboardKpis(any(Specification.class))).thenReturn(expectedKpis);
+        when(analyticsProteinRepository.getDashboardKpis(any(Specification.class))).thenReturn(expectedKpis);
 
         var result = postgresFilteredAnalyticsService.getDashboardKpis(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedKpis, result);
-        verify(proteinEntryRepository, times(1)).getDashboardKpis(any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getDashboardKpis(any(Specification.class));
     }
 
     @Test
     @DisplayName("getLengthHistogram should delegate to repository and return bucket list")
     void getLengthHistogram_ShouldReturnBuckets() {
         List<LengthHistogramBucketDto> expectedHistogram = Collections.emptyList();
-        when(proteinEntryRepository.getLengthHistogram(any(Specification.class))).thenReturn(expectedHistogram);
+        when(analyticsProteinRepository.getLengthHistogram(any(Specification.class))).thenReturn(expectedHistogram);
 
         var result = postgresFilteredAnalyticsService.getLengthHistogram(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedHistogram, result);
-        verify(proteinEntryRepository, times(1)).getLengthHistogram(any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getLengthHistogram(any(Specification.class));
     }
 
     @Test
@@ -91,39 +91,39 @@ class PostgresFilteredAnalyticsServiceTest {
     void getByOrganism_ShouldReturnOrganismCounts() {
         int limit = 10;
         List<OrganismCountDto> expectedCounts = Collections.emptyList();
-        when(proteinEntryRepository.getByOrganism(eq(limit), any(Specification.class))).thenReturn(expectedCounts);
+        when(analyticsProteinRepository.getByOrganism(eq(limit), any(Specification.class))).thenReturn(expectedCounts);
 
         var result = postgresFilteredAnalyticsService.getByOrganism(limit, blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedCounts, result);
-        verify(proteinEntryRepository, times(1)).getByOrganism(eq(limit), any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getByOrganism(eq(limit), any(Specification.class));
     }
 
     @Test
     @DisplayName("getReviewedRatio should delegate to repository and return ratios")
     void getReviewedRatio_ShouldReturnRatios() {
         List<ReviewedRatioDto> expectedRatios = Collections.emptyList();
-        when(proteinEntryRepository.getReviewedRatio(any(Specification.class))).thenReturn(expectedRatios);
+        when(analyticsProteinRepository.getReviewedRatio(any(Specification.class))).thenReturn(expectedRatios);
 
         var result = postgresFilteredAnalyticsService.getReviewedRatio(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedRatios, result);
-        verify(proteinEntryRepository, times(1)).getReviewedRatio(any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getReviewedRatio(any(Specification.class));
     }
 
     @Test
     @DisplayName("getEvidenceLevels should delegate to repository and return distribution")
     void getEvidenceLevels_ShouldReturnDistribution() {
         List<EvidenceDistributionDto> expectedDistribution = Collections.emptyList();
-        when(proteinEntryRepository.getEvidenceLevels(any(Specification.class))).thenReturn(expectedDistribution);
+        when(analyticsProteinRepository.getEvidenceLevels(any(Specification.class))).thenReturn(expectedDistribution);
 
         var result = postgresFilteredAnalyticsService.getEvidenceLevels(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedDistribution, result);
-        verify(proteinEntryRepository, times(1)).getEvidenceLevels(any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getEvidenceLevels(any(Specification.class));
     }
 
     @Test
@@ -131,26 +131,26 @@ class PostgresFilteredAnalyticsServiceTest {
     void getKeywordFrequency_ShouldReturnFrequencyList() {
         int limit = 5;
         List<KeywordFrequencyDto> expectedFrequencies = Collections.emptyList();
-        when(proteinEntryRepository.getKeywordFrequency(eq(limit), any(Specification.class))).thenReturn(expectedFrequencies);
+        when(analyticsProteinRepository.getKeywordFrequency(eq(limit), any(Specification.class))).thenReturn(expectedFrequencies);
 
         var result = postgresFilteredAnalyticsService.getKeywordFrequency(limit, blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedFrequencies, result);
-        verify(proteinEntryRepository, times(1)).getKeywordFrequency(eq(limit), any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getKeywordFrequency(eq(limit), any(Specification.class));
     }
 
     @Test
     @DisplayName("getProteinLengthWeightCount should delegate to repository and return structural count metrics")
     void getProteinLengthWeightCount_ShouldReturnMetrics() {
         List<ProteinLengthWeightCount> expectedMetrics = Collections.emptyList();
-        when(proteinEntryRepository.getProteinLengthWeightCount(any(Specification.class))).thenReturn(expectedMetrics);
+        when(analyticsProteinRepository.getProteinLengthWeightCount(any(Specification.class))).thenReturn(expectedMetrics);
 
         var result = postgresFilteredAnalyticsService.getProteinLengthWeightCount(blankRequest);
 
         assertNotNull(result);
         assertEquals(expectedMetrics, result);
-        verify(proteinEntryRepository, times(1)).getProteinLengthWeightCount(any(Specification.class));
+        verify(analyticsProteinRepository, times(1)).getProteinLengthWeightCount(any(Specification.class));
     }
 
     @Test
@@ -161,7 +161,7 @@ class PostgresFilteredAnalyticsServiceTest {
         var mockSubsetA = mock(AnalyticsSubsetDto.class);
         var mockSubsetB = mock(AnalyticsSubsetDto.class);
 
-        when(proteinEntryRepository.getAnalyticsSubset(any(Specification.class)))
+        when(analyticsProteinRepository.getAnalyticsSubset(any(Specification.class)))
                 .thenReturn(mockSubsetA)
                 .thenReturn(mockSubsetB);
 
@@ -171,6 +171,6 @@ class PostgresFilteredAnalyticsServiceTest {
         assertEquals(mockSubsetA, response.subsetA());
         assertEquals(mockSubsetB, response.subsetB());
 
-        verify(proteinEntryRepository, times(2)).getAnalyticsSubset(any(Specification.class));
+        verify(analyticsProteinRepository, times(2)).getAnalyticsSubset(any(Specification.class));
     }
 }

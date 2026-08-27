@@ -2,6 +2,7 @@ package com.bioinformatics.analyticsservice.db.routing;
 
 import com.bioinformatics.analyticsservice.AnalyticsServiceApplication;
 import com.bioinformatics.common.config.datasource.RoutingDataSourceConfig;
+import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -60,6 +62,9 @@ class ReadReplicaRoutingTest {
 
     private HikariDataSource primaryPool;
     private HikariDataSource replicaPool;
+
+    @MockitoBean
+    UniprotKbPaginationCacheService uniprotKbPaginationCacheService;
 
     /**
      * Connections already held by PRIMARY after Spring context startup.

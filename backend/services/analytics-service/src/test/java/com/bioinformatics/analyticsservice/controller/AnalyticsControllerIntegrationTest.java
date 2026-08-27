@@ -7,7 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -29,6 +34,15 @@ class AnalyticsControllerIntegrationTest {
 
     @MockitoSpyBean
     private PostgresAnalyticsService postgresAnalyticsService;
+
+    @TestConfiguration
+    static class CacheTestConfig {
+        @Bean
+        @Primary
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+    }
 
     @Test
     void getDashboardKpis_returnsExpectedContractShape() {

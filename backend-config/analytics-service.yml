@@ -29,6 +29,8 @@ spring:
 
 common:
   enabled: true
+  cache:
+    enabled: true
 
 app:
   rate-limiter:

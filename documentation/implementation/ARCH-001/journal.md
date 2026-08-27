@@ -592,7 +592,7 @@ microservice using read replica routing for performance validation.
 - ✅ `AnalyticsMappersTest` (unit):
   - All MapStruct mapper implementations validated for null-safety and data integrity
 
-- ✅ `AnalyticsProteinRepositoryImplTest` (unit):
+- ✅ `AnalyticsViewProteinRepositoryImplTest` (unit):
   - Custom repository implementation for compare queries
   - Set intersection and union logic
 

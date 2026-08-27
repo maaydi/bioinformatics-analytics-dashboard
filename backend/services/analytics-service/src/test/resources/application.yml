@@ -33,3 +33,5 @@ common:
     replica-username: ${TEST_DB_USER:bio_user}
     replica-password: ${TEST_DB_PASS:bio_password}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  cache:
+    enabled: false

@@ -21,13 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 @ActiveProfiles("test")
-class AnalyticsProteinRepositoryImplTest {
+class AnalyticsViewProteinRepositoryImplTest {
 
     @Autowired
     private TestEntityManager entityManager;
 
     @Autowired
-    @Qualifier("analyticsProteinRepositoryImpl")
+    @Qualifier("analyticsProteinRepository")
     private AnalyticsProteinRepository repository;
 
     @BeforeEach

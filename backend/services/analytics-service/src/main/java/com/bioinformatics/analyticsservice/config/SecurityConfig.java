@@ -1,4 +1,4 @@
-package com.bioinformatics.analyticsservice.security;
+package com.bioinformatics.analyticsservice.config;
 
 import com.bioinformatics.common.config.security.GatewayUserAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
