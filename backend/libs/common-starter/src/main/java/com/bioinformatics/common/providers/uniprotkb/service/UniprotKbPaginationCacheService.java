@@ -3,6 +3,7 @@ package com.bioinformatics.common.providers.uniprotkb.service;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnBean(CacheManager.class)
 public class UniprotKbPaginationCacheService {
     private static final String CACHE_NAME = "uniprotCursors";
     private final CacheManager cacheManager;

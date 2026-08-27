@@ -52,6 +52,8 @@ common:
       max-size: 30
       min-idle: 5
       connection-timeout-ms: 30000
+  cache:
+    enabled: false
 
 app:
   jwt:

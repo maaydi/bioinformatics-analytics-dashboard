@@ -50,6 +50,8 @@ common:
       max-size: 10
       min-idle: 2
       connection-timeout-ms: 30000
+  cache:
+    enabled: false
 
 app:
   password:
