@@ -62,7 +62,8 @@ spring:
             - id: dashboard
               uri: lb://dashboard
               predicates:
-                - Path=/api/**
+                - Path=/api/genes/**
+                - Path=/api/autocomplete/**
               filters:
                 - name: RequestRateLimiter
                   args:
@@ -106,7 +107,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,gateway
+        include: health,info,metrics,gateway,circuitbreakers
   endpoint:
     health:
       probes:

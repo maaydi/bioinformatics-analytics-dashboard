@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Analytics Service — production overrides
+# Import Service — production overrides
 # ─────────────────────────────────────────────────────────────────────────────
 
 server:
@@ -11,7 +11,7 @@ spring:
       maximum-pool-size: 50
       minimum-idle: 10
       connection-timeout: 30000
-      pool-name: analytics-prod-pool
+      pool-name: import-prod-pool
       keepalive-time: 30000
   data:
     redis:

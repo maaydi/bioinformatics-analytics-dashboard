@@ -44,11 +44,11 @@ spring:
         enabled: false
 
 # ── Flyway ───────────────────────────────────────────────────────────────────
-flyway:
-  enabled: true
-  locations: classpath:db/migration
-  baseline-on-migrate: true
-  validate-on-migrate: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
 
 # ── Application: JWT (shared) ────────────────────────────────────────────────
 app:
