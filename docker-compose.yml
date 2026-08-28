@@ -304,7 +304,7 @@ services:
     env_file: .env
     environment:
       <<: *common-spring-env
-      SERVER_PORT: ${SERVER_PORT_BACKEND:-8080}
+      SERVER_PORT: ${SERVER_PORT_BACKEND:-8084}
       SPRING_APPLICATION_NAME: dashboard
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -324,7 +324,7 @@ services:
       - import_uploads:/tmp/import
       - backend_logs:/app/logs
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
