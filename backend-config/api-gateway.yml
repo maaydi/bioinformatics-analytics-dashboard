@@ -44,6 +44,21 @@ spring:
                   args:
                     name: analyticsServiceCircuitBreaker
                     fallbackUri: forward:/fallback/analytics
+            - id: import-service
+              uri: lb://import-service
+              predicates:
+                - Path=/api/admin/import/**
+              filters:
+                - RewritePath=/api/admin/import/(?<segment>.*), /api/v1/admin/import/${segment}
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: importServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/import
             - id: dashboard
               uri: lb://dashboard
               predicates:
