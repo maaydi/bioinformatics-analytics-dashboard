@@ -40,12 +40,16 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
 
     @Override
     public @NonNull Mono<Void> filter(ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
-        if (shouldNotFilter(exchange.getRequest())) {
+        var request = exchange.getRequest();
+        log.debug("Incoming request: {} {}", request.getMethod().name(), request.getURI().getPath());
+        if (shouldNotFilter(request)) {
+            log.debug("Skipping JWT filter for public endpoint: {}", request.getURI().getPath());
             return chain.filter(exchange);
         }
 
         var authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith(BEARER)) {
+            log.error("Unauthorized access : No access token presents");
             return unauthorized(exchange);
         }
 
@@ -65,6 +69,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
 
             var userId = claims.getSubject();
             var role = getRoleClaim(claims.get(AppClaims.ROLE.getClaim()));
+            log.debug("JWT validated for userId='{}' roles={} path={}", userId, role, request.getURI().getPath());
             var mutated = exchange.getRequest().mutate()
                     .header(USER_ID.getHeader(), Objects.requireNonNullElse(userId, USER_ID.getDefaultValue()))
                     .header(USER_ROLE.getHeader(), role.toArray(String[]::new))
@@ -73,7 +78,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange.mutate().request(mutated).build());
 
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("JWT invalid: {}", e.getMessage());
+            log.error("JWT invalid: {}", e.getMessage());
             return unauthorized(exchange);
         }
     }
