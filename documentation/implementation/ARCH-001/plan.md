@@ -456,13 +456,13 @@ domain events on completion.
 
 #### 3.4 API Implementation
 
-- [ ] `ImportController`:
-    - [ ] `POST /api/v1/admin/import/uniprot` — trigger job
-    - [ ] `GET /api/v1/admin/import/status` — list jobs
-    - [ ] `GET /api/v1/admin/import/status/{jobId}` — job progress
-    - [ ] `POST /api/v1/admin/import/{jobId}/cancel` — cancel running job
-- [ ] `ImportService` — job launch, concurrency guard, file handling
-- [ ] `ImportJobMapper` — MapStruct
+- [x] `ImportController`:
+  - [x] `POST /api/v1/admin/import/uniprot` — trigger job
+  - [x] `GET /api/v1/admin/import/status` — list jobs
+  - [x] `GET /api/v1/admin/import/status/{jobId}` — job progress
+  - [x] `POST /api/v1/admin/import/{jobId}/cancel` — cancel running job
+- [x] `ImportService` — job launch, concurrency guard, file handling
+- [x] `ImportJobMapper` — MapStruct
 
 #### 3.5 Event Publishing
 
@@ -482,13 +482,13 @@ domain events on completion.
 
 #### 3.6 Monolith Adaptation
 
-- [ ] Monolith batch configuration disabled (`@ConditionalOnProperty`)
-- [ ] Monolith `ImportController` deprecated
+- [x] Monolith batch configuration disabled (`@ConditionalOnProperty`)
+- [x] Monolith `ImportController` deprecated
 
 #### Phase 3 — Tests
 
-- [ ] `ImportServiceTest` — unit
-- [ ] `ImportControllerIntegrationTest` — Testcontainers + `@EmbeddedKafka`
+- [x] `ImportServiceTest` — unit
+- [x] `ImportControllerIntegrationTest` — Testcontainers + `@EmbeddedKafka`
 - [ ] `ProteinImportedEventPublishingTest` — verifies Kafka message on job completion
 
 ---

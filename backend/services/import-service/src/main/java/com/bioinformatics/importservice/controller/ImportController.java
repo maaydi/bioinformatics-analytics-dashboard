@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
  * </p>
  */
 @RestController
-@RequestMapping("/api/admin/import")
+@RequestMapping("/api/v1/admin/import")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class ImportController {
@@ -31,7 +31,7 @@ public class ImportController {
     private final ImportService service;
 
     /**
-     * POST /api/admin/import/uniprot — triggers Spring Batch import job.
+     * POST /api/v1/admin/import/uniprot — triggers Spring Batch import job.
      */
     @PostMapping("/uniprot")
     public ResponseEntity<ImportJobSummary> triggerImport(
@@ -42,7 +42,7 @@ public class ImportController {
     }
 
     /**
-     * POST /api/admin/import/uniprot/remote — triggers remote UniProt API import job.
+     * POST /api/v1/admin/import/uniprot/remote — triggers remote UniProt API import job.
      */
     @PostMapping("/uniprot/remote")
     public ResponseEntity<ImportJobSummary> triggerRemoteImport(@RequestParam("filterId") long filterId) {
@@ -51,7 +51,7 @@ public class ImportController {
     }
 
     /**
-     * GET /api/admin/import/status — paginated list of all import jobs.
+     * GET /api/v1/admin/import/status — paginated list of all import jobs.
      */
     @GetMapping("/status")
     public PagedResponse<ImportJobSummary> listImportJobs(
@@ -63,7 +63,7 @@ public class ImportController {
     }
 
     /**
-     * GET /api/admin/import/status/{jobId} — real-time progress of a single job.
+     * GET /api/v1/admin/import/status/{jobId} — real-time progress of a single job.
      */
     @GetMapping("/status/{jobId}")
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {

@@ -88,7 +88,7 @@ class ImportControllerIntegrationTest {
         // Setup temp directory for imports
     }
 
-    // ====== POST /api/admin/import/uniprot ======
+    // ====== POST /api/v1/admin/import/uniprot ======
 
     @Test
     void triggerImport_withValidFile_returnsAccepted() throws Exception {
@@ -100,7 +100,7 @@ class ImportControllerIntegrationTest {
         var file = createMockFile("uniprot_data.dat", "entry1\nentry2\nentry3\nentry4\nentry5\n");
 
         // Execute using MockMvc for multipart support
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
@@ -124,7 +124,7 @@ class ImportControllerIntegrationTest {
         var file = createMockFile("uniprot_append.tsv", "header\ndata1\ndata2\ndata3\n");
 
         // Execute using MockMvc
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "append")
                         .header(USER_ID_HEADER, "admin_user")
@@ -143,7 +143,7 @@ class ImportControllerIntegrationTest {
 
         var file = createMockFile("test.dat", "data");
 
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "regular_user")
@@ -157,7 +157,7 @@ class ImportControllerIntegrationTest {
 
         var file = createMockFile("test.dat", "data");
 
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite"))
                 .andExpect(status().isForbidden());
@@ -183,7 +183,7 @@ class ImportControllerIntegrationTest {
         var file = createMockFile("new_import.dat", "data");
 
         // Execute using MockMvc
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
@@ -198,7 +198,7 @@ class ImportControllerIntegrationTest {
     void triggerImport_missingFileParameter_returnsBadRequest() throws Exception {
 
 
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
                         .header(USER_ROLE_HEADER, "ADMIN"))
@@ -211,7 +211,7 @@ class ImportControllerIntegrationTest {
 
         var file = createMockFile("test.dat", "data");
 
-        mockMvc.perform(multipart("/api/admin/import/uniprot")
+        mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .header(USER_ID_HEADER, "admin_user")
                         .header(USER_ROLE_HEADER, "ADMIN"))
@@ -229,7 +229,7 @@ class ImportControllerIntegrationTest {
 
         restClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/admin/import/uniprot/remote")
+                        .path("/api/v1/admin/import/uniprot/remote")
                         .queryParam("filterId", 42L)
                         .build())
                 .header(USER_ID_HEADER, "admin_user")
@@ -248,7 +248,7 @@ class ImportControllerIntegrationTest {
         assertThat(importJobRepository.count()).isEqualTo(1);
     }
 
-    // ====== GET /api/admin/import/status ======
+    // ====== GET /api/v1/admin/import/status ======
 
     @Test
     void listImportJobs_returnsPagedSummaries() {
@@ -281,7 +281,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -317,7 +317,7 @@ class ImportControllerIntegrationTest {
 
         // Execute first page
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -335,7 +335,7 @@ class ImportControllerIntegrationTest {
 
         // Execute second page
         restClient.get()
-                .uri("/api/admin/import/status?page=1&size=10")
+                .uri("/api/v1/admin/import/status?page=1&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -351,7 +351,7 @@ class ImportControllerIntegrationTest {
 
         // Execute third page (partial)
         restClient.get()
-                .uri("/api/admin/import/status?page=2&size=10")
+                .uri("/api/v1/admin/import/status?page=2&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -385,7 +385,7 @@ class ImportControllerIntegrationTest {
 
         // Execute with default pagination
         restClient.get()
-                .uri("/api/admin/import/status")
+                .uri("/api/v1/admin/import/status")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -425,7 +425,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -446,7 +446,7 @@ class ImportControllerIntegrationTest {
 
 
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "regular_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -458,7 +458,7 @@ class ImportControllerIntegrationTest {
 
 
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -469,7 +469,7 @@ class ImportControllerIntegrationTest {
 
         // Execute on empty repository
         restClient.get()
-                .uri("/api/admin/import/status?page=0&size=10")
+                .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -485,7 +485,7 @@ class ImportControllerIntegrationTest {
                 });
     }
 
-    // ====== GET /api/admin/import/status/{jobId} ======
+    // ====== GET /api/v1/admin/import/status/{jobId} ======
 
     @Test
     void getImportJobStatus_withValidJobId_returnsProgress() {
@@ -505,7 +505,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", job.getId().toString())
+                .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -541,7 +541,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", job.getId().toString())
+                .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -574,7 +574,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", job.getId().toString())
+                .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -596,7 +596,7 @@ class ImportControllerIntegrationTest {
 
         // Execute
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", invalidJobId)
+                .uri("/api/v1/admin/import/status/{jobId}", invalidJobId)
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()
@@ -618,7 +618,7 @@ class ImportControllerIntegrationTest {
         var jobId = UUID.randomUUID().toString();
 
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", jobId)
+                .uri("/api/v1/admin/import/status/{jobId}", jobId)
                 .header(USER_ID_HEADER, "regular_user")
                 .header(USER_ROLE_HEADER, "USER")
                 .exchange()
@@ -632,7 +632,7 @@ class ImportControllerIntegrationTest {
         var jobId = UUID.randomUUID().toString();
 
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", jobId)
+                .uri("/api/v1/admin/import/status/{jobId}", jobId)
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -642,7 +642,7 @@ class ImportControllerIntegrationTest {
 
 
         restClient.get()
-                .uri("/api/admin/import/status/{jobId}", "not-a-uuid")
+                .uri("/api/v1/admin/import/status/{jobId}", "not-a-uuid")
                 .header(USER_ID_HEADER, "admin_user")
                 .header(USER_ROLE_HEADER, "ADMIN")
                 .exchange()

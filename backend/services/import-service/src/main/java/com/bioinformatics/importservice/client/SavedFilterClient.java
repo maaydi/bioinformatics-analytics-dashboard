@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
 import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
 
-@FeignClient(name = "filter-service", url = "http://localhost:8080/api/saved-filters")
+@FeignClient(name = "dashboard")
 public interface SavedFilterClient {
-    @GetMapping("/{id}")
+    @GetMapping("/api/saved-filters/{id}")
     ResponseEntity<SavedFilterDto> getSavedFilterById(@PathVariable Long id, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) String role);
 }
