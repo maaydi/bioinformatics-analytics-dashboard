@@ -1,7 +1,11 @@
 package com.bioinformatics.common.providers.uniprotkb.config;
 
+import com.bioinformatics.common.config.CommonProperties;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestClient;
@@ -27,7 +31,12 @@ import java.time.Duration;
  * process large protein datasets.</p>
  */
 @Configuration
+@Profile("!test")
+@RequiredArgsConstructor
+@EnableConfigurationProperties(CommonProperties.class)
 public class UniprotRestClientConfig {
+
+    private final CommonProperties properties;
 
     /**
      * Produces the UniProt REST client bean.
@@ -48,10 +57,10 @@ public class UniprotRestClientConfig {
                 .build();
 
         var factory = new JdkClientHttpRequestFactory(httpClient);
-        factory.setReadTimeout(Duration.ofHours(1));
+        factory.setReadTimeout(Duration.parse(properties.uniprotApi().readTimeoutDuration()));
 
 
-        return RestClient.builder().baseUrl("https://rest.uniprot.org")
+        return RestClient.builder().baseUrl(properties.uniprotApi().baseUrl())
                 .configureMessageConverters(builder -> {
                     builder.registerDefaults();
                     builder.withJsonConverter(jacksonConverter);

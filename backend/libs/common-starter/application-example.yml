@@ -74,3 +74,10 @@ common:
       - com.bioinformatics
       - java.util
     entry-ttl-duration: PT6H #  ISO-8601 duration format: 6 hours
+
+  uniprot-api:
+    base-url: ${UNIPROT_API_BASE_URL:https://rest.uniprot.org}
+    read-timeout-duration: PT1H
+    batch:
+      chunk-size: ${UNIPROT_API_BATCH_CHUNK_SIZE:100}
+      skip-limit: ${UNIPROT_API_BATCH_SKIP_LIMIT:1000}

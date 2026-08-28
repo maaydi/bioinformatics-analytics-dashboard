@@ -20,7 +20,8 @@ public record CommonProperties(
         @DefaultValue Kafka kafka,
         @DefaultValue Resilience4j resilience4j,
         @DefaultValue Tracing tracing,
-        @DefaultValue Cache cache
+        @DefaultValue Cache cache,
+        @DefaultValue UniprotApi uniprotApi
 ) {
 
     public record Jwt(
@@ -117,5 +118,17 @@ public record CommonProperties(
     public record Cache(@DefaultValue("true") boolean enabled,
                         @DefaultValue("com.bioinformatics,java.util") List<String> allowedBasePackages,
                         @DefaultValue("PT6H") String entryTtlDuration) {
+    }
+
+    public record UniprotApi(
+            @DefaultValue("https://rest.uniprot.org") String baseUrl,
+            @DefaultValue Batch batch,
+            @DefaultValue("PT1H") String readTimeoutDuration
+
+
+    ) {
+    }
+
+    public record Batch(@DefaultValue("100") int chunkSize, @DefaultValue("1000") int skipLimit) {
     }
 }

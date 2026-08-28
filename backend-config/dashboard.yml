@@ -3,25 +3,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 app:
-  batch:
-    chunk-size: ${APP_BATCH_CHUNK_SIZE:250}
-    skip-limit: ${APP_BATCH_SKIP_LIMIT:1000}
-
-  uniprot-api:
-    base-url: ${APP_UNIPROT_API_BASE_URL:https://rest.uniprot.org}
-    batch:
-      chunk-size: ${APP_UNIPROT_API_BATCH_CHUNK_SIZE:100}
-      skip-limit: ${APP_UNIPROT_API_BATCH_SKIP_LIMIT:1000}
-
-  import-config:
-    temp-dir: ${APP_IMPORT_CONFIG_TEMP_DIR:${user.home}/.bio-import}
-    extensions: dat,tsv
-    pool:
-      core-size: 2
-      max-size: 10
-      queue-capacity: 25
-      thread-name-prefix: BatchAsync-
-
   export:
     csv:
       max-rows: 100000
