@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handleAuthentication(RuntimeException ex) {
-        log.warn("Handle Authentication Exception: {}", ex.getMessage());
+        log.warn("Handle Authentication Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
@@ -123,13 +123,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-        log.warn("Handle Access Denied Exception: {}", ex.getMessage());
+        log.warn("Handle Access Denied Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.FORBIDDEN, "Access Denied");
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex) {
-        log.warn("Handle Rate limit exceeded Exception: {}", ex.getMessage());
+        log.warn("Handle Rate limit exceeded Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded. Try again later.");
     }
 
@@ -142,7 +142,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PasswordUpdateException.class)
     public ResponseEntity<ErrorResponse> handlePasswordUpdateException(PasswordUpdateException ex) {
-        log.warn("Handle Password Update Exception: {}", ex.getMessage());
+        log.warn("Handle Password Update Exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 

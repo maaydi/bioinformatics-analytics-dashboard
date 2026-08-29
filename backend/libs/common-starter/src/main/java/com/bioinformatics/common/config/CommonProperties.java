@@ -123,12 +123,16 @@ public record CommonProperties(
     public record UniprotApi(
             @DefaultValue("https://rest.uniprot.org") String baseUrl,
             @DefaultValue Batch batch,
-            @DefaultValue("PT1H") String readTimeoutDuration
+            @DefaultValue("PT1H") String readTimeoutDuration,
+            @DefaultValue HttpClientConfig httpClient
 
 
     ) {
     }
 
     public record Batch(@DefaultValue("100") int chunkSize, @DefaultValue("1000") int skipLimit) {
+    }
+
+    public record HttpClientConfig(@DefaultValue("PT10S") String timeoutDuration) {
     }
 }

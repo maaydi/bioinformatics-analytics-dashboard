@@ -7,6 +7,9 @@ spring:
 
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 10000        # 10s TCP connect
+        response-timeout: 120s        # total time to wait for downstream
       server:
         webflux:
           discovery:
@@ -62,7 +65,7 @@ spring:
             - id: dashboard
               uri: lb://dashboard
               predicates:
-                - Path=/api/genes/**,/api/autocomplete/**
+                - Path=/api/genes/**,/api/autocomplete/**,/api/saved-filters/**
               filters:
                 - name: RequestRateLimiter
                   args:
@@ -81,7 +84,40 @@ spring:
       connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
       client-name: bioinformatics-api-gateway
       client-type: lettuce
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 100
+        failureRateThreshold: 60
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 90s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 10
+    instances:
+      authServiceCircuitBreaker:
+        baseConfig: default
+      analyticsServiceCircuitBreaker:
+        baseConfig: default
+      importServiceCircuitBreaker:
+        baseConfig: default
+      dashboardCircuitBreaker:
+        baseConfig: default
 
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 30s
+        cancelRunningFuture: true
+    instances:
+      authServiceCircuitBreaker:
+        baseConfig: default
+      analyticsServiceCircuitBreaker:
+        baseConfig: default
+      importServiceCircuitBreaker:
+        baseConfig: default
+      dashboardCircuitBreaker:
+        timeoutDuration: 120s
 app:
   security:
     public-endpoints:

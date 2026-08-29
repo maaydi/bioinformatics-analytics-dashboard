@@ -81,3 +81,5 @@ common:
     batch:
       chunk-size: ${UNIPROT_API_BATCH_CHUNK_SIZE:100}
       skip-limit: ${UNIPROT_API_BATCH_SKIP_LIMIT:1000}
+    httpClient:
+      timeout-duration: PT10S #  ISO-8601 duration format: 10 seconds

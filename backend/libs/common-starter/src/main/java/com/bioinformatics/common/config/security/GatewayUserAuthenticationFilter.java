@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import java.util.List;
 import static com.bioinformatics.shared.models.security.AppHeaders.*;
 
 @Component
+@Slf4j
 public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String ROLE = "ROLE_";
@@ -45,17 +47,23 @@ public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        log.debug("GatewayUserAuthenticationFilter Request : {} {}", request.getMethod(), request.getServletPath());
 
         var userId = request.getHeader(USER_ID.getHeader());
+        log.debug("UserId : {}", userId);
         var roles = new ArrayList<String>();
         request.getHeaders(USER_ROLE.getHeader()).asIterator().forEachRemaining(roles::add);
+        log.debug("Roles : {}", roles);
         var dataProvider = request.getHeader(DATA_PROVIDER.getHeader());
+        log.debug("DataProvider : {}", dataProvider);
 
         if (userId != null && !userId.isBlank()) {
+            log.debug("Create UsernamePasswordAuthenticationToken For UserId : {}", userId);
             var authentication = getAuthentication(userId, roles, dataProvider);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+        log.debug("Authentication : {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
     }
 

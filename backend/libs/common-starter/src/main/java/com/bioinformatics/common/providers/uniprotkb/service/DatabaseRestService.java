@@ -6,7 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -20,7 +24,6 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 @Slf4j
 public class DatabaseRestService {
-
     private final RestClient uniprotRestClient;
 
     /**
@@ -31,6 +34,9 @@ public class DatabaseRestService {
      * @return a {@link ResponseEntity} containing a paginated response of cross-reference entries
      * @throws IllegalArgumentException if {@code pageSize} is outside the valid range
      */
+    @Retryable(retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000, multiplier = 2))
     public ResponseEntity<UniprotKbResponse<CrossRefLightEntry>> searchAll(String query, int pageSize) {
         var queryParams = new UniprotQueryParams.Builder()
                 .withPageSize(pageSize)

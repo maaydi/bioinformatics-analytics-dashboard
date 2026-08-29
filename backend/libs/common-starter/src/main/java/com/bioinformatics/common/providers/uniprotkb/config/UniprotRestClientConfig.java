@@ -54,6 +54,7 @@ public class UniprotRestClientConfig {
                 new JacksonJsonHttpMessageConverter(nonFinalMapper);
         var httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(Duration.parse(properties.uniprotApi().httpClient().timeoutDuration()))
                 .build();
 
         var factory = new JdkClientHttpRequestFactory(httpClient);

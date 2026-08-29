@@ -5,7 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -33,6 +37,9 @@ public class SearchFieldRestService {
      *
      * @return a {@link ResponseEntity} containing a list of top-level search field definitions
      */
+    @Retryable(retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000, multiplier = 2))
     public ResponseEntity<List<SearchField>> loadSearchFieldConfig() {
         log.info("Load search field config ");
         return uniprotRestClient.get()

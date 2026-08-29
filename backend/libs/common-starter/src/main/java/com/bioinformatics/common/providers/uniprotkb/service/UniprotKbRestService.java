@@ -9,7 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Objects;
@@ -42,6 +46,9 @@ public class UniprotKbRestService {
      * @param cursor  the pagination cursor from a prior response; {@code null} for the first page
      * @return a {@link ResponseEntity} containing a paginated response of full protein entries
      */
+    @Retryable(retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000, multiplier = 2))
     public ResponseEntity<UniprotKbResponse<UniProtEntry>> searchAll(GeneSearchRequest request, String cursor) {
         var queryParams = new UniprotQueryParams.Builder()
                 .withPageSize(Objects.requireNonNullElse(request.size(), 500))
@@ -59,6 +66,9 @@ public class UniprotKbRestService {
                 });
     }
 
+    @Retryable(retryFor = {ResourceAccessException.class, HttpServerErrorException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 2000, multiplier = 2))
     public ResponseEntity<UniprotKbResponse<UniProtLightEntry>> searchAll(String query, int pageSize) {
         var queryParams = new UniprotQueryParams.Builder()
                 .withPageSize(pageSize)
