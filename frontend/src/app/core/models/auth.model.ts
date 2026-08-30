@@ -26,7 +26,7 @@ export interface JwtPayload {
   exp: number; // expiry timestamp (seconds)
   iat: number; // issued-at timestamp
   type: 'access' | 'refresh';
-  roles: string; // comma-separated, e.g. "ROLE_USER" or "ROLE_ADMIN"
+  role: UserRole[]; // comma-separated, e.g. "ROLE_USER" or "ROLE_ADMIN"
 }
 
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN';
