@@ -13,6 +13,8 @@ public enum Constants {
     FILE_PATH("filePath"),
     TIMESTAMP("timestamp"),
     SAVED_FILTER_ID("filterId"),
+    USER_ID("initiatorUserId"),
+    USER_ROLE("initiatorRole"),
 
     /**
      * API-based import job constants

@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * analytics query. We baseline it and assert no growth.
  */
 @SpringBootTest(classes = AnalyticsServiceApplication.class)
-@ActiveProfiles("test")
 @TestPropertySource(properties = {
         /* ── PRIMARY: must not grow during test ── */
         "common.datasource.primary-url=jdbc:tc:postgresql:16:///primary?TC_INITSCRIPT=db/init-primary.sql",

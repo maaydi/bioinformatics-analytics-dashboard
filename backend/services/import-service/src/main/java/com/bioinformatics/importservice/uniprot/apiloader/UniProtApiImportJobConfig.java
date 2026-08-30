@@ -14,6 +14,7 @@ import com.bioinformatics.importservice.listener.PostImportCacheEvictionListener
 import com.bioinformatics.importservice.uniprot.apiloader.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.importservice.uniprot.apiloader.reader.UniProtApiItemReader;
 import com.bioinformatics.importservice.writer.ProteinAggregateItemWriter;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
@@ -72,7 +73,8 @@ public class UniProtApiImportJobConfig {
     @Bean
     @StepScope
     UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient, UniProtApiImportJobParameters params) {
-        var filter = savedFilterService.getSavedFilterById(params.getFilterId());
+        var user = new UserPrincipal(params.getInitiatorUserId(), params.getInitiatorRole(), null);
+        var filter = savedFilterService.getSavedFilterById(params.getFilterId(), user);
         if (filter.isEmpty()) {
             throw new ResourceNotFoundException("Filter with id %d not found".formatted(params.getFilterId()));
         }

@@ -15,6 +15,7 @@ import com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.importservice.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.RecordCounter;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -51,7 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @AutoConfigureRestTestClient
 @Slf4j
@@ -223,7 +222,7 @@ class ImportControllerIntegrationTest {
 
 
         doNothing().when(uniProtApiImportJobExecutor).execute(any());
-        when(savedFilterService.getSavedFilterById(anyLong())).thenReturn(Optional.of(
+        when(savedFilterService.getSavedFilterById(anyLong(), any(UserPrincipal.class))).thenReturn(Optional.of(
                 new SavedFilterDto(42L, "example-filter", GeneSearchRequest.builder().accession("ACC").build(), Instant.now())
         ));
 

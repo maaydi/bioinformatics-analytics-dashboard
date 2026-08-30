@@ -16,6 +16,8 @@ import com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobExe
 import com.bioinformatics.importservice.uniprot.fileloader.AsyncUniprotImportJobExecutor;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.RecordCounter;
+import com.bioinformatics.shared.models.security.UserPrincipal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -62,8 +64,15 @@ class ImportServiceTest {
     @Mock
     SavedFilterService savedFilterService;
 
+    private UserPrincipal initiator;
+
     private static ApplicationProperties.ImportConfig importConfig(Path tempDir) {
         return new ApplicationProperties.ImportConfig(tempDir.toString(), List.of(), null);
+    }
+
+    @BeforeEach
+    void setUp() {
+        initiator = new UserPrincipal("user_test", List.of("ROLE_ADMIN"), "");
     }
 
     @Test
@@ -147,12 +156,12 @@ class ImportServiceTest {
 
         var summary = new ImportJobSummary(inJob.getId().toString(), inJob.getStatus(), inJob.getFileName(), 0, 0, 0L, inJob.getCreatedAt(), inJob.getCompletedAt(), null);
         when(jobMapper.toSummary(any())).thenReturn(summary);
-        when(savedFilterService.getSavedFilterById(anyLong())).thenReturn(
+        when(savedFilterService.getSavedFilterById(anyLong(), any(UserPrincipal.class))).thenReturn(
                 Optional.of(
                         new SavedFilterDto(42L, "example-filter", GeneSearchRequest.builder().accession("ACC").build(), Instant.now())
                 )
         );
-        var result = importService.triggerRemoteImport(filterId);
+        var result = importService.triggerRemoteImport(filterId, initiator);
 
         assertThat(result).isNotNull();
         assertThat(result.id()).isEqualTo(inJob.getId().toString());
@@ -170,7 +179,7 @@ class ImportServiceTest {
         var runningJob = ImportJob.builder().id(UUID.randomUUID()).status(ImportStatus.RUNNING).build();
         when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of(runningJob));
 
-        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport(filterId));
+        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport(filterId, initiator));
 
         verify(importJobRep, never()).save(any());
         verify(remoteImportExec, never()).execute(any());

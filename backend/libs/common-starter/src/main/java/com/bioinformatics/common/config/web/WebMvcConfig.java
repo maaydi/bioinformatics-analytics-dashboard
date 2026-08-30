@@ -11,10 +11,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private final AuthenticatedUserResolver authenticatedUserResolver;
+    private final CurrentUserArgumentResolver currentUserArgumentResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(authenticatedUserResolver);
+        resolvers.add(currentUserArgumentResolver);
     }
 }

@@ -1,10 +1,12 @@
 package com.bioinformatics.importservice.controller;
 
+import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.other.PagedResponse;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
 import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.service.ImportService;
 import com.bioinformatics.importservice.validator.ValidFileType;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +47,8 @@ public class ImportController {
      * POST /api/v1/admin/import/uniprot/remote — triggers remote UniProt API import job.
      */
     @PostMapping("/uniprot/remote")
-    public ResponseEntity<ImportJobSummary> triggerRemoteImport(@RequestParam("filterId") long filterId) {
-        var job = service.triggerRemoteImport(filterId);
+    public ResponseEntity<ImportJobSummary> triggerRemoteImport(@RequestParam("filterId") long filterId, @CurrentUser UserPrincipal currentUser) {
+        var job = service.triggerRemoteImport(filterId, currentUser);
         return ResponseEntity.accepted().body(job);
     }
 

@@ -2,13 +2,13 @@ package com.bioinformatics.authservice.controller;
 
 import com.bioinformatics.authservice.dto.*;
 import com.bioinformatics.authservice.service.AuthService;
+import com.bioinformatics.common.config.web.CurrentUser;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
 
 /**
  * Authentication API extracted from the monolith for ARCH-001 Phase 1.
@@ -33,23 +33,23 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(USER_ID_HEADER) String username) {
-        authService.logout(username);
+    public ResponseEntity<Void> logout(@CurrentUser UserPrincipal user) {
+        authService.logout(user.id());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/service-token")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TokenResponse> issueServiceToken(@RequestHeader(USER_ID_HEADER) String username) {
-        return ResponseEntity.ok(authService.issueServiceToken(username));
+    public ResponseEntity<TokenResponse> issueServiceToken(@CurrentUser UserPrincipal user) {
+        return ResponseEntity.ok(authService.issueServiceToken(user.id()));
     }
 
     @PutMapping("/password")
     public ResponseEntity<ChangePasswordResponse> updatePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @RequestHeader(USER_ID_HEADER) String username
+            @CurrentUser UserPrincipal user
     ) {
-        return ResponseEntity.ok(authService.updatePassword(request, username));
+        return ResponseEntity.ok(authService.updatePassword(request, user.id()));
     }
 }
 
