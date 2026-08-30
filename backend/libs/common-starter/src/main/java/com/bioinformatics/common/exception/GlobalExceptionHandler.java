@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -96,9 +95,9 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
     }
 
-    @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
+    @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(RuntimeException ex) {
-        log.warn("Handle Authentication Exception: {}", ex.getMessage(), ex);
+        log.warn("Handle Authentication Exception: {} {}", ex.getClass().getName(), ex.getMessage(), ex);
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 

@@ -8,6 +8,7 @@ import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.entity.SavedFilter;
 import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;
 import com.bioinformatics.dashboard.savedfilter.repository.SavedFilterRepository;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,13 +43,13 @@ class SavedFilterServiceTest {
 
     @Test
     void listForCurrentUser_returnsMappedDtos() {
-        var user = "test_user";
+        var user = new UserPrincipal("test_user", List.of("ROLE_USER"), "");
         var entity = mock(SavedFilter.class);
         var dto = mock(SavedFilterDto.class);
 
         var expectedPageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        when(repository.findByOwner(user, expectedPageable))
+        when(repository.findByOwner(user.id(), expectedPageable))
                 .thenReturn(new PageImpl<>(List.of(entity), expectedPageable, 1));
 
         when(mapper.toDto(entity)).thenReturn(dto);
@@ -59,7 +60,7 @@ class SavedFilterServiceTest {
         assertEquals(1, result.content().size());
         assertSame(dto, result.content().getFirst());
 
-        verify(repository).findByOwner(user, expectedPageable);
+        verify(repository).findByOwner(user.id(), expectedPageable);
         verify(mapper).toDto(entity);
     }
 
@@ -67,13 +68,13 @@ class SavedFilterServiceTest {
     void create_success_returnsDto() {
         var request = mock(SavedFilterCreateRequest.class);
         when(request.name()).thenReturn("my-filter");
-        var owner = "test_user";
+        var owner = new UserPrincipal("test_user", List.of("ROLE_USER"), "");
 
         var entity = mock(SavedFilter.class);
         var savedEntity = mock(SavedFilter.class);
         var dto = mock(SavedFilterDto.class);
 
-        when(mapper.toEntity(request, owner)).thenReturn(entity);
+        when(mapper.toEntity(request, owner.id())).thenReturn(entity);
         when(repository.save(entity)).thenReturn(savedEntity);
         when(mapper.toDto(savedEntity)).thenReturn(dto);
 
@@ -81,7 +82,7 @@ class SavedFilterServiceTest {
 
         assertNotNull(result);
         assertSame(dto, result);
-        verify(mapper).toEntity(request, owner);
+        verify(mapper).toEntity(request, owner.id());
         verify(repository).save(entity);
         verify(mapper).toDto(savedEntity);
     }
@@ -90,24 +91,23 @@ class SavedFilterServiceTest {
     void create_duplicateName_throwsDuplicateFilterNameException() {
         var request = mock(SavedFilterCreateRequest.class);
         when(request.name()).thenReturn("dup-filter");
-        var owner = "test_user";
+        var owner = new UserPrincipal("test_user", List.of("ROLE_USER"), "");
 
         var entity = mock(SavedFilter.class);
-        when(mapper.toEntity(request, owner)).thenReturn(entity);
+        when(mapper.toEntity(request, owner.id())).thenReturn(entity);
         when(repository.save(entity)).thenThrow(new DataIntegrityViolationException("duplicate"));
 
         assertThrows(DuplicateFilterNameException.class, () -> service.create(request, owner));
-        verify(mapper).toEntity(request, owner);
+        verify(mapper).toEntity(request, owner.id());
         verify(repository).save(entity);
     }
 
     @Test
     void delete_notFound_throwsResourceNotFoundException() {
         when(repository.findById(42L)).thenReturn(Optional.empty());
-        var user = "test_user";
-        var role = "USER";
+        var user = new UserPrincipal("test_user", List.of("ROLE_USER"), "");
 
-        assertThrows(ResourceNotFoundException.class, () -> service.delete(42L, user, role));
+        assertThrows(ResourceNotFoundException.class, () -> service.delete(42L, user));
         verify(repository).findById(42L);
         verify(repository, never()).delete(any());
     }
@@ -119,12 +119,11 @@ class SavedFilterServiceTest {
         var entity = new SavedFilter();
         entity.setOwner(storedOwner);
 
-        var currentUser = "other-user";
-        var currentUserRole = "USER";
+        var currentUser = new UserPrincipal("other-user", List.of("ROLE_USER"), "");
 
         when(repository.findById(7L)).thenReturn(Optional.of(entity));
 
-        assertThrows(AccessDeniedException.class, () -> service.delete(7L, currentUser, currentUserRole));
+        assertThrows(AccessDeniedException.class, () -> service.delete(7L, currentUser));
 
         verify(repository).findById(7L);
         verify(repository, never()).delete(any());
@@ -133,7 +132,7 @@ class SavedFilterServiceTest {
 
     @Test
     void delete_success_deletesEntity() {
-        var currentUser = "same-user";
+        var currentUser = new UserPrincipal("same-user", List.of("ROLE_USER"), "");
 
         var storedOwner = "same-user";
 
@@ -142,7 +141,7 @@ class SavedFilterServiceTest {
         entity.setOwner(storedOwner);
 
         when(repository.findById(99L)).thenReturn(Optional.of(entity));
-        service.delete(99L, currentUser, "USER");
+        service.delete(99L, currentUser);
 
         verify(repository).findById(99L);
         verify(repository).deleteById(99L);
