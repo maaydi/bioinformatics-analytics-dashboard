@@ -14,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.bioinformatics.shared.models.security.Constants.ADMIN_ROLE;
+
 /**
  * Spring Security configuration.
  *
@@ -40,7 +42,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
-                        .requestMatchers("/api/v1/admin/import/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/import/**").hasRole(ADMIN_ROLE)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(gatewayUserAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

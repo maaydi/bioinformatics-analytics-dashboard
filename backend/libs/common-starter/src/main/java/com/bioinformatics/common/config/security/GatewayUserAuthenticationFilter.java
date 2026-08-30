@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bioinformatics.shared.models.security.AppHeaders.*;
+import static com.bioinformatics.shared.models.security.Constants.ROLE_PREFIX;
 
 @Component
 @Slf4j
 public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String ROLE = "ROLE_";
 
 
     private static UsernamePasswordAuthenticationToken getAuthentication(final String userId, final List<String> roles, final String dataProvider) {
@@ -32,9 +32,9 @@ public class GatewayUserAuthenticationFilter extends OncePerRequestFilter {
 
         var authorities = roles
                 .stream()
-                .map(role -> (role != null && !role.startsWith(ROLE))
-                        ? ROLE + role
-                        : (role != null ? role : ROLE.concat(USER_ROLE.getDefaultValue())))
+                .map(role -> (role != null && !role.startsWith(ROLE_PREFIX))
+                        ? ROLE_PREFIX + role
+                        : (role != null ? role : ROLE_PREFIX.concat(USER_ROLE.getDefaultValue())))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 

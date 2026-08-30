@@ -39,8 +39,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
-import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
@@ -103,7 +102,7 @@ class ImportControllerIntegrationTest {
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
-                        .header(USER_ROLE_HEADER, "ADMIN"))
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.status").value(ImportStatus.RUNNING.toString()))
@@ -127,7 +126,7 @@ class ImportControllerIntegrationTest {
                         .file(file)
                         .param("strategy", "append")
                         .header(USER_ID_HEADER, "admin_user")
-                        .header(USER_ROLE_HEADER, "ADMIN"))
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value(ImportStatus.RUNNING.toString()));
 
@@ -146,7 +145,7 @@ class ImportControllerIntegrationTest {
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "regular_user")
-                        .header(USER_ROLE_HEADER, "USER"))
+                        .header(USER_ROLE_HEADER, USER_ROLE))
                 .andExpect(status().isForbidden());
     }
 
@@ -186,7 +185,7 @@ class ImportControllerIntegrationTest {
                         .file(file)
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
-                        .header(USER_ROLE_HEADER, "ADMIN"))
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().isConflict());
 
         // Verify no new job was created
@@ -200,7 +199,7 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .param("strategy", "overwrite")
                         .header(USER_ID_HEADER, "admin_user")
-                        .header(USER_ROLE_HEADER, "ADMIN"))
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -213,7 +212,7 @@ class ImportControllerIntegrationTest {
         mockMvc.perform(multipart("/api/v1/admin/import/uniprot")
                         .file(file)
                         .header(USER_ID_HEADER, "admin_user")
-                        .header(USER_ROLE_HEADER, "ADMIN"))
+                        .header(USER_ROLE_HEADER, ADMIN_ROLE))
                 .andExpect(status().is5xxServerError());
     }
 
@@ -232,7 +231,7 @@ class ImportControllerIntegrationTest {
                         .queryParam("filterId", 42L)
                         .build())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isAccepted()
                 .expectBody(ImportJobSummary.class)
@@ -282,7 +281,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -318,7 +317,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -336,7 +335,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=1&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -352,7 +351,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=2&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -386,7 +385,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -426,7 +425,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -447,7 +446,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "regular_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -470,7 +469,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status?page=0&size=10")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
@@ -506,7 +505,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -542,7 +541,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -575,7 +574,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", job.getId().toString())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ImportJobProgress.class)
@@ -597,7 +596,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", invalidJobId)
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorResponse.class)
@@ -619,7 +618,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", jobId)
                 .header(USER_ID_HEADER, "regular_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -643,7 +642,7 @@ class ImportControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/admin/import/status/{jobId}", "not-a-uuid")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
     }

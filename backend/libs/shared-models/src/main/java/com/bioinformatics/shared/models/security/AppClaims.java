@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum AppClaims {
-    ROLE("role"),
+    USER_ID("userId"),
+    ROLES("roles"),
     TYPE("type"),
     DATA_PROVIDER("dataProvider");
     private final String claim;

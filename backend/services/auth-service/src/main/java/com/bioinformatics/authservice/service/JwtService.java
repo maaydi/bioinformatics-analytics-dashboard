@@ -34,7 +34,7 @@ public class JwtService {
 
         return buildToken(
                 userDetails.getUsername(),
-                Map.of(AppClaims.TYPE.getClaim(), TypeClaimValue.ACCESS_TOKEN.getValue(), AppClaims.ROLE.getClaim(), roles),
+                Map.of(AppClaims.TYPE.getClaim(), TypeClaimValue.ACCESS_TOKEN.getValue(), AppClaims.ROLES.getClaim(), roles),
                 properties.jwt().accessTokenExpirySeconds()
         );
     }
@@ -54,7 +54,7 @@ public class JwtService {
 
         return buildToken(
                 userDetails.getUsername(),
-                Map.of(AppClaims.TYPE.getClaim(), TypeClaimValue.SERVICE_TOKEN.getValue(), AppClaims.ROLE.getClaim(), roles),
+                Map.of(AppClaims.TYPE.getClaim(), TypeClaimValue.SERVICE_TOKEN.getValue(), AppClaims.ROLES.getClaim(), roles),
                 properties.jwt().serviceTokenExpirySeconds()
         );
     }

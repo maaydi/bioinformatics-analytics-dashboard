@@ -46,7 +46,7 @@ describe('AuthService', () => {
   it('parses roles from stored token and reports admin role', () => {
     // Prepare a token that contains ROLE_ADMIN in the payload
     sessionStorage.clear();
-    const payload = {exp: Math.floor(Date.now() / 1000) + 3600, roles: 'ROLE_ADMIN,ROLE_USER'};
+    const payload = {exp: Math.floor(Date.now() / 1000) + 3600, roles: ['ROLE_ADMIN', 'ROLE_USER']};
     const accessToken = `h.${btoa(JSON.stringify(payload))}.s`;
     sessionStorage.setItem('accessToken', accessToken);
 

@@ -114,7 +114,7 @@ class SavedFilterControllerTest {
     // ====== GET /api/saved-filters ======
     @Test
     @DisplayName("GET /api/saved-filters - Should list filters for current user with ROLE_USER")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void listSavedFilters_withAuthenticatedUser_returnsFilters() throws Exception {
         var filters = List.of(testFilterDto);
         when(service.listForCurrentUser(any(UserPrincipal.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
@@ -132,7 +132,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("GET /api/saved-filters - Should list empty filters when user has none")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void listSavedFilters_withNoFilters_returnsEmptyList() throws Exception {
         when(service.listForCurrentUser(any(UserPrincipal.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
@@ -146,7 +146,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("GET /api/saved-filters - Should list filters for ADMIN user")
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = ADMIN_ROLE)
     void listSavedFilters_withAdminRole_returnsFilters() throws Exception {
         var filters = List.of(testFilterDto);
         when(service.listForCurrentUser(any(UserPrincipal.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(filters, 0, 1, 1, 1));
@@ -168,7 +168,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("GET /api/saved-filters - Should return multiple filters ordered correctly")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void listSavedFilters_withMultipleFilters_returnsAll() throws Exception {
         var filter2 = new SavedFilterDto(
                 2L,
@@ -198,7 +198,7 @@ class SavedFilterControllerTest {
     // ====== POST /api/saved-filters ======
     @Test
     @DisplayName("POST /api/saved-filters - Should create filter with valid request")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withValidRequest_returnsCreatedFilter() throws Exception {
         when(service.create(any(SavedFilterCreateRequest.class), any(UserPrincipal.class)))
                 .thenReturn(testFilterDto);
@@ -218,7 +218,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should reject request with empty name")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withEmptyName_returnsBadRequest() throws Exception {
         var invalidRequest = new SavedFilterCreateRequest("", validRequest.filterJson());
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
@@ -233,7 +233,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should reject request with null name")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withNullName_returnsBadRequest() throws Exception {
         var invalidRequest = new SavedFilterCreateRequest(null, validRequest.filterJson());
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
@@ -248,7 +248,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should reject name exceeding 100 characters")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withNameTooLong_returnsBadRequest() throws Exception {
         var longName = "a".repeat(101);
         var invalidRequest = new SavedFilterCreateRequest(longName, validRequest.filterJson());
@@ -264,7 +264,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should reject request with null filterJson")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withNullFilterJson_returnsBadRequest() throws Exception {
         var invalidRequest = new SavedFilterCreateRequest("Valid Name", null);
         var requestJson = objectMapper.writeValueAsString(invalidRequest);
@@ -279,7 +279,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should handle duplicate filter name exception")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withDuplicateName_returnsConflict() throws Exception {
         when(service.create(any(SavedFilterCreateRequest.class), any(UserPrincipal.class)))
                 .thenThrow(new DuplicateFilterNameException("Duplicated filter name My Filter", new Exception()));
@@ -306,7 +306,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should create filter with ROLE_ADMIN")
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = ADMIN_ROLE)
     void createSavedFilter_withAdminRole_returnsCreatedFilter() throws Exception {
         when(service.create(any(SavedFilterCreateRequest.class), any(UserPrincipal.class)))
                 .thenReturn(testFilterDto);
@@ -323,7 +323,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should handle malformed JSON gracefully")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_withMalformedJson_returnsServerError() throws Exception {
         mockMvc.perform(post("/api/saved-filters")
                         .header(USER_ID_HEADER, "test_user")
@@ -337,7 +337,7 @@ class SavedFilterControllerTest {
     // ====== DELETE /api/saved-filters/{id} ======
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should delete filter owned by current user")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void deleteSavedFilter_withValidId_returnsNoContent() throws Exception {
         doNothing().when(service).delete(eq(1L), any(UserPrincipal.class));
         mockMvc.perform(delete("/api/saved-filters/1")
@@ -350,7 +350,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should return 404 when filter not found")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void deleteSavedFilter_withNonExistentId_returnsNotFound() throws Exception {
         doThrow(ResourceNotFoundException.forSavedFilter(999L))
                 .when(service).delete(eq(999L), any(UserPrincipal.class));
@@ -363,7 +363,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should return 403 when user lacks permission")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void deleteSavedFilter_withoutPermission_returnsForbidden() throws Exception {
         doThrow(new AccessDeniedException("You don't have permission to delete this filter"))
                 .when(service).delete(eq(1L), any(UserPrincipal.class));
@@ -384,7 +384,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Admin should delete any filter")
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = ADMIN_ROLE)
     void deleteSavedFilter_withAdminRole_deletesAnyFilter() throws Exception {
         doNothing().when(service).delete(eq(1L), any(UserPrincipal.class));
         mockMvc.perform(delete("/api/saved-filters/1")
@@ -396,7 +396,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should handle invalid ID format gracefully")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void deleteSavedFilter_withInvalidIdFormat_returnsServerError() throws Exception {
         mockMvc.perform(delete("/api/saved-filters/invalid")
                         .header(USER_ID_HEADER, "test_user")
@@ -407,7 +407,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("DELETE /api/saved-filters/{id} - Should handle multiple sequential deletes")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void deleteSavedFilter_multipleDeletionsInSequence_succeeds() throws Exception {
         doNothing().when(service).delete(any(Long.class), any(UserPrincipal.class));
         mockMvc.perform(delete("/api/saved-filters/1")
@@ -446,7 +446,7 @@ class SavedFilterControllerTest {
     // ====== Response Content Type Tests ======
     @Test
     @DisplayName("GET /api/saved-filters - Should return JSON content type")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void listSavedFilters_shouldReturnJsonContentType() throws Exception {
         when(service.listForCurrentUser(any(UserPrincipal.class), any(Integer.class), any(Integer.class))).thenReturn(new PagedResponse<>(List.of(testFilterDto), 0, 1, 1, 1));
         mockMvc.perform(get("/api/saved-filters")
@@ -459,7 +459,7 @@ class SavedFilterControllerTest {
 
     @Test
     @DisplayName("POST /api/saved-filters - Should return JSON content type")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(roles = USER_ROLE)
     void createSavedFilter_shouldReturnJsonContentType() throws Exception {
         when(service.create(any(SavedFilterCreateRequest.class), any(UserPrincipal.class)))
                 .thenReturn(testFilterDto);

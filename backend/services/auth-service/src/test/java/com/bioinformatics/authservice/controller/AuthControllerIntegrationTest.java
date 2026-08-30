@@ -69,7 +69,7 @@ class AuthControllerIntegrationTest {
 
         restClient.post()
                 .uri(AUTH_BASE_URL + "/refresh")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.accessToken())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + loginResult.accessToken())
                 .body(new RefreshRequest(loginResult.refreshToken()))
                 .exchange()
                 .expectStatus().isOk()
@@ -166,7 +166,7 @@ class AuthControllerIntegrationTest {
         restClient.put()
                 .uri(AUTH_BASE_URL + "/password")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .body(new ChangePasswordRequest("secret", "Abcdef"))
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -187,7 +187,7 @@ class AuthControllerIntegrationTest {
         restClient.post()
                 .uri(AUTH_BASE_URL + "/service-token")
                 .header(USER_ID_HEADER, "admin")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(TokenResponse.class)
@@ -208,7 +208,7 @@ class AuthControllerIntegrationTest {
         restClient.post()
                 .uri(AUTH_BASE_URL + "/service-token")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isForbidden();
     }

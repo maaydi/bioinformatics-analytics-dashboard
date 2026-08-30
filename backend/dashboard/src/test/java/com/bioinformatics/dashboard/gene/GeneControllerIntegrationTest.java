@@ -22,8 +22,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import java.time.Instant;
 import java.util.List;
 
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
-import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -72,7 +71,7 @@ class GeneControllerIntegrationTest {
                         .queryParam("size", "10")
                         .build())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new org.springframework.core.ParameterizedTypeReference<PagedResponse<ProteinSummaryDto>>() {
@@ -114,7 +113,7 @@ class GeneControllerIntegrationTest {
         restClient.post()
                 .uri("/api/genes/search")
                 .header(USER_ID_HEADER, "regular_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()
@@ -146,7 +145,7 @@ class GeneControllerIntegrationTest {
         restClient.get()
                 .uri("/api/genes/{accession}", saved.getAccession())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -161,7 +160,7 @@ class GeneControllerIntegrationTest {
         restClient.get()
                 .uri("/api/genes/{accession}", "9999")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -171,7 +170,7 @@ class GeneControllerIntegrationTest {
         restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/api/genes").queryParam("sort", "not_a_field").build())
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
@@ -182,7 +181,7 @@ class GeneControllerIntegrationTest {
         restClient.post()
                 .uri("/api/genes/search")
                 .header(USER_ID_HEADER, "regular_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .body(request)
                 .exchange()
                 .expectStatus().is4xxClientError();
@@ -207,7 +206,7 @@ class GeneControllerIntegrationTest {
         restClient.post()
                 .uri("/api/genes/export-csv")
                 .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, "ADMIN")
+                .header(USER_ROLE_HEADER, ADMIN_ROLE)
                 .body(request)
                 .exchange()
                 .expectStatus().isOk()

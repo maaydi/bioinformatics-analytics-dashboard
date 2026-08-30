@@ -19,8 +19,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.List;
 
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
-import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -52,7 +51,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/dashboard-kpis")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(DashboardKpisDto.class)
@@ -73,7 +72,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/length-histogram")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<LengthHistogramBucketDto>>() {
@@ -93,7 +92,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/by-organism?limit=1")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<OrganismCountDto>>() {
@@ -115,7 +114,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/reviewed-ratio")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<ReviewedRatioDto>>() {
@@ -129,7 +128,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/evidence-levels")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<EvidenceDistributionDto>>() {
@@ -149,7 +148,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/keyword-frequency?limit=1")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<List<KeywordFrequencyDto>>() {
@@ -166,7 +165,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/by-organism?limit=201")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)
@@ -185,7 +184,7 @@ class AnalyticsControllerIntegrationTest {
         restClient.get()
                 .uri("/api/v1/analytics/keyword-frequency?limit=501")
                 .header(USER_ID_HEADER, "analytics_user")
-                .header(USER_ROLE_HEADER, "USER")
+                .header(USER_ROLE_HEADER, USER_ROLE)
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorResponse.class)

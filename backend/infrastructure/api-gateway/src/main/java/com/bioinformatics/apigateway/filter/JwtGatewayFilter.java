@@ -28,13 +28,12 @@ import java.util.Objects;
 
 import static com.bioinformatics.shared.models.security.AppHeaders.USER_ID;
 import static com.bioinformatics.shared.models.security.AppHeaders.USER_ROLE;
+import static com.bioinformatics.shared.models.security.Constants.BEARER;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class JwtGatewayFilter implements GlobalFilter, Ordered {
-    private static final String BEARER = "Bearer ";
-
 
     private final ApplicationProperties properties;
 
@@ -68,7 +67,7 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
             }
 
             var userId = claims.getSubject();
-            var role = getRoleClaim(claims.get(AppClaims.ROLE.getClaim()));
+            var role = getRoleClaim(claims.get(AppClaims.ROLES.getClaim()));
             log.debug("JWT validated for userId='{}' roles={} path={}", userId, role, request.getURI().getPath());
             var mutated = exchange.getRequest().mutate()
                     .header(USER_ID.getHeader(), Objects.requireNonNullElse(userId, USER_ID.getDefaultValue()))

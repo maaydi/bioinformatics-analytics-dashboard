@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import java.time.Instant;
 import java.util.List;
 
+import static com.bioinformatics.shared.models.security.Constants.USER_ROLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,7 @@ class AuditServiceTest {
 
     @Test
     void save_shouldSaveAuditLog_whenActorIsProvided() {
-        var actor = new UserPrincipal("testuser", List.of("USER"), "");
+        var actor = new UserPrincipal("testuser", List.of(USER_ROLE), "");
 
         var webDetails = new AuditWebDetails("GET", "/api/test", "127.0.0.1");
 
