@@ -8,6 +8,8 @@ import lombok.*;
 
 import java.time.Instant;
 
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
+
 @Entity
 @Table(name = "audit_log")
 @Getter
@@ -18,7 +20,7 @@ import java.time.Instant;
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_log_seq")
-    @SequenceGenerator(name = "audit_log_seq", sequenceName = "audit_log_seq", allocationSize = 500)
+    @SequenceGenerator(name = "audit_log_seq",schema = GENES_SCHEMA, sequenceName = "audit_log_seq", allocationSize = 500)
     private Long id;
 
     @Column(name = "actor_username", nullable = false)

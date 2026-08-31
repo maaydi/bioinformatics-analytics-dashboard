@@ -266,6 +266,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
   import-service:
     build:
       context: ./backend/services/import-service
@@ -277,6 +278,8 @@ services:
       <<: *common-spring-env
       SERVER_PORT: ${SERVER_PORT_IMPORT_SERVICE:-8083}
       SPRING_APPLICATION_NAME: import-service
+      SPRING_BATCH_JOB_ENABLED: false
+      SPRING_BATCH_JOB_NAME: NONE
     depends_on:
       config-server:
         condition: service_healthy

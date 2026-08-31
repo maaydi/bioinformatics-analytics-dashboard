@@ -22,7 +22,7 @@ public class Keyword {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "keyword_seq")
-    @SequenceGenerator(name = "keyword_seq", sequenceName = "keyword_seq", allocationSize = 500)
+    @SequenceGenerator(name = "keyword_seq",schema = GENES_SCHEMA, sequenceName = "keyword_seq", allocationSize = 500)
     private Integer id;
 
     @Column(nullable = false, unique = true, columnDefinition = "TEXT")

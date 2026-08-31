@@ -34,7 +34,7 @@ public class ProteinEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_entry_seq")
-    @SequenceGenerator(name = "protein_entry_seq", sequenceName = "protein_entry_seq", allocationSize = 500)
+    @SequenceGenerator(name = "protein_entry_seq",schema = GENES_SCHEMA, sequenceName = "protein_entry_seq", allocationSize = 500)
     private Long id;
 
     // ── Identification ────────────────────────────────────────────────────────

@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.Instant;
 
 import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 
 /**
  * Persisted refresh-token record for the {@code auth.refresh_token} table.
@@ -28,7 +29,7 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "refresh_token_seq")
-    @SequenceGenerator(name = "refresh_token_seq", sequenceName = "auth.refresh_token_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "refresh_token_seq",schema = AUTH_SCHEMA, sequenceName = "refresh_token_id_seq", allocationSize = 1)
     private Long id;
 
     /**

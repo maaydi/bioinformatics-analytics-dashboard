@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
+import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 
 /**
  * JPA entity for the {@code auth.app_user} table.
@@ -48,7 +49,7 @@ public class AppUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "app_user_seq")
-    @SequenceGenerator(name = "app_user_seq", sequenceName = "auth.app_user_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "app_user_seq",schema = AUTH_SCHEMA, sequenceName = "app_user_id_seq", allocationSize = 1)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)

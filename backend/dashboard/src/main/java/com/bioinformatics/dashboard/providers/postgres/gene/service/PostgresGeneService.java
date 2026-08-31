@@ -43,6 +43,7 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
      */
     @Override
     @Cacheable(value = "geneList", key = "#pageNumber + '-' + #size + '-' + #sort + '-' + #direction")
+    @Transactional(readOnly = true)
     public PagedResponse<ProteinSummaryDto> listGenes(int pageNumber, int size, String sort, String direction) {
         var direct = Sort.Direction.fromString(direction);
         var pageable = PageRequest.of(pageNumber, size, direct, sort);
@@ -58,6 +59,7 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
      */
     @Override
     @Cacheable(value = "geneSearch", key = "#request.toString()")
+    @Transactional(readOnly = true)
     public PagedResponse<ProteinSummaryDto> searchGenes(GeneSearchRequest request) {
         log.info("Searching for protein entries for filters: {}", request);
         var page = request.getRequestPage(SORT_WHITELIST, "id");

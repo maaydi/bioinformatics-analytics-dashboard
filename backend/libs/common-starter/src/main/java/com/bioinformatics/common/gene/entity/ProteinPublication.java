@@ -15,7 +15,7 @@ import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 public class ProteinPublication {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_publication_seq")
-    @SequenceGenerator(name = "protein_publication_seq", sequenceName = "protein_publication_seq", allocationSize = 500)
+    @SequenceGenerator(name = "protein_publication_seq",schema = GENES_SCHEMA, sequenceName = "protein_publication_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

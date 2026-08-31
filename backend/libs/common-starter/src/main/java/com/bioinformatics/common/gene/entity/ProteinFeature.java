@@ -23,7 +23,7 @@ public class ProteinFeature {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "protein_feature_seq")
-    @SequenceGenerator(name = "protein_feature_seq", sequenceName = "protein_feature_seq", allocationSize = 500)
+    @SequenceGenerator(name = "protein_feature_seq",schema = GENES_SCHEMA, sequenceName = "protein_feature_seq", allocationSize = 500)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
