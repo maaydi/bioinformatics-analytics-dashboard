@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "app")
-public record ApplicationProperties(ImportConfig importConfig, UniProtApi uniprotApi, Batch batch) {
+public record ApplicationProperties(ImportConfig importConfig, Batch batch) {
 
     public record ImportConfig(String tempDir,
                                List<String> extensions,
@@ -17,9 +17,6 @@ public record ApplicationProperties(ImportConfig importConfig, UniProtApi unipro
                                      int queueCapacity,
                                      String threadNamePrefix) {
 
-    }
-
-    public record UniProtApi(String baseUrl, Batch batch) {
     }
 
     public record Batch(int chunkSize, int skipLimit) {

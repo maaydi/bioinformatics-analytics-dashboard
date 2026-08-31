@@ -1,5 +1,6 @@
 package com.bioinformatics.importservice.uniprot.apiloader;
 
+import com.bioinformatics.common.config.CommonProperties;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
@@ -63,6 +64,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class UniProtApiImportJobConfig {
 
     private final ApplicationProperties appProperties;
+    private final CommonProperties commonProperties;
     private final SavedFilterService savedFilterService;
 
 
@@ -78,7 +80,9 @@ public class UniProtApiImportJobConfig {
         if (filter.isEmpty()) {
             throw new ResourceNotFoundException("Filter with id %d not found".formatted(params.getFilterId()));
         }
-        var request = filter.get().filterJson().copy().page(0).size(appProperties.uniprotApi().batch().chunkSize()).build();
+        var request = filter.get().filterJson().copy().page(0)
+                .size(commonProperties.uniprotApi().batch().chunkSize())
+                .build();
         return new UniProtApiItemReader(apiClient, request);
     }
 
