@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.flyway.autoconfigure.FlywayDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -29,8 +30,35 @@ public class RoutingDataSourceConfig {
     private final CommonProperties commonProperties;
 
     @Bean
+    @FlywayDataSource
+    public DataSource primaryDataSource() {
+        log.debug("Creating PRIMARY datasource");
+        var dsProps = commonProperties.datasource();
+        return createDataSource(
+                DataSourceType.PRIMARY,
+                dsProps.primaryUrl(),
+                dsProps.primaryUsername(),
+                dsProps.primaryPassword(),
+                dsProps.pool()
+        );
+    }
+
+    @Bean
+    public DataSource replicaDataSource() {
+        log.debug("Creating REPLICA datasource");
+        var dsProps = commonProperties.datasource();
+        return createDataSource(
+                DataSourceType.REPLICA,
+                dsProps.replicaUrl(),
+                dsProps.replicaUsername(),
+                dsProps.replicaPassword(),
+                dsProps.pool()
+        );
+    }
+
+    @Bean
     @Primary
-    public DataSource routingDataSource() {
+    public DataSource routingDataSource(DataSource primaryDataSource, DataSource replicaDataSource) {
         log.debug("Creating routing datasource");
         var routingDataSource = new AbstractRoutingDataSource() {
             @Override
@@ -41,31 +69,12 @@ public class RoutingDataSourceConfig {
             }
         };
 
-        var dsProps = commonProperties.datasource();
-        var pool = dsProps.pool();
-        log.debug("Creating PRIMARY datasource");
-        var primary = createDataSource(
-                DataSourceType.PRIMARY,
-                dsProps.primaryUrl(),
-                dsProps.primaryUsername(),
-                dsProps.primaryPassword(),
-                pool
-        );
-        log.debug("Creating REPLICA datasource");
-        var replica = createDataSource(
-                DataSourceType.REPLICA,
-                dsProps.replicaUrl(),
-                dsProps.replicaUsername(),
-                dsProps.replicaPassword(),
-                pool
-        );
-
-        var targets = new HashMap<>();
-        targets.put(DataSourceType.PRIMARY, primary);
-        targets.put(DataSourceType.REPLICA, replica);
+        var targets = new HashMap<Object, Object>();
+        targets.put(DataSourceType.PRIMARY, primaryDataSource);
+        targets.put(DataSourceType.REPLICA, replicaDataSource);
 
         routingDataSource.setTargetDataSources(targets);
-        routingDataSource.setDefaultTargetDataSource(primary);
+        routingDataSource.setDefaultTargetDataSource(primaryDataSource);
 
         routingDataSource.afterPropertiesSet();
         return new LazyConnectionDataSourceProxy(routingDataSource);
