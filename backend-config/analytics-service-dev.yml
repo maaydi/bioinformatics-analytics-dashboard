@@ -44,7 +44,7 @@ common:
     primary-url: jdbc:postgresql://postgres:5432/bioinformatics_db
     primary-username: bio_user
     primary-password: password
-    replica-url: jdbc:postgresql://postgres-replica:5433/bioinformatics_db
+    replica-url: jdbc:postgresql://postgres-replica:5432/bioinformatics_db
     replica-username: bio_user
     replica-password: password
     pool:

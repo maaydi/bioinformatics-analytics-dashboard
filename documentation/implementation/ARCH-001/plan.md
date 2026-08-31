@@ -212,14 +212,14 @@ decommissioned.
 
 #### 0.6 Database — PostgreSQL Primary + Replica (`docker-compose.infra.yml`)
 
-- [ ] `postgres-primary` container:
-    - [ ] `POSTGRES_DB=uniprot`
-    - [ ] `wal_level=replica`, `max_wal_senders=5`, `max_replication_slots=5`
-    - [ ] Init script creates replication user
-- [ ] `postgres-replica` container:
-    - [ ] `pg_basebackup` from primary on first start
-    - [ ] `hot_standby=on`
-    - [ ] Read-only connections allowed
+- [x] `postgres-primary` container:
+    - [x] `POSTGRES_DB=uniprot`
+    - [x] `wal_level=replica`, `max_wal_senders=5`, `max_replication_slots=5`
+    - [x] Init script creates replication user
+- [x] `postgres-replica` container:
+    - [x] `pg_basebackup` from primary on first start
+    - [x] `hot_standby=on`
+    - [x] Read-only connections allowed
 - [x] Schema separation (Stage 1):
     ```sql
     CREATE SCHEMA IF NOT EXISTS auth;
