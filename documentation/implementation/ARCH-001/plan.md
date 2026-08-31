@@ -94,8 +94,8 @@ decommissioned.
   - [x] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
   - [x] `CommonSecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
   - [x] `CommonGlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
-- [ ] Publish to local Maven repository (`./mvnw install`)
-- [ ] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
+- [x] Publish to local Maven repository (`./mvnw install`)
+- [x] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
 
 #### 0.2 Service Discovery — Eureka Server (`infrastructure/discovery-server/`)
 
@@ -130,10 +130,10 @@ decommissioned.
     ```
 - [x] Initialize `config-repo` Git repository with:
   - [x] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
-    - [ ] `api-gateway.yml` — routing table, JWT secret, rate limits
-    - [ ] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
+    - [x] `api-gateway.yml` — routing table, JWT secret, rate limits
+    - [x] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
   - [x] `*-dev.yml`, `*-prod.yml` environment overrides
-- [ ] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
+- [x] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
 - [x] Docker service in `docker-compose.infra.yml`
 
 #### 0.4 API Gateway (`infrastructure/api-gateway/`)
@@ -199,16 +199,16 @@ decommissioned.
 
 #### 0.5 Message Broker — Kafka (`docker-compose.infra.yml`)
 
-- [ ] Kafka 3.7 + Zookeeper (or KRaft mode) containers
-- [ ] Topics auto-created on startup:
-    - [ ] `protein.events.imported` — 3 partitions, replication factor 1 (local dev)
-    - [ ] `export.events.completed` — 3 partitions
-    - [ ] `auth.events.authenticated` — 1 partition
-    - [ ] `audit.events.log` — 6 partitions (high throughput)
-    - [ ] `nlq.events.executed` — 1 partition
-    - [ ] `structure.events.viewed` — 1 partition
-    - [ ] `notification.events.trigger` — 3 partitions
-- [ ] Kafka UI (optional) for local dev monitoring
+- [x] Kafka 3.7 + Zookeeper (or KRaft mode) containers
+- [x] Topics auto-created on startup:
+    - [x] `protein.events.imported` — 3 partitions, replication factor 1 (local dev)
+    - [x] `export.events.completed` — 3 partitions
+    - [x] `auth.events.authenticated` — 1 partition
+    - [x] `audit.events.log` — 6 partitions (high throughput)
+    - [x] `nlq.events.executed` — 1 partition
+    - [x] `structure.events.viewed` — 1 partition
+    - [x] `notification.events.trigger` — 3 partitions
+- [x] Kafka UI (optional) for local dev monitoring
 
 #### 0.6 Database — PostgreSQL Primary + Replica (`docker-compose.infra.yml`)
 
@@ -233,14 +233,14 @@ decommissioned.
 
 #### 0.7 Docker Compose Infrastructure Stack
 
-- [ ] `docker-compose.infra.yml` services:
+- [x] `docker-compose.infra.yml` services:
     - [x] `eureka-server` (port 8761)
     - [x] `config-server` (port 8888)
     - [x] `api-gateway` (port 8080)
     - [x] `kafka` (port 9092)
     - [x] `zookeeper` (port 2181)
-    - [ ] `postgres-primary` (port 5432)
-    - [ ] `postgres-replica` (port 5433)
+    - [x] `postgres-primary` (port 5432)
+    - [x] `postgres-replica` (port 5433)
     - [x] `redis` (port 6379) — for Gateway rate limiting + service caching
 - [x] Health checks and dependency ordering (`depends_on` with condition)
 - [x] Shared network `bioinformatics-network`
