@@ -220,7 +220,7 @@ decommissioned.
     - [ ] `pg_basebackup` from primary on first start
     - [ ] `hot_standby=on`
     - [ ] Read-only connections allowed
-- [ ] Schema separation (Stage 1):
+- [x] Schema separation (Stage 1):
     ```sql
     CREATE SCHEMA IF NOT EXISTS auth;
     CREATE SCHEMA IF NOT EXISTS gene;
@@ -229,21 +229,21 @@ decommissioned.
     CREATE SCHEMA IF NOT EXISTS export_pipe;
     CREATE SCHEMA IF NOT EXISTS audit_log;
     ```
-- [ ] `pgAdmin` container (optional) for local dev
+- [x] `pgAdmin` container (optional) for local dev
 
 #### 0.7 Docker Compose Infrastructure Stack
 
 - [ ] `docker-compose.infra.yml` services:
-    - [ ] `eureka-server` (port 8761)
-    - [ ] `config-server` (port 8888)
-    - [ ] `api-gateway` (port 8080)
-    - [ ] `kafka` (port 9092)
-    - [ ] `zookeeper` (port 2181)
+    - [x] `eureka-server` (port 8761)
+    - [x] `config-server` (port 8888)
+    - [x] `api-gateway` (port 8080)
+    - [x] `kafka` (port 9092)
+    - [x] `zookeeper` (port 2181)
     - [ ] `postgres-primary` (port 5432)
     - [ ] `postgres-replica` (port 5433)
-    - [ ] `redis` (port 6379) — for Gateway rate limiting + service caching
-- [ ] Health checks and dependency ordering (`depends_on` with condition)
-- [ ] Shared network `bioinformatics-network`
+    - [x] `redis` (port 6379) — for Gateway rate limiting + service caching
+- [x] Health checks and dependency ordering (`depends_on` with condition)
+- [x] Shared network `bioinformatics-network`
 
 #### Phase 0 — Tests
 
