@@ -31,6 +31,18 @@ common:
   enabled: true
   cache:
     enabled: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      acks: all
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+    consumer:
+      group-id: analytics-view-refreshers # same constant used in KafkaGroupId class
+      concurrency: 1
+      auto-offset-reset: earliest
+      batch-listener: false
 
 app:
   rate-limiter:
