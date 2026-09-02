@@ -46,3 +46,9 @@ app:
     max-size: 5
     queue-capacity: 50
     thread-name-prefix: analytics-audit-
+
+  view-refresh:
+    max-attempts: ${APP_VIEW_REFRESH_MAX_ATTEMPTS:3}
+    per-view-timeout-ms: ${APP_VIEW_REFRESH_PER_VIEW_TIMEOUT_MS:45000}
+    retry-backoff-ms: ${APP_VIEW_REFRESH_RETRY_BACKOFF_MS:2000}
+    sequence-sla-ms: ${APP_VIEW_REFRESH_SEQUENCE_SLA_MS:180000}
