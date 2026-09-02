@@ -466,7 +466,7 @@ domain events on completion.
 
 #### 3.5 Event Publishing
 
-- [ ] `ProteinImportedEvent` record:
+- [x] `ProteinImportedEvent` record:
     ```java
     public record ProteinImportedEvent(
         UUID jobId,
@@ -477,8 +477,8 @@ domain events on completion.
         String triggeredByUserId
     ) {}
     ```
-- [ ] `KafkaTemplate<String, ProteinImportedEvent>` in `ImportEventPublisher`
-- [ ] Published in `JobExecutionListener.afterJob()` only if `BatchStatus.COMPLETED`
+- [x] `KafkaTemplate<String, ProteinImportedEvent>` in `ImportEventPublisher`
+- [x] Published in `JobExecutionListener.afterJob()` only if `BatchStatus.COMPLETED`
 
 #### 3.6 Monolith Adaptation
 

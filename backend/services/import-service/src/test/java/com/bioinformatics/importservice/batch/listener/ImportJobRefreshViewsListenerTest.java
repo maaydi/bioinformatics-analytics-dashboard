@@ -44,7 +44,7 @@ class ImportJobRefreshViewsListenerTest {
 
         listener.afterJob(jobExecution);
 
-        verify(refreshService).refreshAllDashboardViews(jobId);
+        verify(refreshService).refreshAllDashboardViews(jobId, "");
     }
 
     @Test

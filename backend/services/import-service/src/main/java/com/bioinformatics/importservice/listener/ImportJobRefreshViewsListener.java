@@ -28,8 +28,14 @@ public class ImportJobRefreshViewsListener implements JobExecutionListener {
             return;
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             var file = jobExecution.getJobParameters().getString(Constants.FILE_PATH.getKey());
-            log.info("Refresh Materialized views after execution job <{}> on file <{}>", jobId, file);
-            refreshService.refreshAllDashboardViews(jobId);
+            var filter = jobExecution.getJobParameters().getString(Constants.SAVED_FILTER_ID.getKey());
+            if (file != null || filter != null) {
+                var source = file != null ? "File ".concat(file) : "Remote API for Saved filter ID".concat(filter);
+                log.info("Refresh Materialized views after execution Import uniprot Data job {} from {}", jobId, source);
+                refreshService.refreshAllDashboardViews(jobId, source);
+            } else {
+                log.error("Could not identity source of imported data. Skip Refresh Materialized views");
+            }
         }
     }
 }
