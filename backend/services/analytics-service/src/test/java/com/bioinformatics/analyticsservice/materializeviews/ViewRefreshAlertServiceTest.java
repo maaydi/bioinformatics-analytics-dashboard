@@ -1,6 +1,6 @@
-package com.bioinformatics.dashboard.batch.service;
+package com.bioinformatics.analyticsservice.materializeviews;
 
-import com.bioinformatics.dashboard.job.service.ViewRefreshAlertService;
+import com.bioinformatics.analyticsservice.materializeviews.service.ViewRefreshAlertService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

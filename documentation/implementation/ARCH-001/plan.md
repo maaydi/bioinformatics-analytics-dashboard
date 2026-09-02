@@ -390,10 +390,10 @@ routing and serves as a performance benchmark.
 
 #### 2.4 Event Consumer
 
-- [ ] `ProteinImportedEventListener`:
-    - [ ] `@KafkaListener(topics = "protein.events.imported")`
-    - [ ] On event: `REFRESH MATERIALIZED VIEW CONCURRENTLY` for all 6 views
-    - [ ] Idempotent: checks `lastRefresh` timestamp to avoid duplicate refreshes
+- [x] `ProteinImportedEventListener`:
+  - [x] `@KafkaListener(topics = "protein.events.imported")`
+  - [x] On event: `REFRESH MATERIALIZED VIEW CONCURRENTLY` for all 6 views
+  - [x] Idempotent: checks `lastRefresh` timestamp to avoid duplicate refreshes
 - **Status:** Blocked on Phase 3 (Import Service) event definition. Phase 2.4 is first task in Phase 3.
 
 #### 2.5 Monolith Adaptation

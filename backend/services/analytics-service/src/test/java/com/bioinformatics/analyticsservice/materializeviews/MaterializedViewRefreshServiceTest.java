@@ -1,12 +1,12 @@
-package com.bioinformatics.dashboard.batch.service;
+package com.bioinformatics.analyticsservice.materializeviews;
 
-import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.job.dto.RefreshResult;
-import com.bioinformatics.dashboard.job.dto.ViewToRefresh;
-import com.bioinformatics.dashboard.job.repository.ViewRefreshLogRepository;
-import com.bioinformatics.dashboard.job.service.MaterializedViewRefreshService;
-import com.bioinformatics.dashboard.job.service.ViewRefreshAlertService;
-import org.junit.jupiter.api.BeforeEach;
+import com.bioinformatics.analyticsservice.config.ApplicationProperties;
+import com.bioinformatics.analyticsservice.materializeviews.dto.RefreshResult;
+import com.bioinformatics.analyticsservice.materializeviews.dto.ViewToRefresh;
+import com.bioinformatics.analyticsservice.materializeviews.entity.ViewRefreshLog;
+import com.bioinformatics.analyticsservice.materializeviews.repository.ViewRefreshLogRepository;
+import com.bioinformatics.analyticsservice.materializeviews.service.MaterializedViewRefreshService;
+import com.bioinformatics.analyticsservice.materializeviews.service.ViewRefreshAlertService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +22,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -30,7 +30,9 @@ import static org.mockito.Mockito.*;
 class MaterializedViewRefreshServiceTest {
 
     @Spy
-    private final AppProperties appProperties = new AppProperties();
+    private final ApplicationProperties appProperties = new ApplicationProperties(
+            new ApplicationProperties.ViewRefresh(3, 1000, 0, 10_000)
+    );
     @Mock
     private JdbcTemplate jdbcTemplate;
     @Mock
@@ -40,21 +42,13 @@ class MaterializedViewRefreshServiceTest {
     @InjectMocks
     private MaterializedViewRefreshService service;
 
-    @BeforeEach
-    void setUp() {
-        appProperties.getViewRefresh().setMaxAttempts(3);
-        appProperties.getViewRefresh().setPerViewTimeoutMs(1000);
-        appProperties.getViewRefresh().setRetryBackoffMs(0);
-        appProperties.getViewRefresh().setSequenceSlaMs(10_000);
-    }
-
     @Test
     void executeAndLogRefresh_successOnFirstAttempt_savesSuccessLog() {
         var result = service.executeAndLogRefresh("job-1", new ViewToRefresh("mv_dashboard_kpis", false));
 
         assertThat(result.success()).isTrue();
         verify(jdbcTemplate, times(1)).execute(anyConnectionCallback());
-        var logCaptor = ArgumentCaptor.forClass(com.bioinformatics.dashboard.job.entity.ViewRefreshLog.class);
+        var logCaptor = ArgumentCaptor.forClass(ViewRefreshLog.class);
         verify(logRepository).save(logCaptor.capture());
         assertThat(logCaptor.getValue().isSuccess()).isTrue();
         verifyNoInteractions(alertService);
@@ -84,7 +78,7 @@ class MaterializedViewRefreshServiceTest {
         assertThat(result.success()).isFalse();
         verify(jdbcTemplate, times(3)).execute(anyConnectionCallback());
 
-        var logCaptor = ArgumentCaptor.forClass(com.bioinformatics.dashboard.job.entity.ViewRefreshLog.class);
+        var logCaptor = ArgumentCaptor.forClass(ViewRefreshLog.class);
         verify(logRepository).save(logCaptor.capture());
         assertThat(logCaptor.getValue().isSuccess()).isFalse();
         assertThat(logCaptor.getValue().getErrorMessage()).contains("timeout");
@@ -116,7 +110,7 @@ class MaterializedViewRefreshServiceTest {
 
     @Test
     void refreshAllDashboardViews_whenFailuresAndSlaBreach_emitsSequenceAlerts() {
-        appProperties.getViewRefresh().setSequenceSlaMs(1);
+        when(appProperties.viewRefresh().sequenceSlaMs()).thenReturn(1L);
 
         var spiedService = spy(service);
         var results = List.of(

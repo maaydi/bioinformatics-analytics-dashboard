@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.job.dto;
+package com.bioinformatics.analyticsservice.materializeviews.dto;
 
 public record ViewToRefresh(String viewName, boolean concurrently) {
 }

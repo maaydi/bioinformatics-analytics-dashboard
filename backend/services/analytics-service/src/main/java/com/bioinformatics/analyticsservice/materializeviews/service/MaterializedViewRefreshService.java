@@ -1,10 +1,10 @@
-package com.bioinformatics.dashboard.job.service;
+package com.bioinformatics.analyticsservice.materializeviews.service;
 
-import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.job.dto.RefreshResult;
-import com.bioinformatics.dashboard.job.dto.ViewToRefresh;
-import com.bioinformatics.dashboard.job.entity.ViewRefreshLog;
-import com.bioinformatics.dashboard.job.repository.ViewRefreshLogRepository;
+import com.bioinformatics.analyticsservice.config.ApplicationProperties;
+import com.bioinformatics.analyticsservice.materializeviews.dto.RefreshResult;
+import com.bioinformatics.analyticsservice.materializeviews.dto.ViewToRefresh;
+import com.bioinformatics.analyticsservice.materializeviews.entity.ViewRefreshLog;
+import com.bioinformatics.analyticsservice.materializeviews.repository.ViewRefreshLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -26,6 +26,7 @@ public class MaterializedViewRefreshService {
 
     private final JdbcTemplate jdbcTemplate;
     private final ViewRefreshLogRepository logRepository;
+    private final ApplicationProperties appProperties;
     private static final List<ViewToRefresh> viewsToRefreshPlan = List.of(
             new ViewToRefresh("mv_dashboard_kpis", false),
             new ViewToRefresh("mv_length_histogram", true),
@@ -35,7 +36,6 @@ public class MaterializedViewRefreshService {
             new ViewToRefresh("mv_keyword_frequency", true)
     );
     private final ViewRefreshAlertService alertService;
-    private final AppProperties appProperties;
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -49,7 +49,7 @@ public class MaterializedViewRefreshService {
                 .filter(e -> !e.success())
                 .toList();
         var duration = System.currentTimeMillis() - startTime;
-        var sequenceSlaMs = appProperties.getViewRefresh().getSequenceSlaMs();
+        var sequenceSlaMs = appProperties.viewRefresh().sequenceSlaMs();
 
         if (!failedViews.isEmpty()) {
             var views = failedViews.stream().map(RefreshResult::viewName).toList();
@@ -67,10 +67,10 @@ public class MaterializedViewRefreshService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RefreshResult executeAndLogRefresh(String jobId, ViewToRefresh view) {
-        var refreshProps = appProperties.getViewRefresh();
-        var maxAttempts = refreshProps.getMaxAttempts();
-        var timeoutMs = refreshProps.getPerViewTimeoutMs();
-        var retryBackoffMs = refreshProps.getRetryBackoffMs();
+        var refreshProps = appProperties.viewRefresh();
+        var maxAttempts = refreshProps.maxAttempts();
+        var timeoutMs = refreshProps.perViewTimeoutMs();
+        var retryBackoffMs = refreshProps.retryBackoffMs();
 
         var auditLog = ViewRefreshLog.builder()
                 .jobIdentifier(jobId)

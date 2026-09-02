@@ -1,12 +1,14 @@
-package com.bioinformatics.dashboard.job.entity;
+package com.bioinformatics.analyticsservice.materializeviews.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static com.bioinformatics.shared.models.db.DbSchema.ANALYTICS_SCHEMA;
+
 @Entity
-@Table(name = "materialized_view_refresh_log")
+@Table(schema = ANALYTICS_SCHEMA, name = "materialized_view_refresh_log")
 @Getter
 @Setter
 @NoArgsConstructor
