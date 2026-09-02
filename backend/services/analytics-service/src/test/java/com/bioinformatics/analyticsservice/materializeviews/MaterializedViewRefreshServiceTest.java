@@ -110,8 +110,9 @@ class MaterializedViewRefreshServiceTest {
 
     @Test
     void refreshAllDashboardViews_whenFailuresAndSlaBreach_emitsSequenceAlerts() {
-        when(appProperties.viewRefresh().sequenceSlaMs()).thenReturn(1L);
-
+        var viewRefreshSpy = spy(appProperties.viewRefresh());
+        doReturn(1L).when(viewRefreshSpy).sequenceSlaMs();
+        doReturn(viewRefreshSpy).when(appProperties).viewRefresh();
         var spiedService = spy(service);
         var results = List.of(
                 new RefreshResult("mv_dashboard_kpis", true),

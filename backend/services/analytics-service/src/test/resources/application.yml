@@ -35,3 +35,10 @@ common:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   cache:
     enabled: false
+
+app:
+  view-refresh:
+    max-attempts: 3
+    per-view-timeout-ms: 1000
+    retry-backoff-ms: 0
+    sequence-sla-ms: 10000
