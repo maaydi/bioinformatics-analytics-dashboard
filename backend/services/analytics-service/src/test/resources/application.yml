@@ -35,6 +35,9 @@ common:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   cache:
     enabled: false
+  kafka:
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:analytics-view-refreshers}
 
 app:
   view-refresh:
