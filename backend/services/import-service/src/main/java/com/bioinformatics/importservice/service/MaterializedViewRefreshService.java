@@ -16,7 +16,7 @@ import static com.bioinformatics.shared.models.kafka.KafkaTopics.ANALYTICS_VIEW_
 @RequiredArgsConstructor
 public class MaterializedViewRefreshService {
 
-    private final KafkaTemplate<String, ViewRefreshRequestedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
 
     public void refreshAllDashboardViews(String jobId, String source) {
