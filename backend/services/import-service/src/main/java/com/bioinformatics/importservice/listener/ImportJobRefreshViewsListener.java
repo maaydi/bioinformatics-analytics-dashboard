@@ -28,9 +28,9 @@ public class ImportJobRefreshViewsListener implements JobExecutionListener {
             return;
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             var file = jobExecution.getJobParameters().getString(Constants.FILE_PATH.getKey());
-            var filter = jobExecution.getJobParameters().getString(Constants.SAVED_FILTER_ID.getKey());
+            var filter = jobExecution.getJobParameters().getLong(Constants.SAVED_FILTER_ID.getKey());
             if (file != null || filter != null) {
-                var source = file != null ? "File ".concat(file) : "Remote API for Saved filter ID".concat(filter);
+                var source = file != null ? "File ".concat(file) : "Remote API for Saved filter ID".concat(String.valueOf(filter));
                 log.info("Refresh Materialized views after execution Import uniprot Data job {} from {}", jobId, source);
                 refreshService.refreshAllDashboardViews(jobId, source);
             } else {

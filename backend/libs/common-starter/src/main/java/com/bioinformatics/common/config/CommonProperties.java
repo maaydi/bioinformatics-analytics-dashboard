@@ -70,7 +70,8 @@ public record CommonProperties(
                 String groupId,
                 @DefaultValue("earliest") String autoOffsetReset,
                 @DefaultValue("3") int concurrency,
-                @DefaultValue("false") boolean batchListener
+                @DefaultValue("false") boolean batchListener,
+                @DefaultValue("manual") String ackMode
         ) {
         }
     }

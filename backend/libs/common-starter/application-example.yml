@@ -48,6 +48,7 @@ common:
     consumer:
       group-id: ${spring.application.name}
       concurrency: 3
+      ack-mode: manual
   datasource:
     primary-url: ${DB_PRIMARY_URL:jdbc:postgresql://db-primary:5432/bio}
     primary-username: ${DB_PRIMARY_USER:bio}

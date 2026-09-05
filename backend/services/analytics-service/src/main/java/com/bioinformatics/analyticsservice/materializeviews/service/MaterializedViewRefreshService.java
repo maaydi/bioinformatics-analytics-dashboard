@@ -124,10 +124,12 @@ public class MaterializedViewRefreshService {
         jdbcTemplate.execute((ConnectionCallback<Void>) connection -> {
             try (var statement = connection.createStatement()) {
                 statement.execute("SET statement_timeout = " + timeoutMs);
+                statement.execute("SET search_path TO analytics, public");
                 statement.execute(refreshQuery);
             } finally {
                 try (var resetStatement = connection.createStatement()) {
                     resetStatement.execute("SET statement_timeout = DEFAULT");
+                    resetStatement.execute("RESET search_path");
                 }
             }
             return null;

@@ -1,6 +1,5 @@
 package com.bioinformatics.common.config.kafka;
 
-
 import com.bioinformatics.common.config.CommonProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -12,16 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
 import java.util.HashMap;
 
-/**
- * {@link ConcurrentKafkaListenerContainerFactory} with JSON deserialization
- * and a {@link ErrorHandlingDeserializer} wrapper so that poison-pill
- * messages are routed to the error handler instead of killing the consumer.
- */
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnClass(ConcurrentKafkaListenerContainerFactory.class)
@@ -37,6 +32,8 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(commonProperties.kafka().consumer().concurrency());
         factory.setBatchListener(commonProperties.kafka().consumer().batchListener());
+        var ack = ContainerProperties.AckMode.valueOf(commonProperties.kafka().consumer().ackMode().toUpperCase());
+        factory.getContainerProperties().setAckMode(ack);
         return factory;
     }
 
@@ -47,6 +44,7 @@ public class KafkaConsumerConfig {
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, commonProperties.kafka().bootstrapServers());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumer.groupId());
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, consumer.autoOffsetReset());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
