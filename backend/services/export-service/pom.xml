@@ -8,16 +8,11 @@
         <version>${revision}</version>
         <relativePath>../../../backend/pom.xml</relativePath>
     </parent>
-    <artifactId>import-service</artifactId>
-    <name>Import Service</name>
-    <description>Bioinformatics Analytics Dashboard — Import Service</description>
+    <artifactId>export-service</artifactId>
+    <name>Export Service</name>
+    <description>Bioinformatics Analytics Dashboard — Export Service</description>
 
     <dependencies>
-        <!-- ── Web ─────────────────────────────────────────────────────── -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
         <!-- ── Security ────────────────────────────────────────────────── -->
         <dependency>
@@ -47,12 +42,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
-
-        <!-- ── Open Feign  ─────────────────────────────────────────────── -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <!-- ── Eureka client ─────────────────────────────────────────────── -->
         <dependency>
@@ -142,7 +131,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <build>
         <resources>

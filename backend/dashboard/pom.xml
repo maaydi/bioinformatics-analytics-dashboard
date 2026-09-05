@@ -45,6 +45,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- ── Open Feign  ─────────────────────────────────────────────── -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
         <!-- ── Data / JPA ──────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

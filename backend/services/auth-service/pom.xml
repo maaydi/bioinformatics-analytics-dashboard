@@ -42,17 +42,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ── Data / JPA ──────────────────────────────────────────────── -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- ── Config client setup ───────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

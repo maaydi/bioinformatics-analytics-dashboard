@@ -56,7 +56,7 @@ decommissioned.
 - [x] Phase 0 — Infrastructure bootstrap
 - [x] Phase 1 — auth-service extracted
 - [x] Phase 2 — analytics-service extracted (7 of 8 items; Phase 2.4 Kafka listener deferred)
-- [ ] Phase 3 — import-service extracted
+- [x] Phase 3 — import-service extracted
 - [ ] Phase 4 — gene-service extracted
 - [ ] Phase 5 — export-service extracted
 - [ ] Phase 6 — structure-service extracted
@@ -564,7 +564,7 @@ consumes gene data via Feign or Kafka and produces files asynchronously.
 
 #### 5.1 Service Setup
 
-- [ ] `ExportServiceApplication` — port `8085`
+- [x] `ExportServiceApplication` — port `8085`
 - [ ] Dependencies: `common-starter`, `spring-boot-starter-batch`, `apache-poi`, `apache-commons-csv`, `spring-kafka`
 - [ ] `bootstrap.yml`
 
