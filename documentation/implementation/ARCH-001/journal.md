@@ -701,14 +701,63 @@ microservice using read replica routing for performance validation.
 | notification-service | ≥ 75%           | 0%      | ⏳ Not started |
 | audit-service        | ≥ 75%           | 0%      | ⏳ Not started |
 
+
 ---
 
-**Last Updated:** 2026-08-25
+### 2026-08-29 to 2026-09-05 — Phase 3 Implementation Activity (Import Service & infra updates)
+
+**Summary:** A focused implementation sprint across Phase 3 and infra. Work includes extraction and hardening of the
+`import-service` batch pipeline, materialized view refresh orchestration between `import-service` and
+`analytics-service`, read-replica / replica configuration, and several supporting infra and CI/dev script updates.
+
+**Commits reviewed (last 40):** notable commits include:
+
+- 2026-09-05 (2f141e7) — "ARCH-001 PHASE 3 — Extract Import Service (...) Fix refresh view bugs"
+  - Files changed (high level): `ImportJobRefreshViewsListener`, `MaterializedViewRefreshService` (analytics), common-starter config
+  - Outcome: Fixed edge-cases in view refresh logic, improved error handling and logging for concurrent refreshes.
+
+- 2026-09-04 (18c03a9) — "Reorder services and create script to run them sequentially"
+  - Adds `devops/scripts/run-all-docker.sh` and small reordering to `docker-compose.yml` to enforce startup ordering for local dev.
+
+- 2026-09-03 (21db9be / f3e2fb9) — "MaterializedViewRefreshService Add idempotency Service fix tests"
+  - Introduced idempotency checks for materialized view refresh operations and corresponding unit tests.
+  - Analytics service: `RefreshIdempotencyService` created/augmented.
+
+- 2026-09-02 (a2d2c06 / ff14b8f / 4714ab4 / 88ab6ac) — several commits moving event definitions and view refresh wiring
+  - `ProteinImportedEvent` publishing wired in `import-service` job listener
+  - `analytics-service` prepared to consume `protein.events.imported` and refresh views concurrently and idempotently
+  - `documentation/implementation/ARCH-001/plan.md` updated in multiple commits to reflect implementation details and infra settings
+
+- 2026-08-31 (45f0a6b / 1525c55 / f6e6c63) — Postgres primary/replica configuration & docker-compose infra updates
+  - Docker compose and config files updated to configure `postgres-primary` and `postgres-replica` for read-replica testing
+  - `backend-config` dev overrides updated to point analytics-service at replica (port 5433)
+
+**Outcome / impact on ARCH-001 plan:**
+
+- Phase 3 (Import Service) work progressed significantly:
+  - Import batch job extraction implemented; `ImportJob` entity, `ImportController`, and `ImportService` present in codebase.
+  - `ProteinImportedEvent` publishing implemented in `JobExecutionListener.afterJob()` (published on COMPLETED).
+  - `ImportJobRefreshViewsListener` and `MaterializedViewRefreshService` improvements added to make analytics refresh robust and idempotent.
+  - Unit and integration tests fixed/added for idempotency and refresh logic; some end-to-end Kafka tests still pending.
+
+- Infrastructure and developer ergonomics improved:
+  - Replica/primary Postgres wiring for local dev and test coverage (docker-compose updates).
+  - `devops/scripts/run-all-docker.sh` added to orchestrate sequential service startup for local integration runs.
+
+**Remaining work (short-term):**
+
+- Finalize `ProteinImportedEventPublishingTest` / `ProteinImportedEventListenerTest` with `@EmbeddedKafka` to validate publish→consume end-to-end.
+- Verify full E2E (upload UniProt file → import-service → Kafka event → analytics refresh) in an integration environment.
+- Confirm coverage metrics for `import-service` and update `Coverage Tracking` table accordingly.
+
+---
+
+**Last Updated:** 2026-09-05
 
 **Phase Status Summary:**
 
 - ✅ Phase 0 (Infrastructure): 100% complete (common-starter, Eureka, Config, Gateway)
 - ✅ Phase 1 (Auth Service): 100% complete (API, DB, tests, monolith adaptation)
-- ✅ Phase 2 (Analytics Service): 100% complete (7 of 8 items; 1 deferred to Phase 3)
-- ⏳ Phase 3–10: Ready for implementation
-
+- ✅ Phase 2 (Analytics Service): 100% complete (7 of 8 items; 1 deferred to Phase 3 previously — now in active progress)
+- ▶️ Phase 3 (Import Service): In progress — core extraction, event publishing and view-refresh orchestration largely implemented; tests and E2E verification pending
+- ⏳ Phase 4–10: Ready for subsequent phases after Phase 3 stabilization
