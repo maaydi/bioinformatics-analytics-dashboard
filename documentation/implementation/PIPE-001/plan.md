@@ -33,7 +33,7 @@
 - [x] DB migration created
 - [x] Entities implemented
 - [x] Repositories implemented
-- [ ] DTOs and mappers implemented
+- [x] DTOs and mappers implemented
 - [ ] ExportFileStorageService implemented
 - [ ] Format writers implemented
 - [ ] Spring Batch job config implemented
@@ -104,34 +104,48 @@
 
 ### Backend — DTOs
 
-- [ ] `ExportPipelineCreateRequest`:
-    - [ ] `@NotBlank @Size(max=200) String name`
-    - [ ] `@Size(max=500) String description`
-    - [ ] `@NotNull @Valid GeneSearchRequest filter`
-    - [ ] `@NotNull ExportFormat format`
-    - [ ] `@NotEmpty @Size(max=50) List<@NotBlank String> fieldSchema`
-- [ ] `ExportPipelineResponse`:
-    - [ ] `Long id`, `String name`, `String description`, `ExportFormat format`, `List<String> fieldSchema`
-    - [ ] `ExportStatus status`, `Long estimatedRows`, `Long actualRows`
-    - [ ] `String filePath`, `Long fileSizeBytes`, `String errorMessage`
-    - [ ] `Instant createdAt`, `Instant startedAt`, `Instant completedAt`, `Long durationMs`
-- [ ] `ExportJobStatusResponse`:
-    - [ ] `Long pipelineId`, `ExportStatus status`, `Integer progressPercent`
-    - [ ] `Long chunksProcessed`, `Long chunksTotal`, `String currentStep`
-    - [ ] `Instant updatedAt`
-- [ ] `ExportFieldSchemaDto`:
-    - [ ] `String fieldName`, `String displayName`, `String dataType` (STRING, NUMBER, BOOLEAN, DATE, ARRAY)
-    - [ ] `String description`, `boolean available`
-- [ ] `DownloadUrlDto`:
-    - [ ] `String downloadUrl`, `String filename`, `Long fileSizeBytes`, `String contentType`
-- [ ] `ExportPipelineRetryRequest`:
-    - [ ] `Long pipelineId` (re-run existing pipeline with same config)
+- [x] `ExportPipelineCreateRequest`:
+    - [x] `@NotBlank @Size(max=200) String name`
+    - [x] `@Size(max=500) String description`
+    - [x] `@NotNull JsonNode filter` — filter criteria (flexible JSON structure)
+    - [x] `@NotNull ExportFormat format`
+    - [x] `@NotEmpty @Size(max=50) List<@NotBlank String> fieldSchema`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineCreateRequest.java`
+- [x] `ExportPipelineResponse`:
+    - [x] `Long id`, `String name`, `String description`, `ExportFormat format`, `List<String> fieldSchema`
+    - [x] `ExportStatus status`, `Long estimatedRows`, `Long actualRows`
+    - [x] `String filePath`, `Long fileSizeBytes`, `String errorMessage`
+    - [x] `Instant createdAt`, `Instant startedAt`, `Instant completedAt`, `Long durationMs`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineResponse.java`
+- [x] `ExportJobStatusResponse`:
+    - [x] `Long pipelineId`, `ExportStatus status`, `Integer progressPercent`
+    - [x] `Integer chunksProcessed`, `Integer chunksTotal`, `String currentStep`
+    - [x] `Instant updatedAt`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportJobStatusResponse.java`
+- [x] `ExportFieldSchemaDto`:
+    - [x] `String fieldName`, `String displayName`, `String dataType` (STRING, NUMBER, BOOLEAN, DATE, ARRAY)
+    - [x] `String description`, `boolean available`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportFieldSchemaDto.java`
+- [x] `DownloadUrlDto`:
+    - [x] `String downloadUrl`, `String filename`, `Long fileSizeBytes`, `String contentType`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/DownloadUrlDto.java`
+- [x] `ExportPipelineRetryRequest`:
+    - [x] `@NotNull Long pipelineId` (re-run existing pipeline with same config)
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineRetryRequest.java`
 
 ### Backend — Mappers
 
-- [ ] `ExportPipelineMapper` (MapStruct):
-    - [ ] `toDto(ExportPipeline): ExportPipelineResponse`
-    - [ ] `toEntity(ExportPipelineCreateRequest, AppUser): ExportPipeline`
+- [x] `ExportPipelineMapper` (MapStruct):
+    - [x] `toDto(ExportPipeline): ExportPipelineResponse` — converts JSONB fieldSchema to List<String>
+    - [x] `toEntity(ExportPipelineCreateRequest, String userId): ExportPipeline` — creates entity from request
+    - [x] Mapper file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/mapper/ExportPipelineMapper.java`
 
 ### Backend — File Storage Service
 

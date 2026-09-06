@@ -63,7 +63,7 @@ public class ExportPipeline {
     private String description;
 
     /**
-     * Serialized {@code GeneSearchRequest} containing filter criteria.
+     * Serialized filter criteria (typically GeneSearchRequest) as JSONB.
      * Stored as JSONB for query flexibility and indexing.
      */
     @Column(name = "filter_json", columnDefinition = "jsonb", nullable = false)

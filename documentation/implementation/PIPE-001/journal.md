@@ -1,5 +1,59 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-06 — DTOs and MapStruct Mapper Implemented
+
+**Action:** Created all DTOs and MapStruct mapper for API contracts and data transformation.  
+**Outcome:**
+
+- Created 6 DTO records using Java records (immutable, concise):
+  - `ExportPipelineCreateRequest`: Input DTO for pipeline creation with Bean Validation annotations
+    - Validates: name (non-blank, max 200 chars), description (max 500 chars), filter (non-null JsonNode), format
+      (non-null), fieldSchema (non-empty, max 50 fields)
+    - Filter accepted as JsonNode for flexible request structures (GeneSearchRequest or other filter formats)
+
+  - `ExportPipelineResponse`: Output DTO for pipeline details
+    - Includes: id, name, description, format, fieldSchema (List<String>), status, row counts, file info, timestamps,
+      duration
+    - Used by both detail and list endpoints
+
+  - `ExportJobStatusResponse`: DTO for real-time progress polling
+    - Includes: pipelineId, status, progressPercent, chunksProcessed/Total, currentStep, updatedAt
+    - Frontend polls `/api/exports/pipelines/{id}/status` every 3 seconds
+
+  - `ExportFieldSchemaDto`: DTO describing exportable fields
+    - Used by `/api/exports/fields` endpoint for field picker UI
+    - Includes: fieldName, displayName, dataType, description, available
+
+  - `DownloadUrlDto`: DTO for file download metadata
+    - Used by `/api/exports/pipelines/{id}/download` endpoint
+    - Includes: downloadUrl, filename, fileSizeBytes, contentType
+
+  - `ExportPipelineRetryRequest`: DTO for retrying failed pipelines
+    - Simple record with pipelineId validation
+
+- Created `ExportPipelineMapper` (MapStruct, `@Mapper(componentModel = "spring")`)
+  - `toDto(ExportPipeline): ExportPipelineResponse` — converts JSONB fieldSchema (JsonNode array) to List<String> for
+    simpler API contracts
+  - `toEntity(ExportPipelineCreateRequest, String userId): ExportPipeline` — creates entity from request with userId
+    parameter
+  - Uses injected `ObjectMapper` for JsonNode ↔ List<String> conversions
+  - Ignores auto-generated fields (id, timestamps, status defaults)
+
+- Design decisions:
+  - All DTOs use Java records for immutability and conciseness (no Lombok needed for DTOs)
+  - Filter accepted as JsonNode (not GeneSearchRequest) to allow flexibility with different filter formats
+  - fieldSchema: JsonNode in entity → List<String> in DTO for API simplicity
+  - Comprehensive validation annotations on CreateRequest (@NotBlank, @Size, @NotNull, @NotEmpty)
+  - Mapper handles JSONB ↔ Java conversions seamlessly
+
+- Updated entity (ExportPipeline):
+  - Changed filterJson from GeneSearchRequest to JsonNode for flexibility
+  - Removed incorrect schema import that was leftover
+
+**Next Step:** Implement `ExportFileStorageService` for file system management.
+
+---
+
 ## 2026-09-06 — Repository Layer Implemented
 
 **Action:** Created Spring Data JPA repository interfaces for database access.  
@@ -33,7 +87,7 @@
   - Javadoc includes rationale for ownership checks and soft-delete handling
   - No `JpaSpecificationExecutor` extension (queries are simple and predefined)
 
-**Next Step:** Implement DTOs and MapStruct mappers for API contract and data transformation.
+**Next Step:** Implement `ExportFileStorageService` for file system management.
 
 ---
 
@@ -69,7 +123,7 @@
 
 - Verified Jackson (via Spring Boot) is available for `JsonNode` JSONB handling (no additional dependency needed)
 
-**Next Step:** Implement DTOs and MapStruct mappers for API contract and data transformation.
+**Next Step:** Implement `ExportFileStorageService` for file system management.
 
 ---
 
