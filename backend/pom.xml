@@ -33,6 +33,7 @@
         <module>services/auth-service</module>
         <module>services/analytics-service</module>
         <module>services/import-service</module>
+        <module>services/export-service</module>
         <module>dashboard</module>
     </modules>
 
