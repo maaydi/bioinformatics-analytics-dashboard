@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: import-service
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+  flyway:
+    enabled: false
+    create-schemas: true
+    schemas:
+      - import_batch
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test?TC_INITSCRIPT=db/init-schema.sql}
+    username: ${TEST_DB_USER:bio_user}
+    password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  batch:
+    job:
+      enabled: false  # No batch jobs in test; UniProtImportJobConfig excluded via @Profile("!test")
+    jdbc:
+      initialize-schema: always
+
+
+eureka:
+  client:
+    enabled: false
+common:
+  enabled: true
+
+app:
+  batch:
+    chunk-size: ${APP_BATCH_CHUNK_SIZE:250}
+    skip-limit: ${APP_BATCH_SKIP_LIMIT:1000}
+  import-config:
+    temp-dir: ${java.io.tmpdir}/bio-import
+    extensions: dat,tsv
+    pool:
+      core-size: 2
+      max-size: 10
+      queue-capacity: 25
+      thread-name-prefix: BatchAsync-

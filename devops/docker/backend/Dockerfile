@@ -1,16 +1,9 @@
 # ── Build stage ─────────────────────────────────────────────────────────────
-FROM maven:3.9-eclipse-temurin-25-alpine AS builder
-
-WORKDIR /app
-COPY pom.xml .
-# Download dependencies first (layer caching)
-RUN mvn dependency:go-offline -q
-
-COPY src ./src
-RUN mvn package -DskipTests -q
-
+# Removed as Build run locally in script devops/scripts/build-all.sh
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM eclipse-temurin:25-jre-alpine AS runtime
+
+ENV EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE='http://localhost:8761/eureka/'
 
 WORKDIR /app
 
@@ -20,14 +13,11 @@ RUN mkdir -p /app/logs && chown -R bioapp:bioapp /app/logs
 
 USER bioapp
 
-COPY --from=builder /app/target/*.jar app.jar
+COPY target/*.jar dashboard.jar
 
 # Import temp directory
 RUN mkdir -p /tmp/bio-import
 
-EXPOSE 8080
+EXPOSE 8084
 
-ENTRYPOINT ["java", \
-  "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=75.0", \
-  "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Deureka.client.serviceUrl.defaultZone=$EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE -jar dashboard.jar"]

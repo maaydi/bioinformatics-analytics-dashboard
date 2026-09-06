@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Analytics Service — business configuration (all profiles)
+# ─────────────────────────────────────────────────────────────────────────────
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: analytics
+        '[format_sql]': false
+        '[default_batch_fetch_size]': 25
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: analytics
+    default-schema: analytics
+    create-schemas: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+common:
+  enabled: true
+  cache:
+    enabled: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      acks: all
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+    consumer:
+      group-id: analytics-view-refreshers # same constant used in KafkaGroupId class
+      concurrency: 1
+      auto-offset-reset: earliest
+      batch-listener: false
+
+app:
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 200
+      tokens: 200
+      seconds: 60
+
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 50
+    thread-name-prefix: analytics-audit-
+
+  view-refresh:
+    max-attempts: ${APP_VIEW_REFRESH_MAX_ATTEMPTS:3}
+    per-view-timeout-ms: ${APP_VIEW_REFRESH_PER_VIEW_TIMEOUT_MS:45000}
+    retry-backoff-ms: ${APP_VIEW_REFRESH_RETRY_BACKOFF_MS:2000}
+    sequence-sla-ms: ${APP_VIEW_REFRESH_SEQUENCE_SLA_MS:180000}

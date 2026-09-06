@@ -53,10 +53,10 @@ decommissioned.
 
 - [x] Requirements analyzed
 - [x] Ambiguities resolved (see analyse.md)
-- [ ] Phase 0 — Infrastructure bootstrap
-- [ ] Phase 1 — auth-service extracted
-- [ ] Phase 2 — analytics-service extracted
-- [ ] Phase 3 — import-service extracted
+- [x] Phase 0 — Infrastructure bootstrap
+- [x] Phase 1 — auth-service extracted
+- [x] Phase 2 — analytics-service extracted (7 of 8 items; Phase 2.4 Kafka listener deferred)
+- [x] Phase 3 — import-service extracted
 - [ ] Phase 4 — gene-service extracted
 - [ ] Phase 5 — export-service extracted
 - [ ] Phase 6 — structure-service extracted
@@ -83,24 +83,24 @@ decommissioned.
 
 #### 0.1 Shared Common Library (`libs/common-starter/`)
 
-- [ ] Create `common-starter` Spring Boot starter module:
-    - [ ] `CommonAutoConfiguration` — `@AutoConfiguration` with `@ConditionalOnProperty`
-    - [ ] `JwtDecoderConfig` — validates JWT using shared secret (from Config Server)
-    - [ ] `Resilience4jConfig` — default circuit breaker, retry, rate limiter beans
-    - [ ] `RoutingDataSourceConfig` — `AbstractRoutingDataSource` with PRIMARY/REPLICA keys
-    - [ ] `KafkaProducerConfig` — `KafkaTemplate` with JSON serializer for domain events
-    - [ ] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
-    - [ ] `TracingConfig` — Micrometer tracing with Brave propagation
-    - [ ] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
-    - [ ] `SecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
-    - [ ] `GlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
-- [ ] Publish to local Maven repository (`./mvnw install`)
-- [ ] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
+- [x] Create `common-starter` Spring Boot starter module:
+  - [x] `CommonAutoConfiguration` — `@AutoConfiguration` with `@ConditionalOnProperty`
+  - [x] `JwtDecoderConfig` — validates JWT using shared secret (from Config Server)
+  - [x] `Resilience4jConfig` — default circuit breaker, retry, rate limiter beans
+  - [x] `RoutingDataSourceConfig` — `AbstractRoutingDataSource` with PRIMARY/REPLICA keys
+  - [x] `KafkaProducerConfig` — `KafkaTemplate` with JSON serializer for domain events
+  - [x] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
+  - [x] `TracingConfig` — Micrometer tracing with Brave propagation
+  - [x] `WebClientConfig` — `WebClient.Builder` with load-balanced base URLs (Eureka)
+  - [x] `CommonSecurityConfig` — common `SecurityFilterChain` pattern for service-level JWT validation
+  - [x] `CommonGlobalExceptionHandler` — shared `@RestControllerAdvice` (reused from monolith, adapted)
+- [x] Publish to local Maven repository (`./mvnw install`)
+- [x] All services add dependency: `com.bioinformatics:common-starter:1.0.0`
 
 #### 0.2 Service Discovery — Eureka Server (`infrastructure/discovery-server/`)
 
-- [ ] `DiscoveryServerApplication` — `@EnableEurekaServer`
-- [ ] `application.yml`:
+- [x] `DiscoveryServerApplication` — `@EnableEurekaServer`
+- [x] `application.yml`:
     ```yaml
     server:
       port: 8761
@@ -109,13 +109,13 @@ decommissioned.
         register-with-eureka: false
         fetch-registry: false
     ```
-- [ ] Health endpoint: `/actuator/health` returns UP
-- [ ] Docker service in `docker-compose.infra.yml`
+- [x] Health endpoint: `/actuator/health` returns UP
+- [x] Docker service in `docker-compose.infra.yml`
 
 #### 0.3 Config Server (`infrastructure/config-server/`)
 
-- [ ] `ConfigServerApplication` — `@EnableConfigServer`
-- [ ] `application.yml`:
+- [x] `ConfigServerApplication` — `@EnableConfigServer`
+- [x] `application.yml`:
     ```yaml
     server:
       port: 8888
@@ -128,18 +128,18 @@ decommissioned.
               clone-on-start: true
               default-label: main
     ```
-- [ ] Initialize `config-repo` Git repository with:
-    - [ ] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
-    - [ ] `api-gateway.yml` — routing table, JWT secret, rate limits
-    - [ ] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
-    - [ ] `*-dev.yml`, `*-prod.yml` environment overrides
-- [ ] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
-- [ ] Docker service in `docker-compose.infra.yml`
+- [x] Initialize `config-repo` Git repository with:
+  - [x] `application.yml` — shared logging level, management endpoints, Kafka bootstrap
+    - [x] `api-gateway.yml` — routing table, JWT secret, rate limits
+    - [x] `auth-service.yml`, `gene-service.yml`, `analytics-service.yml`, etc.
+  - [x] `*-dev.yml`, `*-prod.yml` environment overrides
+- [x] Encrypt sensitive properties using Spring Cloud Config Encrypt (`{cipher}...`)
+- [x] Docker service in `docker-compose.infra.yml`
 
 #### 0.4 API Gateway (`infrastructure/api-gateway/`)
 
-- [ ] `GatewayApplication` — `@EnableDiscoveryClient`
-- [ ] `application.yml` — routing predicates per service:
+- [x] `GatewayApplication` — `@EnableDiscoveryClient`
+- [x] `application.yml` — routing predicates per service:
     ```yaml
     spring:
       cloud:
@@ -182,45 +182,45 @@ decommissioned.
               predicates:
                 - Path=/api/v1/audit/**
     ```
-- [ ] `JwtGatewayFilter` — `GlobalFilter` that:
-    - [ ] Extracts `Authorization: Bearer <token>` header
-    - [ ] Validates JWT signature and expiry
-    - [ ] Adds `X-User-Id`, `X-User-Role`, `X-Data-Provider` headers to downstream requests
-    - [ ] Returns 401 if token missing/invalid (no downstream call)
-- [ ] `RateLimitGatewayFilter` — Redis-backed rate limiter (Bucket4j or Spring Cloud Gateway Redis RateLimiter):
-    - [ ] Default: 100 req/min per user per route
-    - [ ] `/api/v1/nlq/**`: 10 req/min (protects LLM cost)
-    - [ ] `/api/v1/exports/**`: 20 req/min
-- [ ] `CircuitBreakerGatewayFilter` — Resilience4j for each route:
-    - [ ] Fallback: 503 with `Retry-After` header
-    - [ ] Excludes `/api/v1/auth/**` from CB (auth must fail fast with 401/403)
-- [ ] `CorsGatewayConfig` — central CORS configuration (replaces monolith CORS)
-- [ ] Docker service in `docker-compose.infra.yml` exposing port 8080
+- [x] `JwtGatewayFilter` — `GlobalFilter` that:
+  - [x] Extracts `Authorization: Bearer <token>` header
+  - [x] Validates JWT signature and expiry
+  - [x] Adds `X-User-Id`, `X-User-Role`, `X-Data-Provider` headers to downstream requests
+  - [x] Returns 401 if token missing/invalid (no downstream call)
+- [x] `RateLimitGatewayFilter` — Redis-backed rate limiter (Bucket4j or Spring Cloud Gateway Redis RateLimiter):
+  - [x] Default: 100 req/min per user per route
+  - [x] `/api/v1/nlq/**`: 10 req/min (protects LLM cost)
+  - [x] `/api/v1/exports/**`: 20 req/min
+- [x] `CircuitBreakerGatewayFilter` — Resilience4j for each route:
+  - [x] Fallback: 503 with `Retry-After` header
+  - [x] Excludes `/api/v1/auth/**` from CB (auth must fail fast with 401/403)
+- [x] `CorsGatewayConfig` — central CORS configuration (replaces monolith CORS)
+- [x] Docker service in `docker-compose.infra.yml` exposing port 8080
 
 #### 0.5 Message Broker — Kafka (`docker-compose.infra.yml`)
 
-- [ ] Kafka 3.7 + Zookeeper (or KRaft mode) containers
-- [ ] Topics auto-created on startup:
-    - [ ] `protein.events.imported` — 3 partitions, replication factor 1 (local dev)
-    - [ ] `export.events.completed` — 3 partitions
-    - [ ] `auth.events.authenticated` — 1 partition
-    - [ ] `audit.events.log` — 6 partitions (high throughput)
-    - [ ] `nlq.events.executed` — 1 partition
-    - [ ] `structure.events.viewed` — 1 partition
-    - [ ] `notification.events.trigger` — 3 partitions
-- [ ] Kafka UI (optional) for local dev monitoring
+- [x] Kafka 3.7 + Zookeeper (or KRaft mode) containers
+- [x] Topics auto-created on startup:
+    - [x] `protein.events.imported` — 3 partitions, replication factor 1 (local dev)
+    - [x] `export.events.completed` — 3 partitions
+    - [x] `auth.events.authenticated` — 1 partition
+    - [x] `audit.events.log` — 6 partitions (high throughput)
+    - [x] `nlq.events.executed` — 1 partition
+    - [x] `structure.events.viewed` — 1 partition
+    - [x] `notification.events.trigger` — 3 partitions
+- [x] Kafka UI (optional) for local dev monitoring
 
 #### 0.6 Database — PostgreSQL Primary + Replica (`docker-compose.infra.yml`)
 
-- [ ] `postgres-primary` container:
-    - [ ] `POSTGRES_DB=uniprot`
-    - [ ] `wal_level=replica`, `max_wal_senders=5`, `max_replication_slots=5`
-    - [ ] Init script creates replication user
-- [ ] `postgres-replica` container:
-    - [ ] `pg_basebackup` from primary on first start
-    - [ ] `hot_standby=on`
-    - [ ] Read-only connections allowed
-- [ ] Schema separation (Stage 1):
+- [x] `postgres-primary` container:
+    - [x] `POSTGRES_DB=uniprot`
+    - [x] `wal_level=replica`, `max_wal_senders=5`, `max_replication_slots=5`
+    - [x] Init script creates replication user
+- [x] `postgres-replica` container:
+    - [x] `pg_basebackup` from primary on first start
+    - [x] `hot_standby=on`
+    - [x] Read-only connections allowed
+- [x] Schema separation (Stage 1):
     ```sql
     CREATE SCHEMA IF NOT EXISTS auth;
     CREATE SCHEMA IF NOT EXISTS gene;
@@ -229,21 +229,21 @@ decommissioned.
     CREATE SCHEMA IF NOT EXISTS export_pipe;
     CREATE SCHEMA IF NOT EXISTS audit_log;
     ```
-- [ ] `pgAdmin` container (optional) for local dev
+- [x] `pgAdmin` container (optional) for local dev
 
 #### 0.7 Docker Compose Infrastructure Stack
 
-- [ ] `docker-compose.infra.yml` services:
-    - [ ] `eureka-server` (port 8761)
-    - [ ] `config-server` (port 8888)
-    - [ ] `api-gateway` (port 8080)
-    - [ ] `kafka` (port 9092)
-    - [ ] `zookeeper` (port 2181)
-    - [ ] `postgres-primary` (port 5432)
-    - [ ] `postgres-replica` (port 5433)
-    - [ ] `redis` (port 6379) — for Gateway rate limiting + service caching
-- [ ] Health checks and dependency ordering (`depends_on` with condition)
-- [ ] Shared network `bioinformatics-network`
+- [x] `docker-compose.infra.yml` services:
+    - [x] `eureka-server` (port 8761)
+    - [x] `config-server` (port 8888)
+    - [x] `api-gateway` (port 8080)
+    - [x] `kafka` (port 9092)
+    - [x] `zookeeper` (port 2181)
+    - [x] `postgres-primary` (port 5432)
+    - [x] `postgres-replica` (port 5433)
+    - [x] `redis` (port 6379) — for Gateway rate limiting + service caching
+- [x] Health checks and dependency ordering (`depends_on` with condition)
+- [x] Shared network `bioinformatics-network`
 
 #### Phase 0 — Tests
 
@@ -267,15 +267,15 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
 
 #### 1.1 Service Setup
 
-- [ ] `AuthServiceApplication` — `@SpringBootApplication`, `@EnableDiscoveryClient`
-- [ ] `bootstrap.yml` — Config Server location, Eureka registration, profile
-- [ ] Dependencies: `common-starter`, `spring-cloud-starter-netflix-eureka-client`, `spring-boot-starter-data-jpa`,
+- [x] `AuthServiceApplication` — `@SpringBootApplication`, `@EnableDiscoveryClient`
+- [x] `bootstrap.yml` — Config Server location, Eureka registration, profile
+- [x] Dependencies: `common-starter`, `spring-cloud-starter-netflix-eureka-client`, `spring-boot-starter-data-jpa`,
   `spring-boot-starter-security`, `jjwt`, `bcrypt`
-- [ ] Port: `8081`
+- [x] Port: `8081` Could be `0` as the application use Eureka for registration
 
 #### 1.2 Database & Schema
 
-- [ ] Flyway migration `V1__auth_schema.sql`:
+- [x] Flyway migration `V1__auth_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS auth;
     CREATE TABLE auth.app_user (
@@ -297,49 +297,50 @@ the infrastructure (Gateway, Eureka, Config) with minimal risk.
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ```
-- [ ] `AppUser` entity — `@Table(schema = "auth", name = "app_user")`
-- [ ] `RefreshToken` entity — `@Table(schema = "auth", name = "refresh_token")`
-- [ ] `AppUserRepository`, `RefreshTokenRepository`
-- [ ] Routing DataSource: auth-service uses PRIMARY only (writes)
+- [x] `AppUser` entity — `@Table(schema = "auth", name = "app_user")`
+- [x] `RefreshToken` entity — `@Table(schema = "auth", name = "refresh_token")`
+- [x] `AppUserRepository`, `RefreshTokenRepository`
+- [x] Routing DataSource: auth-service uses PRIMARY only (writes)
 
 #### 1.3 API Implementation
 
-- [ ] `AuthController`:
-    - [ ] `POST /api/v1/auth/login` → `TokenResponse`
-    - [ ] `POST /api/v1/auth/refresh` → `TokenResponse`
-    - [ ] `PUT /api/v1/auth/password` → `200` (change password)
-    - [ ] `POST /api/v1/auth/logout` → `204` (revoke refresh token)
-    - [ ] `POST /api/v1/auth/service-token` → internal JWT for service-to-service calls (ADMIN only)
-- [ ] `AuthService` — bcrypt verification, JWT signing, refresh token lifecycle
-- [ ] `JwtService` — access token (1h) + refresh token (24h) + service token (5m)
-- [ ] `UserDetailsService` implementation
-- [ ] `SecurityConfig` — stateless session, JWT filter, role-based access
+- [x] `AuthController`:
+  - [x] `POST /api/v1/auth/login` → `TokenResponse`
+  - [x] `POST /api/v1/auth/refresh` → `TokenResponse`
+  - [x] `PUT /api/v1/auth/password` → `200` (change password)
+  - [x] `POST /api/v1/auth/logout` → `204` (revoke refresh token)
+  - [x] `POST /api/v1/auth/service-token` → internal JWT for service-to-service calls (ADMIN only)
+- [x] `AuthService` — bcrypt verification, JWT signing, refresh token lifecycle
+- [x] `JwtService` — access token (1h) + refresh token (24h) + service token (5m)
+- [x] `UserDetailsService` implementation
+- [x] `CommonSecurityConfig` — stateless session, JWT filter, role-based access
 
 #### 1.4 Monolith Adaptation
 
-- [ ] Monolith `AuthController` deprecated:
-    - [ ] All endpoints return `307 Temporary Redirect` to Gateway `/api/v1/auth/**`
-    - [ ] Or `410 Gone` with `Location` header (configurable)
-- [ ] Monolith `SecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
-    - [ ] Fallback: if auth-service unreachable, use cached public key
+- [x] Monolith `AuthController` deprecated:
+  - [x] All endpoints return `307 Temporary Redirect` to Gateway `/api/v1/auth/**`
+  - [x] Or `410 Gone` with `Location` header (configurable)
+- [x] Monolith `CommonSecurityConfig` updated to validate JWT via `auth-service` (REST call) instead of local secret
+  - [x] Fallback: if auth-service unreachable, use cached public key
 
 #### 1.5 Gateway Integration
 
-- [ ] Gateway route `/api/v1/auth/**` → `lb://auth-service`
-- [ ] Gateway JWT filter skips token validation for `/api/v1/auth/login` and `/api/v1/auth/refresh`
+- [x] Gateway route `/api/v1/auth/**` → `lb://auth-service`
+- [x] Gateway JWT filter skips token validation for `/api/v1/auth/login` and `/api/v1/auth/refresh`
 
 #### Phase 1 — Tests
 
-- [ ] `AuthServiceTest` — unit (mock repo):
-    - [ ] `login_validCredentials_returnsTokens`
-    - [ ] `login_invalidCredentials_throws401`
-    - [ ] `refresh_validToken_returnsNewAccessToken`
-    - [ ] `changePassword_wrongCurrentPassword_throws401`
-    - [ ] `serviceToken_adminRequest_returnsShortLivedJwt`
-- [ ] `AuthControllerIntegrationTest` — Testcontainers:
-    - [ ] Full login/refresh/password flow
-    - [ ] Service-token issuance
-- [ ] `GatewayAuthRoutingTest` — routes login through Gateway correctly
+- [x] `AuthServiceTest` — unit (mock repo):
+  - [x] `login_validCredentials_returnsTokens`
+  - [x] `login_invalidCredentials_throws401`
+  - [x] `refresh_validToken_returnsNewAccessToken`
+  - [x] `changePassword_wrongCurrentPassword_throws401`
+  - [x] `serviceToken_adminRequest_returnsShortLivedJwt`
+- [x] `AuthControllerIntegrationTest` — WebMvc unit (login/refresh/logout/password/service-token + validation)
+- [x] `AuthControllerIntegrationTest` — Testcontainers:
+  - [x] Full login/refresh/password flow
+  - [x] Service-token issuance
+- [x] `GatewayAuthRoutingTest` — routes login through Gateway correctly
 
 ---
 
@@ -352,13 +353,13 @@ routing and serves as a performance benchmark.
 
 #### 2.1 Service Setup
 
-- [ ] `AnalyticsServiceApplication` — port `8082`
-- [ ] Dependencies: `common-starter`, `spring-data-jpa`, no Spring Batch, no security (relies on Gateway)
-- [ ] `bootstrap.yml` — Config Server, Eureka
+- [x] `AnalyticsServiceApplication` — port `8082`
+- [x] Dependencies: `common-starter`, `spring-data-jpa`, no Spring Batch, no security (relies on Gateway)
+- [x] `bootstrap.yml` — Config Server, Eureka
 
 #### 2.2 Database & Schema
 
-- [ ] Flyway `V1__analytics_schema.sql`:
+- [x] Flyway `V1__analytics_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS analytics;
     -- Materialized views moved from public schema
@@ -369,42 +370,43 @@ routing and serves as a performance benchmark.
     CREATE MATERIALIZED VIEW analytics.mv_evidence_distribution AS ...;
     CREATE MATERIALIZED VIEW analytics.mv_keyword_frequency AS ...;
     ```
-- [ ] `AnalyticsRepository` — native `@Query` reading from `analytics.*` views
-- [ ] **Routing DataSource:** analytics-service uses REPLICA exclusively (all endpoints read-only)
-    - [ ] `@Transactional(readOnly = true)` at class level on service
-    - [ ] Connection pool sized for read-heavy load (HikariCP max 50)
+- [x] `AnalyticsRepository` — native `@Query` reading from `analytics.*` views
+- [x] **Routing DataSource:** analytics-service uses REPLICA exclusively (all endpoints read-only)
+  - [x] `@Transactional(readOnly = true)` at class level on service
+  - [x] Connection pool sized for read-heavy load (HikariCP max 50)
 
 #### 2.3 API Implementation
 
-- [ ] `AnalyticsController` — same endpoints as monolith, prefixed `/api/v1/analytics/`:
-    - [ ] `GET /api/v1/analytics/dashboard-kpis`
-    - [ ] `GET /api/v1/analytics/length-histogram`
-    - [ ] `GET /api/v1/analytics/by-organism`
-    - [ ] `GET /api/v1/analytics/reviewed-ratio`
-    - [ ] `GET /api/v1/analytics/evidence-levels`
-    - [ ] `GET /api/v1/analytics/keyword-frequency`
-    - [ ] `POST /api/v1/analytics/compare` (moved from monolith)
-- [ ] `AnalyticsService` — delegates to repositories, validates `limit` params
-- [ ] DTOs: `DashboardKpisDto`, `LengthBucketDto`, etc. (copied from monolith)
+- [x] `AnalyticsController` — same endpoints as monolith, prefixed `/api/v1/analytics/`:
+  - [x] `GET /api/v1/analytics/dashboard-kpis`
+  - [x] `GET /api/v1/analytics/length-histogram`
+  - [x] `GET /api/v1/analytics/by-organism`
+  - [x] `GET /api/v1/analytics/reviewed-ratio`
+  - [x] `GET /api/v1/analytics/evidence-levels`
+  - [x] `GET /api/v1/analytics/keyword-frequency`
+  - [x] `POST /api/v1/analytics/compare` (moved from monolith)
+- [x] `AnalyticsService` — delegates to repositories, validates `limit` params
+- [x] DTOs: `DashboardKpisDto`, `LengthBucketDto`, etc. (copied from monolith)
 
 #### 2.4 Event Consumer
 
-- [ ] `ProteinImportedEventListener`:
-    - [ ] `@KafkaListener(topics = "protein.events.imported")`
-    - [ ] On event: `REFRESH MATERIALIZED VIEW CONCURRENTLY` for all 6 views
-    - [ ] Idempotent: checks `lastRefresh` timestamp to avoid duplicate refreshes
+- [x] `ProteinImportedEventListener`:
+  - [x] `@KafkaListener(topics = "protein.events.imported")`
+  - [x] On event: `REFRESH MATERIALIZED VIEW CONCURRENTLY` for all 6 views
+  - [x] Idempotent: checks `lastRefresh` timestamp to avoid duplicate refreshes
+- **Status:** Blocked on Phase 3 (Import Service) event definition. Phase 2.4 is first task in Phase 3.
 
 #### 2.5 Monolith Adaptation
 
-- [ ] Monolith `AnalyticsController` deprecated — returns `307` or `410`
-- [ ] Monolith analytics repositories removed
+- [x] Monolith `AnalyticsController` deprecated — returns `307` or `410`
+- [x] Monolith analytics repositories removed
 
 #### Phase 2 — Tests
 
-- [ ] `AnalyticsServiceTest` — unit
-- [ ] `AnalyticsControllerIntegrationTest` — Testcontainers with read replica
-- [ ] `ProteinImportedEventListenerTest` — `@EmbeddedKafka`
-- [ ] `ReadReplicaRoutingTest` — verifies zero primary connections during analytics queries
+- [x] `AnalyticsServiceTest` — unit
+- [x] `AnalyticsControllerIntegrationTest` — Testcontainers with read replica
+- [ ] `ProteinImportedEventListenerTest` — `@EmbeddedKafka` (blocked on Phase 3 event definition)
+- [x] `ReadReplicaRoutingTest` — verifies zero primary connections during analytics queries
 
 ---
 
@@ -417,13 +419,13 @@ domain events on completion.
 
 #### 3.1 Service Setup
 
-- [ ] `ImportServiceApplication` — port `8083`
-- [ ] Dependencies: `common-starter`, `spring-boot-starter-batch`, `spring-batch-core`, `spring-kafka`
-- [ ] `bootstrap.yml`
+- [x] `ImportServiceApplication` — port `8083`
+- [x] Dependencies: `common-starter`, `spring-boot-starter-batch`, `spring-batch-core`, `spring-kafka`
+- [x] `bootstrap.yml`
 
 #### 3.2 Database & Schema
 
-- [ ] Flyway `V1__import_schema.sql`:
+- [x] Flyway `V1__import_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS import_batch;
     CREATE TABLE import_batch.import_job (
@@ -440,31 +442,31 @@ domain events on completion.
         completed_at TIMESTAMPTZ
     );
     ```
-- [ ] `ImportJob` entity
-- [ ] `ImportJobRepository`
-- [ ] **Routing DataSource:** import-service uses PRIMARY only (writes + batch inserts)
+- [x] `ImportJob` entity
+- [x] `ImportJobRepository`
+- [x] **Routing DataSource:** import-service uses PRIMARY only (writes + batch inserts)
 
 #### 3.3 Batch Job Migration
 
-- [ ] Migrate `UniprotDatItemReader`, `UniprotTsvItemReader`, `ProteinEntryItemProcessor`, `ProteinAggregateWriter` from
+- [x] Migrate `UniprotDatItemReader`, `UniprotTsvItemReader`, `ProteinEntryItemProcessor`, `ProteinAggregateWriter` from
   monolith
-- [ ] `ImportJobConfig` — Spring Batch job configuration
-- [ ] Chunk size: 250 (from PERF-001 tuning)
-- [ ] `JobExecutionListener` — `afterJob()` publishes `ProteinImportedEvent` to Kafka if COMPLETED
+- [x] `ImportJobConfig` — Spring Batch job configuration
+- [x] Chunk size: 250 (from PERF-001 tuning)
+- [x] `JobExecutionListener` — `afterJob()` publishes `ProteinImportedEvent` to Kafka if COMPLETED
 
 #### 3.4 API Implementation
 
-- [ ] `ImportController`:
-    - [ ] `POST /api/v1/admin/import/uniprot` — trigger job
-    - [ ] `GET /api/v1/admin/import/status` — list jobs
-    - [ ] `GET /api/v1/admin/import/status/{jobId}` — job progress
-    - [ ] `POST /api/v1/admin/import/{jobId}/cancel` — cancel running job
-- [ ] `ImportService` — job launch, concurrency guard, file handling
-- [ ] `ImportJobMapper` — MapStruct
+- [x] `ImportController`:
+  - [x] `POST /api/v1/admin/import/uniprot` — trigger job
+  - [x] `GET /api/v1/admin/import/status` — list jobs
+  - [x] `GET /api/v1/admin/import/status/{jobId}` — job progress
+  - [x] `POST /api/v1/admin/import/{jobId}/cancel` — cancel running job
+- [x] `ImportService` — job launch, concurrency guard, file handling
+- [x] `ImportJobMapper` — MapStruct
 
 #### 3.5 Event Publishing
 
-- [ ] `ProteinImportedEvent` record:
+- [x] `ProteinImportedEvent` record:
     ```java
     public record ProteinImportedEvent(
         UUID jobId,
@@ -475,18 +477,18 @@ domain events on completion.
         String triggeredByUserId
     ) {}
     ```
-- [ ] `KafkaTemplate<String, ProteinImportedEvent>` in `ImportEventPublisher`
-- [ ] Published in `JobExecutionListener.afterJob()` only if `BatchStatus.COMPLETED`
+- [x] `KafkaTemplate<String, ProteinImportedEvent>` in `ImportEventPublisher`
+- [x] Published in `JobExecutionListener.afterJob()` only if `BatchStatus.COMPLETED`
 
 #### 3.6 Monolith Adaptation
 
-- [ ] Monolith batch configuration disabled (`@ConditionalOnProperty`)
-- [ ] Monolith `ImportController` deprecated
+- [x] Monolith batch configuration disabled (`@ConditionalOnProperty`)
+- [x] Monolith `ImportController` deprecated
 
 #### Phase 3 — Tests
 
-- [ ] `ImportServiceTest` — unit
-- [ ] `ImportControllerIntegrationTest` — Testcontainers + `@EmbeddedKafka`
+- [x] `ImportServiceTest` — unit
+- [x] `ImportControllerIntegrationTest` — Testcontainers + `@EmbeddedKafka`
 - [ ] `ProteinImportedEventPublishingTest` — verifies Kafka message on job completion
 
 ---
@@ -562,7 +564,7 @@ consumes gene data via Feign or Kafka and produces files asynchronously.
 
 #### 5.1 Service Setup
 
-- [ ] `ExportServiceApplication` — port `8085`
+- [x] `ExportServiceApplication` — port `8085`
 - [ ] Dependencies: `common-starter`, `spring-boot-starter-batch`, `apache-poi`, `apache-commons-csv`, `spring-kafka`
 - [ ] `bootstrap.yml`
 

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:dev}"
+  config:
+    import: "${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}"
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}

@@ -1,20 +1,12 @@
 # ── Build stage ─────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm ci --prefer-offline
-
-COPY ./frontend/ .
-RUN npm run build:prod
-
+# Removed as Build run locally in script devops/scripts/build-all.sh
 # ── Runtime stage (nginx) ─────────────────────────────────────────────────────
 FROM nginx:1.25-alpine AS runtime
 
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist/bioinformatics-dashboard-frontend/browser /usr/share/nginx/html
+COPY frontend/dist/bioinformatics-dashboard-frontend/browser /usr/share/nginx/html
 COPY devops/docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

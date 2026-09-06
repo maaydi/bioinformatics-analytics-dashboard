@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Analytics Service — production overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 8082
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      pool-name: analytics-prod-pool
+      keepalive-time: 30000
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.bioinformatics.analyticsservice: INFO
+    org.springframework.security: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+common:
+  datasource:
+    primary-url: ${COMMON_DATASOURCE_PRIMARY_URL}
+    primary-username: ${COMMON_DATASOURCE_PRIMARY_USERNAME}
+    primary-password: ${COMMON_DATASOURCE_PRIMARY_PASSWORD}
+    replica-url: ${COMMON_DATASOURCE_REPLICA_URL:${COMMON_DATASOURCE_PRIMARY_URL}}
+    replica-username: ${COMMON_DATASOURCE_REPLICA_USERNAME:${COMMON_DATASOURCE_PRIMARY_USERNAME}}
+    replica-password: ${COMMON_DATASOURCE_REPLICA_PASSWORD:${COMMON_DATASOURCE_PRIMARY_PASSWORD}}
+    pool:
+      max-size: 50
+      min-idle: 10
+      connection-timeout-ms: 30000
+    driver-class-name: org.postgresql.Driver

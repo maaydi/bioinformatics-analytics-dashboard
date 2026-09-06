@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Dashboard Service — business configuration (all profiles)
+# ─────────────────────────────────────────────────────────────────────────────
+
+app:
+  export:
+    csv:
+      max-rows: 100000
+
+  audit-pool:
+    core-size: 1
+    max-size: 10
+    queue-capacity: 25
+    thread-name-prefix: audit-
+
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: ${APP_RATE_LIMITER_GLOBAL_CAPACITY:100}
+      tokens: ${APP_RATE_LIMITER_GLOBAL_TOKENS:100}
+      seconds: ${APP_RATE_LIMITER_GLOBAL_SECONDS:60}
+    endpoints:
+      - name: login
+        capacity: ${APP_RATE_LIMITER_LOGIN_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_LOGIN_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_LOGIN_SECONDS:60}
+      - name: import
+        capacity: ${APP_RATE_LIMITER_IMPORT_CAPACITY:5}
+        tokens: ${APP_RATE_LIMITER_IMPORT_TOKENS:5}
+        seconds: ${APP_RATE_LIMITER_IMPORT_SECONDS:60}
+      - name: search
+        capacity: ${APP_RATE_LIMITER_SEARCH_CAPACITY:30}
+        tokens: ${APP_RATE_LIMITER_SEARCH_TOKENS:30}
+        seconds: ${APP_RATE_LIMITER_SEARCH_SECONDS:60}
+      - name: detail
+        capacity: ${APP_RATE_LIMITER_DETAIL_CAPACITY:60}
+        tokens: ${APP_RATE_LIMITER_DETAIL_TOKENS:60}
+        seconds: ${APP_RATE_LIMITER_DETAIL_SECONDS:60}
+      - name: analysis
+        capacity: ${APP_RATE_LIMITER_ANALYSIS_CAPACITY:20}
+        tokens: ${APP_RATE_LIMITER_ANALYSIS_TOKENS:20}
+        seconds: ${APP_RATE_LIMITER_ANALYSIS_SECONDS:60}
+      - name: export
+        capacity: ${APP_RATE_LIMITER_EXPORT_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_EXPORT_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_EXPORT_SECONDS:60}
+
+common:
+  enabled: true
+  cache:
+    enabled: true

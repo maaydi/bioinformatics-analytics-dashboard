@@ -1,0 +1,85 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared configuration inherited by ALL services via Spring Cloud Config Server
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Spring ───────────────────────────────────────────────────────────────────
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        '[format_sql]': false
+        '[default_batch_fetch_size]': 100
+        jdbc:
+          batch_size: 1000
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  batch:
+    jdbc:
+      initialize-schema: always
+
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 2GB
+
+  web:
+    error:
+      include-message: never
+
+  cache:
+    type: redis
+
+  data:
+    redis:
+      port: 6379
+      connect-timeout: 2000
+      client-type: lettuce
+      repositories:
+        enabled: false
+
+# ── Flyway ───────────────────────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+# ── Application: JWT (shared) ────────────────────────────────────────────────
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
+    issuer: bioinformatics-auth
+    audience: bioinformatics-dashboard-clients
+    access-token-expiry-seconds: ${APP_JWT_ACCESS_TOKEN_EXPIRY_SECONDS:3600}
+    refresh-token-expiry-seconds: ${APP_JWT_REFRESH_TOKEN_EXPIRY_SECONDS:604800}
+    service-token-expiry-seconds: 300
+    key-bytes-len: 32
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    name: bioinformatic.log
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.cloud.config: DEBUG
+
+# ── Management / Actuator ────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,configprops
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans

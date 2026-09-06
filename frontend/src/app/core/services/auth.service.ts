@@ -142,7 +142,7 @@ export class AuthService {
     if (!token) return [];
     try {
       const payload = JSON.parse(atob(token.split('.')[1])) as JwtPayload;
-      return payload.roles ? (payload.roles.split(',') as UserRole[]) : [];
+      return payload.roles ? payload.roles : [];
     } catch {
       return [];
     }

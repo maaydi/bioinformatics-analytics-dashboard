@@ -1,0 +1,149 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 10000        # 10s TCP connect
+        response-timeout: 120s        # total time to wait for downstream
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - RewritePath=/api/auth/(?<segment>.*), /api/v1/auth/${segment}
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: authServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/auth
+            - id: analytics-service
+              uri: lb://analytics-service
+              predicates:
+                - Path=/api/analytics/**
+              filters:
+                - RewritePath=/api/analytics/(?<segment>.*), /api/v1/analytics/${segment}
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: analyticsServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/analytics
+            - id: import-service
+              uri: lb://import-service
+              predicates:
+                - Path=/api/admin/import/**
+              filters:
+                - RewritePath=/api/admin/import/(?<segment>.*), /api/v1/admin/import/${segment}
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: importServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/import
+            - id: dashboard
+              uri: lb://dashboard
+              predicates:
+                - Path=/api/genes/**,/api/autocomplete/**,/api/saved-filters/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: dashboardCircuitBreaker
+                    fallbackUri: forward:/fallback/dashboard
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+      connect-timeout: ${SPRING_DATA_REDIS_CONNECT_TIMEOUT:2000}
+      client-name: bioinformatics-api-gateway
+      client-type: lettuce
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 100
+        failureRateThreshold: 60
+        slowCallRateThreshold: 80
+        slowCallDurationThreshold: 90s
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 10
+    instances:
+      authServiceCircuitBreaker:
+        baseConfig: default
+      analyticsServiceCircuitBreaker:
+        baseConfig: default
+      importServiceCircuitBreaker:
+        baseConfig: default
+      dashboardCircuitBreaker:
+        baseConfig: default
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 30s
+        cancelRunningFuture: true
+    instances:
+      authServiceCircuitBreaker:
+        baseConfig: default
+      analyticsServiceCircuitBreaker:
+        baseConfig: default
+      importServiceCircuitBreaker:
+        baseConfig: default
+      dashboardCircuitBreaker:
+        timeoutDuration: 120s
+app:
+  security:
+    public-endpoints:
+      - auth/login
+      - auth/refresh
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway,circuitbreakers
+  endpoint:
+    health:
+      probes:
+        enabled: true

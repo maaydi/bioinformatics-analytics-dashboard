@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auth Service — production overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      connection-timeout: 30000
+      pool-name: auth-prod-pool
+      keepalive-time: 30000
+
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.bioinformatics.auth: INFO
+    org.springframework.security: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+common:
+  datasource:
+    primary-url: ${COMMON_DATASOURCE_PRIMARY_URL}
+    primary-username: ${COMMON_DATASOURCE_PRIMARY_USERNAME}
+    primary-password: ${COMMON_DATASOURCE_PRIMARY_PASSWORD}
+    replica-url: ${COMMON_DATASOURCE_REPLICA_URL:${COMMON_DATASOURCE_PRIMARY_URL}}
+    replica-username: ${COMMON_DATASOURCE_REPLICA_USERNAME:${COMMON_DATASOURCE_PRIMARY_USERNAME}}
+    replica-password: ${COMMON_DATASOURCE_REPLICA_PASSWORD:${COMMON_DATASOURCE_PRIMARY_PASSWORD}}
+    pool:
+      max-size: 30
+      min-idle: 5
+      connection-timeout-ms: 30000
+  cache:
+    enabled: false
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}   # REQUIRED
+
+  password:
+    bcrypt-strength: 12
+
+  token:
+    refresh-rotation-enabled: true
+    max-active-sessions-per-user: ${APP_TOKEN_MAX_ACTIVE_SESSIONS_PER_USER:5}

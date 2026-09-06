@@ -1,0 +1,98 @@
+package com.bioinformatics.analyticsservice.controller;
+
+
+import com.bioinformatics.analyticsservice.interfaces.AnalyticsService;
+import com.bioinformatics.analyticsservice.models.*;
+import com.bioinformatics.analyticsservice.providers.postgres.service.PostgresAnalyticsService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * REST Controller serving static, highly performant analytics and KPIs.
+ *
+ * <p>All endpoints within this controller rely heavily on PostgreSQL materialized views
+ * populated during the batch import process, allowing for fast, pre-computed dashboard metrics
+ * handling hundreds of megabytes of relational data under 500ms.</p>
+ *
+ * <p>Delegates query retrieval to the {@link PostgresAnalyticsService}. Accessible to users
+ * holding either USER or ADMIN authority.</p>
+ */
+@RestController
+@Validated
+@RequestMapping("/api/v1/analytics")
+@RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','USER')")
+public class AnalyticsController {
+
+    private final AnalyticsService service;
+
+    /**
+     * Retrieves top-level dashboard KPIs.
+     */
+    @GetMapping("/dashboard-kpis")
+    public ResponseEntity<DashboardKpisDto> getDashboardKpis() {
+        var kpis = service.getDashboardKpis();
+        return ResponseEntity.ok(kpis);
+    }
+
+    /**
+     * Retrieves the length distribution histogram buckets.
+     */
+    @GetMapping("/length-histogram")
+    public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram() {
+        var buckets = service.getLengthHistogram();
+        return ResponseEntity.ok(buckets);
+    }
+
+    /**
+     * Retrieves organism counts up to the specified limit.
+     */
+    @GetMapping("/by-organism")
+    public ResponseEntity<List<OrganismCountDto>> getByOrganism(
+            @Min(value = 1, message = "Limit should be greater than 0")
+            @Max(value = 200, message = "Limit should be lower than 201")
+            @RequestParam(defaultValue = "50") int limit) {
+        var count = service.getByOrganism(limit);
+        return ResponseEntity.ok(count);
+    }
+
+    /**
+     * Retrieves the ratio of reviewed to unreviewed proteins.
+     */
+    @GetMapping("/reviewed-ratio")
+    public ResponseEntity<List<ReviewedRatioDto>> getReviewedRatio() {
+        var ratios = service.getReviewedRatio();
+        return ResponseEntity.ok(ratios);
+    }
+
+    /**
+     * Retrieves evidence level distributions from experiments to predictions.
+     */
+    @GetMapping("/evidence-levels")
+    public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels() {
+        var ev = service.getEvidenceLevels();
+        return ResponseEntity.ok(ev);
+    }
+
+    /**
+     * Retrieves most frequent keywords.
+     */
+    @GetMapping("/keyword-frequency")
+    public ResponseEntity<List<KeywordFrequencyDto>> getKeywordFrequency(
+            @Min(value = 1, message = "Limit should be greater than 0")
+            @Max(value = 500, message = "Limit should be lower than 501")
+            @RequestParam(defaultValue = "100") int limit) {
+        var keywords = service.getKeywordFrequency(limit);
+        return ResponseEntity.ok(keywords);
+    }
+}

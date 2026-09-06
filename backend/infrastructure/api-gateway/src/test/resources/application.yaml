@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:DEVELOPMENT_SECRET_REPLACE_IN_PROD}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

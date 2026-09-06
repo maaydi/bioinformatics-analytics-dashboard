@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Auth Service — business configuration (all profiles)
+# ─────────────────────────────────────────────────────────────────────────────
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: auth
+        '[format_sql]': false
+        '[default_batch_fetch_size]': 25
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: auth
+    default-schema: auth
+    create-schemas: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+common:
+  enabled: true
+
+app:
+  token:
+    refresh-rotation-enabled: true
+    max-active-sessions-per-user: 5
+
+  password:
+    min-length: 8
+    require-uppercase: true
+    require-digit: true
+    require-special-char: false
+    bcrypt-strength: 12
+
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 200
+      tokens: 200
+      seconds: 60
+    endpoints:
+      - name: login
+        capacity: 10
+        tokens: 10
+        seconds: 60
+      - name: register
+        capacity: 5
+        tokens: 5
+        seconds: 60
+      - name: refresh
+        capacity: 20
+        tokens: 20
+        seconds: 60
+      - name: logout
+        capacity: 30
+        tokens: 30
+        seconds: 60
+      - name: change-password
+        capacity: 5
+        tokens: 5
+        seconds: 60
+
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 50
+    thread-name-prefix: auth-audit-

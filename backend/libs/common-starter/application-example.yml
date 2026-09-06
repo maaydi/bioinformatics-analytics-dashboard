@@ -1,0 +1,86 @@
+# Example per-service configuration (place in Config Server or local bootstrap)
+
+spring:
+  application:
+    name: gene-service
+  cloud:
+    config:
+      uri: http://config-server:8888
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+common:
+  enabled: true
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: bioinformatics-auth
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      acks: all
+      retries: 3
+    consumer:
+      group-id: ${spring.application.name}
+      concurrency: 3
+      ack-mode: manual
+  datasource:
+    primary-url: ${DB_PRIMARY_URL:jdbc:postgresql://db-primary:5432/bio}
+    primary-username: ${DB_PRIMARY_USER:bio}
+    primary-password: ${DB_PRIMARY_PASS}
+    replica-url: ${DB_REPLICA_URL:jdbc:postgresql://db-replica:5432/bio}
+    replica-username: ${DB_REPLICA_USER:bio}
+    replica-password: ${DB_REPLICA_PASS}
+    pool:
+      max-size: 10
+      min-idle: 5
+  resilience4j:
+    circuit-breaker:
+      failure-rate-threshold: 50
+      wait-duration-in-open-state-ms: 10000
+    retry:
+      max-attempts: 3
+      wait-duration-ms: 1000
+    rate-limiter:
+      limit-for-period: 100
+      limit-refresh-period-ms: 1000
+  cache:
+    enabled: true
+    allowed-base-packages:
+      - com.bioinformatics
+      - java.util
+    entry-ttl-duration: PT6H #  ISO-8601 duration format: 6 hours
+
+  uniprot-api:
+    base-url: ${UNIPROT_API_BASE_URL:https://rest.uniprot.org}
+    read-timeout-duration: PT1H
+    batch:
+      chunk-size: ${UNIPROT_API_BATCH_CHUNK_SIZE:100}
+      skip-limit: ${UNIPROT_API_BATCH_SKIP_LIMIT:1000}
+    httpClient:
+      timeout-duration: PT10S #  ISO-8601 duration format: 10 seconds

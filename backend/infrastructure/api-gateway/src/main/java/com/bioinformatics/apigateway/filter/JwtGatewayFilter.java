@@ -1,0 +1,121 @@
+package com.bioinformatics.apigateway.filter;
+
+
+import com.bioinformatics.apigateway.config.ApplicationProperties;
+import com.bioinformatics.shared.models.security.AppClaims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import static com.bioinformatics.shared.models.security.AppHeaders.USER_ID;
+import static com.bioinformatics.shared.models.security.AppHeaders.USER_ROLE;
+import static com.bioinformatics.shared.models.security.Constants.BEARER;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+public class JwtGatewayFilter implements GlobalFilter, Ordered {
+
+    private final ApplicationProperties properties;
+
+    @Override
+    public @NonNull Mono<Void> filter(ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
+        var request = exchange.getRequest();
+        log.debug("Incoming request: {} {}", request.getMethod().name(), request.getURI().getPath());
+        if (shouldNotFilter(request)) {
+            log.debug("Skipping JWT filter for public endpoint: {}", request.getURI().getPath());
+            return chain.filter(exchange);
+        }
+
+        var authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith(BEARER)) {
+            log.error("Unauthorized access : No access token presents");
+            return unauthorized(exchange);
+        }
+
+        var token = authHeader.substring(BEARER.length());
+        try {
+            var claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .clockSkewSeconds(60)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            if (claims.getExpiration() != null
+                    && claims.getExpiration().before(new Date())) {
+                return unauthorized(exchange);
+            }
+
+            var userId = claims.getSubject();
+            var role = getRoleClaim(claims.get(AppClaims.ROLES.getClaim()));
+            log.debug("JWT validated for userId='{}' roles={} path={}", userId, role, request.getURI().getPath());
+            var mutated = exchange.getRequest().mutate()
+                    .header(USER_ID.getHeader(), Objects.requireNonNullElse(userId, USER_ID.getDefaultValue()))
+                    .header(USER_ROLE.getHeader(), role.toArray(String[]::new))
+                    .build();
+
+            return chain.filter(exchange.mutate().request(mutated).build());
+
+        } catch (JwtException | IllegalArgumentException e) {
+            log.error("JWT invalid: {}", e.getMessage());
+            return unauthorized(exchange);
+        }
+    }
+
+    private boolean shouldNotFilter(final ServerHttpRequest request) {
+        var path = request.getURI().getPath();
+        return HttpMethod.POST.matches(request.getMethod().name())
+                && properties.security().publicEndpoints().stream().anyMatch(path::contains);
+    }
+
+    private SecretKey getSigningKey() {
+        var hs256KeyBytes = properties.jwt().keyBytesLen();
+        byte[] keyBytes = properties.jwt().secret().getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < hs256KeyBytes) {
+            byte[] padded = new byte[hs256KeyBytes];
+            System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+            keyBytes = padded;
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private List<String> getRoleClaim(Object role) {
+        if (role instanceof List<?> roles) {
+            return roles.stream().map(Object::toString).toList();
+        }
+        return List.of(USER_ROLE.getDefaultValue());
+    }
+
+    private Mono<Void> unauthorized(ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        exchange.getResponse().getHeaders().add(HttpHeaders.WWW_AUTHENTICATE,
+                BEARER.concat("error=\"invalid_token\""));
+        return exchange.getResponse().setComplete();
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE + 100;
+    }
+
+}

@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Import Service — development overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 0
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      pool-name: import-dev-pool
+
+  jpa:
+    show-sql: false
+
+  data:
+    redis:
+      host: redis
+      password: password
+
+logging:
+  level:
+    com.bioinformatics.importservice: DEBUG
+    org.springframework.security: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+common:
+  enabled: true
+

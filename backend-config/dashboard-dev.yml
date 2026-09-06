@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Dashboard Service — development overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 0
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/bioinformatics_db
+    username: bio_user
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: redis
+      password: password
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90

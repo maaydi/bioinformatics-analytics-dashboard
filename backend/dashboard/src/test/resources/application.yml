@@ -1,0 +1,74 @@
+spring:
+  datasource:
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    url:      ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
+    username: ${TEST_DB_USER:bio_user}
+    password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  flyway:
+    enabled: false          # Migration stubs incomplete; Hibernate manages test schema
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Create schema from entities, drop on context close
+  batch:
+    job:
+      enabled: false  # No batch jobs in test; UniProtImportJobConfig excluded via @Profile("!test")
+    jdbc:
+      initialize-schema: always
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+
+app:
+  jwt:
+    secret: test-secret-key-at-least-32-characters-long
+    access-token-expiry-seconds: 3600
+    refresh-token-expiry-seconds: 86400
+  batch:
+    chunk-size: ${BATCH_CHUNK_SIZE:500}
+
+  import-config:
+    temp-dir: ${java.io.tmpdir}/bio-import
+    extensions: dat,tsv
+    pool:
+      core-size: 2
+      max-size: 10
+      queue-capacity: 25
+      thread-name-prefix: BatchAsync-
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 5
+      tokens: 5
+      seconds: 60
+    endpoints:
+      - name: login
+        capacity: 5
+        tokens: 5
+        seconds: 60
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 10
+    thread-name-prefix: audit-
+  export:
+    csv:
+      max-rows: 100000
+
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    name: bioinformatic.log
+    path: ${java.io.tmpdir}/bio-logs
+
+common:
+  enabled: true
+  cache:
+    enabled: false
+
+eureka:
+  client:
+    enabled: false

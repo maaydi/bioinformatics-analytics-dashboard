@@ -1,0 +1,23 @@
+package com.bioinformatics.importservice.batch.processor.handlers;
+
+import com.bioinformatics.common.gene.entity.ProteinPublication;
+import com.bioinformatics.importservice.uniprot.fileloader.processor.ProteinParsingContext;
+import com.bioinformatics.importservice.uniprot.fileloader.processor.handler.PublicationAuthorProcessor;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class PublicationAuthorProcessorTest {
+
+    @Test
+    void appendsAuthors() {
+        var pubBuilder = ProteinPublication.builder().authors("Smith");
+        var ctx = new ProteinParsingContext();
+        ctx.getPubBuilders().add(pubBuilder);
+
+        var ra = new PublicationAuthorProcessor();
+        ra.process("Doe;", ctx);
+        assertEquals("SmithDoe", ctx.getPubBuilders().getLast().build().getAuthors());
+    }
+}
+

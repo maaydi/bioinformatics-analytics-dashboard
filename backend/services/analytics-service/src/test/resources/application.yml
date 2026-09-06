@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: analytics-service
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+  flyway:
+    enabled: false
+    create-schemas: true
+    schemas:
+      - public
+      - analytics
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
+    username: ${TEST_DB_USER:bio_user}
+    password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+eureka:
+  client:
+    enabled: false
+common:
+  enabled: true
+  datasource:
+    # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
+    replica-url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
+    replica-username: ${TEST_DB_USER:bio_user}
+    replica-password: ${TEST_DB_PASS:bio_password}
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  cache:
+    enabled: false
+  kafka:
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:analytics-view-refreshers}
+
+app:
+  view-refresh:
+    max-attempts: 3
+    per-view-timeout-ms: 1000
+    retry-backoff-ms: 0
+    sequence-sla-ms: 10000
