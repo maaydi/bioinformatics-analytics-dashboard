@@ -1,5 +1,31 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-06 — DB Migration Created
+
+**Action:** Created Flyway migration file for export pipeline tables.  
+**Outcome:**
+
+- Created `/backend/services/export-service/src/main/resources/db/migration/V1__export_pipeline.sql`
+- Implemented `export_pipeline` table with:
+  - All required columns: `id`, `user_id`, `name`, `description`, `filter_json`, `format`, `field_schema`, `status`,
+    `estimated_rows`, `actual_rows`, `file_path`, `file_size_bytes`, `error_message`, `job_execution_id`, lifecycle
+    timestamps (`created_at`, `started_at`, `completed_at`, `deleted_at`, `duration_ms`)
+  - CHECK constraint on `format` and `status` enums
+  - Three performance indexes on `user_id`, `status`, and soft-delete flag
+- Implemented `export_job_execution` table with:
+  - Foreign key to `export_pipeline` with CASCADE delete
+  - Unique constraint on `job_execution_id`
+  - Progress tracking columns (`chunks_total`, `chunks_processed`)
+  - Index on `pipeline_id` for fast lookups
+- Migration follows Flyway naming convention (`V<N>__<description>.sql`) and PostgreSQL best practices
+- Schema design uses `JSONB` for structured data (`filter_json`, `field_schema`) to leverage PostgreSQL's query
+  capabilities
+- Soft-delete pattern implemented via `deleted_at` column with partial index for active records
+
+**Next Step:** Implement JPA entity layer (`ExportPipeline`, `ExportJobExecution`).
+
+---
+
 ## 2026-08-12 — Ticket Created & Requirements Analyzed
 
 **Action:** Created `PIPE-001` implementation folder and drafted specification.  

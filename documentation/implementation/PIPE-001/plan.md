@@ -30,7 +30,7 @@
 
 - [x] Requirements analyzed
 - [x] Ambiguities resolved (see analyse.md)
-- [ ] DB migration created
+- [x] DB migration created
 - [ ] Entities implemented
 - [ ] Repositories implemented
 - [ ] DTOs and mappers implemented
@@ -58,46 +58,11 @@
 
 ## Detailed Checklist
 
-### Database Migration (`V12__export_pipeline.sql`)
+### Database Migration (`V1__export_pipeline.sql`)
 
-- [ ] `export_pipeline` table:
-  ```sql
-  CREATE TABLE export_pipeline (
-      id BIGSERIAL PRIMARY KEY,
-      user_id BIGINT NOT NULL REFERENCES app_user(id),
-      name VARCHAR(200) NOT NULL,
-      description VARCHAR(500),
-      filter_json JSONB NOT NULL,              -- serialized GeneSearchRequest
-      format VARCHAR(10) NOT NULL CHECK (format IN ('CSV','TSV','JSON','EXCEL')),
-      field_schema JSONB NOT NULL,               -- ordered list of selected field names
-      status VARCHAR(20) NOT NULL DEFAULT 'QUEUED' CHECK (status IN ('QUEUED','RUNNING','COMPLETED','FAILED','CANCELLED')),
-      estimated_rows BIGINT,
-      actual_rows BIGINT,
-      file_path VARCHAR(500),
-      file_size_bytes BIGINT,
-      error_message TEXT,
-      job_execution_id BIGINT,                 -- references BATCH_JOB_EXECUTION
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      started_at TIMESTAMPTZ,
-      completed_at TIMESTAMPTZ,
-      deleted_at TIMESTAMPTZ,
-      duration_ms BIGINT
-  );
-  CREATE INDEX idx_export_pipeline_user ON export_pipeline (user_id, created_at DESC);
-  CREATE INDEX idx_export_pipeline_status ON export_pipeline (status);
-  CREATE INDEX idx_export_pipeline_deleted ON export_pipeline (deleted_at) WHERE deleted_at IS NULL;
-  ```
-- [ ] `export_job_execution` table (optional denormalization for fast queries):
-  ```sql
-  CREATE TABLE export_job_execution (
-      id BIGSERIAL PRIMARY KEY,
-      pipeline_id BIGINT NOT NULL REFERENCES export_pipeline(id),
-      job_execution_id BIGINT NOT NULL UNIQUE,
-      chunks_total INTEGER,
-      chunks_processed INTEGER DEFAULT 0,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  );
-  ```
+- [x] `export_pipeline` table created with all required columns and indexes
+- [x] `export_job_execution` table created for chunk progress tracking
+- [x] Migration file: `backend/services/export-service/src/main/resources/db/migration/V1__export_pipeline.sql`
 
 ### Backend — Entity Layer
 
