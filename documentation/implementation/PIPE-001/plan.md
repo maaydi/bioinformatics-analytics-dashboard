@@ -34,7 +34,7 @@
 - [x] Entities implemented
 - [x] Repositories implemented
 - [x] DTOs and mappers implemented
-- [ ] ExportFileStorageService implemented
+- [x] ExportFileStorageService implemented
 - [ ] Format writers implemented
 - [ ] Spring Batch job config implemented
 - [ ] Batch components implemented
@@ -149,19 +149,20 @@
 
 ### Backend — File Storage Service
 
-- [ ] `ExportFileStorageService` (`service/export/`):
-    - [ ] `createPipelineDirectory(Long userId, Long pipelineId): Path`
-        - [ ] Creates `${APP_DIR}/exports/{userId}/{pipelineId}/`
-        - [ ] Creates `segments/` subdirectory
-    - [ ] `getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format): Path`
-    - [ ] `getFinalFilePath(Long userId, Long pipelineId, ExportFormat format): Path`
-    - [ ] `assembleSegments(Long userId, Long pipelineId, ExportFormat format): Path`
-        - [ ] Reads all segment files in order
-        - [ ] For CSV/TSV/JSON: streams segments into final file (concatenation)
-        - [ ] For Excel: opens each segment workbook, copies sheets into master workbook
-    - [ ] `deletePipelineDirectory(Long userId, Long pipelineId): void`
-    - [ ] `getFileSize(Long userId, Long pipelineId, ExportFormat format): Long`
-    - [ ] `validateFileExists(Long userId, Long pipelineId, ExportFormat format): boolean`
+- [x] `ExportFileStorageService` (`service/export/`):
+    - [x] `createPipelineDirectory(Long userId, Long pipelineId): Path`
+        - [x] Use APP_EXPORT_TEMP_DIR=/tmp/.bio-export
+        - [x] Creates `${APP_EXPORT_TEMP_DIR}/{userId}/{pipelineId}/`
+        - [x] Creates `segments/` subdirectory
+    - [x] `getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format): Path`
+    - [x] `getFinalFilePath(Long userId, Long pipelineId, ExportFormat format): Path`
+    - [x] `assembleSegments(Long userId, Long pipelineId, ExportFormat format): Path`
+        - [x] Reads all segment files in order
+        - [x] For CSV/TSV/JSON: streams segments into final file (concatenation)
+        - [x] For Excel: opens each segment workbook, copies sheets into master workbook (see note)
+    - [x] `deletePipelineDirectory(Long userId, Long pipelineId): void`
+    - [x] `getFileSize(Long userId, Long pipelineId, ExportFormat format): Long`
+    - [x] `validateFileExists(Long userId, Long pipelineId, ExportFormat format): boolean`
 
 ### Backend — Format Writers
 
@@ -432,10 +433,10 @@
 
 ### Tests — Backend
 
-- [ ] `ExportFileStorageServiceTest`:
-    - [ ] `createPipelineDirectory_createsExpectedStructure`
-    - [ ] `assembleSegments_concatenatesCsvFiles`
-    - [ ] `deletePipelineDirectory_removesAllFiles`
+- [x] `ExportFileStorageServiceTest`:
+    - [x] `createPipelineDirectory_createsExpectedStructure`
+    - [x] `assembleSegments_concatenatesCsvFiles`
+    - [x] `deletePipelineDirectory_removesAllFiles`
 - [ ] `CsvExportWriterTest`:
     - [ ] `writeHeader_outputsCorrectColumns`
     - [ ] `writeRow_escapesCommasAndQuotes`

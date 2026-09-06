@@ -1,5 +1,44 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-06 — ExportFileStorageService Implemented
+
+**Action:** Implemented the file storage abstraction and a production-ready default implementation; added unit tests and
+required dependencies.
+
+**Outcome:**
+
+- Created interface `ExportFileStorageService` at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/service/export/ExportFileStorageService.java`.
+- Implemented `DefaultExportFileStorageService` at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/service/export/DefaultExportFileStorageService.java`.
+  - Methods implemented: `createPipelineDirectory`, `getSegmentPath`, `getFinalFilePath`, `assembleSegments`,
+    `deletePipelineDirectory`, `getFileSize`, `validateFileExists`.
+  - Default base directory is configurable via `app.export.temp-dir` with fallback `/tmp/.bio-export`.
+  - Segment naming: `segments/segment_00001.<ext>` (zero-padded) and final file `export_{pipelineId}.<ext>`.
+  - CSV/TSV assembly: concatenates segment files, removing duplicate headers after the first segment.
+  - JSON assembly: merges JSON arrays from segments into a single array safely by stripping brackets and inserting
+    commas between elements.
+  - Excel assembly: for single-segment exports copies the segment as final; for multiple segments logs a warning and
+    uses the first segment as final. (Rationale: full XLSX sheet-merge requires careful POI handling and can be memory
+    intensive; documented as a known limitation and mitigated by recommending CSV/JSON for very large exports.)
+
+- Added unit tests `ExportFileStorageServiceTest` covering directory creation, CSV assembly and deletion:
+  `backend/services/export-service/src/test/java/com/bioinformatics/exportservice/service/export/ExportFileStorageServiceTest.java`.
+
+**Notes / Decisions:**
+
+- Kept implementation file-system local and path-normalization to avoid path traversal. Controller/service will still
+  validate ownership before exposing downloads.
+- Excel merging is intentionally conservative; we will revisit if sheet-level merging is required for production.
+
+**Next Steps:**
+
+- Implement format writers (CSV, TSV, JSON, Excel) and `ExportWriterFactory`.
+- Wire `DefaultExportFileStorageService` into the batch `assembleAndFinalizeStep`.
+- Add integration test that runs a small batch job end-to-end and verifies final assembled file contents.
+
+---
+
 ## 2026-09-06 — DTOs and MapStruct Mapper Implemented
 
 **Action:** Created all DTOs and MapStruct mapper for API contracts and data transformation.  

@@ -1,5 +1,7 @@
 package com.bioinformatics.exportservice.dto;
 
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -21,6 +23,7 @@ public record ExportPipelineResponse(
         String name,
         String description,
         ExportFormat format,
+        GeneSearchRequest filter,
         List<String> fieldSchema,
         ExportStatus status,
         Long estimatedRows,
