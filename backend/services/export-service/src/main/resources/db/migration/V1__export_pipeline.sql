@@ -5,7 +5,8 @@
 -- ──────────────────────────────────────────────────────────────────────────
 -- export_pipeline — Represents a saved export configuration and its status
 -- ──────────────────────────────────────────────────────────────────────────
-CREATE TABLE export_pipeline
+CREATE SCHEMA IF NOT EXISTS export_data;
+CREATE TABLE export_data.export_pipeline
 (
     id               BIGSERIAL PRIMARY KEY,
     user_id          VARCHAR(255) NOT NULL, -- Username from auth service
@@ -29,18 +30,18 @@ CREATE TABLE export_pipeline
 );
 
 -- Indexes for common query patterns
-CREATE INDEX idx_export_pipeline_user ON export_pipeline (user_id, created_at DESC);
-CREATE INDEX idx_export_pipeline_status ON export_pipeline (status);
-CREATE INDEX idx_export_pipeline_deleted ON export_pipeline (deleted_at) WHERE deleted_at IS NULL;
+CREATE INDEX idx_export_pipeline_user ON export_data.export_pipeline (user_id, created_at DESC);
+CREATE INDEX idx_export_pipeline_status ON export_data.export_pipeline (status);
+CREATE INDEX idx_export_pipeline_deleted ON export_data.export_pipeline (deleted_at) WHERE deleted_at IS NULL;
 
 
 -- ──────────────────────────────────────────────────────────────────────────
 -- export_job_execution — Denormalized tracking of batch job progress
 -- ──────────────────────────────────────────────────────────────────────────
-CREATE TABLE export_job_execution
+CREATE TABLE export_data.export_job_execution
 (
     id               BIGSERIAL PRIMARY KEY,
-    pipeline_id      BIGINT      NOT NULL REFERENCES export_pipeline (id) ON DELETE CASCADE,
+    pipeline_id BIGINT NOT NULL REFERENCES export_data.export_pipeline (id) ON DELETE CASCADE,
     job_execution_id BIGINT      NOT NULL UNIQUE,
     chunks_total     INTEGER,
     chunks_processed INTEGER              DEFAULT 0,
@@ -48,5 +49,5 @@ CREATE TABLE export_job_execution
 );
 
 -- Index for fast pipeline → job execution lookups
-CREATE INDEX idx_export_job_execution_pipeline ON export_job_execution (pipeline_id);
+CREATE INDEX idx_export_job_execution_pipeline ON export_data.export_job_execution (pipeline_id);
 

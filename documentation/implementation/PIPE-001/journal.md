@@ -1,5 +1,41 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-06 — JPA Entity Layer Implemented
+
+**Action:** Created JPA entities for export pipeline and job execution progress tracking.  
+**Outcome:**
+
+- Created `ExportPipeline` entity at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/entity/ExportPipeline.java`
+  - Used Lombok (`@Entity`, `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`)
+  - JSONB fields via `@JdbcTypeCode(SqlTypes.JSON)` for `filterJson` and `fieldSchema` (flexible query support)
+  - Enum fields with `@Enumerated(EnumType.STRING)` for `format` and `status`
+  - Soft-delete pattern: `deletedAt` column tracks deletion time; null = active
+  - Lifecycle hook `@PrePersist` sets `createdAt` automatically
+  - Helper methods: `isTerminal()` (checks if status is COMPLETED/FAILED/CANCELLED), `isDeleted()` (checks if
+    soft-deleted)
+  - Design rationale: `userId` stored as `String` (username) rather than foreign key for auth service resilience
+
+- Created `ExportJobExecution` entity at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/entity/ExportJobExecution.java`
+  - ManyToOne relationship to `ExportPipeline` with LAZY fetch and CASCADE delete
+  - `jobExecutionId` column has UNIQUE constraint to enforce one execution per pipeline
+  - Denormalized progress tracking: `chunksTotal`, `chunksProcessed` for efficient polling (no Batch table join needed)
+  - Lifecycle hooks `@PrePersist` and `@PreUpdate` maintain `updatedAt` timestamp
+  - Helper method: `getProgressPercent()` calculates 0–100 progress for UI progress bars
+
+- Both entities follow modern Java 21+ conventions:
+  - Immutable-first design via Lombok's `@Builder` pattern
+  - Strong typing (no primitives where Optional semantics apply)
+  - Comprehensive Javadoc for maintainability
+  - Stateless design (no circular references, lazy fetch by default)
+
+- Verified Jackson (via Spring Boot) is available for `JsonNode` JSONB handling (no additional dependency needed)
+
+**Next Step:** Implement repository layer with query methods for common access patterns.
+
+---
+
 ## 2026-09-06 — DB Migration Created
 
 **Action:** Created Flyway migration file for export pipeline tables.  

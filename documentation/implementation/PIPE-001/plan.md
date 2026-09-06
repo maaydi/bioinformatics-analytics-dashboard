@@ -31,7 +31,7 @@
 - [x] Requirements analyzed
 - [x] Ambiguities resolved (see analyse.md)
 - [x] DB migration created
-- [ ] Entities implemented
+- [x] Entities implemented
 - [ ] Repositories implemented
 - [ ] DTOs and mappers implemented
 - [ ] ExportFileStorageService implemented
@@ -66,18 +66,26 @@
 
 ### Backend — Entity Layer
 
-- [ ] `ExportPipeline` entity:
-    - [ ] `id: Long`, `user: AppUser` (ManyToOne), `name: String`, `description: String`
-    - [ ] `filterJson: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`)
-    - [ ] `format: ExportFormat` (enum: CSV, TSV, JSON, EXCEL)
-    - [ ] `fieldSchema: List<String>` (`@JdbcTypeCode(SqlTypes.JSON)` — ordered field names)
-    - [ ] `status: ExportStatus` (enum: QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED)
-    - [ ] `estimatedRows: Long`, `actualRows: Long`
-    - [ ] `filePath: String`, `fileSizeBytes: Long`
-    - [ ] `errorMessage: String`, `jobExecutionId: Long`
-    - [ ] `createdAt`, `startedAt`, `completedAt`, `deletedAt`, `durationMs`
-- [ ] `ExportJobExecution` entity (tracks chunk progress):
-    - [ ] `id`, `pipeline: ExportPipeline`, `jobExecutionId`, `chunksTotal`, `chunksProcessed`, `updatedAt`
+- [x] `ExportPipeline` entity:
+    - [x] `id: Long` (auto-generated), `userId: String` (username), `name: String`, `description: String`
+    - [x] `filterJson: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`) — serialized GeneSearchRequest
+    - [x] `format: ExportFormat` (enum: CSV, TSV, JSON, EXCEL)
+    - [x] `fieldSchema: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`) — ordered field names as JSONB array
+    - [x] `status: ExportStatus` (enum: QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED)
+    - [x] `estimatedRows: Long`, `actualRows: Long`
+    - [x] `filePath: String`, `fileSizeBytes: Long`
+    - [x] `errorMessage: String`, `jobExecutionId: Long`
+    - [x] `createdAt`, `startedAt`, `completedAt`, `deletedAt`, `durationMs` (Instant)
+    - [x] Helper methods: `isTerminal()`, `isDeleted()`
+    - [x] `@PrePersist` lifecycle hook for `createdAt`
+- [x] `ExportJobExecution` entity (tracks chunk progress):
+    - [x] `id: Long` (auto-generated)
+    - [x] `pipeline: ExportPipeline` (ManyToOne, LAZY fetch, cascade delete)
+    - [x] `jobExecutionId: Long` (unique, reference to Spring Batch job execution)
+    - [x] `chunksTotal: Integer`, `chunksProcessed: Integer`
+    - [x] `updatedAt: Instant`
+    - [x] Helper method: `getProgressPercent()`
+    - [x] `@PrePersist` and `@PreUpdate` lifecycle hooks
 
 ### Backend — Repository Layer
 
