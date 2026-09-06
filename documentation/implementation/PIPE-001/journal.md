@@ -1,5 +1,42 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-06 — Repository Layer Implemented
+
+**Action:** Created Spring Data JPA repository interfaces for database access.  
+**Outcome:**
+
+- Created `ExportPipelineRepository` at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportPipelineRepository.java`
+  - Extends `JpaRepository<ExportPipeline, Long>` for standard CRUD operations
+  - Query methods follow Spring Data naming conventions (auto-implemented)
+  - `findByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String userId, Pageable)` — list all active pipelines for a
+    user, newest first
+  - `findByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus status, Pageable)` — filter by status (e.g.,
+    RUNNING, COMPLETED)
+  - `findByIdAndUserIdAndDeletedAtIsNull(Long id, String userId)` — ownership verification (ensures user owns the
+    pipeline)
+  - `countByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus)` — concurrency control (count running
+    exports)
+  - All queries respect soft-delete pattern: `deletedAt IS NULL` in WHERE clause
+  - Comprehensive Javadoc explaining each method's purpose
+
+- Created `ExportJobExecutionRepository` at
+  `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportJobExecutionRepository.java`
+  - Extends `JpaRepository<ExportJobExecution, Long>` for standard CRUD operations
+  - `findByPipelineId(Long pipelineId)` — fetches progress record for a given pipeline (unique constraint ensures max 1
+    result)
+  - Denormalized design allows efficient progress polling without Batch table joins
+
+- Design decisions:
+  - Used `String userId` (username) instead of foreign key to `AppUser` for auth service resilience
+  - Method naming adheres to Spring Data conventions for automatic implementation (no custom @Query annotations needed)
+  - Javadoc includes rationale for ownership checks and soft-delete handling
+  - No `JpaSpecificationExecutor` extension (queries are simple and predefined)
+
+**Next Step:** Implement DTOs and MapStruct mappers for API contract and data transformation.
+
+---
+
 ## 2026-09-06 — JPA Entity Layer Implemented
 
 **Action:** Created JPA entities for export pipeline and job execution progress tracking.  
@@ -32,7 +69,7 @@
 
 - Verified Jackson (via Spring Boot) is available for `JsonNode` JSONB handling (no additional dependency needed)
 
-**Next Step:** Implement repository layer with query methods for common access patterns.
+**Next Step:** Implement DTOs and MapStruct mappers for API contract and data transformation.
 
 ---
 

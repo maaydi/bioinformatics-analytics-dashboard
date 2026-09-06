@@ -32,7 +32,7 @@
 - [x] Ambiguities resolved (see analyse.md)
 - [x] DB migration created
 - [x] Entities implemented
-- [ ] Repositories implemented
+- [x] Repositories implemented
 - [ ] DTOs and mappers implemented
 - [ ] ExportFileStorageService implemented
 - [ ] Format writers implemented
@@ -89,14 +89,18 @@
 
 ### Backend — Repository Layer
 
-- [ ] `ExportPipelineRepository extends JpaRepository<ExportPipeline, Long>`:
-    - [ ] `findByUserAndDeletedAtIsNullOrderByCreatedAtDesc(AppUser user, Pageable pageable): Page<ExportPipeline>`
-    - [ ] 
-      `findByUserAndStatusAndDeletedAtIsNull(AppUser user, ExportStatus status, Pageable pageable): Page<ExportPipeline>`
-    - [ ] `findByIdAndUser(Long id, AppUser user): Optional<ExportPipeline>`
-    - [ ] `countByUserAndStatusAndDeletedAtIsNull(AppUser user, ExportStatus status): Long`
-- [ ] `ExportJobExecutionRepository extends JpaRepository<ExportJobExecution, Long>`:
-    - [ ] `findByPipelineId(Long pipelineId): Optional<ExportJobExecution>`
+- [x] `ExportPipelineRepository extends JpaRepository<ExportPipeline, Long>`:
+    - [x] `findByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String userId, Pageable pageable): Page<ExportPipeline>`
+    - [x] 
+      `findByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus status, Pageable pageable): Page<ExportPipeline>`
+    - [x] `findByIdAndUserIdAndDeletedAtIsNull(Long id, String userId): Optional<ExportPipeline>`
+    - [x] `countByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus status): long`
+    - [x] Repository file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportPipelineRepository.java`
+- [x] `ExportJobExecutionRepository extends JpaRepository<ExportJobExecution, Long>`:
+    - [x] `findByPipelineId(Long pipelineId): Optional<ExportJobExecution>`
+    - [x] Repository file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportJobExecutionRepository.java`
 
 ### Backend — DTOs
 
