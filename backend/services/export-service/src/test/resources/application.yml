@@ -28,6 +28,10 @@ eureka:
 
 app:
   export:
-    csv:
-      max-rows: 100
+    max-rows: 100
     temp-dir: ${java.io.tmpdir}/bio-export
+    pool:
+      core-size: 2
+      max-size: 10
+      queue-capacity: 25
+      thread-name-prefix: ExportBatchAsync-

@@ -5,9 +5,14 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @ConfigurationProperties(prefix = "app")
 public record ApplicationProperties(@DefaultValue Export export) {
-    public record Export(@DefaultValue Csv csv, @DefaultValue String tempDir) {
+    public record Export(@DefaultValue("100000") int maxRows, @DefaultValue String tempDir,
+                         @DefaultValue ThreadPoolSettings pool) {
     }
 
-    public record Csv ( @DefaultValue("100000") int maxRows){
+    public record ThreadPoolSettings(int coreSize,
+                                     int maxSize,
+                                     int queueCapacity,
+                                     String threadNamePrefix) {
+
     }
 }

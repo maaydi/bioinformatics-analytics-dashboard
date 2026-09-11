@@ -180,14 +180,14 @@
 
 ### Backend — Spring Batch Job Configuration
 
-- [ ] `ExportJobConfig` (`batch/export/`):
-    - [ ] Job name: `exportPipelineJob`
-    - [ ] Step 1: `validateAndEstimateStep` (Tasklet)
-        - [ ] Reads `filterJson` from job parameters
-        - [ ] Calls `GeneService.count()` with specification to get estimated rows
-        - [ ] If estimated rows == 0: fail job with exit code `NO_DATA`
-        - [ ] If estimated rows > 1,000,000: log warning but continue
-        - [ ] Updates `ExportPipeline.estimatedRows` and `status = RUNNING`
+- [x] `ExportJobConfig` (`batch/export/`):
+    - [x] Job name: `exportPipelineJob`
+    - [x] Step 1: `validateAndEstimateStep` (Tasklet)
+        - [x] Reads `filterJson` from job parameters
+        - [x] Calls `GeneService.count()` with specification to get estimated rows
+        - [x] If estimated rows == 0: fail job with exit code `NO_DATA`
+        - [x] If estimated rows > 1,000,000: log warning but continue
+        - [x] Updates `ExportPipeline.estimatedRows` and `status = RUNNING`
     - [ ] Step 2: `exportChunkStep` (chunk-oriented)
         - [ ] Chunk size: 500 (configurable via `app.export.chunk-size`)
         - [ ] Reader: `ExportItemReader` (see below)
