@@ -148,7 +148,7 @@ class PostgresGeneServiceTest {
 
         when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(5L);
 
-        assertThrows(ExportRowCapExceededException.class, () -> service.assertWithinExportLimit(request));
+        assertThrows(ExportRowCapExceededException.class, () -> service.count(request));
     }
 
     @Test
@@ -159,7 +159,7 @@ class PostgresGeneServiceTest {
 
         when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(3L);
 
-        var count = service.assertWithinExportLimit(request);
+        var count = service.count(request);
         assertEquals(3L, count);
     }
 

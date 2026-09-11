@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.service;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.gene.specification.GeneSpecification;
@@ -103,15 +102,9 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
     }
 
     @Override
-    public long assertWithinExportLimit(GeneSearchRequest request) {
-        var maxSize = appProperties.getExport().getCsv().getMaxRows();
+    public long count(GeneSearchRequest request) {
         var spec = GeneSpecification.fromRequest(request);
-        var totalRows = proteinService.count(spec);
-        if (totalRows > maxSize) {
-            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
-                    .formatted(totalRows, maxSize));
-        }
-        return totalRows;
+        return proteinService.count(spec);
 
     }
 }

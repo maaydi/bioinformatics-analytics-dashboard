@@ -67,8 +67,8 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
      * Delegate export limit assertion to active provider.
      */
     @Override
-    public long assertWithinExportLimit(GeneSearchRequest request) {
-        return resolve().assertWithinExportLimit(request);
+    public long count(GeneSearchRequest request) {
+        return resolve().count(request);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
@@ -125,16 +124,9 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
     }
 
     @Override
-    public long assertWithinExportLimit(GeneSearchRequest request) {
-        var maxSize = appProperties.getExport().getCsv().getMaxRows();
+    public long count(GeneSearchRequest request) {
         var result = client.fetchPage(request, null);
-        var totalRows = result.totalElements();
-        if (totalRows > maxSize) {
-            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
-                    .formatted(totalRows, maxSize));
-        }
-        return totalRows;
-
+        return result.totalElements();
     }
 
     private String getCursor(GeneSearchRequest request) {

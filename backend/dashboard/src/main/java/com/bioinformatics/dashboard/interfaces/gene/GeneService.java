@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.interfaces.gene;
 
+import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.Provider;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
@@ -62,6 +63,23 @@ public interface GeneService extends Provider {
      * @param request search/filter criteria
      * @return total row count if within limit
      */
-    long assertWithinExportLimit(GeneSearchRequest request);
+    default long assertWithinExportLimit(GeneSearchRequest request, long maxRows) {
+        var totalRows = count(request);
+        if (totalRows > maxRows) {
+            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
+                    .formatted(totalRows, maxRows));
+        }
+        return totalRows;
+    }
+
+    ;
+
+    /**
+     * Count total rows for a given Search request
+     *
+     * @param request search/filter criteria
+     * @return total row count
+     */
+    long count(GeneSearchRequest request);
 
 }

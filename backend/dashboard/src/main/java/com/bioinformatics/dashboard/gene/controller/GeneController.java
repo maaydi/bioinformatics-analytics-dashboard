@@ -4,6 +4,7 @@ import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
+import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
@@ -43,6 +44,7 @@ import java.time.LocalDate;
 public class GeneController {
 
     private final GeneService geneService;
+    private final AppProperties properties;
 
 
     /**
@@ -93,7 +95,7 @@ public class GeneController {
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
-        var totalRows = geneService.assertWithinExportLimit(request);
+        var totalRows = geneService.assertWithinExportLimit(request, properties.getExport().getCsv().getMaxRows());
         response.setContentType("text/csv");
         response.setCharacterEncoding("UTF-8");
         var filename = String.format("proteins_%s.csv", LocalDate.now());
@@ -101,5 +103,16 @@ public class GeneController {
         try (var writer = response.getWriter()) {
             geneService.exportCsv(request, writer, totalRows);
         }
+    }
+
+    /**
+     * POST /api/genes/count — Count Request rows
+     */
+    @PostMapping(value = "/count")
+    @Auditable(action = AuditAction.DATA_EXPORT_CSV)
+    @RateLimited(key = "export")
+    public long countRequestRows(
+            @RequestBody @Valid GeneSearchRequest request) {
+        return geneService.count(request);
     }
 }
