@@ -4,14 +4,14 @@ package com.bioinformatics.exportservice.assembler;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import org.springframework.stereotype.Component;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class SegmentAssemblerRegistry {
 
-    private final Map<ExportFormat, SegmentAssembler> byFormat = new EnumMap<>(ExportFormat.class);
+    private final Map<ExportFormat, SegmentAssembler> byFormat = new HashMap<>();
 
     public SegmentAssemblerRegistry(List<SegmentAssembler> assemblers) {
         for (SegmentAssembler assembler : assemblers) {

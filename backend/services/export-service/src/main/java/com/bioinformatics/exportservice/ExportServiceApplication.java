@@ -23,7 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.bioinformatics.common"
 })
 @EntityScan(basePackages = {
-        "com.bioinformatics.importservice",
+        "com.bioinformatics.exportservice",
         "com.bioinformatics.common"
 })
 public class ExportServiceApplication {

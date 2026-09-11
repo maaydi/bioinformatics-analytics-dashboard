@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.assembler;
 
+import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +18,7 @@ public class DelimitedSegmentAssembler implements SegmentAssembler {
 
     @Override
     public Set<ExportFormat> supportedFormats() {
-        return EnumSet.of(ExportFormat.CSV, ExportFormat.TSV);
+        return Set.of(DefaultExportFormat.CSV, DefaultExportFormat.TSV);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.bioinformatics.exportservice.entity;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import com.bioinformatics.exportservice.dto.ExportStatus;
+import com.bioinformatics.exportservice.dto.converter.ExportFormatConverter;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -73,8 +74,8 @@ public class ExportPipeline {
     /**
      * Export format: CSV, TSV, JSON, or EXCEL.
      */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Convert(converter = ExportFormatConverter.class)
+    @Column(nullable = false, length = 50)
     private ExportFormat format;
 
     /**

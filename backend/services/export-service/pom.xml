@@ -75,6 +75,19 @@
             <groupId>com.bioinformatics</groupId>
             <artifactId>common-starter</artifactId>
         </dependency>
+
+        <!-- ── Writers ─────────────────────────────────────────────────── -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.14.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+
         <!-- ── Test ────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.testcontainers</groupId>
