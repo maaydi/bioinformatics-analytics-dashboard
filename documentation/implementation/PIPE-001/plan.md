@@ -166,17 +166,17 @@
 
 ### Backend — Format Writers
 
-- [ ] `ExportFormatWriter` interface:
-    - [ ] `void writeHeader(List<String> fields, OutputStream out) throws IOException`
-    - [ ] `void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException`
-    - [ ] `void close(OutputStream out) throws IOException`
-    - [ ] `String getFileExtension()`
-    - [ ] `String getContentType()`
-- [ ] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
-- [ ] `TsvExportWriter` — Apache Commons CSV with TSV format, tab delimiter
-- [ ] `JsonExportWriter` — Jackson `SequenceWriter`, writes `[` then rows as objects, then `]`
-- [ ] `ExcelExportWriter` — Apache POI SXSSF (streaming), auto-size columns, freeze pane
-- [ ] `ExportWriterFactory` — `getWriter(ExportFormat): ExportFormatWriter`
+- [x] `ExportFormatWriter` interface:
+    - [x] `void writeHeader(List<String> fields, OutputStream out) throws IOException`
+    - [x] `void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException`
+    - [x] `void close(OutputStream out) throws IOException`
+    - [x] `String getFileExtension()` Moved to ExportFormat enum
+    - [x] `String getContentType()` Moved to ExportFormat enum
+- [x] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
+- [x] `TsvExportWriter` — Apache Commons CSV with TSV format, tab delimiter
+- [x] `JsonExportWriter` — Jackson `SequenceWriter`, writes `[` then rows as objects, then `]`
+- [x] `ExcelExportWriter` — Apache POI SXSSF (streaming), auto-size columns, freeze pane
+- [x] `ExportWriterFactory` — `getWriter(ExportFormat): ExportFormatWriter`
 
 ### Backend — Spring Batch Job Configuration
 

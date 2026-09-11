@@ -5,7 +5,7 @@ import com.bioinformatics.exportservice.assembler.ExcelSegmentAssembler;
 import com.bioinformatics.exportservice.assembler.JsonSegmentAssembler;
 import com.bioinformatics.exportservice.assembler.SegmentAssemblerRegistry;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
-import com.bioinformatics.exportservice.dto.ExportFormat;
+import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.service.DefaultExportFileStorageService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class ExportFileStorageServiceTest {
         Files.writeString(segDir.resolve("segment_00001.csv"), "id,name\n1,alice\n", StandardCharsets.UTF_8);
         Files.writeString(segDir.resolve("segment_00002.csv"), "id,name\n2,bob\n", StandardCharsets.UTF_8);
 
-        Path finalFile = svc.assembleSegments(1L, 2L, ExportFormat.CSV);
+        Path finalFile = svc.assembleSegments(1L, 2L, DefaultExportFormat.CSV);
         String content = Files.readString(finalFile, StandardCharsets.UTF_8);
 
         assertThat(content).contains("id,name");
