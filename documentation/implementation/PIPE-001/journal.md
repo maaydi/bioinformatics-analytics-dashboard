@@ -1,5 +1,74 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-13 — Unified UniProt Import Job Architecture Refactored
+
+**Action:** Unified the UniProt import job configuration to use a single orchestration point with a job execution
+decider that routes to source-specific steps.
+
+**Outcome:**
+
+- Created unified job configuration `ImportJobConfig` at
+  `backend/services/import-service/src/main/java/com/bioinformatics/importservice/uniprot/ImportJobConfig.java`
+  - Implements Spring Batch `Job` as a single flow orchestrator for both API and file-based imports
+  - Uses job parameter `DATA_PROVIDER` to make routing decision at runtime (no code branching, pure configuration)
+  - Job beans:
+    - `importSourceDecider()` — implements `JobExecutionDecider` interface, reads job parameter and returns decision
+      status
+    - `unifiedUniProtImportJob()` — defines job flow using `JobBuilder` with flow decision logic
+
+- Implemented `ImportSourceDecider` at
+  `backend/services/import-service/src/main/java/com/bioinformatics/importservice/uniprot/ImportSourceDecider.java`
+  - Reads `DATA_PROVIDER` job parameter and returns its upper-cased value as flow status
+  - Maps to Constants: `API("api")` → routes to `uniProtApiImportStep`, `FILE("file")` → routes to `uniProtImportStep`
+  - Handles unknown provider with status "UNKNOWN" (matches no transition, job fails cleanly)
+
+- Separated step configurations into two domain-specific configs:
+  - `UniProtApiImportJobConfig` — API-based import step configuration with `UniProtApiItemReader`,
+    `UniProtApiEntryProcessor`, shared `ProteinAggregateItemWriter`
+  - `UniProtImportJobConfig` — file-based import step configuration with dynamic reader factory for `.dat` and `.tsv`
+    formats, `ProteinEntryItemProcessor`, skip fault-tolerance policies
+
+- **Architectural Benefits:**
+  - **Single Responsibility:** Job orchestration is isolated in `ImportJobConfig`; step implementations remain in
+    domain-specific configs
+  - **Reusability:** Both API and file readers can be tested/invoked independently; no coupling to job flow
+  - **Runtime Flexibility:** Data source selection is a job parameter, not a code path — enables easy addition of new
+    sources without recompiling
+  - **Liskov Substitution:** Both steps conform to Spring Batch `Step` contract; job is agnostic to source
+    implementation
+  - **Open/Closed:** Adding a third import source (e.g., OMA, Ensembl) requires only adding a new
+    `UniProtXyzImportJobConfig` and a new decision path in `ImportJobConfig`; no changes to existing configs
+  - **Observer Pattern:** Global job listeners (`ImportJobDatabaseListener`, `PostImportCacheEvictionListener`,
+    `ImportJobRefreshViewsListener`) apply uniformly to both sources
+
+- **Design Rationale:**
+  - Job parameter `DATA_PROVIDER` is set by caller (e.g., `ImportService`) and passed via `JobLauncher.run(job, params)`
+  - Flow decision happens after job launch, in the job execution context — enables late-binding of the source
+  - Step names (`uniProtApiImportStep`, `uniProtImportStep`) are stable constants in `Constants` enum for consistency
+  - `ImportSourceDecider.decide()` is stateless and deterministic — no side effects, repeatable for restart scenarios
+
+**Dependencies & Integration:**
+
+- `ImportJobParameters` record unpacks all job parameters (userId, filterId, filePath, timestamp, dataProvider)
+- `SavedFilterService` injected into API config for filter resolution
+- `ProteinAggregateItemWriter` shared between both steps (same persistence strategy)
+- Both steps use `ImportProgressChunkListener` for progress telemetry
+- File-based step adds `ImportUniprotSkipListener` for malformed-record handling
+
+**Testing Considerations:**
+
+- Unit test `ImportSourceDeciderTest` validates decision logic for API, FILE, and unknown providers
+- Integration test `UnifiedUniProtImportJobTest` should verify both paths (API and file) end-to-end with mocked sources
+- Job restart scenarios should re-run the decision point and re-route if source parameter changed
+
+**Next Steps:**
+
+- Implement comprehensive unit tests for decider (edge cases: null, empty, case sensitivity)
+- Add integration test harness that runs small sample imports via both paths
+- Document in operational guide how to submit job with `DATA_PROVIDER` parameter
+
+---
+
 ## 2026-09-06 — ExportFileStorageService Implemented
 
 **Action:** Implemented the file storage abstraction and a production-ready default implementation; added unit tests and

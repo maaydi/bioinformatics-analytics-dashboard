@@ -2,6 +2,7 @@ package com.bioinformatics.importservice.uniprot.apiloader.processor;
 
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.uniprot.dto.UniProtEntry;
+import com.bioinformatics.common.uniprot.mapper.UniProtEntryMapper;
 import com.bioinformatics.importservice.resolver.GoTermResolver;
 import com.bioinformatics.importservice.resolver.KeywordResolver;
 import com.bioinformatics.importservice.resolver.ProteinAccessionResolver;

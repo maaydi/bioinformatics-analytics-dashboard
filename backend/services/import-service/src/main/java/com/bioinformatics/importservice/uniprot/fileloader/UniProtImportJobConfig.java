@@ -1,20 +1,20 @@
 package com.bioinformatics.importservice.uniprot.fileloader;
 
+import com.bioinformatics.common.batch.DelegatingItemStreamReader;
 import com.bioinformatics.common.exception.MalformedUniprotFileException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.importservice.config.ApplicationProperties;
 import com.bioinformatics.importservice.dto.Constants;
-import com.bioinformatics.importservice.listener.*;
+import com.bioinformatics.importservice.listener.ImportProgressChunkListener;
+import com.bioinformatics.importservice.listener.ImportUniprotSkipListener;
+import com.bioinformatics.importservice.uniprot.ImportJobParameters;
 import com.bioinformatics.importservice.uniprot.fileloader.processor.ProteinEntryItemProcessor;
-import com.bioinformatics.importservice.uniprot.fileloader.reader.DelegatingItemStreamReader;
 import com.bioinformatics.importservice.uniprot.fileloader.reader.UniprotDatItemReader;
 import com.bioinformatics.importservice.writer.ProteinAggregateItemWriter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -61,7 +61,7 @@ public class UniProtImportJobConfig {
      */
     @Bean
     @StepScope
-    DelegatingItemStreamReader<String> dynamicUniprotReader(UniProtImportJobParameters params) {
+    DelegatingItemStreamReader<String> dynamicUniprotReader(ImportJobParameters params) {
         var filePath = params.getFilePath();
         var resource = new FileSystemResource(filePath);
         ItemStreamReader<String> delegate;
@@ -102,19 +102,6 @@ public class UniProtImportJobConfig {
                 .skip(StaleObjectStateException.class) // skip concurrency access
                 .skipLimit(appProperties.batch().skipLimit())
                 .listener(new ImportUniprotSkipListener())
-                .build();
-    }
-
-    @Bean
-    Job uniProtImportJob(JobRepository jobRepository, Step uniProtImportStep,
-                         ImportJobDatabaseListener databaseListener,
-                         PostImportCacheEvictionListener postImportCacheEvictionListener,
-                         ImportJobRefreshViewsListener refreshViewsListener) {
-        return new JobBuilder(Constants.IMPORT_FILE_JOB.getKey(), jobRepository)
-                .start(uniProtImportStep)
-                .listener(databaseListener)
-                .listener(postImportCacheEvictionListener)
-                .listener(refreshViewsListener)
                 .build();
     }
 

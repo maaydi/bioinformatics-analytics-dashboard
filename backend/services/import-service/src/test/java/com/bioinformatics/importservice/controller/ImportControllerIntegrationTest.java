@@ -11,8 +11,7 @@ import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.dto.ImportStatus;
 import com.bioinformatics.importservice.entity.ImportJob;
 import com.bioinformatics.importservice.repository.ImportJobRepository;
-import com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobExecutor;
-import com.bioinformatics.importservice.uniprot.fileloader.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.importservice.uniprot.ImportJobExecutor;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.RecordCounter;
 import com.bioinformatics.shared.models.security.UserPrincipal;
@@ -66,9 +65,7 @@ class ImportControllerIntegrationTest {
     RestTestClient restClient;
 
     @MockitoBean
-    AsyncUniprotImportJobExecutor asyncUniprotImportJobExecutor;
-    @MockitoBean
-    UniProtApiImportJobExecutor uniProtApiImportJobExecutor;
+    ImportJobExecutor importJobExecutor;
 
     @MockitoBean
     SavedFilterService savedFilterService;
@@ -93,7 +90,7 @@ class ImportControllerIntegrationTest {
         // Setup
         var mockCounter = mockCounter(5L);
         when(counterRegistry.getCounter(anyString())).thenReturn(mockCounter);
-        doNothing().when(asyncUniprotImportJobExecutor).execute(any());
+        doNothing().when(importJobExecutor).execute(any());
 
         var file = createMockFile("uniprot_data.dat", "entry1\nentry2\nentry3\nentry4\nentry5\n");
 
@@ -117,7 +114,7 @@ class ImportControllerIntegrationTest {
         // Setup
         var mockCounter = mockCounter(3L);
         when(counterRegistry.getCounter(anyString())).thenReturn(mockCounter);
-        doNothing().when(asyncUniprotImportJobExecutor).execute(any());
+        doNothing().when(importJobExecutor).execute(any());
 
         var file = createMockFile("uniprot_append.tsv", "header\ndata1\ndata2\ndata3\n");
 
@@ -220,7 +217,7 @@ class ImportControllerIntegrationTest {
     void triggerRemoteImport_returnsAccepted() {
 
 
-        doNothing().when(uniProtApiImportJobExecutor).execute(any());
+        doNothing().when(importJobExecutor).execute(any());
         when(savedFilterService.getSavedFilterById(anyLong(), any(UserPrincipal.class))).thenReturn(Optional.of(
                 new SavedFilterDto(42L, "example-filter", GeneSearchRequest.builder().accession("ACC").build(), Instant.now())
         ));

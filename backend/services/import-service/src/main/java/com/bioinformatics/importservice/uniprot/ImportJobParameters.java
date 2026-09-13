@@ -1,4 +1,4 @@
-package com.bioinformatics.importservice.uniprot.apiloader;
+package com.bioinformatics.importservice.uniprot;
 
 import lombok.Getter;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -13,8 +13,18 @@ import java.util.List;
 @Component
 @StepScope
 @Getter
-public class UniProtApiImportJobParameters {
+public class ImportJobParameters {
+    /**
+     * Job file path (job parameter: filePath). See Constants#FILE_PATH.
+     */
+    @Value("#{jobParameters[filePath]}")
+    private String filePath;
 
+    /**
+     * Import job id (job parameter: importUniprotJobId)
+     */
+    @Value("#{jobParameters[importUniprotJobId]}")
+    private String jobId;
 
     /**
      * Query from saved filter ID
@@ -33,6 +43,13 @@ public class UniProtApiImportJobParameters {
      */
     @Value("#{jobParameters[initiatorRole]}")
     private List<String> initiatorRole;
+
+    /**
+     * Import data provider
+     */
+    @Value("#{jobParameters[dataProvider]}")
+    private String dataProvider;
+
 
 
 }

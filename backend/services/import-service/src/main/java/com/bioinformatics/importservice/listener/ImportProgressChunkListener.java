@@ -2,7 +2,7 @@ package com.bioinformatics.importservice.listener;
 
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.importservice.repository.ImportJobRepository;
-import com.bioinformatics.importservice.uniprot.fileloader.UniProtImportJobParameters;
+import com.bioinformatics.importservice.uniprot.ImportJobParameters;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -21,7 +21,7 @@ public class ImportProgressChunkListener implements ChunkListener<String, Protei
      * Keeps the ImportJob.recordsProcessed counter up-to-date for monitoring.
      */
     private final ImportJobRepository repository;
-    private final UniProtImportJobParameters jobParameters;
+    private final ImportJobParameters jobParameters;
 
     @Override
     public void afterChunk(@NonNull Chunk<ProteinEntry> chunk) {

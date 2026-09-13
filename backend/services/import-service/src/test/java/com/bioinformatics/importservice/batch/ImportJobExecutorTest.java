@@ -1,7 +1,8 @@
 package com.bioinformatics.importservice.batch;
 
 import com.bioinformatics.common.exception.ExecuteJobException;
-import com.bioinformatics.importservice.uniprot.fileloader.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.importservice.dto.Constants;
+import com.bioinformatics.importservice.uniprot.ImportJobExecutor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AsyncUniprotImportJobExecutorTest {
+class ImportJobExecutorTest {
 
     @Mock
     private JobOperator jobOperator;
@@ -27,13 +28,14 @@ class AsyncUniprotImportJobExecutorTest {
     private Job uniProtImportJob;
 
     @InjectMocks
-    private AsyncUniprotImportJobExecutor executor;
+    private ImportJobExecutor executor;
 
     @Test
     void execute_successfulJobLaunch() throws Exception {
         // Arrange
         JobParameters parameters = new JobParametersBuilder()
                 .addString("jobId", "123")
+                .addString(Constants.DATA_PROVIDER.getKey(), Constants.FILE.getKey())
                 .toJobParameters();
 
         JobExecution mockExecution = mock(JobExecution.class);
@@ -51,6 +53,7 @@ class AsyncUniprotImportJobExecutorTest {
         // Arrange
         JobParameters parameters = new JobParametersBuilder()
                 .addString("jobId", "123")
+                .addString(Constants.DATA_PROVIDER.getKey(), Constants.FILE.getKey())
                 .toJobParameters();
 
         when(jobOperator.start(any(Job.class), any(JobParameters.class)))

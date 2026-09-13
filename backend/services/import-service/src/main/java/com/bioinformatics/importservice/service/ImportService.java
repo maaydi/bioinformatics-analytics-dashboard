@@ -16,8 +16,7 @@ import com.bioinformatics.importservice.dto.ImportStatus;
 import com.bioinformatics.importservice.entity.ImportJob;
 import com.bioinformatics.importservice.mapper.ImportJobMapper;
 import com.bioinformatics.importservice.repository.ImportJobRepository;
-import com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobExecutor;
-import com.bioinformatics.importservice.uniprot.fileloader.AsyncUniprotImportJobExecutor;
+import com.bioinformatics.importservice.uniprot.ImportJobExecutor;
 import com.bioinformatics.importservice.uniprot.fileloader.counter.CounterRegistry;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -53,8 +52,7 @@ public class ImportService {
 
     private final ImportJobRepository importJobRep;
     private final ImportJobMapper jobMapper;
-    private final AsyncUniprotImportJobExecutor importExec;
-    private final UniProtApiImportJobExecutor remoteImportExec;
+    private final ImportJobExecutor importJobExecutor;
     private final ApplicationProperties appProperties;
     private final CounterRegistry registry;
     private final SavedFilterService savedFilterService;
@@ -179,21 +177,23 @@ public class ImportService {
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addString(Constants.FILE_PATH.getKey(), file.toAbsolutePath().toString())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .addString(DATA_PROVIDER.getKey(), FILE.getKey())
                 .toJobParameters();
-        importExec.execute(parameters);
+        importJobExecutor.execute(parameters);
     }
 
     private void executeRemoteImport(ImportJobSummary importJob, long filterId, final UserPrincipal initiator) {
         var parameters = new JobParametersBuilder()
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
+                .addString(DATA_PROVIDER.getKey(), API.getKey())
                 .addLong(SAVED_FILTER_ID.getKey(), filterId);
         if (initiator != null) {
             log.debug("Add initiator user parameters");
             parameters.addString(USER_ID.getKey(), initiator.id());
             parameters.addJobParameter(USER_ROLE.getKey(), initiator.roles(), List.class);
         }
-        remoteImportExec.execute(parameters.toJobParameters());
+        importJobExecutor.execute(parameters.toJobParameters());
     }
 
 
