@@ -1,4 +1,4 @@
-package com.bioinformatics.importservice.uniprot.fileloader.reader;
+package com.bioinformatics.common.batch;
 
 
 import lombok.RequiredArgsConstructor;

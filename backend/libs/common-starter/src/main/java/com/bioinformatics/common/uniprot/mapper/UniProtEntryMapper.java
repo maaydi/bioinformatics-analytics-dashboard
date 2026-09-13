@@ -1,4 +1,4 @@
-package com.bioinformatics.importservice.uniprot.apiloader.processor;
+package com.bioinformatics.common.uniprot.mapper;
 
 
 import com.bioinformatics.common.gene.entity.*;
@@ -20,7 +20,7 @@ import static com.bioinformatics.common.uniprot.UniprotMapperUtils.*;
  *   <li>Child entities ({@link ProteinFeature}, {@link ProteinComment}, {@link ProteinPublication},
  *       {@link CrossReference}) have their {@code protein} back-reference set eagerly so callers
  *       can persist them directly via {@code ProteinAggregateItemWriter}.</li>
- *   <li>{@link GoTerm} and {@link com.bioinformatics.common.gene.entity.Keyword} objects are created without a DB id — the persistence
+ *   <li>{@link GoTerm} and {@link Keyword} objects are created without a DB id — the persistence
  *       layer is responsible for upsert logic (find-or-create).</li>
  *   <li>The {@link ProteinEntry#getHostOrganisms()} collection is intentionally left empty:
  *       host-organism data is not present in the current {@link UniProtEntry} DTO.</li>

@@ -1,4 +1,4 @@
-package com.bioinformatics.importservice.uniprot.apiloader.reader;
+package com.bioinformatics.common.batch.reader;
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
