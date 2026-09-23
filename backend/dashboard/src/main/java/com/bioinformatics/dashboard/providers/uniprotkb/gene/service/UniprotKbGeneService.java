@@ -1,6 +1,9 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
@@ -8,9 +11,6 @@ import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
 import com.bioinformatics.dashboard.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
 import lombok.RequiredArgsConstructor;

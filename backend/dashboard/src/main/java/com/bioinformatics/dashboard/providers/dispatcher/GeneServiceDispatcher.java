@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.providers.dispatcher;
 
+import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.AbstractProviderDispatcher;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 

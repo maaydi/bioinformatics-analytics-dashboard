@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.interfaces.gene;
 
 import com.bioinformatics.common.exception.ExportRowCapExceededException;
+import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.Provider;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 
 import java.io.IOException;
 import java.io.Writer;

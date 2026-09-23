@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.mapper;
 
+import com.bioinformatics.common.gene.dto.*;
 import com.bioinformatics.common.uniprot.dto.*;
-import com.bioinformatics.dashboard.model.gene.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

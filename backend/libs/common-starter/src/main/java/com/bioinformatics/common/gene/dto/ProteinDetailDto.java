@@ -1,14 +1,15 @@
-package com.bioinformatics.dashboard.model.gene;
+package com.bioinformatics.common.gene.dto;
 
-import com.bioinformatics.dashboard.csv.CsvSerializable;
+import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
 import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Full protein detail record returned by {@code GET /api/genes/{id}}.
@@ -65,62 +66,51 @@ public record ProteinDetailDto(
         Set<ProteinCommentDto> comments,
         Set<ProteinPublicationDto> publications
 
-) implements CsvSerializable {
+) implements ExportFormatSerializable {
     @Override
-    public String row() {
-        return Stream.of(
+    public List<String> fieldsExcluded() {
+        return List.of("id");
+    }
 
-                        format(id()),
+    @Override
+    public Map<String, Object> row() {
+        return new HashMap<>() {{
+            put("accession", format(accession));
+            put("entryName", format(entryName));
+            put("reviewed", reviewed);
+            put("integratedDate", format(integratedDate));
+            put("sequenceDate", format(sequenceDate));
+            put("updatedDate", format(updatedDate));
+            put("sequenceVersion", format(sequenceVersion));
+            put("entryVersion", format(entryVersion));
+            put("proteinFullName", format(proteinFullName));
+            put("proteinShortName", format(proteinShortName));
+            put("proteinEcNumber", format(proteinEcNumber));
+            put("geneNamePrimary", format(geneNamePrimary));
+            put("geneNameSynonyms", format(joinArray(geneNameSynonyms)));
+            put("geneOrfNames", format(joinArray(geneOrfNames)));
+            put("geneOrderedLocus", format(joinArray(geneOrderedLocus)));
+            put("organismName", format(organismName));
+            put("organismCommonName", format(organismCommonName));
+            put("taxid", format(taxid));
+            put("lineage", format(joinArray(lineage)));
+            put("length", format(length));
+            put("molecularWeight", format(molecularWeight));
+            put("sequenceChecksum", format(sequenceChecksum));
+            put("sequence", format(sequence));
+            put("evidenceLevel", format(EvidenceLevel.valueOf(evidenceLevel)));
+            put("metadataJsonb", format(metadataJsonb));
+            put("createdAt", format(createdAt));
+            put("updatedAt", format(updatedAt));
+            put("keywords", format(joinList(keywords)));
+            put("features", format(formatFeatures(features)));
+            put("goTerms", format(formatGoTerms(goTerms)));
+            put("crossReferences", format(formatCrossReferences(crossReferences)));
+            put("hostOrganisms", format(formatHostOrganisms(hostOrganisms)));
+            put("comments", format(formatComment(comments)));
+            put("publications", format(formatPublications(publications)));
 
-                        format(accession()),
-                        format(entryName()),
-                        format(reviewed()),
-
-                        format(integratedDate()),
-                        format(sequenceDate()),
-                        format(updatedDate()),
-
-                        format(sequenceVersion()),
-                        format(entryVersion()),
-
-                        format(proteinFullName()),
-                        format(proteinShortName()),
-                        format(proteinEcNumber()),
-
-                        format(geneNamePrimary()),
-                        format(joinArray(geneNameSynonyms())),
-                        format(joinArray(geneOrfNames())),
-                        format(joinArray(geneOrderedLocus())),
-
-                        format(organismName()),
-                        format(organismCommonName()),
-                        format(taxid()),
-
-                        format(joinArray(lineage())),
-
-                        format(length()),
-                        format(molecularWeight()),
-
-                        format(sequenceChecksum()),
-                        format(sequence()),
-
-                        format(evidenceLevel()),
-
-                        format(metadataJsonb()),
-
-                        format(createdAt()),
-                        format(updatedAt()),
-
-                        format(joinList(keywords())),
-                        format(formatFeatures(features())),
-                        format(formatGoTerms(goTerms())),
-                        format(formatCrossReferences(crossReferences())),
-                        format(formatHostOrganisms(hostOrganisms())),
-                        format(formatComment(comments())),
-                        format(formatPublications(publications()))
-
-                )
-                .collect(Collectors.joining(separator()));
+        }};
     }
 
 

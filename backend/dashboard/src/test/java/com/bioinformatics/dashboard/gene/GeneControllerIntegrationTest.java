@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.gene;
 
+import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

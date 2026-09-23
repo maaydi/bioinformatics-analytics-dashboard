@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.csv;
 
+import com.bioinformatics.common.gene.dto.CsvSerializable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -71,6 +72,20 @@ class CsvWriterTest {
     }
 
     private record DummyEntity(String name, int age) implements CsvSerializable {
+
+        String format(Object value) {
+            if (value == null) {
+                return "\"\"";
+            }
+
+            var escaped = value.toString()
+                    .replace("\"", "\"\"")
+                    .replace("\n", " ")
+                    .replace("\r", " ");
+
+            return "\"" + escaped + "\"";
+        }
+
         @Override
         public String row() {
             return format(name) + separator() + format(age);

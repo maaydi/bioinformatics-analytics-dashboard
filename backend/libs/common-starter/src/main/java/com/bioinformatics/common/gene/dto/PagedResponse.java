@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.model.gene;
+package com.bioinformatics.common.gene.dto;
 
 import org.springframework.data.domain.Page;
 

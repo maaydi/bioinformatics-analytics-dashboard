@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.csv;
 
+import com.bioinformatics.common.gene.dto.CsvSerializable;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;

@@ -1,30 +1,25 @@
-package com.bioinformatics.dashboard.csv;
+package com.bioinformatics.shared.models.gene;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-/**
- * Contract for objects that can be serialized to CSV.
- * <p>
- * Implementations provide a header and a row representation. Values are
- * escaped and quoted by {@link #format(Object)} to be safe for CSV output.
- */
-public interface CsvSerializable extends Serializable {
+public interface ExportFormatSerializable extends Serializable {
+    Map<String, Object> row();
+
+    List<String> fieldsExcluded();
 
 
-    default String header() {
+    default List<String> fields() {
         return Arrays.stream(this.getClass().getDeclaredFields())
                 .map(Field::getName)
-                .collect(Collectors.joining(separator()));
+                .toList();
     }
 
-    String row();
-
-    default String separator() {
-        return ",";
+    default List<String> exportedFields() {
+        return fields().stream().filter(f -> !fieldsExcluded().contains(f)).toList();
     }
 
     default String format(Object value) {

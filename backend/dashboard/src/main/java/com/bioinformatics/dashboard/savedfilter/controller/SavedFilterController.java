@@ -1,11 +1,11 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
 import com.bioinformatics.common.config.web.CurrentUser;
+import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
 import com.bioinformatics.shared.models.security.UserPrincipal;

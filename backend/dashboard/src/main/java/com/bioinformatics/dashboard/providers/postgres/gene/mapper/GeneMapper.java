@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.mapper;
 
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.Keyword;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
