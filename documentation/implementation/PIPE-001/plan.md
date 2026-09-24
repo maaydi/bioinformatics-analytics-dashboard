@@ -194,10 +194,10 @@
       - [x] Processor: `ExportItemProcessor` — `ProteinEntry` → `Map<String, Object>`
       - [x] Writer: `ExportItemWriter` — writes to segment files
       - [x] Listener: `ChunkListener` updates `ExportJobExecution.chunksProcessed`
-    - [ ] Step 3: `assembleAndFinalizeStep` (Tasklet)
-        - [ ] Calls `ExportFileStorageService.assembleSegments()`
-        - [ ] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
-        - [ ] Cleans up segment files
+    - [X] Step 3: `assembleAndFinalizeStep` (Tasklet)
+        - [X] Calls `ExportFileStorageService.assembleSegments()`
+        - [X] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
+        - [X] Cleans up segment files
     - [ ] Job listener: `ExportJobListener` (implements `JobExecutionListener`)
         - [ ] `beforeJob`: set `startedAt = NOW()`
         - [ ] `afterJob`: if FAILED, set `status = FAILED`, populate `errorMessage`, cleanup segments
