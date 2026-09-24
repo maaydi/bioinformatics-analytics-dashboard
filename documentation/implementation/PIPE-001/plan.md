@@ -198,15 +198,15 @@
         - [X] Calls `ExportFileStorageService.assembleSegments()`
         - [X] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
         - [X] Cleans up segment files
-    - [ ] Job listener: `ExportJobListener` (implements `JobExecutionListener`)
-        - [ ] `beforeJob`: set `startedAt = NOW()`
-        - [ ] `afterJob`: if FAILED, set `status = FAILED`, populate `errorMessage`, cleanup segments
-- [ ] Job parameters:
-    - [ ] `pipelineId` (Long)
-    - [ ] `userId` (Long)
-    - [ ] `format` (String)
-    - [ ] `fieldSchema` (JSON string)
-    - [ ] `filterJson` (JSON string)
+    - [x] Job listener: `ExportJobListener` (implements `JobExecutionListener`)
+        - [x] `beforeJob`: set `startedAt = NOW()`
+        - [x] `afterJob`: if FAILED, set `status = FAILED`, populate `errorMessage`, cleanup segments
+- [x] Job parameters:
+    - [x] `pipelineId` (Long)
+    - [x] `userId` (Long)
+    - [x] `format` (String)
+    - [x] `fieldSchema` (JSON string)
+    - [x] `filterJson` (JSON string)
 
 ### Backend — Batch Components
 
