@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.batch;
 
+import com.bioinformatics.exportservice.dto.ExportFormat;
 import lombok.Getter;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,17 @@ public class ExportJobParameters {
      */
     @Value("#{jobParameters[dataProvider]}")
     private String dataProvider;
+
+    /**
+     * Export data Format
+     */
+    @Value("#{jobParameters[exportFormat]}")
+    private ExportFormat exportFormat;
+    /**
+     * Exported data fields
+     */
+    @Value("#{jobParameters[exportedFields]}")
+    private List<String> exportedFields;
 
 
 }

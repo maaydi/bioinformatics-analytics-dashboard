@@ -26,7 +26,9 @@ class ExportFileStorageServiceTest {
 
     DefaultExportFileStorageService createService() {
         var properties =
-                new ApplicationProperties(new ApplicationProperties.Export(new ApplicationProperties.Csv(10000), tempDir.toString()));
+                new ApplicationProperties(new ApplicationProperties.Export(10000, tempDir.toString(),
+                        new ApplicationProperties.ThreadPoolSettings(1, 5, 10, "Test-Storage"),
+                        new ApplicationProperties.Batch(100)));
 
         var registry = new SegmentAssemblerRegistry(List.of(
                 new DelimitedSegmentAssembler(),
@@ -38,14 +40,14 @@ class ExportFileStorageServiceTest {
     }
 
     @AfterEach
-    void cleanup() throws IOException {
+    void cleanup() {
         // TempDir is cleaned automatically by JUnit
     }
 
     @Test
     void createPipelineDirectory_createsExpectedStructure() throws IOException {
         var svc = createService();
-        Path dir = svc.createPipelineDirectory(42L, 123L);
+        Path dir = svc.createPipelineDirectory("user", 123L);
         assertThat(Files.exists(dir)).isTrue();
         assertThat(Files.exists(dir.resolve("segments"))).isTrue();
     }
@@ -53,12 +55,12 @@ class ExportFileStorageServiceTest {
     @Test
     void assembleSegments_concatenatesCsvFiles() throws IOException {
         var svc = createService();
-        svc.createPipelineDirectory(1L, 2L);
+        svc.createPipelineDirectory("user", 2L);
         Path segDir = tempDir.resolve("1").resolve("2").resolve("segments");
         Files.writeString(segDir.resolve("segment_00001.csv"), "id,name\n1,alice\n", StandardCharsets.UTF_8);
         Files.writeString(segDir.resolve("segment_00002.csv"), "id,name\n2,bob\n", StandardCharsets.UTF_8);
 
-        Path finalFile = svc.assembleSegments(1L, 2L, DefaultExportFormat.CSV);
+        Path finalFile = svc.assembleSegments("user", 2L, DefaultExportFormat.CSV);
         String content = Files.readString(finalFile, StandardCharsets.UTF_8);
 
         assertThat(content).contains("id,name");
@@ -71,12 +73,12 @@ class ExportFileStorageServiceTest {
     @Test
     void deletePipelineDirectory_removesAllFiles() throws IOException {
         var svc = createService();
-        svc.createPipelineDirectory(7L, 8L);
+        svc.createPipelineDirectory("user", 8L);
         Path dir = tempDir.resolve("7").resolve("8");
         Files.writeString(dir.resolve("segments").resolve("segment_00001.csv"), "x\n");
         assertThat(Files.exists(dir)).isTrue();
 
-        svc.deletePipelineDirectory(7L, 8L);
+        svc.deletePipelineDirectory("user", 8L);
         assertThat(Files.exists(dir)).isFalse();
     }
 }

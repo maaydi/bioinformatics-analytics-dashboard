@@ -25,33 +25,33 @@ public class DefaultExportFileStorageService implements ExportFileStorageService
     private final SegmentAssemblerRegistry assemblerRegistry;
 
     @Override
-    public Path createPipelineDirectory(Long userId, Long pipelineId) throws IOException {
+    public Path createPipelineDirectory(String userId, Long pipelineId) throws IOException {
         Objects.requireNonNull(userId);
         Objects.requireNonNull(pipelineId);
-        var dir = getBaseDir().resolve(String.valueOf(userId)).resolve(String.valueOf(pipelineId));
+        var dir = getBaseDir().resolve(userId).resolve(String.valueOf(pipelineId));
         var segments = dir.resolve("segments");
         Files.createDirectories(segments);
         return dir;
     }
 
     @Override
-    public Path getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format) {
-        return getBaseDir().resolve(String.valueOf(userId))
+    public Path getSegmentPath(String userId, Long pipelineId, int chunkNumber, ExportFormat format) {
+        return getBaseDir().resolve(userId)
                 .resolve(String.valueOf(pipelineId))
                 .resolve("segments")
                 .resolve(String.format("segment_%05d.%s", chunkNumber, format.getFileExtension()));
     }
 
     @Override
-    public Path getFinalFilePath(Long userId, Long pipelineId, ExportFormat format) {
-        return getBaseDir().resolve(String.valueOf(userId))
+    public Path getFinalFilePath(String userId, Long pipelineId, ExportFormat format) {
+        return getBaseDir().resolve(userId)
                 .resolve(String.valueOf(pipelineId))
                 .resolve(String.format("export_%d.%s", pipelineId, format.getFileExtension()));
     }
 
     @Override
-    public Path assembleSegments(Long userId, Long pipelineId, ExportFormat format) throws IOException {
-        var dir = getBaseDir().resolve(String.valueOf(userId)).resolve(String.valueOf(pipelineId));
+    public Path assembleSegments(String userId, Long pipelineId, ExportFormat format) throws IOException {
+        var dir = getBaseDir().resolve(userId).resolve(String.valueOf(pipelineId));
         var segmentsDir = dir.resolve("segments");
         if (!Files.exists(segmentsDir) || !Files.isDirectory(segmentsDir)) {
             throw new IOException("Segments directory not found: " + segmentsDir);
@@ -76,8 +76,8 @@ public class DefaultExportFileStorageService implements ExportFileStorageService
 
 
     @Override
-    public void deletePipelineDirectory(Long userId, Long pipelineId) throws IOException {
-        var dir = getBaseDir().resolve(String.valueOf(userId)).resolve(String.valueOf(pipelineId));
+    public void deletePipelineDirectory(String userId, Long pipelineId) throws IOException {
+        var dir = getBaseDir().resolve(userId).resolve(String.valueOf(pipelineId));
         if (!Files.exists(dir)) {
             log.warn("Pipeline folder {} does not exist", dir);
             return;
@@ -87,14 +87,14 @@ public class DefaultExportFileStorageService implements ExportFileStorageService
     }
 
     @Override
-    public long getFileSize(Long userId, Long pipelineId, ExportFormat format) throws IOException {
+    public long getFileSize(String userId, Long pipelineId, ExportFormat format) throws IOException {
         var finalFile = getFinalFilePath(userId, pipelineId, format);
         if (!Files.exists(finalFile)) return 0L;
         return Files.size(finalFile);
     }
 
     @Override
-    public boolean validateFileExists(Long userId, Long pipelineId, ExportFormat format) {
+    public boolean validateFileExists(String userId, Long pipelineId, ExportFormat format) {
         var finalFile = getFinalFilePath(userId, pipelineId, format);
         return Files.exists(finalFile) && Files.isRegularFile(finalFile);
     }

@@ -188,12 +188,12 @@
         - [x] If estimated rows == 0: fail job with exit code `NO_DATA`
         - [x] If estimated rows > 1,000,000: log warning but continue
         - [x] Updates `ExportPipeline.estimatedRows` and `status = RUNNING`
-    - [ ] Step 2: `exportChunkStep` (chunk-oriented)
-        - [ ] Chunk size: 500 (configurable via `app.export.chunk-size`)
-        - [ ] Reader: `ExportItemReader` (see below)
-        - [ ] Processor: `ExportItemProcessor` — `ProteinEntry` → `Map<String, Object>`
-        - [ ] Writer: `ExportItemWriter` — writes to segment files
-        - [ ] Listener: `ChunkListener` updates `ExportJobExecution.chunksProcessed`
+  - [x] Step 2: `exportChunkStep` (chunk-oriented)
+      - [x] Chunk size: 500 (configurable via `app.export.chunk-size`)
+      - [x] Reader: `ExportItemReader` (see below)
+      - [x] Processor: `ExportItemProcessor` — `ProteinEntry` → `Map<String, Object>`
+      - [x] Writer: `ExportItemWriter` — writes to segment files
+      - [x] Listener: `ChunkListener` updates `ExportJobExecution.chunksProcessed`
     - [ ] Step 3: `assembleAndFinalizeStep` (Tasklet)
         - [ ] Calls `ExportFileStorageService.assembleSegments()`
         - [ ] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
