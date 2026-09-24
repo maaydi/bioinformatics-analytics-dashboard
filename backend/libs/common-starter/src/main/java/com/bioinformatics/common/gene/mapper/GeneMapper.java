@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.providers.postgres.gene.mapper;
+package com.bioinformatics.common.gene.mapper;
 
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
