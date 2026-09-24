@@ -8,7 +8,6 @@ import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.gene.specification.GeneSpecification;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
@@ -96,8 +95,8 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
         var page = PageRequest.of(0, (int) totalRows);
         var spec = GeneSpecification.fromRequest(request);
         var genes = proteinService.findAll(spec, page);
-        var csvWriter = new CsvWriter();
-        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
+//        var csvWriter = new CsvWriter();
+//        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
 
     }
 
