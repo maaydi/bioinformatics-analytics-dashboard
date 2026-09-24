@@ -2,8 +2,7 @@ package com.bioinformatics.exportservice.batch;
 
 import com.bioinformatics.exportservice.client.GeneService;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
-import com.bioinformatics.exportservice.dto.ExportStatus;
-import com.bioinformatics.exportservice.repository.ExportPipelineRepository;
+import com.bioinformatics.exportservice.service.ExportPipelineService;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,32 +23,23 @@ import org.springframework.stereotype.Component;
 public class ValidateAndEstimateTasklet implements Tasklet {
 
     private final ExportJobParameters jobParameters;
-    private final ExportPipelineRepository pipelineRepository;
+    private final ExportPipelineService exportPipelineService;
     private final GeneService geneService;
     private final ApplicationProperties applicationProperties;
 
     @Override
     public @Nullable RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) {
         log.info("Start to execute ValidateAndEstimateTasklet");
-
-        var job = pipelineRepository.findById(jobParameters.getJobId())
-                .orElseThrow(() -> new IllegalArgumentException("Export Pipeline with id %d not found".formatted(jobParameters.getJobId())));
-
+        var filterJson = exportPipelineService.getExportPipelineSearchRequest(jobParameters.getJobId());
         var user = new UserPrincipal(
                 jobParameters.getInitiatorUserId(),
                 jobParameters.getInitiatorRole(),
                 jobParameters.getDataProvider()
         );
-
-        var filterJson = job.getFilterJson();
-
         long estimatedRows = geneService.count(filterJson, user);
 
         if (estimatedRows == 0) {
-            job.setEstimatedRows(0L);
-            job.setStatus(ExportStatus.FAILED);
-            pipelineRepository.save(job);
-
+            exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), 0L);
             contribution.setExitStatus(new ExitStatus("NO_DATA"));
             throw new IllegalStateException("Pipeline failed: No data to export for request %s".formatted(filterJson));
         }
@@ -59,9 +49,7 @@ public class ValidateAndEstimateTasklet implements Tasklet {
                     estimatedRows, applicationProperties.export().maxRows());
         }
 
-        job.setEstimatedRows(estimatedRows);
-        job.setStatus(ExportStatus.RUNNING);
-        pipelineRepository.save(job);
+        exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), estimatedRows);
 
         return RepeatStatus.FINISHED;
     }
