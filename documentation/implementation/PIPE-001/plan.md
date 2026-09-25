@@ -218,17 +218,17 @@
     - [x] Page size = chunk size
     - [x] `read()` returns null when no more data
 - [ ] `ExportItemProcessor` (`batch/export/`):
-    - [ ] `process(ProteinEntry protein): Map<String, Object>`
-    - [ ] Extracts only the fields listed in `fieldSchema` from the entity
-    - [ ] Handles nested collections:
-        - [ ] `keywords` → comma-separated string or JSON array (depending on format)
-        - [ ] `goTerms` → list of `goId`
-        - [ ] `features` → count or list of `featureType`
-        - [ ] `crossReferences` → count or list of `source:identifier`
-        - [ ] `comments` → list of `commentType: text`
-        - [ ] `publications` → count or list of `pubmedId`
-        - [ ] `hostOrganisms` → count or list of `name`
-    - [ ] Null-safe: missing fields render as empty string/0/null
+    - [x] `process(ProteinEntry protein): Map<String, Object>`
+    - [x] Extracts only the fields listed in `fieldSchema` from the entity
+    - [x] Handles nested collections:
+        - [x] `keywords` → comma-separated string or JSON array (depending on format)
+        - [x] `goTerms` → list of `goId`
+        - [x] `features` → count or list of `featureType`
+        - [x] `crossReferences` → count or list of `source:identifier`
+        - [x] `comments` → list of `commentType: text`
+        - [x] `publications` → count or list of `pubmedId`
+        - [x] `hostOrganisms` → count or list of `name`
+    - [x] Null-safe: missing fields render as empty string/0/null
 - [ ] `ExportItemWriter` (`batch/export/`):
     - [ ] `write(Chunk<? extends Map<String, Object>> chunk)`
     - [ ] Opens segment file for the current chunk number

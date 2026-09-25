@@ -18,10 +18,6 @@ public interface ExportFormatSerializable extends Serializable {
                 .toList();
     }
 
-    default List<String> exportedFields() {
-        return fields().stream().filter(f -> !fieldsExcluded().contains(f)).toList();
-    }
-
     default String format(Object value) {
         if (value == null) {
             return "\"\"";
@@ -37,17 +33,17 @@ public interface ExportFormatSerializable extends Serializable {
 
     default String joinArray(String[] values) {
         if (values == null || values.length == 0) {
-            return "";
+            return null;
         }
 
-        return String.join("|", values);
+        return String.join("; ", values);
     }
 
     default String joinList(List<String> values) {
         if (values == null || values.isEmpty()) {
-            return "";
+            return null;
         }
 
-        return String.join("|", values);
+        return String.join("; ", values);
     }
 }

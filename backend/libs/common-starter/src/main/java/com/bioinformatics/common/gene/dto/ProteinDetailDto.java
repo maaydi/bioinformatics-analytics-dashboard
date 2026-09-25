@@ -5,11 +5,7 @@ import lombok.Builder;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Full protein detail record returned by {@code GET /api/genes/{id}}.
@@ -103,81 +99,60 @@ public record ProteinDetailDto(
             put("createdAt", format(createdAt));
             put("updatedAt", format(updatedAt));
             put("keywords", format(joinList(keywords)));
-            put("features", format(formatFeatures(features)));
-            put("goTerms", format(formatGoTerms(goTerms)));
-            put("crossReferences", format(formatCrossReferences(crossReferences)));
-            put("hostOrganisms", format(formatHostOrganisms(hostOrganisms)));
-            put("comments", format(formatComment(comments)));
-            put("publications", format(formatPublications(publications)));
+            put("features", formatFeatures(features));
+            put("goTerms", formatGoTerms(goTerms));
+            put("crossReferences", formatCrossReferences(crossReferences));
+            put("hostOrganisms", formatHostOrganisms(hostOrganisms));
+            put("comments", formatComment(comments));
+            put("publications", formatPublications(publications));
 
         }};
     }
 
 
     private String formatFeatures(Set<ProteinFeatureDto> features) {
-        if (features == null || features.isEmpty()) {
-            return "";
-        }
+        var result = Objects.requireNonNullElse(features, new HashSet<ProteinFeatureDto>())
+                .stream()
+                .map(ProteinFeatureDto::featureType)
+                .toList();
+        return format(joinList(result));
 
-        var result = features.stream()
-                .map(f -> f.featureId() + ":" + f.featureType() + " - " + f.note())
-                .collect(Collectors.joining(" | "));
-        return format(result);
     }
 
     private String formatGoTerms(Set<GoTermDto> goTerms) {
-        if (goTerms == null || goTerms.isEmpty()) {
-            return "";
-        }
-
-        var result = goTerms.stream()
-                .map(g -> g.id() + ":" + g.goId())
-                .collect(Collectors.joining(" | "));
-        return format(result);
+        var result = Objects.requireNonNullElse(goTerms, new HashSet<GoTermDto>())
+                .stream()
+                .map(GoTermDto::goId)
+                .toList();
+        return format(joinList(result));
     }
 
     private String formatCrossReferences(Set<CrossReferenceDto> refs) {
-        if (refs == null || refs.isEmpty()) {
-            return "";
-        }
-
-        var result = refs.stream()
-                .map(r -> r.identifier() + ":" + r.source())
-                .collect(Collectors.joining(" | "));
-        return format(result);
+        var result = Objects.requireNonNullElse(refs, new HashSet<CrossReferenceDto>())
+                .stream().map(r -> r.source() + ":" + r.identifier())
+                .toList();
+        return format(joinList(result));
     }
 
     private String formatHostOrganisms(Set<HostOrganismDto> hosts) {
-        if (hosts == null || hosts.isEmpty()) {
-            return "";
-        }
-
-        var result = hosts.stream()
-                .map(r -> r.id() + ":" + r.name())
-                .collect(Collectors.joining(" | "));
-        return format(result);
+        var result = Objects.requireNonNullElse(hosts, new HashSet<HostOrganismDto>())
+                .stream().map(HostOrganismDto::name)
+                .toList();
+        return format(joinList(result));
     }
 
     private String formatComment(Set<ProteinCommentDto> comments) {
-        if (comments == null || comments.isEmpty()) {
-            return "";
-        }
-
-        var result = comments.stream()
-                .map(r -> r.commentType() + ":" + r.text())
-                .collect(Collectors.joining(" | "));
-        return format(result);
+        var result = Objects.requireNonNullElse(comments, new HashSet<ProteinCommentDto>())
+                .stream().map(r -> r.commentType() + ": " + r.text())
+                .toList();
+        return format(joinList(result));
     }
 
     private String formatPublications(Set<ProteinPublicationDto> publications) {
-        if (publications == null || publications.isEmpty()) {
-            return "";
-        }
-
-        var result = publications.stream()
-                .map(r -> r.pubmedId() + "[" + r.refNumber() + "]: " + r.title() + " - " + r.authors())
-                .collect(Collectors.joining(" | "));
-        return format(result);
+        var result = Objects.requireNonNullElse(publications, new HashSet<ProteinPublicationDto>())
+                .stream().map(ProteinPublicationDto::pubmedId)
+                .toList();
+        return format(joinList(result));
     }
 
 }
