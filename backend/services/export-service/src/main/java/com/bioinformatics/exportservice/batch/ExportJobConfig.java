@@ -1,7 +1,7 @@
 package com.bioinformatics.exportservice.batch;
 
 import com.bioinformatics.exportservice.dto.Constants;
-import com.bioinformatics.exportservice.listener.ExportJobListener;
+import com.bioinformatics.exportservice.listener.ExportJobLifecycleListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -24,7 +24,7 @@ public class ExportJobConfig {
 
     private final Step uniProtApiExportStep;
     private final Step uniProtPostgresExportStep;
-    private final ExportJobListener exportJobListener;
+    private final ExportJobLifecycleListener exportJobListener;
 
     @Bean
     public JobExecutionDecider exportSourceDecider() {

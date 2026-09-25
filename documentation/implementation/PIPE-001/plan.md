@@ -210,13 +210,13 @@
 
 ### Backend — Batch Components
 
-- [ ] `ExportItemReader` (`batch/export/`):
-    - [ ] Extends `JpaPagingItemReader<ProteinEntry>` for Postgres provider
-    - [ ] For UniProt provider: implements `ItemReader<ProteinSummaryDto>` with cursor-based pagination via
+- [x] `ExportItemReader` (`batch/export/`):
+    - [x] Extends `JpaPagingItemReader<ProteinEntry>` for Postgres provider
+    - [x] For UniProt provider: implements `ItemReader<ProteinSummaryDto>` with cursor-based pagination via
       `UniprotKbRestService`
-    - [ ] Applies `GeneSpecification` from deserialized `filterJson`
-    - [ ] Page size = chunk size
-    - [ ] `read()` returns null when no more data
+    - [x] Applies `GeneSpecification` from deserialized `filterJson`
+    - [x] Page size = chunk size
+    - [x] `read()` returns null when no more data
 - [ ] `ExportItemProcessor` (`batch/export/`):
     - [ ] `process(ProteinEntry protein): Map<String, Object>`
     - [ ] Extracts only the fields listed in `fieldSchema` from the entity

@@ -18,6 +18,9 @@ public class ExportFormatConverter implements AttributeConverter<ExportFormat, S
     private static final Map<String, ExportFormat> REGISTRY = new ConcurrentHashMap<>();
 
     static {
+        for (var format : DefaultExportFormat.values()) {
+            register(format);
+        }
         for (var format : ExportFormatRegistry.getAllAvailableFormats("com.bioinformatics")) {
             register(format);
         }

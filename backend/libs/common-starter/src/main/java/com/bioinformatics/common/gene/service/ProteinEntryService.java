@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Manages operations and logic for ProteinEntryService.
@@ -94,7 +95,28 @@ public class ProteinEntryService {
      * Paginated fetch with a JPA `Specification` for filtering.
      */
     public Page<ProteinEntry> findAll(Specification<ProteinEntry> spec, Pageable pageable) {
-        return proteinEntryRepository.findAll(spec, pageable);
+        var page = proteinEntryRepository.findAll(spec, pageable);
+        var entries = page.getContent();
+        if (entries.isEmpty()) {
+            return page;
+        }
+        var proteinIds = entries.stream().map(ProteinEntry::getId).toList();
+        var crossRefsMap = crossReferenceRepository.findByProtein_IdIn(proteinIds)
+                .stream().collect(Collectors.groupingBy(c -> c.getProtein().getId()));
+
+        var commentsMap = proteinCommentRepository.findByProtein_IdIn(proteinIds)
+                .stream().collect(Collectors.groupingBy(c -> c.getProtein().getId()));
+
+        var publicationsMap = proteinPublicationRepository.findByProtein_IdIn(proteinIds)
+                .stream().collect(Collectors.groupingBy(p -> p.getProtein().getId()));
+
+        for (var entry : entries) {
+            entry.setCrossReferences(new HashSet<>(crossRefsMap.getOrDefault(entry.getId(), List.of())));
+            entry.setComments(new HashSet<>(commentsMap.getOrDefault(entry.getId(), List.of())));
+            entry.setPublications(new HashSet<>(publicationsMap.getOrDefault(entry.getId(), List.of())));
+        }
+
+        return page;
     }
 
     public long count(Specification<ProteinEntry> spec) {

@@ -1,6 +1,5 @@
 package com.bioinformatics.common.batch.reader;
 
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.gene.specification.GeneSpecification;
@@ -11,12 +10,8 @@ import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.batch.infrastructure.item.ItemStreamReader;
 import org.springframework.data.domain.PageRequest;
 
-import java.lang.reflect.Field;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Spring Batch {@link ItemStreamReader} that reads {@link ProteinEntry} objects
@@ -48,9 +43,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry> {
-
-    private static final Set<String> SORT_WHITELIST = Arrays.stream(ProteinSummaryDto.class.getDeclaredFields())
-            .map(Field::getName).collect(Collectors.toSet());
 
     private static final String PAGE_NUMBER = "uniProtPostgresItemReader.pageNumber";
     private static final String PAGE_COUNT_KEY = "uniProtPostgresItemReader.pageCount";
@@ -139,18 +131,15 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
 
     private void loadNextPage() {
         log.debug("Fetching UniProt Postgres page {} (size {})", activePage, requestPageSize);
-        request.getRequestPage(SORT_WHITELIST, "id");
-        var page = PageRequest.of(0, requestPageSize);
+        var page = PageRequest.of(activePage, requestPageSize);
         var spec = GeneSpecification.fromRequest(request);
         var genes = proteinEntryService.findAll(spec, page);
         var entries = genes.getContent();
         buffer.addAll(entries);
-        var hasMore = genes.getTotalPages() > activePage + 1;
-        exhausted = !hasMore;
+        exhausted = !genes.hasNext();
         activePage++;
         pageCount++;
-
-        log.info("Fetched page {} — {} entries, hasMore={}", activePage, entries.size(), hasMore);
+        log.info("Fetched page {} — {} entries, hasMore={}", activePage, entries.size(), !exhausted);
     }
 }
 
