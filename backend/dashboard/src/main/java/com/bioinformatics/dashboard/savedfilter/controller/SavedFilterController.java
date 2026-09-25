@@ -1,7 +1,7 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
 import com.bioinformatics.common.config.web.CurrentUser;
-import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;

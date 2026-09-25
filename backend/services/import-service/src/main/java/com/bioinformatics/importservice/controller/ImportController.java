@@ -1,7 +1,7 @@
 package com.bioinformatics.importservice.controller;
 
 import com.bioinformatics.common.config.web.CurrentUser;
-import com.bioinformatics.common.models.other.PagedResponse;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
 import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.service.ImportService;

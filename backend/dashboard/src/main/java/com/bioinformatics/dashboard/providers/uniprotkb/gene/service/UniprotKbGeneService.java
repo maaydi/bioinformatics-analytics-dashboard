@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.gene.service;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
-import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.uniprotkb.AbstractUniprotKbProvider;
 import com.bioinformatics.common.providers.uniprotkb.mapper.UniProtProteinDtoMapper;

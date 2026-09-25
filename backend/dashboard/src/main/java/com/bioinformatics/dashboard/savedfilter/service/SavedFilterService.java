@@ -3,7 +3,7 @@ package com.bioinformatics.dashboard.savedfilter.service;
 import com.bioinformatics.common.exception.AccessDeniedException;
 import com.bioinformatics.common.exception.DuplicateFilterNameException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
-import com.bioinformatics.common.gene.dto.PagedResponse;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.mapper.SavedFilterMapper;

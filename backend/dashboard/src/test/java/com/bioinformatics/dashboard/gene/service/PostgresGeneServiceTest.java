@@ -1,12 +1,12 @@
 package com.bioinformatics.dashboard.gene.service;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
-import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;

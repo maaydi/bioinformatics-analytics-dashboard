@@ -243,7 +243,7 @@
 ### Backend — Service Layer
 
 - [ ] `ExportPipelineService` (`service/export/`):
-    - [ ] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
+    - [x] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
         - [x] Validates filter yields > 0 rows (pre-check via `GeneService.count()`) **Duplicated from
           validateAndEstimateStep**
         - [x] Persists pipeline with status = QUEUED

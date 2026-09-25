@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.config;
 
 import com.bioinformatics.common.config.cache.CacheRegistryProvider;
-import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.shared.models.cache.TypedCacheSpec;
 import org.springframework.context.annotation.Bean;

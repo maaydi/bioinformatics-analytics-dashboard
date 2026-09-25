@@ -1,4 +1,4 @@
-package com.bioinformatics.common.models.other;
+package com.bioinformatics.common.models;
 
 import org.springframework.data.domain.Page;
 

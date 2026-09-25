@@ -1,8 +1,8 @@
 package com.bioinformatics.dashboard.gene.controller;
 
-import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;

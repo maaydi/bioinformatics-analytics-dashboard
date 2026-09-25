@@ -1,9 +1,9 @@
 package com.bioinformatics.importservice.controller;
 
 import com.bioinformatics.common.exception.ErrorResponse;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import com.bioinformatics.common.models.other.PagedResponse;
 import com.bioinformatics.importservice.client.SavedFilterService;
 import com.bioinformatics.importservice.config.ApplicationProperties;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
