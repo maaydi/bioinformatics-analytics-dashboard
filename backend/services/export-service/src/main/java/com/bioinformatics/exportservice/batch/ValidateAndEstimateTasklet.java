@@ -1,5 +1,7 @@
 package com.bioinformatics.exportservice.batch;
 
+import com.bioinformatics.common.config.CommonProperties;
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.client.GeneService;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
 import com.bioinformatics.exportservice.service.ExportPipelineService;
@@ -26,6 +28,7 @@ public class ValidateAndEstimateTasklet implements Tasklet {
     private final ExportPipelineService exportPipelineService;
     private final GeneService geneService;
     private final ApplicationProperties applicationProperties;
+    private final CommonProperties commonProperties;
 
     @Override
     public @Nullable RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) {
@@ -36,20 +39,22 @@ public class ValidateAndEstimateTasklet implements Tasklet {
                 jobParameters.getInitiatorRole(),
                 jobParameters.getDataProvider()
         );
+        var chunkSize = DataProvider.isApi(jobParameters.getDataProvider())
+                ? commonProperties.uniprotApi().batch().chunkSize()
+                : applicationProperties.export().batch().chunkSize();
         long estimatedRows = geneService.count(filterJson, user);
 
         if (estimatedRows == 0) {
-            exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), 0L);
+            exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), 0L, chunkSize);
             contribution.setExitStatus(new ExitStatus("NO_DATA"));
             throw new IllegalStateException("Pipeline failed: No data to export for request %s".formatted(filterJson));
         }
-
         if (estimatedRows > applicationProperties.export().maxRows()) {
             log.warn("Exported data rows {} are greater than max-rows {} supported by application",
                     estimatedRows, applicationProperties.export().maxRows());
         }
 
-        exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), estimatedRows);
+        exportPipelineService.updatePipelineEstimatedRows(jobParameters.getJobId(), estimatedRows, chunkSize);
 
         return RepeatStatus.FINISHED;
     }

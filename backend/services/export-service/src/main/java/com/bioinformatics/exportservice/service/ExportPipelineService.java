@@ -1,22 +1,31 @@
 package com.bioinformatics.exportservice.service;
 
+import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.batch.ExportJobExecutor;
 import com.bioinformatics.exportservice.dto.*;
+import com.bioinformatics.exportservice.entity.ExportJobExecution;
 import com.bioinformatics.exportservice.entity.ExportPipeline;
 import com.bioinformatics.exportservice.mapper.ExportPipelineMapper;
+import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
 import com.bioinformatics.exportservice.repository.ExportPipelineRepository;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.StepExecution;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+
+import static com.bioinformatics.exportservice.dto.Constants.ASSEMBLE_FINALIZE_TASK;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +34,10 @@ import java.util.Objects;
 public class ExportPipelineService {
 
     private final ExportPipelineRepository pipelineRepository;
+    private final ExportJobExecutionRepository jobExecutionRepository;
     private final ExportPipelineMapper mapper;
     private final ExportJobExecutor executor;
+    private final JobRepository jobRepository;
 
     public GeneSearchRequest getExportPipelineSearchRequest(Long pipelineId) {
         var pipeline = pipelineRepository.findById(pipelineId)
@@ -34,12 +45,18 @@ public class ExportPipelineService {
         return pipeline.getFilterJson();
     }
 
-    public void updatePipelineEstimatedRows(Long pipelineId, Long estimatedRows) {
+    public void updatePipelineEstimatedRows(Long pipelineId, Long estimatedRows, int chunkSize) {
         log.info("Updating estimated rows for Pipeline with id {}", pipelineId);
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(exportPipeline -> {
                     exportPipeline.setEstimatedRows(estimatedRows);
                     pipelineRepository.save(exportPipeline);
+                    jobExecutionRepository.findByPipelineId(pipelineId)
+                            .ifPresentOrElse(exportJobExecution -> {
+                                var estimatedChunks = (int) Math.ceil((double) estimatedRows / chunkSize);
+                                exportJobExecution.setChunksTotal(estimatedChunks);
+                                jobExecutionRepository.save(exportJobExecution);
+                            }, () -> logFailedUpdateExecution(pipelineId));
                 }, () -> logFailedUpdate(pipelineId));
     }
 
@@ -47,6 +64,10 @@ public class ExportPipelineService {
         log.info("Creating Pipeline with name {} and description {}", request.name(), request.description());
         var pipeline = mapper.toEntity(request, initiator.id());
         var result = pipelineRepository.save(pipeline);
+        log.info("Creating Job Execution for pipeline {}", request.name());
+        var exec = new ExportJobExecution();
+        exec.setPipeline(result);
+        jobExecutionRepository.save(exec);
         var provider = DataProvider.isApi(initiator.dataProvider()) ? DataProvider.API : DataProvider.POSTGRES;
         try {
             var parameters = new JobParametersBuilder()
@@ -65,6 +86,40 @@ public class ExportPipelineService {
         }
     }
 
+    public PagedResponse<ExportPipelineResponse> listPipelines(ExportStatus status, Pageable pageable, UserPrincipal user) {
+        var result = pipelineRepository.findByUserIdAndStatusAndDeletedAtIsNull(user.id(), status, pageable)
+                .map(mapper::toDto);
+        return PagedResponse.of(result);
+    }
+
+    public ExportJobStatusResponse getPipelineStatus(Long pipelineId, UserPrincipal user) {
+        var pipeline = pipelineRepository.findByIdAndUserIdAndDeletedAtIsNull(pipelineId, user.id());
+        if (pipeline.isEmpty()) {
+            log.warn("Pipeline with id {} and owner by user {} not found", pipelineId, user.id());
+            throw new ResourceNotFoundException("Pipeline with ID %d not found".formatted(pipelineId));
+        }
+        var execution = jobExecutionRepository.findByPipelineId(pipelineId);
+        if (execution.isEmpty()) {
+            log.info("No execution found for pipeline with ID {}", pipelineId);
+            return new ExportJobStatusResponse(pipelineId, pipeline.get().getStatus(), 0, 0, 0, null, Instant.now());
+        }
+        var currentStep = Objects.requireNonNull(jobRepository.getJobExecution(pipeline.get().getJobExecutionId()))
+                .getStepExecutions()
+                .stream()
+                .filter(e -> e.getStatus().isRunning())
+                .map(StepExecution::getStepName)
+                .findFirst()
+                .orElse(ASSEMBLE_FINALIZE_TASK.getKey());
+        return new ExportJobStatusResponse(pipelineId,
+                pipeline.get().getStatus(),
+                execution.get().getProgressPercent(),
+                execution.get().getChunksProcessed(),
+                execution.get().getChunksTotal(),
+                currentStep,
+                execution.get().getUpdatedAt()
+        );
+    }
+
     public void markAsRunning(
             Long pipelineId,
             Long jobExecutionId) {
@@ -76,8 +131,12 @@ public class ExportPipelineService {
                     pipeline.setStatus(ExportStatus.RUNNING);
                     pipeline.setJobExecutionId(jobExecutionId);
                     pipeline.setStartedAt(Instant.now());
-
                     pipelineRepository.save(pipeline);
+                    jobExecutionRepository.findByPipelineId(pipelineId)
+                            .ifPresentOrElse(jobExecution -> {
+                                jobExecution.setJobExecutionId(jobExecutionId);
+                                jobExecutionRepository.save(jobExecution);
+                            }, () -> logFailedUpdateExecution(pipelineId));
 
                     log.info(
                             "Pipeline {} started with JobExecution {}",
@@ -172,5 +231,9 @@ public class ExportPipelineService {
                 "Failed to update Pipeline: Pipeline with ID <{}> not found",
                 pipelineId
         );
+    }
+
+    private void logFailedUpdateExecution(long pipelineId) {
+        log.error("Failed to update job Execution for pipeline {} : Execution not found", pipelineId);
     }
 }

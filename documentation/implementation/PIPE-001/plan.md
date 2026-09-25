@@ -249,12 +249,12 @@
         - [x] Persists pipeline with status = QUEUED
         - [x] Launches Spring Batch job asynchronously via `JobLauncher.run()`
         - [x] Returns response immediately (HTTP 202)
-    - [ ] `listPipelines(ExportStatus status, Pageable pageable, AppUser user): Page<ExportPipelineResponse>`
-        - [ ] Filters by user + status (optional) + not deleted
-    - [ ] `getPipelineStatus(Long pipelineId, AppUser user): ExportJobStatusResponse`
-        - [ ] Reads `ExportPipeline` + `ExportJobExecution` for progress
-        - [ ] Calculates `progressPercent = (chunksProcessed / chunksTotal) * 100`
-        - [ ] If COMPLETED/FAILED, returns final state
+  - [x] `listPipelines(ExportStatus status, Pageable pageable, AppUser user): Page<ExportPipelineResponse>`
+      - [x] Filters by user + status (optional) + not deleted
+  - [x] `getPipelineStatus(Long pipelineId, AppUser user): ExportJobStatusResponse`
+      - [x] Reads `ExportPipeline` + `ExportJobExecution` for progress
+      - [x] Calculates `progressPercent = (chunksProcessed / chunksTotal) * 100`
+      - [x] If COMPLETED/FAILED, returns final state
     - [ ] `getDownloadUrl(Long pipelineId, AppUser user): DownloadUrlDto`
         - [ ] Verifies ownership
         - [ ] Verifies status = COMPLETED

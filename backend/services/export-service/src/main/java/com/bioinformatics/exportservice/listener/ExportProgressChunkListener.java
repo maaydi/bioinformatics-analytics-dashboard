@@ -25,16 +25,13 @@ public class ExportProgressChunkListener implements ChunkListener<String, Protei
     public void afterChunk(@NonNull Chunk<ProteinDetailDto> chunk) {
         var jobId = jobParameters.getJobId();
         log.info("Update processed chunks for Job <{}>", jobId);
-        var job = repository.findByPipelineId(jobId).orElse(null);
-        if (job == null) {
-            log.warn("Job <{}> not found", jobId);
-            return;
-        }
-        var current = job.getChunksProcessed();
-        job.setChunksProcessed(current + chunk.size());
-        var saved = repository.save(job);
-        log.info("Updated chunks for Job <{}> : Chunks processed = {}", jobId, saved.getChunksProcessed());
+        repository.findByPipelineId(jobId)
+                .ifPresentOrElse(job -> {
+                    var current = job.getChunksProcessed();
+                    job.setChunksProcessed(current + 1);
+                    var saved = repository.save(job);
+                    log.info("Updated chunks for Job <{}> : Chunks processed = {}", jobId, saved.getChunksProcessed());
+
+                }, () -> log.warn("Job <{}> not found", jobId));
     }
-
-
 }
