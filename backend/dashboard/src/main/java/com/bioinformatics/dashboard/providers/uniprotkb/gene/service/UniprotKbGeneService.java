@@ -5,23 +5,18 @@ import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.uniprotkb.AbstractUniprotKbProvider;
+import com.bioinformatics.common.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
-import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.providers.uniprotkb.AbstractUniprotKbProvider;
-import com.bioinformatics.dashboard.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -98,29 +93,6 @@ public class UniprotKbGeneService extends AbstractUniprotKbProvider implements G
             throw ResourceNotFoundException.forProtein(accession);
         }
         return items.getFirst();
-    }
-
-    /**
-     * Streams all filtered rows as CSV into the provided writer.
-     * Page configuration is ignored and all data are returned
-     *
-     */
-    @Override
-    public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
-        log.info("Exporting protein entries for filters: {}", request);
-        var page = 0;
-        var items = new ArrayList<UniProtEntry>();
-        while (true) {
-            var spec = request.copy().page(page).size(500).build();
-            var cursor = getCursor(spec);
-            var result = client.fetchPage(spec, cursor);
-            items.addAll(result.entries());
-            if (!result.hasMore()) break;
-            page++;
-            saveCursor(spec, result.nextCursor());
-        }
-        var csvWriter = new CsvWriter();
-        csvWriter.write(writer, items.stream().map(mapper::toSummary).toList());
     }
 
     @Override

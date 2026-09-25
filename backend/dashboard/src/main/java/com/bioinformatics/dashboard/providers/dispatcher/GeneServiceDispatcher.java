@@ -9,8 +9,6 @@ import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -53,14 +51,6 @@ public class GeneServiceDispatcher extends AbstractProviderDispatcher<GeneServic
     @Override
     public ProteinDetailDto getGeneByAccession(String accession) {
         return resolve().getGeneByAccession(accession);
-    }
-
-    /**
-     * Delegate CSV export to active provider.
-     */
-    @Override
-    public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
-        resolve().exportCsv(request, writer, totalRows);
     }
 
     /**

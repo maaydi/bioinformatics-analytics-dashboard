@@ -7,8 +7,6 @@ import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.Provider;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
@@ -48,16 +46,6 @@ public interface GeneService extends Provider {
      * @return gene details with all related data
      */
     ProteinDetailDto getGeneByAccession(String accession);
-
-    /**
-     * Export filtered genes as CSV to the provided writer.
-     * @param request search/filter criteria
-     * @param writer output destination
-     * @param totalRows total count of rows to export
-     * @throws IOException on write error
-     */
-    void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException;
-
     /**
      * Validate export size against configured limit.
      * @param request search/filter criteria

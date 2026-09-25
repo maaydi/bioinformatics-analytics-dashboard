@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtSearchFieldService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ class FeatureTypeUniprotApiSuggestionTest {
 
     @Test
     void getProviderName_returnsUniprotKb() {
-        assertThat(suggestion.getProviderName()).isEqualTo("uniprotKb");
+        assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.API.getKey());
     }
 
     // -------------------------------------------------------------------------

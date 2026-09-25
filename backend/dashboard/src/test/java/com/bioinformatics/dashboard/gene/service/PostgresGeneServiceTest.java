@@ -22,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -210,35 +209,6 @@ class PostgresGeneServiceTest {
         var request = buildRequest(null, null, null, 10, "badSort");
         var allowed = Set.of("id");
         assertThrows(IllegalArgumentException.class, () -> request.getRequestPage(allowed, "id"));
-    }
-
-    @Test
-    void exportCsv_respectsLimit_noThrow() throws Exception {
-        appProperties.getExport().getCsv().setMaxRows(2);
-
-        var entry1 = new ProteinEntry();
-        entry1.setId(21L);
-        var entry2 = new ProteinEntry();
-        entry2.setId(22L);
-
-        var page = new PageImpl<>(List.of(entry1, entry2), PageRequest.of(0, 2), 2);
-        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
-
-        var dto1 = new ProteinSummaryDto(21L, "ACC21", "e21", "f21",
-                "g21", "o21", 201, true, 10, 20,
-                (short) 1, List.of());
-        var dto2 = new ProteinSummaryDto(22L, "ACC22", "e22", "f22",
-                "g22", "o22", 202, true, 11, 21,
-                (short) 1, List.of());
-        when(mapper.toSummary(entry1)).thenReturn(dto1);
-        when(mapper.toSummary(entry2)).thenReturn(dto2);
-
-        var request = buildRequest(null, null, null, 2, null);
-        var writer = new StringWriter();
-        service.exportCsv(request, writer, 2);
-        var output = writer.toString();
-        assertNotNull(output);
-        assertTrue(output.contains("accession") || output.contains("ACC21"));
     }
 }
 

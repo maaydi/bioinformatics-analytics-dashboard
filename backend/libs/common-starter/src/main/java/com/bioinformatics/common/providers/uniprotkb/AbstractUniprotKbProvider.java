@@ -1,5 +1,6 @@
 package com.bioinformatics.common.providers.uniprotkb;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.Provider;
 
 /**
@@ -12,6 +13,6 @@ import com.bioinformatics.common.providers.Provider;
 public abstract class AbstractUniprotKbProvider implements Provider {
     @Override
     public String getProviderName() {
-        return "uniprotKb";
+        return DataProvider.API.getKey();
     }
 }

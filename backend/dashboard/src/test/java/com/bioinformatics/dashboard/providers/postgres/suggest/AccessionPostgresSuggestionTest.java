@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.providers.postgres.suggest;
 
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.common.providers.DataProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +42,7 @@ class AccessionPostgresSuggestionTest {
 
     @Test
     void getProviderName_returnsPostgres() {
-        assertThat(suggestion.getProviderName()).isEqualTo("postgres");
+        assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.POSTGRES.getKey());
     }
 
     // -------------------------------------------------------------------------

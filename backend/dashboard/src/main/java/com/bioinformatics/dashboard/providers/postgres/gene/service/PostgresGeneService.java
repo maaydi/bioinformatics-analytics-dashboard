@@ -8,9 +8,9 @@ import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.gene.specification.GeneSpecification;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,9 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Service for gene/protein operations.
@@ -80,23 +77,6 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
         log.info("Retrieving protein entry by id: {}", accession);
         var gene = proteinService.findAdditionalDetails(accession).orElseThrow(() -> ResourceNotFoundException.forProtein(accession));
         return mapper.toDetail(gene);
-
-    }
-
-    /**
-     * Streams all filtered rows as CSV into the provided writer.
-     * Page configuration is ignored and all data are returned
-     *
-     */
-    @Override
-    public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
-        log.info("Exporting protein entries for filters: {}", request);
-        request.getRequestPage(SORT_WHITELIST, "id");
-        var page = PageRequest.of(0, (int) totalRows);
-        var spec = GeneSpecification.fromRequest(request);
-        var genes = proteinService.findAll(spec, page);
-//        var csvWriter = new CsvWriter();
-//        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
 
     }
 

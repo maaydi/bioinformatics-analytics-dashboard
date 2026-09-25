@@ -7,20 +7,17 @@ import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
 import com.bioinformatics.dashboard.audit.dto.AuditAction;
-import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
 /**
  * REST Controller providing APIs for retrieving and exporting gene/protein data.
@@ -44,7 +41,6 @@ import java.time.LocalDate;
 public class GeneController {
 
     private final GeneService geneService;
-    private final AppProperties properties;
 
 
     /**
@@ -95,14 +91,7 @@ public class GeneController {
     public void exportCsv(
             @RequestBody @Valid GeneSearchRequest request,
             HttpServletResponse response) throws IOException {
-        var totalRows = geneService.assertWithinExportLimit(request, properties.getExport().getCsv().getMaxRows());
-        response.setContentType("text/csv");
-        response.setCharacterEncoding("UTF-8");
-        var filename = String.format("proteins_%s.csv", LocalDate.now());
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"%s\"".formatted(filename));
-        try (var writer = response.getWriter()) {
-            geneService.exportCsv(request, writer, totalRows);
-        }
+        throw new RuntimeException("Not implemented");
     }
 
     /**

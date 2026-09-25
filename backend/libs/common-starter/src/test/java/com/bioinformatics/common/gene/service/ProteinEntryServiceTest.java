@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.gene.service;
+package com.bioinformatics.common.gene.service;
 
 import com.bioinformatics.common.gene.entity.CrossReference;
 import com.bioinformatics.common.gene.entity.ProteinComment;
@@ -8,7 +8,6 @@ import com.bioinformatics.common.gene.repository.CrossReferenceRepository;
 import com.bioinformatics.common.gene.repository.ProteinCommentRepository;
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.common.gene.repository.ProteinPublicationRepository;
-import com.bioinformatics.common.gene.service.ProteinEntryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

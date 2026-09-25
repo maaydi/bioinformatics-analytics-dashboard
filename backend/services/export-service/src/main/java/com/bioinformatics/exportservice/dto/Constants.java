@@ -27,9 +27,7 @@ public enum Constants {
     /**
      * Data provider for export jobs
      */
-    DATA_PROVIDER("dataProvider"),
-    POSTGRES("postgres"),
-    API("api");
+    DATA_PROVIDER("dataProvider");
 
     private final String key;
 }
