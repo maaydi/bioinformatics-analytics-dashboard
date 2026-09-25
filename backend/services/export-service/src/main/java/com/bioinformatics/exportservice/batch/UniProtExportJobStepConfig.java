@@ -16,8 +16,8 @@ import com.bioinformatics.exportservice.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.exportservice.processor.UniProtPostgresEntryProcessor;
 import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
 import com.bioinformatics.exportservice.service.ExportFileStorageService;
+import com.bioinformatics.exportservice.writer.ExportItemWriter;
 import com.bioinformatics.exportservice.writer.ExportWriterFactory;
-import com.bioinformatics.exportservice.writer.ProteinItemWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
@@ -47,7 +47,7 @@ import java.util.Map;
  *       buffering entries and exposing them one at a time to the step.</li>
  *   <li><b>Processor</b> ({@link UniProtApiEntryProcessor}) — deduplicates, maps the
  *       REST DTO to a JPA aggregate, and resolves keyword entities.</li>
- *   <li><b>Writer</b> ({@link ProteinItemWriter}) — persists the aggregate in the
+ *   <li><b>Writer</b> ({@link ExportItemWriter}) — persists the aggregate in the
  *       correct order: {@code ProteinEntry} first (with cascaded {@code features} and
  *       {@code hostOrganisms}), then cross-references, comments, and publications.</li>
  * </ol>
@@ -105,14 +105,14 @@ public class UniProtExportJobStepConfig {
 
     @Bean
     @StepScope
-    public ProteinItemWriter proteinItemWriter(
+    public ExportItemWriter proteinItemWriter(
             ExportJobParameters params,
             ExportWriterFactory writerFactory,
             ExportFileStorageService storageService) {
 
         var formatWriter = writerFactory.getWriter(params.getExportFormat());
 
-        return new ProteinItemWriter(
+        return new ExportItemWriter(
                 formatWriter,
                 storageService,
                 params.getInitiatorUserId(),
@@ -128,7 +128,7 @@ public class UniProtExportJobStepConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<UniProtEntry> uniProtApiItemReader,
             ItemProcessor<UniProtEntry, Map<String, Object>> compositeUniProtApiProcessor,
-            ProteinItemWriter writer,
+            ExportItemWriter writer,
             ExportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.API_EXPORT_STEP.getKey(), jobRepository)
@@ -178,7 +178,7 @@ public class UniProtExportJobStepConfig {
             PlatformTransactionManager transactionManager,
             ItemStreamReader<ProteinEntry> uniProtPostgresItemReader,
             ItemProcessor<ProteinEntry, Map<String, Object>> compositeUniProtPostgresEntryProcessor,
-            ProteinItemWriter writer,
+            ExportItemWriter writer,
             ExportProgressChunkListener progressChunkListener) {
 
         return new StepBuilder(Constants.POSTGRES_EXPORT_STEP.getKey(), jobRepository)

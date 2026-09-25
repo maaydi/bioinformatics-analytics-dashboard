@@ -35,9 +35,9 @@
 - [x] Repositories implemented
 - [x] DTOs and mappers implemented
 - [x] ExportFileStorageService implemented
-- [ ] Format writers implemented
-- [ ] Spring Batch job config implemented
-- [ ] Batch components implemented
+- [x] Format writers implemented
+- [x] Spring Batch job config implemented
+- [x] Batch components implemented
 - [ ] ExportPipelineService implemented
 - [ ] ExportPipelineController implemented
 - [ ] Audit hooks wired
@@ -217,7 +217,7 @@
     - [x] Applies `GeneSpecification` from deserialized `filterJson`
     - [x] Page size = chunk size
     - [x] `read()` returns null when no more data
-- [ ] `ExportItemProcessor` (`batch/export/`):
+- [x] `ExportItemProcessor` (`batch/export/`):
     - [x] `process(ProteinEntry protein): Map<String, Object>`
     - [x] Extracts only the fields listed in `fieldSchema` from the entity
     - [x] Handles nested collections:
@@ -229,12 +229,16 @@
         - [x] `publications` → count or list of `pubmedId`
         - [x] `hostOrganisms` → count or list of `name`
     - [x] Null-safe: missing fields render as empty string/0/null
-- [ ] `ExportItemWriter` (`batch/export/`):
-    - [ ] `write(Chunk<? extends Map<String, Object>> chunk)`
-    - [ ] Opens segment file for the current chunk number
-    - [ ] Delegates to `ExportFormatWriter` for each row
-    - [ ] Closes file after chunk
-    - [ ] For Excel: maintains a single SXSSF workbook across chunks (not segments); flushes rows periodically
+- [x] `ExportItemWriter` (`batch/export/`):
+    - [x] `write(Chunk<? extends Map<String, Object>> chunk)` exists in `writer/ExportItemWriter`.
+    - [x] Opens one segment file for each non-empty chunk and delegates its header and rows to `ExportFormatWriter`.
+    - [x] Finalizes the format writer and closes the segment stream after each chunk.
+    - [x] Persist and restore the segment index through `ExecutionContext`; existing committed segments are skipped
+      after a restart.
+    - [x] Guarantee directory initialization from the explicit `ItemStream#open` lifecycle contract.
+    - [x] Use a lossless XLSX strategy by completely merging all SXSSF chunk workbooks into one final workbook and
+      closing SXSSF resources.
+    - [x] Ensure writer state is cleaned up on write/finalization failure and delete incomplete segments.
 
 ### Backend — Service Layer
 
@@ -438,12 +442,21 @@
     - [x] `assembleSegments_concatenatesCsvFiles`
     - [x] `deletePipelineDirectory_removesAllFiles`
 - [ ] `CsvExportWriterTest`:
-    - [ ] `writeHeader_outputsCorrectColumns`
+    - [x] Header and UTF-8 BOM behavior covered by `ExportWritersTest`.
     - [ ] `writeRow_escapesCommasAndQuotes`
-    - [ ] `writeRow_outputsUtf8Bom`
+    - [ ] Preserve the caller-selected `fieldSchema` order using an ordered list.
 - [ ] `ExcelExportWriterTest`:
-    - [ ] `writeRow_createsValidXlsx`
-    - [ ] `close_finalizesWorkbook`
+    - [x] Single-workbook rows, headers and typed cells covered by `ExportWritersTest`.
+    - [x] Multi-chunk XLSX export retains rows from every chunk.
+    - [ ] Workbook finalization flushes and disposes SXSSF resources.
+- [ ] `ExportItemWriterTest`:
+    - [ ] Writes ordered headers and rows into sequential chunk segments.
+    - [ ] Restarts without overwriting committed segments or mixing outputs from executions.
+    - [ ] Cleans up writer state after an I/O failure.
+- [ ] `SegmentAssemblyTest`:
+    - [x] CSV supports quoted fields containing line breaks and retains RFC 4180-compatible line endings.
+    - [x] CSV/TSV/JSON assembly remains memory-bounded for large segments.
+    - [x] Multiple XLSX chunks are assembled without data loss.
 - [ ] `ExportItemProcessorTest`:
     - [ ] `process_extractsSelectedFields`
     - [ ] `process_handlesNullCollections`

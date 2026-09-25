@@ -9,6 +9,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,7 +27,8 @@ public class ProteinDetailProcessor implements ItemProcessor<ProteinDetailDto, M
     @Override
     public Map<String, Object> process(@NonNull ProteinDetailDto item) {
         var filteredMap = new LinkedHashMap<>(item.row());
-        filteredMap.keySet().retainAll(parameters.getExportedFields());
+        var fields = new HashSet<>(parameters.getExportedFields()); // to Asset O(1) instead of O(M) for list
+        filteredMap.keySet().retainAll(fields);
         return filteredMap;
     }
 }

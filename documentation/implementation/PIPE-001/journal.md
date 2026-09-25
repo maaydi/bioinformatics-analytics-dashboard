@@ -1,5 +1,87 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-25 — Export Writers and Segment Assembly Remediation
+
+**Action:** Completed the remediations identified by the export writer and segment assembly audit.
+
+**Outcome:**
+
+- Enforced unique export fields in `ExportPipelineCreateRequest`, retaining the caller-provided `List<String>` order.
+- Reworked CSV/TSV assembly to parse and emit records incrementally through Apache Commons CSV. It now keeps embedded
+  newlines valid, emits RFC 4180 CRLF record separators, removes only duplicate logical header records, and preserves
+  the CSV UTF-8 BOM.
+- Reworked JSON assembly with Jackson parser/generator token streaming. Every segment must be a JSON array and its
+  values are copied one by one into the final JSON array without loading a segment into memory.
+- Replaced the lossy XLSX first-segment copy with a complete SXSSF merge of all chunk workbooks. Exactly one header is
+  retained, all data rows are copied, and source/workbook resources are closed deterministically.
+- Defined stream ownership consistently: `ExportFormatWriter#close(OutputStream)` now finalizes state without closing
+  caller-owned streams for CSV, TSV, JSON, and XLSX writers. Writer state is removed before finalization; SXSSF
+  workbooks are closed in `finally`.
+- Made `ExportItemWriter` an `ItemStream`: it initializes directories in `open`, persists the segment index in
+  `ExecutionContext`, advances past already-existing committed segments on restart, and deletes incomplete segments
+  after write/finalization errors.
+- Added tests for RFC 4180 multiline CSV assembly, multi-segment XLSX data retention, and restart-safe segment
+  allocation.
+
+**Verification:**
+
+```bash
+mvn -f backend/pom.xml -pl services/export-service -am \
+  -Dtest=ExportWritersTest,SegmentAssemblersTest,ExportItemWriterTest \
+  -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+Result: **BUILD SUCCESS**, 8 tests run, 0 failures, 0 errors. JaCoCo still reports the existing execution-data/class
+mismatch warning for `UniProtExportJobStepConfig`; it does not affect the test result.
+
+---
+
+## 2026-09-25 — Export Writers and Segment Assembly Compliance Audit
+
+**Action:** Reviewed `ExportItemWriter`, all `ExportFormatWriter` implementations, their Spring Batch step wiring,
+segment assemblers, and the associated unit tests against the PIPE-001 plan.
+
+**Confirmed implementation:**
+
+- `ExportItemWriter` writes every non-empty chunk to a format-specific segment, delegates headers and rows to the
+  selected `ExportFormatWriter`, then finalizes the writer and closes the output stream.
+- `ExportWriterFactory` resolves CSV, TSV, JSON, and XLSX writer implementations; the export step injects the selected
+  writer as a step-scoped dependency.
+- CSV writes a UTF-8 BOM and uses Apache Commons CSV; TSV uses the tab-delimited Commons CSV format; JSON writes array
+  segments through Jackson `SequenceWriter`; XLSX uses Apache POI SXSSF with a frozen header row and column auto-sizing.
+- Segment assemblers sort segment names before finalization, retain only the first CSV/TSV header, and produce a single
+  JSON array.
+
+**Blocking compliance gaps:**
+
+- The writer contract uses `Set<String>` although `fieldSchema` column order is a functional requirement. API-selected
+  order is therefore not guaranteed from request to output. The contract must use an ordered `List<String>` and reject
+  duplicates.
+- CSV/TSV assembly uses `Files.readAllLines`; JSON assembly uses `Files.readString`. Neither is streaming, and the CSV
+  approach is unsafe for valid quoted values containing line breaks. The final delimited output is also normalized to LF
+  even though CSV segments use CRLF.
+- XLSX does **not** meet the multi-chunk requirement. A workbook is created for every chunk, and
+  `ExcelSegmentAssembler` copies only the first segment to the final file, silently losing all later chunks. The planned
+  single SXSSF workbook with periodic flushing/disposal is not implemented.
+- Segment numbering is an in-memory `AtomicInteger`, which is neither persisted in `ExecutionContext` nor coordinated
+  with transactional retry. Restarted jobs can overwrite or combine segments from different attempts.
+- Format writers retain mutable state keyed by `OutputStream`. An exception before `close` can retain writer/workbook
+  resources. Their close behavior also conflicts with the interface statement that the caller owns the stream.
+- Existing writer and assembler tests cover nominal single-segment behavior only. They do not cover ordering,
+  multi-chunk assembly, restart/retry, streaming large data, quoted multiline CSV records, or XLSX resource cleanup.
+
+**Plan update:** The format-writer and batch-component tasks remain open and are now marked as partially implemented.
+Dedicated remediation and test items were added to `plan.md`.
+
+**Verification:** Static review completed. Focused writer and assembly tests passed (7 tests):
+`mvn test -f backend/pom.xml -pl services/export-service -am -Dtest=ExportWritersTest,SegmentAssemblersTest -Dsurefire.failIfNoSpecifiedTests=false`.
+The JaCoCo report emitted a pre-existing execution-data/class mismatch warning. A prior full reactor test run was not
+green: `ExportFileStorageServiceTest` fails because its segment directory is not created before direct file writes; the
+application-context test also fails in the local environment due to a missing `feign/slf4j/Slf4jLogger` class and absent
+`export_data` schema. These failures are tracked separately from this writer audit.
+
+---
+
 ## 2026-09-13 — Unified UniProt Import Job Architecture Refactored
 
 **Action:** Unified the UniProt import job configuration to use a single orchestration point with a job execution

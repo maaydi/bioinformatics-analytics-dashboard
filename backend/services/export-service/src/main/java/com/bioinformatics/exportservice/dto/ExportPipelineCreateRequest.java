@@ -1,10 +1,7 @@
 package com.bioinformatics.exportservice.dto;
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
@@ -39,6 +36,11 @@ public record ExportPipelineCreateRequest(
         @Size(max = 50, message = "Maximum 50 fields can be selected")
         List<@NotBlank(message = "Field name cannot be blank") String> fieldSchema
 ) {
+
+    @AssertTrue(message = "Export fields must not contain duplicates")
+    public boolean hasUniqueFields() {
+        return fieldSchema == null || fieldSchema.size() == fieldSchema.stream().distinct().count();
+    }
 }
 
 

@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.writer;
 
+import com.bioinformatics.common.io.NonClosingOutputStream;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import org.apache.commons.csv.CSVFormat;
@@ -22,7 +23,7 @@ public class TsvExportWriter implements ExportFormatWriter {
 
     @Override
     public void writeHeader(List<String> fields, OutputStream out) throws IOException {
-        var writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        var writer = new BufferedWriter(new OutputStreamWriter(new NonClosingOutputStream(out), StandardCharsets.UTF_8));
         var printer = new CSVPrinter(writer, CSVFormat.TDF);
         printer.printRecord(fields);
         printer.flush();
@@ -32,17 +33,17 @@ public class TsvExportWriter implements ExportFormatWriter {
     @Override
     public void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException {
         var printer = printers.get(out);
-        if (printer != null) {
-            var values = fields.stream().map(row::get).toList();
-            printer.printRecord(values);
+        if (printer == null) {
+            throw new IOException("TSV writer has not been initialized for the output stream");
         }
+        var values = fields.stream().map(row::get).toList();
+        printer.printRecord(values);
     }
 
     @Override
     public void close(OutputStream out) throws IOException {
         var printer = printers.remove(out);
         if (printer != null) {
-            printer.flush();
             printer.close();
         }
 

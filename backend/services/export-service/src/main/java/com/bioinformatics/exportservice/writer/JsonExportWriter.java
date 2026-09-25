@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.writer;
 
+import com.bioinformatics.common.io.NonClosingOutputStream;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,18 +23,19 @@ public class JsonExportWriter implements ExportFormatWriter {
     @Override
     public void writeHeader(List<String> fields, OutputStream out) throws IOException {
         var writer = mapper.writerWithDefaultPrettyPrinter()
-                .writeValuesAsArray(out);
+                .writeValuesAsArray(new NonClosingOutputStream(out));
         writers.put(out, writer);
     }
 
     @Override
     public void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException {
         var writer = writers.get(out);
-        if (writer != null) {
-            var orderRow = new LinkedHashMap<String, Object>();
-            fields.forEach(field -> orderRow.put(field, row.get(field)));
-            writer.write(orderRow);
+        if (writer == null) {
+            throw new IOException("JSON writer has not been initialized for the output stream");
         }
+        var orderedRow = new LinkedHashMap<String, Object>();
+        fields.forEach(field -> orderedRow.put(field, row.get(field)));
+        writer.write(orderedRow);
     }
 
     @Override

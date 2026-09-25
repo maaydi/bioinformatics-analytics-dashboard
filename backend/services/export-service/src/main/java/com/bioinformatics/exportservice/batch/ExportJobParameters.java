@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
 @Component
 @StepScope
@@ -50,7 +49,7 @@ public class ExportJobParameters {
      * Exported data fields
      */
     @Value("#{jobParameters[exportedFields]}")
-    private Set<String> exportedFields;
+    private List<String> exportedFields;
 
 
 }

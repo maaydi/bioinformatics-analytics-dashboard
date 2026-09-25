@@ -41,26 +41,30 @@ public class ExcelExportWriter implements ExportFormatWriter {
     @Override
     public void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException {
         var ctx = contexts.get(out);
-        if (ctx != null) {
-            var dataRow = ctx.sheet.createRow(ctx.rowIndex++);
-            IntStream.range(0, fields.size())
-                    .forEach(i -> {
-                        var cell = dataRow.createCell(i);
-                        var val = row.get(fields.get(i));
-                        switch (val) {
-                            case null -> cell.setCellValue("");
-                            case Number num -> cell.setCellValue(num.doubleValue());
-                            case Boolean b -> cell.setCellValue(b);
-                            default -> cell.setCellValue(val.toString());
-                        }
-                    });
+        if (ctx == null) {
+            throw new IOException("Excel writer has not been initialized for the output stream");
         }
+        var dataRow = ctx.sheet.createRow(ctx.rowIndex++);
+        IntStream.range(0, fields.size())
+                .forEach(i -> {
+                    var cell = dataRow.createCell(i);
+                    var val = row.get(fields.get(i));
+                    switch (val) {
+                        case null -> cell.setCellValue("");
+                        case Number num -> cell.setCellValue(num.doubleValue());
+                        case Boolean b -> cell.setCellValue(b);
+                        default -> cell.setCellValue(val.toString());
+                    }
+                });
     }
 
     @Override
     public void close(OutputStream out) throws IOException {
         var ctx = contexts.remove(out);
-        if (ctx != null) {
+        if (ctx == null) {
+            return;
+        }
+        try {
             var headerRow = ctx.sheet.getRow(0);
             if (headerRow != null) {
                 for (int i = 0; i < headerRow.getLastCellNum(); i++) {
@@ -68,6 +72,8 @@ public class ExcelExportWriter implements ExportFormatWriter {
                 }
             }
             ctx.workbook.write(out);
+            out.flush();
+        } finally {
             ctx.workbook.close();
         }
     }
