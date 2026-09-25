@@ -1,17 +1,21 @@
 package com.bioinformatics.exportservice.service;
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import com.bioinformatics.exportservice.dto.ExportFormat;
-import com.bioinformatics.exportservice.dto.ExportStatus;
+import com.bioinformatics.common.providers.DataProvider;
+import com.bioinformatics.exportservice.batch.ExportJobExecutor;
+import com.bioinformatics.exportservice.dto.*;
 import com.bioinformatics.exportservice.entity.ExportPipeline;
+import com.bioinformatics.exportservice.mapper.ExportPipelineMapper;
 import com.bioinformatics.exportservice.repository.ExportPipelineRepository;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -21,6 +25,8 @@ import java.util.Objects;
 public class ExportPipelineService {
 
     private final ExportPipelineRepository pipelineRepository;
+    private final ExportPipelineMapper mapper;
+    private final ExportJobExecutor executor;
 
     public GeneSearchRequest getExportPipelineSearchRequest(Long pipelineId) {
         var pipeline = pipelineRepository.findById(pipelineId)
@@ -37,26 +43,26 @@ public class ExportPipelineService {
                 }, () -> logFailedUpdate(pipelineId));
     }
 
-    public ExportPipeline createPipeline(
-            String userId,
-            String name,
-            String description,
-            GeneSearchRequest filterJson,
-            ExportFormat format,
-            JsonNode fieldSchema) {
-        log.info("Creating Pipeline with name {} and description {}", name, description);
-
-        var pipeline = ExportPipeline.builder()
-                .userId(userId)
-                .name(name)
-                .description(description)
-                .filterJson(filterJson)
-                .format(format)
-                .fieldSchema(fieldSchema)
-                .status(ExportStatus.QUEUED)
-                .build();
-
-        return pipelineRepository.save(pipeline);
+    public ExportPipelineResponse createPipeline(ExportPipelineCreateRequest request, UserPrincipal initiator) {
+        log.info("Creating Pipeline with name {} and description {}", request.name(), request.description());
+        var pipeline = mapper.toEntity(request, initiator.id());
+        var result = pipelineRepository.save(pipeline);
+        var provider = DataProvider.isApi(initiator.dataProvider()) ? DataProvider.API : DataProvider.POSTGRES;
+        try {
+            var parameters = new JobParametersBuilder()
+                    .addLong(Constants.EXPORT_JOB_ID.getKey(), result.getId())
+                    .addString(Constants.USER_ID.getKey(), initiator.id())
+                    .addJobParameter(Constants.USER_ROLE.getKey(), initiator.roles(), List.class)
+                    .addString(Constants.DATA_PROVIDER.getKey(), provider.getKey())
+                    .addJobParameter(Constants.EXPORT_FORMAT.getKey(), request.format(), ExportFormat.class)
+                    .addJobParameter(Constants.EXPORTED_FIELDS.getKey(), request.fieldSchema(), List.class)
+                    .toJobParameters();
+            executor.execute(parameters);
+            return mapper.toDto(result);
+        } catch (Exception e) {
+            markAsFailed(result.getId(), "Failed to start Export Pipeline %s <ID=%d> : %s".formatted(pipeline.getName(), pipeline.getId(), e.getMessage()));
+            throw e;
+        }
     }
 
     public void markAsRunning(
@@ -112,7 +118,7 @@ public class ExportPipelineService {
     public void markAsFailed(
             Long pipelineId,
             String errorMessage) {
-        log.info("Marking Pipeline as Failed for Pipeline with id {}", pipelineId);
+        log.info("Marking Pipeline as Failed for Pipeline with id {}, Raison: {}", pipelineId, errorMessage);
 
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(pipeline -> {

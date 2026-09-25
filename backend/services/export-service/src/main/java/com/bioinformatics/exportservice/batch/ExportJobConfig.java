@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.batch;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.dto.Constants;
 import com.bioinformatics.exportservice.listener.ExportJobLifecycleListener;
 import lombok.RequiredArgsConstructor;
@@ -60,11 +61,11 @@ public class ExportJobConfig {
                 .listener(exportJobListener)
                 .start(validateAndEstimateStep)
                 .next(exportSourceDecider())
-                .on(Constants.API.getKey())
+                .on(DataProvider.API.getKey())
                 .to(uniProtApiExportStep)
                 .next(assembleAndFinalizeStep)
                 .from(exportSourceDecider())
-                .on(Constants.POSTGRES.getKey())
+                .on(DataProvider.POSTGRES.getKey())
                 .to(uniProtPostgresExportStep)
                 .next(assembleAndFinalizeStep)
                 .end()

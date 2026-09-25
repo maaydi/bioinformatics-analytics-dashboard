@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.providers.uniprotkb.mapper;
+package com.bioinformatics.common.providers.uniprotkb.mapper;
 
 import com.bioinformatics.common.gene.dto.*;
 import com.bioinformatics.common.uniprot.dto.*;

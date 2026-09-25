@@ -1,11 +1,14 @@
 package com.bioinformatics.exportservice.batch;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
+import com.bioinformatics.exportservice.dto.ExportFormat;
 import com.bioinformatics.exportservice.service.ExportFileStorageService;
 import com.bioinformatics.exportservice.service.ExportPipelineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.step.StepExecution;
@@ -32,17 +35,15 @@ public class AssembleAndFinalizeTasklet implements Tasklet {
         var jobParams = chunkContext.getStepContext().getStepExecution().getJobParameters();
         var userId = jobParams.getString(USER_ID.getKey());
         var pipelineId = jobParams.getLong(EXPORT_JOB_ID.getKey());
-        var formatStr = jobParams.getString(EXPORT_FORMAT.getKey());
         var dataProvider = Objects.requireNonNull(jobParams.getString(DATA_PROVIDER.getKey()), "Data Provider Parameter is not defined");
-        var format = DefaultExportFormat.valueOf(formatStr);
-
+        var format = getExportFormat(jobParams, DefaultExportFormat.CSV);
         log.info("Starting assembly for pipeline {} (format: {})", pipelineId, format);
 
         var finalFile = storageService.assembleSegments(userId, pipelineId, format);
         var fileSizeBytes = storageService.getFileSize(userId, pipelineId, format);
 
         var actualRows = getWriteCountFromPreviousStep(chunkContext,
-                dataProvider.equalsIgnoreCase(API.getKey()) ? API_EXPORT_STEP.getKey() : POSTGRES_EXPORT_STEP.getKey());
+                DataProvider.isApi(dataProvider) ? API_EXPORT_STEP.getKey() : POSTGRES_EXPORT_STEP.getKey());
 
         pipelineService.markAsCompleted(
                 pipelineId,
@@ -70,5 +71,14 @@ public class AssembleAndFinalizeTasklet implements Tasklet {
                 .mapToLong(StepExecution::getWriteCount)
                 .findFirst()
                 .orElse(0L);
+    }
+
+    private ExportFormat getExportFormat(JobParameters parameters, ExportFormat defaultFormat) {
+        var format = parameters.getParameter(EXPORT_FORMAT.getKey());
+        if (Objects.isNull(format) || !format.type().isInstance(ExportFormat.class)) {
+            log.warn("Format parameter is not defined, use default format parameter {}", defaultFormat);
+            return defaultFormat;
+        }
+        return (ExportFormat) format.value();
     }
 }

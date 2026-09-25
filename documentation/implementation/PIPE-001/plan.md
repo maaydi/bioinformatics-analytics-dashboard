@@ -244,10 +244,11 @@
 
 - [ ] `ExportPipelineService` (`service/export/`):
     - [ ] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
-        - [ ] Validates filter yields > 0 rows (pre-check via `GeneService.count()`)
-        - [ ] Persists pipeline with status = QUEUED
-        - [ ] Launches Spring Batch job asynchronously via `JobLauncher.run()`
-        - [ ] Returns response immediately (HTTP 202)
+        - [x] Validates filter yields > 0 rows (pre-check via `GeneService.count()`) **Duplicated from
+          validateAndEstimateStep**
+        - [x] Persists pipeline with status = QUEUED
+        - [x] Launches Spring Batch job asynchronously via `JobLauncher.run()`
+        - [x] Returns response immediately (HTTP 202)
     - [ ] `listPipelines(ExportStatus status, Pageable pageable, AppUser user): Page<ExportPipelineResponse>`
         - [ ] Filters by user + status (optional) + not deleted
     - [ ] `getPipelineStatus(Long pipelineId, AppUser user): ExportJobStatusResponse`

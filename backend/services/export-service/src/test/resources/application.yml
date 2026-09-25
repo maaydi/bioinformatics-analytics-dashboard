@@ -10,21 +10,27 @@ spring:
     enabled: false
     create-schemas: true
     schemas:
-      - public
       - export_data
   jpa:
     hibernate:
       ddl-auto: create-drop
   datasource:
     # Testcontainers auto-starts PostgreSQL via tc: JDBC URL (ContainerDatabaseDriver)
-    url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test}
+    url: ${TEST_DB_URL:jdbc:tc:postgresql:16:///bio_test?TC_INITSCRIPT=db/init-schema.sql}
     username: ${TEST_DB_USER:bio_user}
     password: ${TEST_DB_PASS:bio_password}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  batch:
+    job:
+      enabled: false  # No batch jobs in test
+    jdbc:
+      initialize-schema: always
 
 eureka:
   client:
     enabled: false
+common:
+  enabled: true
 
 app:
   export:

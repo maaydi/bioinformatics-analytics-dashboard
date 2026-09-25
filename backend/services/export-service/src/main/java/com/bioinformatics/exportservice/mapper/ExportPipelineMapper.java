@@ -72,8 +72,11 @@ public interface ExportPipelineMapper {
      * @return a new ExportPipeline entity with request data and defaults
      */
     @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "name", source = "request.name")
+    @Mapping(target = "description", source = "request.description")
     @Mapping(target = "filterJson", source = "request.filter")
     @Mapping(target = "fieldSchema", source = "request.fieldSchema", qualifiedByName = "mapListToJsonNode")
+    @Mapping(target = "format", source = "request.format")
     // Ignore internal fields to prevent MapStruct "Unmapped target property" warnings
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true) // Handled by @Builder.Default (QUEUED)
