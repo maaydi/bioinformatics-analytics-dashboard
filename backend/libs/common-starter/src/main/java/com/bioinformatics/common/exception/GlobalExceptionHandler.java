@@ -77,12 +77,6 @@ public class GlobalExceptionHandler {
                 "File exceeds maximum allowed size of 2 GB");
     }
 
-    @ExceptionHandler(ExportRowCapExceededException.class)
-    public ResponseEntity<ErrorResponse> handleExportRowCapExceeded(ExportRowCapExceededException ex) {
-        log.warn("Handle ExportRowCapExceeded Exception: {}", ex.getMessage());
-        return buildResponse(HttpStatus.CONTENT_TOO_LARGE, ex.getMessage());
-    }
-
     @ExceptionHandler(UnsupportedFileTypeException.class)
     public ResponseEntity<Object> handleUnsupportedFileTypeException(UnsupportedFileTypeException ex) {
         log.warn("Handle UnsupportedFileTypeException Exception: {}", ex.getMessage());

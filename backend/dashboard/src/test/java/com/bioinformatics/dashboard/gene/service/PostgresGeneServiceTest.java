@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.gene.service;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
@@ -137,17 +136,6 @@ class PostgresGeneServiceTest {
         when(proteinEntryService.findAdditionalDetails("ACC99")).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.getGeneByAccession("ACC99"));
-    }
-
-    @Test
-    void assertWithinExportLimit_exceedsLimit_throws() {
-        appProperties.getExport().getCsv().setMaxRows(4);
-
-        var request = buildRequest(null, null, null, 10, null);
-
-        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(5L);
-
-        assertThrows(ExportRowCapExceededException.class, () -> service.count(request));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.bioinformatics.dashboard.interfaces.gene;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.gene.dto.PagedResponse;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
@@ -46,19 +45,6 @@ public interface GeneService extends Provider {
      * @return gene details with all related data
      */
     ProteinDetailDto getGeneByAccession(String accession);
-    /**
-     * Validate export size against configured limit.
-     * @param request search/filter criteria
-     * @return total row count if within limit
-     */
-    default long assertWithinExportLimit(GeneSearchRequest request, long maxRows) {
-        var totalRows = count(request);
-        if (totalRows > maxRows) {
-            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
-                    .formatted(totalRows, maxRows));
-        }
-        return totalRows;
-    }
 
     ;
 
