@@ -1,6 +1,8 @@
 package com.bioinformatics.common.gene.dto;
 
 import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
+import com.bioinformatics.shared.models.gene.export.ExportField;
+import com.bioinformatics.shared.models.gene.export.ExportIgnore;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -16,57 +18,87 @@ import java.util.*;
 @Builder
 public record ProteinDetailDto(
 
+        @ExportIgnore
         Long id,
-
+        @ExportField(name = "accession", displayName = "Accession", description = "Unique identifier for a protein")
         String accession,
+        @ExportField(name = "entryName", displayName = "Entry Name", description = "Human-readable mnemonic identifier (format: GENENAME_ORGANISM)")
         String entryName,
+        @ExportField(name = "reviewed", displayName = "Reviewed", description = "Whether the entry has been manually curated (true) or automatically annotated (false)")
         Boolean reviewed,
 
+        @ExportField(name = "integratedDate", displayName = "Integrated Date", description = "Date when the entry was integrated into UniProtKB")
         LocalDate integratedDate,
+        @ExportField(name = "sequenceDate", displayName = "Sequence Date", description = "Date of the last sequence update")
         LocalDate sequenceDate,
+        @ExportField(name = "updatedDate", displayName = "Updated Date", description = "Date of the last entry update")
         LocalDate updatedDate,
+        @ExportField(name = "sequenceVersion", displayName = "Sequence Version", description = "Version number of the sequence")
         Short sequenceVersion,
+        @ExportField(name = "entryVersion", displayName = "Entry Version", description = "Version number of the entry")
         Short entryVersion,
 
+        @ExportField(name = "proteinFullName", displayName = "Protein Full Name", description = "Full name of the protein")
         String proteinFullName,
+        @ExportField(name = "proteinShortName", displayName = "Protein Short Name", description = "Short or alternative name of the protein")
         String proteinShortName,
+        @ExportField(name = "proteinEcNumber", displayName = "Protein EC Number", description = "Enzyme Commission classification number")
         String proteinEcNumber,
 
+        @ExportField(name = "geneNamePrimary", displayName = "Gene Name (Primary)", description = "Primary gene name or symbol")
         String geneNamePrimary,
+        @ExportField(name = "geneNameSynonyms", displayName = "Gene Name (Synonyms)", description = "Alternative gene names or synonyms")
         String[] geneNameSynonyms,
+        @ExportField(name = "geneOrfNames", displayName = "Gene ORF Names", description = "Open Reading Frame (ORF) names")
         String[] geneOrfNames,
+        @ExportField(name = "geneOrderedLocus", displayName = "Gene Ordered Locus", description = "Ordered locus names")
         String[] geneOrderedLocus,
 
+        @ExportField(name = "organismName", displayName = "Organism Name", description = "Scientific name of the source organism")
         String organismName,
+        @ExportField(name = "organismCommonName", displayName = "Organism Common Name", description = "Common or vernacular name of the organism")
         String organismCommonName,
+        @ExportField(name = "taxid", displayName = "Taxonomy ID", description = "NCBI Taxonomy identifier")
         Integer taxid,
+        @ExportField(name = "lineage", displayName = "Taxonomic Lineage", description = "Taxonomic hierarchy of the organism")
         String[] lineage,
 
+        @ExportField(name = "length", displayName = "Length", description = "Protein sequence length in amino acids")
         Integer length,
+        @ExportField(name = "molecularWeight", displayName = "Molecular Weight", description = "Protein molecular weight in Daltons")
         Integer molecularWeight,
+        @ExportField(name = "sequenceChecksum", displayName = "Sequence Checksum", description = "CRC64 checksum for sequence integrity verification")
         String sequenceChecksum,
+        @ExportField(name = "sequence", displayName = "Sequence", description = "Amino acid sequence of the protein")
         String sequence,
 
+        @ExportField(name = "evidenceLevel", displayName = "Evidence Level", description = "Strength of experimental evidence (1=Protein, 2=Transcript, 3=Homology, 4=Predicted, 5=Uncertain)")
         Short evidenceLevel,
 
+        @ExportField(name = "metadataJsonb", displayName = "Meta data", description = "Protein meta data as json format")
         String metadataJsonb,
 
+        @ExportIgnore
         Instant createdAt,
+        @ExportIgnore
         Instant updatedAt,
 
+        @ExportField(name = "keywords", displayName = "Keywords", description = "Controlled vocabulary tags assigned to the protein")
         List<String> keywords,
+        @ExportField(name = "features", displayName = "Feature Type", description = "Type of annotated feature (e.g., CHAIN, DOMAIN, SIGNAL, BINDING)")
         Set<ProteinFeatureDto> features,
+        @ExportField(name = "goTerms", displayName = "GO ID", description = "Gene Ontology term identifier (e.g., GO:0046782)")
         Set<GoTermDto> goTerms,
+        @ExportField(name = "crossReferences", displayName = "Cross References", description = "External database name (e.g., EMBL, RefSeq, KEGG, Pfam, InterPro) & Primary identifier in the external database")
         Set<CrossReferenceDto> crossReferences,
+        @ExportField(name = "hostOrganisms", displayName = "Host Organism Name", description = "Scientific or common name of the host organism")
         Set<HostOrganismDto> hostOrganisms,
+        @ExportField(name = "comments", displayName = "Comment Type & Text", description = "Category of comment (e.g., FUNCTION, CATALYTIC_ACTIVITY, SUBCELLULAR_LOCATION, DISEASE) & Annotated comment text with evidence codes and cross-references")
         Set<ProteinCommentDto> comments,
+        @ExportField(name = "publications", displayName = "Publication PubMed ID", description = "PubMed unique identifier for the publication")
         Set<ProteinPublicationDto> publications
 
 ) implements ExportFormatSerializable {
-    @Override
-    public List<String> fieldsExcluded() {
-        return List.of("id");
-    }
 
     @Override
     public Map<String, Object> row() {

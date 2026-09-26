@@ -1,22 +1,11 @@
 package com.bioinformatics.shared.models.gene;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public interface ExportFormatSerializable extends Serializable {
     Map<String, Object> row();
-
-    List<String> fieldsExcluded();
-
-
-    default List<String> fields() {
-        return Arrays.stream(this.getClass().getDeclaredFields())
-                .map(Field::getName)
-                .toList();
-    }
 
     default String format(Object value) {
         if (value == null) {

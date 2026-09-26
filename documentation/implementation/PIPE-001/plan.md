@@ -125,7 +125,7 @@
     - [x] `Instant updatedAt`
     - [x] DTO file:
       `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportJobStatusResponse.java`
-- [x] `ExportFieldSchemaDto`:
+- [x] `ExportFieldSchema`:
     - [x] `String fieldName`, `String displayName`, `String dataType` (STRING, NUMBER, BOOLEAN, DATE, ARRAY)
     - [x] `String description`, `boolean available`
     - [x] DTO file:
@@ -265,8 +265,8 @@
         - [x] Soft delete: sets `deletedAt = NOW()`
         - [x] If job is RUNNING, calls `JobOperator.stop()` first
         - [x] Schedules physical file deletion after 30 days // Configurable
-    - [ ] `getAvailableFields(): List<ExportFieldSchemaDto>`
-        - [ ] Returns all possible export fields with metadata for the field picker
+    - [x] `getAvailableFields(): List<ExportFieldSchemaDto>`
+        - [x] Returns all possible export fields with metadata for the field picker
 
 ### Backend — Controller
 

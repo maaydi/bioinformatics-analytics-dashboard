@@ -2,6 +2,7 @@ package com.bioinformatics.exportservice.service;
 
 import com.bioinformatics.common.exception.ExecuteJobException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.DataProvider;
@@ -12,6 +13,7 @@ import com.bioinformatics.exportservice.entity.ExportPipeline;
 import com.bioinformatics.exportservice.mapper.ExportPipelineMapper;
 import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
 import com.bioinformatics.exportservice.repository.ExportPipelineRepository;
+import com.bioinformatics.shared.models.gene.ExportFieldSchema;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -133,6 +135,10 @@ public class ExportPipelineService {
             }
         }
         pipeline.setDeletedAt(Instant.now());
+    }
+
+    public List<ExportFieldSchema> getAvailableFields() {
+        return ExportEngine.getAvailableFieldsForExport(ProteinDetailDto.class);
     }
 
 

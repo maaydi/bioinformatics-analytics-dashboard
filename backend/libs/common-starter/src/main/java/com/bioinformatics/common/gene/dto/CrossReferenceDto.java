@@ -1,10 +1,11 @@
 package com.bioinformatics.common.gene.dto;
 
 import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
+import com.bioinformatics.shared.models.gene.export.ExportField;
+import com.bioinformatics.shared.models.gene.export.ExportIgnore;
 import lombok.Builder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,8 +13,18 @@ import java.util.Map;
  * Links proteins to identifiers in other databases (e.g., UniProt, InterPro, PDB).
  */
 @Builder
-public record CrossReferenceDto(long id, String source, String identifier, String secondaryId,
-                                String tertiaryInfo) implements ExportFormatSerializable {
+public record CrossReferenceDto(
+        @ExportIgnore
+        long id,
+        @ExportField(name = "source", displayName = "Database Source", description = "External database name (e.g., EMBL, RefSeq, KEGG, Pfam, InterPro)")
+        String source,
+        @ExportField(name = "identifier", displayName = "Identifier", description = "Primary identifier in the external database")
+        String identifier,
+        @ExportField(name = "secondaryId", displayName = "Secondary ID", description = "Secondary identifier in the external database")
+        String secondaryId,
+        @ExportField(name = "tertiaryInfo", displayName = "Tertiary Info", description = "Additional information or metadata from the external database")
+        String tertiaryInfo
+) implements ExportFormatSerializable {
     @Override
     public Map<String, Object> row() {
         return new HashMap<>() {{
@@ -22,10 +33,5 @@ public record CrossReferenceDto(long id, String source, String identifier, Strin
             put("secondaryId", format(secondaryId));
             put("tertiaryInfo", format(tertiaryInfo));
         }};
-    }
-
-    @Override
-    public List<String> fieldsExcluded() {
-        return List.of("id");
     }
 }

@@ -1,10 +1,11 @@
 package com.bioinformatics.common.gene.dto;
 
 import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
+import com.bioinformatics.shared.models.gene.export.ExportField;
+import com.bioinformatics.shared.models.gene.export.ExportIgnore;
 import lombok.Builder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,25 +15,28 @@ import java.util.Map;
 @Builder
 public record ProteinPublicationDto(
 
+        @ExportIgnore
         Long id,
 
+        @ExportField(name = "refNumber", displayName = "Reference Number", description = "Internal reference number for the publication")
         Short refNumber,
 
+        @ExportField(name = "pubmedId", displayName = "PubMed ID", description = "PubMed unique identifier for the publication")
         String pubmedId,
 
+        @ExportField(name = "doi", displayName = "DOI", description = "Digital Object Identifier for the publication")
         String doi,
 
+        @ExportField(name = "authors", displayName = "Authors", description = "List of authors of the publication")
         String authors,
 
+        @ExportField(name = "title", displayName = "Title", description = "Title of the publication")
         String title,
 
+        @ExportField(name = "journal", displayName = "Journal", description = "Journal name and publication details")
         String journal
 
 ) implements ExportFormatSerializable {
-    @Override
-    public List<String> fieldsExcluded() {
-        return List.of("id");
-    }
 
     @Override
     public Map<String, Object> row() {

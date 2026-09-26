@@ -1,4 +1,4 @@
-package com.bioinformatics.exportservice.dto;
+package com.bioinformatics.shared.models.gene;
 
 /**
  * DTO describing an exportable field for the field picker UI.
@@ -7,7 +7,7 @@ package com.bioinformatics.exportservice.dto;
  * in the export wizard. Includes display name, data type hints, and description
  * for user guidance.
  */
-public record ExportFieldSchemaDto(
+public record ExportFieldSchema(
         String fieldName,
         String displayName,
         String dataType,

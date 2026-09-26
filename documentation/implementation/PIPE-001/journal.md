@@ -210,7 +210,7 @@ required dependencies.
     - Includes: pipelineId, status, progressPercent, chunksProcessed/Total, currentStep, updatedAt
     - Frontend polls `/api/exports/pipelines/{id}/status` every 3 seconds
 
-  - `ExportFieldSchemaDto`: DTO describing exportable fields
+  - `ExportFieldSchema`: DTO describing exportable fields
     - Used by `/api/exports/fields` endpoint for field picker UI
     - Includes: fieldName, displayName, dataType, description, available
 

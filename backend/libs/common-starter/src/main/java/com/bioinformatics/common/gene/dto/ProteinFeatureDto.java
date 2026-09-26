@@ -1,10 +1,11 @@
 package com.bioinformatics.common.gene.dto;
 
 import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
+import com.bioinformatics.shared.models.gene.export.ExportField;
+import com.bioinformatics.shared.models.gene.export.ExportIgnore;
 import lombok.Builder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,13 +13,22 @@ import java.util.Map;
  * Examples: transmembrane domain, signal peptide, active site, zinc finger.
  */
 @Builder
-public record ProteinFeatureDto(long id, String featureType, int startPos, int endPos, String note, String featureId,
-                                String evidence) implements ExportFormatSerializable {
-    @Override
-    public List<String> fieldsExcluded() {
-        return List.of("id");
-    }
-
+public record ProteinFeatureDto(
+        @ExportIgnore
+        long id,
+        @ExportField(name = "featureType", displayName = "Feature Type", description = "Type of annotated feature (e.g., CHAIN, DOMAIN, SIGNAL, BINDING)")
+        String featureType,
+        @ExportField(name = "startPos", displayName = "Start Position", description = "Start position of the feature in the protein sequence")
+        int startPos,
+        @ExportField(name = "endPos", displayName = "End Position", description = "End position of the feature in the protein sequence")
+        int endPos,
+        @ExportField(name = "note", displayName = "Note", description = "Additional description or annotation for the feature")
+        String note,
+        @ExportField(name = "featureId", displayName = "Feature ID", description = "Unique identifier for the feature")
+        String featureId,
+        @ExportField(name = "evidence", displayName = "Evidence", description = "Evidence code supporting the feature annotation")
+        String evidence
+) implements ExportFormatSerializable {
     @Override
     public Map<String, Object> row() {
         return new HashMap<>() {{
