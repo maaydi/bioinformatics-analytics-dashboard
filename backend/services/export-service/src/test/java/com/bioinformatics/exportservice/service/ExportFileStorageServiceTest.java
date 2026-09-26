@@ -1,4 +1,4 @@
-package com.bioinformatics.exportservice.service.export;
+package com.bioinformatics.exportservice.service;
 
 import com.bioinformatics.exportservice.assembler.DelimitedSegmentAssembler;
 import com.bioinformatics.exportservice.assembler.ExcelSegmentAssembler;
@@ -6,7 +6,6 @@ import com.bioinformatics.exportservice.assembler.JsonSegmentAssembler;
 import com.bioinformatics.exportservice.assembler.SegmentAssemblerRegistry;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
-import com.bioinformatics.exportservice.service.DefaultExportFileStorageService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-
-import static com.bioinformatics.exportservice.dto.Constants.ASSEMBLE_FINALIZE_TASK;
 
 @Service
 @RequiredArgsConstructor
@@ -103,13 +100,7 @@ public class ExportPipelineService {
             log.info("No execution found for pipeline with ID {}", pipelineId);
             return new ExportJobStatusResponse(pipelineId, pipeline.get().getStatus(), 0, 0, 0, null, Instant.now());
         }
-        var currentStep = Objects.requireNonNull(jobRepository.getJobExecution(pipeline.get().getJobExecutionId()))
-                .getStepExecutions()
-                .stream()
-                .filter(e -> e.getStatus().isRunning())
-                .map(StepExecution::getStepName)
-                .findFirst()
-                .orElse(ASSEMBLE_FINALIZE_TASK.getKey());
+        var currentStep = ExportJobStepTracker.determineCurrentStep(jobRepository.getJobExecution(pipeline.get().getJobExecutionId()));
         return new ExportJobStatusResponse(pipelineId,
                 pipeline.get().getStatus(),
                 execution.get().getProgressPercent(),
