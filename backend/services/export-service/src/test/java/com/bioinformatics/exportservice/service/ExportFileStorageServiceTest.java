@@ -31,7 +31,7 @@ class ExportFileStorageServiceTest {
     private static ApplicationProperties.Export exportConfig(Path tempDir) {
         return new ApplicationProperties.Export(10000, tempDir.toString(),
                 new ApplicationProperties.ThreadPoolSettings(1, 5, 10, "Test-Storage"),
-                new ApplicationProperties.Batch(100));
+                new ApplicationProperties.Batch(100), new ApplicationProperties.Cleanup(1L));
     }
 
     DefaultExportFileStorageService createService() {

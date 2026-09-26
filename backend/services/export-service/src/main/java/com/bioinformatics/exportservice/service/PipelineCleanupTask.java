@@ -21,7 +21,7 @@ public class PipelineCleanupTask {
     private final ApplicationProperties applicationProperties;
     private final ExportPipelineRepository exportPipelineRepository;
 
-    @Scheduled(fixedRateString = "#{@applicationProperties.export().cleanup().retentionDays()}", timeUnit = TimeUnit.DAYS)
+    @Scheduled(fixedRateString = "${app.export.cleanup.retention-days:1}", timeUnit = TimeUnit.DAYS)
     public void cleanDeletedPipelineFiles() {
         var days = applicationProperties.export().cleanup().retentionDays();
         log.info("Cleaning up Deleted Pipeline files that were deleted last {} days", days);
