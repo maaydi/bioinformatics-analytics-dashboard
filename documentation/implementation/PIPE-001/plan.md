@@ -304,11 +304,11 @@
 - [ ] `ExportPipelineAuditListener`:
     - [ ] Records `EXPORT_PIPELINE_CREATED`, `EXPORT_PIPELINE_COMPLETED`, `EXPORT_PIPELINE_FAILED` in `audit_log`
       (reuses OPS-001)
-- [ ] `ExportCleanupJob` (`@Scheduled(cron = "0 0 2 * * SUN")`):
-    - [ ] Finds pipelines with `deletedAt < NOW() - INTERVAL '30 days'`
-    - [ ] Deletes physical files via `ExportFileStorageService`
-    - [ ] Hard-deletes DB records
-    - [ ] Logs count of cleaned records
+- [x] `ExportCleanupJob` (`@Scheduled(cron = "0 0 2 * * SUN")`):
+    - [x] Finds pipelines with `deletedAt < NOW() - INTERVAL '30 days'`
+    - [x] Deletes physical files via `ExportFileStorageService`
+    - [x] Hard-deletes DB records
+    - [x] Logs count of cleaned records
 
 ### Frontend — Models (`core/models/export-pipeline.model.ts`)
 

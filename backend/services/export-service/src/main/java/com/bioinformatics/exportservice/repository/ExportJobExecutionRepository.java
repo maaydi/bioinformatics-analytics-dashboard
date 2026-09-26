@@ -4,6 +4,7 @@ import com.bioinformatics.exportservice.entity.ExportJobExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -25,6 +26,8 @@ public interface ExportJobExecutionRepository extends JpaRepository<ExportJobExe
      * @return the job execution record, or empty if not found
      */
     Optional<ExportJobExecution> findByPipelineId(@Param("pipelineId") Long pipelineId);
+
+    void deleteByPipelineIdIn(List<Long> pipelineIds);
 
 }
 
