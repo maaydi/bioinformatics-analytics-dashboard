@@ -4,7 +4,7 @@ import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import com.bioinformatics.exportservice.service.ExportFileStorageService;
-import com.bioinformatics.exportservice.service.ExportPipelineService;
+import com.bioinformatics.exportservice.service.ExportPipelineLifeCycleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -28,7 +28,7 @@ import static com.bioinformatics.exportservice.dto.Constants.*;
 public class AssembleAndFinalizeTasklet implements Tasklet {
 
     private final ExportFileStorageService storageService;
-    private final ExportPipelineService pipelineService;
+    private final ExportPipelineLifeCycleService pipelineService;
 
     @Override
     public RepeatStatus execute(@NonNull StepContribution contribution, ChunkContext chunkContext) throws Exception {

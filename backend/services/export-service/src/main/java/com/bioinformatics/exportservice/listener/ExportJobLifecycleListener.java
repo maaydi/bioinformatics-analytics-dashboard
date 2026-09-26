@@ -1,6 +1,6 @@
 package com.bioinformatics.exportservice.listener;
 
-import com.bioinformatics.exportservice.service.ExportPipelineService;
+import com.bioinformatics.exportservice.service.ExportPipelineLifeCycleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -17,7 +17,7 @@ import static com.bioinformatics.exportservice.dto.Constants.EXPORT_JOB_ID;
 @Slf4j
 public class ExportJobLifecycleListener implements JobExecutionListener {
 
-    private final ExportPipelineService pipelineService;
+    private final ExportPipelineLifeCycleService pipelineService;
 
     @Override
     public void beforeJob(@NonNull JobExecution jobExecution) {
