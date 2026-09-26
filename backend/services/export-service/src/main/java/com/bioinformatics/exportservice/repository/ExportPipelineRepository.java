@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -76,5 +78,14 @@ public interface ExportPipelineRepository extends JpaRepository<ExportPipeline, 
             @Param("status") ExportStatus status
     );
 
+    /**
+     * Find all deleted pipelines where deletedAt between two instants
+     *
+     * @param deletedAtAfter  Start date
+     * @param deletedAtBefore end date
+     * @return pipeline list of target pipelines
+     *
+     */
+    List<ExportPipeline> findAllByDeletedAtBetween(Instant deletedAtAfter, Instant deletedAtBefore);
 }
 

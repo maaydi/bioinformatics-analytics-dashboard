@@ -255,16 +255,16 @@
       - [x] Reads `ExportPipeline` + `ExportJobExecution` for progress
       - [x] Calculates `progressPercent = (chunksProcessed / chunksTotal) * 100`
       - [x] If COMPLETED/FAILED, returns final state
-    - [ ] `getDownloadUrl(Long pipelineId, AppUser user): DownloadUrlDto`
-        - [ ] Verifies ownership
-        - [ ] Verifies status = COMPLETED
-        - [ ] Returns direct download URL: `/api/exports/pipelines/{id}/download-file` (streamed)
-    - [ ] `retryPipeline(Long pipelineId, AppUser user): ExportPipelineResponse`
-        - [ ] Clones existing pipeline config, resets status to QUEUED, launches new job
-    - [ ] `deletePipeline(Long pipelineId, AppUser user): void`
-        - [ ] Soft delete: sets `deletedAt = NOW()`
-        - [ ] If job is RUNNING, calls `JobOperator.stop()` first
-        - [ ] Schedules physical file deletion after 30 days
+    - [x] `getDownloadUrl(Long pipelineId, AppUser user): DownloadUrlDto`
+        - [x] Verifies ownership
+        - [x] Verifies status = COMPLETED
+        - [x] Returns direct download URL: `/api/exports/pipelines/{id}/download-file` (streamed)
+    - [x] `retryPipeline(Long pipelineId, AppUser user): ExportPipelineResponse`
+        - [x] Clones existing pipeline config, resets status to QUEUED, launches new job
+    - [x] `deletePipeline(Long pipelineId, AppUser user): void`
+        - [x] Soft delete: sets `deletedAt = NOW()`
+        - [x] If job is RUNNING, calls `JobOperator.stop()` first
+        - [x] Schedules physical file deletion after 30 days // Configurable
     - [ ] `getAvailableFields(): List<ExportFieldSchemaDto>`
         - [ ] Returns all possible export fields with metadata for the field picker
 

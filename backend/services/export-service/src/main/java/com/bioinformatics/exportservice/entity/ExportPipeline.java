@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.nio.file.Paths;
 import java.time.Instant;
 
 import static com.bioinformatics.shared.models.db.DbSchema.EXPORT_DATA_SCHEMA;
@@ -180,9 +181,17 @@ public class ExportPipeline {
      * @return true if status is COMPLETED, FAILED, or CANCELLED
      */
     public boolean isTerminal() {
-        return status == ExportStatus.COMPLETED
+        return isCompleted()
                 || status == ExportStatus.FAILED
                 || status == ExportStatus.CANCELLED;
+    }
+
+    public boolean isCompleted() {
+        return status == ExportStatus.COMPLETED;
+    }
+
+    public String getFileName() {
+        return Paths.get(filePath).toFile().getName();
     }
 
     /**
