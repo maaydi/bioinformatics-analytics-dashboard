@@ -4,7 +4,7 @@ import com.bioinformatics.common.config.CommonProperties;
 import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.client.GeneService;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
-import com.bioinformatics.exportservice.service.ExportPipelineService;
+import com.bioinformatics.exportservice.service.ExportPipelineTaskletService;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class ValidateAndEstimateTasklet implements Tasklet {
 
     private final ExportJobParameters jobParameters;
-    private final ExportPipelineService exportPipelineService;
+    private final ExportPipelineTaskletService exportPipelineService;
     private final GeneService geneService;
     private final ApplicationProperties applicationProperties;
     private final CommonProperties commonProperties;
