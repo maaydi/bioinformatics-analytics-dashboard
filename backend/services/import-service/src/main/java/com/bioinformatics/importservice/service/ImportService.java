@@ -1,8 +1,8 @@
 package com.bioinformatics.importservice.service;
 
+import com.bioinformatics.common.exception.ConflictException;
 import com.bioinformatics.common.exception.ExecuteJobException;
-import com.bioinformatics.common.exception.ImportAlreadyRunningException;
-import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.exception.MalformedFileException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
@@ -111,7 +111,7 @@ public class ImportService {
     private void checkImportAlreadyRunning() {
         var running = importJobRep.findByStatus(ImportStatus.RUNNING);
         if (!running.isEmpty()) {
-            throw new ImportAlreadyRunningException(running.getFirst().getId().toString());
+            throw new ConflictException("An import job is already running " + running.getFirst().getId().toString());
         }
 
     }
@@ -157,7 +157,7 @@ public class ImportService {
         try (var is = Files.newInputStream(file)) {
             return (int) counter.count(is);
         } catch (Exception e) {
-            throw new MalformedUniprotFileException(e.getMessage());
+            throw new MalformedFileException(e.getMessage());
         }
     }
 

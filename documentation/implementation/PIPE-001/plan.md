@@ -271,33 +271,33 @@
 ### Backend — Controller
 
 - [ ] `ExportPipelineController` (`controller/`):
-    - [ ] `POST /api/exports/pipelines` → `201 Created` with `ExportPipelineResponse`
-        - [ ] `@Valid @RequestBody ExportPipelineCreateRequest`
-        - [ ] Returns immediately (async); body includes pipelineId for polling
-    - [ ] `GET /api/exports/pipelines` → `200 OK` with `PagedResponse<ExportPipelineResponse>`
-        - [ ] Query param: `status` (optional filter)
-        - [ ] Query param: `page`, `size` (max 50)
-    - [ ] `GET /api/exports/pipelines/{id}` → `200 OK` with `ExportPipelineResponse`
-        - [ ] Returns full pipeline details
-    - [ ] `GET /api/exports/pipelines/{id}/status` → `200 OK` with `ExportJobStatusResponse`
-        - [ ] Frontend polls this every 3 seconds
-    - [ ] `GET /api/exports/pipelines/{id}/download` → `200 OK` with `DownloadUrlDto`
-        - [ ] Returns metadata + presigned/direct URL
-    - [ ] `GET /api/exports/pipelines/{id}/download-file` → streams file bytes
-        - [ ] `Content-Type` from `ExportFormatWriter.getContentType()`
-        - [ ] `Content-Disposition: attachment; filename="..."`
-        - [ ] Streams via `InputStreamResource` to avoid loading file in memory
-    - [ ] `POST /api/exports/pipelines/{id}/retry` → `202 Accepted`
-    - [ ] `DELETE /api/exports/pipelines/{id}` → `204 No Content`
-    - [ ] `GET /api/exports/fields` → `200 OK` with `List<ExportFieldSchemaDto>`
-        - [ ] Returns available fields for the field picker
-    - [ ] Error responses:
-        - [ ] `400` — validation failure, 0-row filter
-        - [ ] `401` — missing JWT
-        - [ ] `403` — pipeline belongs to another user
-        - [ ] `404` — pipeline not found
-        - [ ] `409` — pipeline not in a retryable state
-        - [ ] `410` — file expired (deleted after retention)
+    - [x] `POST /api/exports/pipelines` → `201 Created` with `ExportPipelineResponse`
+        - [x] `@Valid @RequestBody ExportPipelineCreateRequest`
+        - [x] Returns immediately (async); body includes pipelineId for polling
+    - [x] `GET /api/exports/pipelines` → `200 OK` with `PagedResponse<ExportPipelineResponse>`
+        - [x] Query param: `status` (optional filter)
+        - [x] Query param: `page`, `size` (max 50)
+    - [x] `GET /api/exports/pipelines/{id}` → `200 OK` with `ExportPipelineResponse`
+        - [x] Returns full pipeline details
+    - [x] `GET /api/exports/pipelines/{id}/status` → `200 OK` with `ExportJobStatusResponse`
+        - [x] Frontend polls this every 3 seconds
+    - [x] `GET /api/exports/pipelines/{id}/download` → `200 OK` with `DownloadUrlDto`
+        - [x] Returns metadata + presigned/direct URL
+    - [x] `GET /api/exports/pipelines/{id}/download-file` → streams file bytes
+        - [x] `Content-Type` from `ExportFormatWriter.getContentType()`
+        - [x] `Content-Disposition: attachment; filename="..."`
+        - [x] Streams via `InputStreamResource` to avoid loading file in memory
+    - [x] `POST /api/exports/pipelines/{id}/retry` → `202 Accepted`
+    - [x] `DELETE /api/exports/pipelines/{id}` → `204 No Content`
+    - [x] `GET /api/exports/fields` → `200 OK` with `List<ExportFieldSchemaDto>`
+        - [x] Returns available fields for the field picker
+    - [x] Error responses:
+        - [x] `400` — validation failure, 0-row filter
+        - [x] `401` — missing JWT
+        - [x] `403` — pipeline belongs to another user
+        - [x] `404` — pipeline not found
+        - [x] `409` — pipeline not in a retryable state
+        - [x] `410` — file expired (deleted after retention)
 
 ### Backend — Audit & Cleanup
 

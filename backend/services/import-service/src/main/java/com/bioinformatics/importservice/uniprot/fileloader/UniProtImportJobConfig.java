@@ -1,7 +1,7 @@
 package com.bioinformatics.importservice.uniprot.fileloader;
 
 import com.bioinformatics.common.batch.DelegatingItemStreamReader;
-import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.exception.MalformedFileException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.importservice.config.ApplicationProperties;
 import com.bioinformatics.importservice.dto.Constants;
@@ -97,7 +97,7 @@ public class UniProtImportJobConfig {
                 .processor(processor)
                 .writer(writer)
                 .faultTolerant() // Allows configuring skip policies
-                .skip(MalformedUniprotFileException.class) // skip malformed uniprot
+                .skip(MalformedFileException.class) // skip malformed uniprot
                 .skip(ConstraintViolationException.class) // skip SQL constraint violation
                 .skip(StaleObjectStateException.class) // skip concurrency access
                 .skipLimit(appProperties.batch().skipLimit())

@@ -1,6 +1,6 @@
 package com.bioinformatics.importservice.service;
 
-import com.bioinformatics.common.exception.ImportAlreadyRunningException;
+import com.bioinformatics.common.exception.ConflictException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
@@ -102,7 +102,7 @@ class ImportServiceTest {
 
         var file = new MockMultipartFile("file", "u.fasta", "text/plain", "seq".getBytes());
 
-        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerImport(file, "overwrite"));
+        assertThrows(ConflictException.class, () -> importService.triggerImport(file, "overwrite"));
 
         verify(importJobRep, never()).save(any());
     }
@@ -177,7 +177,7 @@ class ImportServiceTest {
         var runningJob = ImportJob.builder().id(UUID.randomUUID()).status(ImportStatus.RUNNING).build();
         when(importJobRep.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of(runningJob));
 
-        assertThrows(ImportAlreadyRunningException.class, () -> importService.triggerRemoteImport(filterId, initiator));
+        assertThrows(ConflictException.class, () -> importService.triggerRemoteImport(filterId, initiator));
 
         verify(importJobRep, never()).save(any());
         verify(importJobExecutor, never()).execute(any());

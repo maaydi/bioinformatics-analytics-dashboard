@@ -53,6 +53,15 @@ public interface ExportPipelineRepository extends JpaRepository<ExportPipeline, 
     );
 
     /**
+     * Finds active export pipelines for a user.
+     *
+     * @param userId   the username of the user
+     * @param pageable pagination parameters
+     * @return paginated list of matching pipelines
+     */
+    Page<ExportPipeline> findByUserIdAndDeletedAtIsNull(@Param("userId") String userId, Pageable pageable);
+
+    /**
      * Finds a specific pipeline by ID and user, ensuring ownership.
      * Returns empty if the pipeline does not belong to the user or is deleted.
      *
