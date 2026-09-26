@@ -8,15 +8,15 @@ WORKDIR /app
 # Non-root user for security (OWASP A05)
 RUN addgroup -S bioapp && adduser -S bioapp -G bioapp
 RUN mkdir -p /app/logs && chown -R bioapp:bioapp /app/logs
-RUN mkdir -p /app/bio-import && chown -R bioapp:bioapp /app/bio-import
+RUN mkdir -p /app/bio-export && chown -R bioapp:bioapp /app/bio-export
 
 USER bioapp
 
-COPY target/*.jar import-service.jar
+COPY target/*.jar export-service.jar
 
 EXPOSE 8083
 
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
   "-XX:MaxRAMPercentage=75.0", \
-  "-jar", "import-service.jar"]
+  "-jar", "export-service.jar"]

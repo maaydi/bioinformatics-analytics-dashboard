@@ -32,6 +32,7 @@ SERVICES=(
   "analytics-service"
   "backend"
   "import-service"
+  "export-service"
   "frontend"
 )
 

@@ -18,7 +18,7 @@ spring:
       open-in-view: false
 
     flyway:
-      default-schema: import_batch
+      default-schema: export_data
 
     batch:
       job:
