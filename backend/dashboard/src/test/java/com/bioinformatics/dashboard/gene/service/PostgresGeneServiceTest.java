@@ -45,10 +45,6 @@ class PostgresGeneServiceTest {
     @BeforeEach
     void setUp() {
         appProperties = new AppProperties();
-        var export = appProperties.getExport();
-        export.setCsv(new AppProperties.Csv());
-        export.getCsv().setMaxRows(1000);
-
         service = new PostgresGeneService(proteinEntryService, mapper, appProperties);
     }
 
@@ -140,7 +136,6 @@ class PostgresGeneServiceTest {
 
     @Test
     void assertWithinExportLimit_return_size() {
-        appProperties.getExport().getCsv().setMaxRows(4);
 
         var request = buildRequest(null, null, null, 10, null);
 

@@ -15,18 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Spring Security configuration.
+ * Spring Security configuration for the dashboard application.
  *
- * <p>Authorization matrix is defined in documentation/overview.md §13.
- * Rules:
- * <ul>
- *   <li>Public:      POST /api/auth/login, POST /api/auth/refresh</li>
- *   <li>ROLE_USER:   GET/POST /api/genes/**, GET /api/analytics/**, /api/saved-filters/**</li>
- *   <li>ROLE_ADMIN:  /api/admin/**</li>
- * </ul>
- *
- * <p>Stateless JWT session — CSRF disabled (see NFR §12.4).
- * Password hashing: BCrypt cost factor 12 (NFR §12.4).
+ * <p>The application uses a gateway-authenticated, stateless security model in which authenticated requests are
+ * validated upstream and then authorized via role checks on controller methods. This configuration centralizes the
+ * HTTP security policy and keeps the authorization matrix predictable across the dashboard API.</p>
  */
 @Configuration
 @EnableWebSecurity
@@ -36,6 +29,13 @@ public class SecurityConfig {
 
     private final GatewayUserAuthenticationFilter gatewayUserAuthenticationFilter;
 
+    /**
+     * Builds the HTTP security chain for the dashboard API.
+     *
+     * @param http HTTP security builder
+     * @return configured security filter chain
+     * @throws Exception when the filter chain cannot be built
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -51,7 +51,13 @@ public class SecurityConfig {
         return http.build();
     }
 
-
+    /**
+     * Exposes the authentication manager used by the application context.
+     *
+     * @param config Spring authentication configuration
+     * @return authentication manager bean
+     * @throws Exception when the authentication manager cannot be constructed
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {

@@ -44,13 +44,13 @@ public final class GeneSpecification {
                 hasGoTermId(req.goTermId()),
                 goAspect(req.goAspect()),
                 featureType(req.featureType()),
-                crossRefSource(req.crossRefSource()));
+                crossRefSource(req.crossRefSource())).toList();
 
-        var specification = filters.filter(Objects::nonNull)
+        var specification = filters.stream().filter(Objects::nonNull)
                 .reduce(Specification::and)
                 .orElse((root, query, cb) -> cb.conjunction());
 
-        log.debug("Built GeneSpecification from request with {} active filters", filters.filter(Objects::nonNull).count());
+        log.debug("Built GeneSpecification from request with {} active filters", filters.stream().filter(Objects::nonNull).count());
         return specification;
     }
 

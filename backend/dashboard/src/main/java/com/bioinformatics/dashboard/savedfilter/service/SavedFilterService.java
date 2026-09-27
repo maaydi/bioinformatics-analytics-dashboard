@@ -23,6 +23,14 @@ import java.util.Optional;
 
 import static com.bioinformatics.shared.models.security.Constants.ADMIN_ROLE;
 
+/**
+ * Service layer for persisting and retrieving user-scoped saved gene-search filters.
+ *
+ * <p>This service is responsible for validating ownership, enforcing uniqueness constraints on filter names,
+ * and exposing paginated access to the current user's saved analytical states. The persisted payload is a
+ * {@link com.bioinformatics.common.models.gene.GeneSearchRequest}, allowing a saved filter to be reused as a
+ * searchable gene-query snapshot.</p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,13 +42,28 @@ public class SavedFilterService {
         return ADMIN_ROLE.equalsIgnoreCase(role);
     }
 
+    /**
+     * Loads a saved filter by its database identifier.
+     *
+     * @param id unique saved-filter identifier
+     * @return optional DTO containing the persisted filter when found
+     */
     public Optional<SavedFilterDto> getSavedFilterById(long id) {
+        log.debug("[DASHBOARD][FILTER] Fetching saved filter id={}", id);
         return repository.findById(id).map(mapper::toDto);
     }
 
+    /**
+     * Lists all saved filters owned by the specified user in descending creation order.
+     *
+     * @param user authenticated user requesting the list
+     * @param page zero-based page index
+     * @param size page size
+     * @return paginated list of saved filters for the owner
+     */
     @Cacheable(value = "savedFilters", key = "#user.id")
     public PagedResponse<SavedFilterDto> listForCurrentUser(UserPrincipal user, int page, int size) {
-        log.info("Retrieving saved filter page <{}> for user <{}>", page, user.id());
+        log.info("[DASHBOARD][FILTER] Retrieving saved filter page={} size={} for user={}", page, size, user.id());
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         var res = repository.findByOwner(user.id(), pageable)
                 .map(mapper::toDto);
@@ -51,43 +74,67 @@ public class SavedFilterService {
                 res.getTotalPages());
     }
 
+    /**
+     * Persists a new named gene-search filter for the current user.
+     *
+     * @param request request payload containing filter name and filter JSON
+     * @param owner   authenticated user creating the filter
+     * @return persisted filter DTO
+     * @throws DuplicateFilterNameException when the same user already has a filter with the same name
+     */
     @CacheEvict(value = "savedFilters", key = "#owner.id")
     public SavedFilterDto create(SavedFilterCreateRequest request, UserPrincipal owner) {
-        log.info("Save filter <{}> created by <{}>", request.name(), owner);
+        log.info("[DASHBOARD][FILTER] Save filter requested name={} user={}", request.name(), owner.id());
         try {
             var entity = mapper.toEntity(request, owner.id());
             var res = repository.save(entity);
-            log.info("Filter <{}> created by <{}> successfully saved", request.name(), owner);
+            log.info("[DASHBOARD][FILTER] Filter saved successfully id={} name={} user={}", res.getId(), request.name(), owner.id());
             return mapper.toDto(res);
         } catch (DataIntegrityViolationException ex) {
+            log.warn("[DASHBOARD][FILTER] Duplicate filter name rejected name={} user={}", request.name(), owner.id());
             throw new DuplicateFilterNameException("Duplicated filter name %s".formatted(request.name()), ex);
         } catch (Exception e) {
-            log.error("An error occurs while trying to saved filter: {}", e.getMessage());
+            log.error("[DASHBOARD][FILTER] Failed to save filter name={} user={} error={}", request.name(), owner.id(), e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Deletes a saved filter after validating ownership or admin privileges.
+     *
+     * @param id saved filter identifier
+     * @param user authenticated caller
+     * @throws ResourceNotFoundException when the filter does not exist
+     * @throws AccessDeniedException when the user is not the owner and is not an admin
+     */
     @Transactional
     public void delete(final Long id, final UserPrincipal user) {
-        log.info("Delete filter <{}> by user <{}>", id, user.id());
+        log.info("[DASHBOARD][FILTER] Delete filter requested id={} user={}", id, user.id());
         var filter = repository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.forSavedFilter(id));
         var isOwner = filter.getOwner().equals(user.id());
         if (!isOwner && !user.isAdmin()) {
+            log.warn("[DASHBOARD][FILTER] Access denied deleting filter id={} user={} owner={}", id, user.id(), filter.getOwner());
             throw new AccessDeniedException("You don't have permission to delete this filter");
         }
         deleteAndEvict(filter.getId(), filter.getOwner());
     }
 
+    /**
+     * Deletes the entity and evicts the user-scoped cache entry.
+     *
+     * @param filterId saved filter identifier
+     * @param owner owner username used to build the cache key
+     */
     @CacheEvict(value = "savedFilters", key = "#owner")
     public void deleteAndEvict(Long filterId, String owner) {
-        log.info("Delete filter ID <{}> and clear cache for its owner <{}>", filterId, owner);
+        log.info("[DASHBOARD][FILTER] Deleting filter id={} owner={} and evicting cache", filterId, owner);
         try {
             repository.deleteById(filterId);
+            log.info("[DASHBOARD][FILTER] Filter deleted successfully id={} owner={}", filterId, owner);
         } catch (Exception e) {
+            log.error("[DASHBOARD][FILTER] Failed to delete filter id={} owner={} error={}", filterId, owner, e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
-
-
 }
