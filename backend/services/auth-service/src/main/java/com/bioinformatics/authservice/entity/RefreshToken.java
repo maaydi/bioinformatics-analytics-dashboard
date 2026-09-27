@@ -6,7 +6,6 @@ import lombok.*;
 import java.time.Instant;
 
 import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
-import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 
 /**
  * Persisted refresh-token record for the {@code auth.refresh_token} table.
