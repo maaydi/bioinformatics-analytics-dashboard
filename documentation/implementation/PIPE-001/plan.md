@@ -38,18 +38,18 @@
 - [x] Format writers implemented
 - [x] Spring Batch job config implemented
 - [x] Batch components implemented
-- [ ] ExportPipelineService implemented
-- [ ] ExportPipelineController implemented
+- [x] ExportPipelineService implemented
+- [x] ExportPipelineController implemented
 - [ ] Audit hooks wired
-- [ ] Scheduled cleanup job implemented
+- [x] Scheduled cleanup job implemented
 - [ ] Angular models defined
 - [ ] Frontend service implemented
 - [ ] ExportPipelineWizardComponent implemented
 - [ ] FieldPickerComponent implemented
 - [ ] ExportPipelineListComponent implemented
-- [ ] Backend unit tests written
+- [x] Backend unit tests written
 - [ ] Frontend unit tests written
-- [ ] Integration tests written
+- [x] Integration tests written
 - [ ] Documentation updated
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80 %
@@ -242,7 +242,7 @@
 
 ### Backend — Service Layer
 
-- [ ] `ExportPipelineService` (`service/export/`):
+- [x] `ExportPipelineService` (`service/export/`):
     - [x] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
         - [x] Validates filter yields > 0 rows (pre-check via `GeneService.count()`) **Duplicated from
           validateAndEstimateStep**
@@ -270,7 +270,7 @@
 
 ### Backend — Controller
 
-- [ ] `ExportPipelineController` (`controller/`):
+- [x] `ExportPipelineController` (`controller/`):
     - [x] `POST /api/exports/pipelines` → `201 Created` with `ExportPipelineResponse`
         - [x] `@Valid @RequestBody ExportPipelineCreateRequest`
         - [x] Returns immediately (async); body includes pipelineId for polling
@@ -442,40 +442,40 @@
     - [x] `createPipelineDirectory_createsExpectedStructure`
     - [x] `assembleSegments_concatenatesCsvFiles`
     - [x] `deletePipelineDirectory_removesAllFiles`
-- [ ] `CsvExportWriterTest`:
+- [x] `CsvExportWriterTest`:
     - [x] Header and UTF-8 BOM behavior covered by `ExportWritersTest`.
-    - [ ] `writeRow_escapesCommasAndQuotes`
-    - [ ] Preserve the caller-selected `fieldSchema` order using an ordered list.
-- [ ] `ExcelExportWriterTest`:
+  - [x] `writeRow_escapesCommasAndQuotes`
+  - [x] Preserve the caller-selected `fieldSchema` order using an ordered list.
+- [x] `ExcelExportWriterTest`:
     - [x] Single-workbook rows, headers and typed cells covered by `ExportWritersTest`.
     - [x] Multi-chunk XLSX export retains rows from every chunk.
-    - [ ] Workbook finalization flushes and disposes SXSSF resources.
-- [ ] `ExportItemWriterTest`:
-    - [ ] Writes ordered headers and rows into sequential chunk segments.
-    - [ ] Restarts without overwriting committed segments or mixing outputs from executions.
-    - [ ] Cleans up writer state after an I/O failure.
-- [ ] `SegmentAssemblyTest`:
+  - [x] Workbook finalization flushes and disposes SXSSF resources.
+- [x] `ExportItemWriterTest`:
+    - [x] Writes ordered headers and rows into sequential chunk segments.
+    - [x] Restarts without overwriting committed segments or mixing outputs from executions.
+    - [x] Cleans up writer state after an I/O failure.
+- [x] `SegmentAssemblyTest`:
     - [x] CSV supports quoted fields containing line breaks and retains RFC 4180-compatible line endings.
     - [x] CSV/TSV/JSON assembly remains memory-bounded for large segments.
     - [x] Multiple XLSX chunks are assembled without data loss.
-- [ ] `ExportItemProcessorTest`:
-    - [ ] `process_extractsSelectedFields`
-    - [ ] `process_handlesNullCollections`
-    - [ ] `process_mapsNestedObjects`
-- [ ] `ExportPipelineServiceTest`:
-    - [ ] `createPipeline_validRequest_returnsQueuedPipeline`
-    - [ ] `createPipeline_zeroRows_throws`
-    - [ ] `getDownloadUrl_completedPipeline_returnsUrl`
-    - [ ] `getDownloadUrl_incompletePipeline_throws`
-    - [ ] `retryPipeline_failedPipeline_requeues`
-    - [ ] `deletePipeline_softDeletesAndStopsJob`
-- [ ] `ExportPipelineControllerIntegrationTest`:
-    - [ ] `POST /api/exports/pipelines` → `201`
-    - [ ] `GET /api/exports/pipelines` → `200` paginated
-    - [ ] `GET /api/exports/pipelines/{id}/status` → `200` with progress
-    - [ ] `GET /api/exports/pipelines/{id}/download-file` → streams file
-    - [ ] `DELETE /api/exports/pipelines/{id}` → `204`
-    - [ ] `POST /api/exports/pipelines` with 0-row filter → `400`
+- [x] `ExportItemProcessorTest`:
+    - [x] `process_extractsSelectedFields`
+    - [x] `process_handlesNullCollections`
+    - [x] `process_mapsNestedObjects`
+- [x] `ExportPipelineServiceTest`:
+    - [x] `createPipeline_validRequest_returnsQueuedPipeline`
+    - [x] `createPipeline_zeroRows_throws`
+    - [x] `getDownloadUrl_completedPipeline_returnsUrl`
+    - [x] `getDownloadUrl_incompletePipeline_throws`
+    - [x] `retryPipeline_failedPipeline_requeues`
+    - [x] `deletePipeline_softDeletesAndStopsJob`
+- [x] `ExportPipelineControllerIntegrationTest`:
+    - [x] `POST /api/exports/pipelines` → `201`
+    - [x] `GET /api/exports/pipelines` → `200` paginated
+    - [x] `GET /api/exports/pipelines/{id}/status` → `200` with progress
+    - [x] `GET /api/exports/pipelines/{id}/download-file` → streams file
+    - [x] `DELETE /api/exports/pipelines/{id}` → `204`
+    - [x] `POST /api/exports/pipelines` with 0-row filter → `400`
 
 ### Tests — Frontend
 

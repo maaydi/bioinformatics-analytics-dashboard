@@ -71,6 +71,38 @@ class ExportWritersTest {
     }
 
     @Test
+    @DisplayName("CsvExportWriter: writeRow escapes commas and quotes per RFC 4180")
+    void testCsvExportWriter_escapesCommasAndQuotes() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        var localFields = List.of("id", "notes");
+        Map<String, Object> row = Map.<String, Object>of(
+                "id", 1,
+                "notes", "Text with, comma and \"quotes\" and \n new line"
+        );
+
+        csvExportWriter.writeHeader(localFields, out);
+        csvExportWriter.writeRow(row, localFields, out);
+        csvExportWriter.close(out);
+
+        byte[] bytes = out.toByteArray();
+        String csvContent = new String(bytes, 3, bytes.length - 3, StandardCharsets.UTF_8);
+
+        // Expect header and one data row; the notes field must be quoted and internal quotes doubled
+        String[] lines = csvContent.split("\r\n", -1);
+        assertThat(lines).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(lines[0]).isEqualTo("id,notes");
+
+        // Data row should look like: 1,"Text with, comma and ""quotes"" and \n new line"
+        String dataRow = lines[1];
+        assertThat(dataRow).startsWith("1,");
+        // notes field should be quoted
+        assertThat(dataRow).contains(",\"");
+        // internal quotes must be doubled
+        assertThat(dataRow).contains("\"\"quotes\"\"");
+    }
+
+    @Test
     @DisplayName("JsonExportWriter: streams valid JSON array of ordered objects")
     void testJsonExportWriter() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

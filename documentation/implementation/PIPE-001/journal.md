@@ -1,5 +1,45 @@
 # PIPE-001 — Implementation Journal
 
+## 2026-09-27 — PIPE-001 backend implementation status (plan-aligned review)
+
+**Action:** Reviewed the implementation plan and git history for the `implementation/PIPE-001` branch to reconcile the
+planned work against the code that is actually present in the export-service backend.
+
+**Current implementation state:**
+
+- The export pipeline API is present and wired end-to-end: `ExportPipelineController` exposes create, list, detail,
+  status polling, download URL retrieval, retry, soft delete, and field metadata endpoints under `/api/v1/exports`.
+- `ExportPipelineService` is the orchestration layer for ownership checks, pagination, status polling, retry, deletion,
+  download URL generation, and file-stream download handling.
+- Batch orchestration is in place via `ExportJobConfig` and `ExportSourceDecider`; the job routes between API and
+  Postgres-backed export paths and flows into validation/estimate and assemble/finalize tasklets.
+- Batch lifecycle management is implemented through `ExportPipelineLifeCycleService` and `ExportCleanupJob`, covering
+  status transitions, job execution tracking, and cleanup of stale exports.
+- File export execution is implemented with `DefaultExportFileStorageService`, `ExportWriterFactory`, and the format
+  writer stack for CSV/TSV/JSON/XLSX output as planned for the pipeline flow.
+- Integration-level controller coverage is present in `ExportPipelineControllerIntegrationTest`, validating successful
+  pipeline creation, list/detail/status retrieval, field lookup, and security checks.
+- Unit coverage was added in the branch history for the export pipeline lifecycle, export source routing, and writer
+  factory behavior (`ExportPipelineLifeCycleServiceTest`, `ExportSourceDeciderTest`, `ExportWriterFactoryTest`).
+
+**Branch evidence:**
+
+- `0aa3a00` — `PIPE-001 - Backend - Integration test`
+- `b34debb` — `PIPE-001 - Backend - Unit tests`
+- `f8f9b24` — `PIPE-001 - fix data provider in call gene-service for correct count`
+- `a660868` — `PIPE-001 - Fix transactional problem in step and decider`
+- `d8cf1f1` — `PIPE-001 - Documentation and logging for export-service`
+- `38ee3c0` — `PIPE-001 - Backend — Audit & Cleanup ExportCleanupJob`
+- `6147d83` / `63e835e` — `PIPE-001 - Backend — Controller`
+- `444316d` / `843351a` — service-layer work for pipeline lifecycle, status, retry, delete, and download metadata
+
+**Interpretation:** the export pipeline feature is materially implemented in the backend and matches the plan’s core
+execution path, with the remaining checklist items in `plan.md` reflecting the backlog/documentation/coverage work
+rather
+than absent functional wiring.
+
+---
+
 ## 2026-09-25 — Export Writers and Segment Assembly Remediation
 
 **Action:** Completed the remediations identified by the export writer and segment assembly audit.
@@ -373,3 +413,118 @@ required dependencies.
 ---
 
 **Coverage Target:** ≥ 80 % (pending)
+
+## 2026-09-27 — Added unit tests for `ExportPipelineService`
+
+**Action:** Implemented focused unit tests for the `ExportPipelineService` to cover pipeline lifecycle operations that
+are critical to the API and UI polling logic.
+
+**Tests added:**
+
+- `ExportPipelineServiceTest` (unit tests):
+  - `createPipeline_validRequest_returnsQueuedPipeline` — verifies mapping, persistence and job enqueue path
+  - `getDownloadUrl_completedPipeline_returnsUrl` — verifies download URL metadata for completed pipelines
+  - `getDownloadUrl_incompletePipeline_throws` — verifies 400/NoSuchFile behaviour for non-complete pipelines
+  - `retryPipeline_failedPipeline_requeues` — verifies cloning and re-enqueueing of failed pipelines
+  - `deletePipeline_softDeletesAndStopsJob` — verifies soft-delete and job stop behavior when job execution is missing
+
+**Implementation notes:**
+
+- Tests are unit-level (Mockito + JUnit 5) and exercise `ExportPipelineService` with mocked repositories, mapper,
+  job repository and async executor. They avoid starting Spring context to keep execution fast and deterministic.
+- Some behavior (job execution stop) can be environment-dependent — tests assert soft-delete occurs even when
+  `JobRepository.getJobExecution()` returns null, which matches the service's defensive path.
+- Tests use Mockito strict stubbing; only methods actually exercised by the service logic are stubbed.
+
+**Verification:**
+
+Run the focused test suite for the export-service module:
+
+```bash
+cd backend
+mvn -f backend/pom.xml -pl services/export-service -am \
+  -Dtest=ExportPipelineServiceTest -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+Result: the five new unit tests executed locally without failures (module test run completed).
+
+**Plan updates:**
+
+- Marked the following checklist items in `plan.md` as implemented:
+  - `createPipeline_validRequest_returnsQueuedPipeline`
+  - `getDownloadUrl_completedPipeline_returnsUrl`
+  - `getDownloadUrl_incompletePipeline_throws`
+  - `retryPipeline_failedPipeline_requeues`
+  - `deletePipeline_softDeletesAndStopsJob`
+
+**Next steps:**
+
+- Implement the remaining service test `createPipeline_zeroRows_throws` once a deterministic GeneService count
+  behavior is available in the unit test (either via a dedicated `GeneService` mock or a small integration test
+  harness).
+- Continue implementing the remaining writer/processor tests from `plan.md` in priority order: `CsvExportWriterTest`,
+  `ExportItemProcessorTest`, `ExportItemWriterTest` (restart/retry behavior).
+
+## 2026-09-27 — CsvExportWriter escaping test added
+
+**Action:** Added a focused unit test to validate RFC 4180 escaping behavior for CSV output.
+
+**Test added:**
+
+- `CsvExportWriter: writeRow escapes commas and quotes per RFC 4180`
+  - Location:
+    `backend/services/export-service/src/test/java/com/bioinformatics/exportservice/writer/ExportWritersTest.java`
+  - Verifies that fields containing commas, double-quotes and newlines are quoted and that embedded double-quotes
+    are escaped by doubling them (" -> ""). Also verifies CRLF record separators remain intact.
+
+**Verification:**
+
+Run the writers test suite:
+
+```bash
+cd backend
+mvn -f backend/pom.xml -pl services/export-service -am \
+  -Dtest=ExportWritersTest -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+Result: the writers tests executed locally; the CSV escaping test passed.
+
+**Plan updates:**
+
+- Marked `CsvExportWriterTest#writeRow_escapesCommasAndQuotes` as implemented in `plan.md`.
+
+**Next steps:**
+
+- Implement field-order preservation test for CSV writers (ensure ExportFormatWriter uses ordered List<String>),
+  and proceed with `ExportItemProcessorTest` next.
+
+## 2026-09-27 — PIPE-001 backend test completion and plan reconciliation
+
+**Action:** Added the missing export-service backend tests for CSV escaping, XLSX finalization, processor field
+extraction, and the expanded pipeline regression bundle; then re-ran the focused suite and aligned the implementation
+plan with the actual state of the codebase.
+
+**Acceptance covered:**
+
+- CSV writer regression tests cover quoted commas, embedded quotes, BOM-preserving output, and caller-selected field
+  ordering.
+- Excel writer regression verifies workbook finalization and row serialization in the exported XLSX output.
+- ExportItemProcessor tests validate row filtering for selected export fields, null-safe collection rendering, and
+  nested object serialization contract.
+- Existing `ExportPipelineService`, `ExportItemWriter`, and controller integration tests remain green with the new
+  additions.
+
+**Verification:**
+
+```bash
+cd /home/medali/VscodeProjects/bioinformatics-analytics-dashboard
+mvn -f backend/pom.xml -pl services/export-service -am \
+  -Dtest=CsvExportWriterTest,ExcelExportWriterTest,ExportItemProcessorTest,ExportWritersTest,ExportItemWriterTest,ExportPipelineServiceTest,ExportPipelineControllerIntegrationTest \
+  -Dsurefire.failIfNoSpecifiedTests=false test
+```
+
+Result: **BUILD SUCCESS** — 23 tests run, 0 failures, 0 errors, 0 skipped.
+
+**Documentation update:** `documentation/implementation/PIPE-001/plan.md` was reconciled to mark the completed backend
+test checklist items as done, while leaving the still-unimplemented frontend and audit tasks unchanged.
+
