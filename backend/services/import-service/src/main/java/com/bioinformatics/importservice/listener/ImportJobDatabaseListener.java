@@ -85,14 +85,15 @@ public class ImportJobDatabaseListener implements JobExecutionListener {
             log.info("[BATCH_LISTENER] Job COMPLETED - ID={}, recordsProcessed={}, duration={}ms",
                     jobId, totalProcessed, durationMs);
             jobRecord.setStatus(ImportStatus.COMPLETED);
+            jobRecord.setErrorMessage(null);
         } else {
-            var errorMsg = !jobExecution.getAllFailureExceptions().isEmpty()
-                    ? jobExecution.getAllFailureExceptions().getFirst().getMessage()
-                    : "Import job failed";
+            var failure = jobExecution.getAllFailureExceptions().isEmpty()
+                    ? null
+                    : jobExecution.getAllFailureExceptions().getFirst().getMessage();
             log.error("[BATCH_LISTENER] Job FAILED - ID={}, reason='{}', duration={}ms",
-                    jobId, errorMsg, durationMs);
+                    jobId, failure == null ? "no failure details" : failure, durationMs);
             jobRecord.setStatus(ImportStatus.FAILED);
-            jobRecord.setErrorMessage(errorMsg);
+            jobRecord.setErrorMessage(failure);
         }
 
         jobRecord.setRecordsProcessed((int) totalProcessed);
