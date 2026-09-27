@@ -16,19 +16,27 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.bioinformatics.shared.models.db.DbSchema.AUTH_SCHEMA;
-import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 
 /**
  * JPA entity for the {@code auth.app_user} table.
  *
  * <p>Implements {@link UserDetails} so it can be handed directly to Spring Security
- * without an intermediate projection.  The {@code auth} schema isolates this table
+ * without an intermediate projection. The {@code auth} schema isolates this table
  * from all other service schemas.
  *
- * <p>Why {@code SEQUENCE} not {@code IDENTITY}: Hibernate batch inserts require
- * pre-allocated IDs, and SEQUENCE allows that while IDENTITY forces a round-trip
- * per insert.  Even though auth writes are rare, we keep the convention consistent
- * across all entities in this service.
+ * <p>Security Features:
+ * <ul>
+ *   <li>Password stored as BCrypt hash (never plaintext)</li>
+ *   <li>Failed login attempt counter for account lockout</li>
+ *   <li>Account lockout timestamp (lockedUntil) for progressive delays</li>
+ *   <li>User status tracking (ACTIVE, CREATED, DELETED, SUSPENDED)</li>
+ *   <li>Role-based authorization (ROLE_USER, ROLE_ADMIN)</li>
+ * </ul>
+ *
+ * <p>Why {@code SEQUENCE} not {@code IDENTITY}:
+ * Hibernate batch inserts require pre-allocated IDs, and SEQUENCE allows that while
+ * IDENTITY forces a round-trip per insert. Even though auth writes are rare, we keep
+ * the convention consistent across all entities in this service.
  */
 @Entity
 @Table(schema = AUTH_SCHEMA, name = "app_user")
@@ -56,25 +64,26 @@ public class AppUser implements UserDetails {
     private String username;
 
     /**
-     * BCrypt hash — never the raw password.
+     * BCrypt-hashed password — never the raw plaintext password.
      */
     @Column(nullable = false, length = 255)
     private String password;
 
     /**
      * Spring Security role string, e.g. {@code ROLE_USER} or {@code ROLE_ADMIN}.
-     * Stored as a plain VARCHAR so future multi-role RBAC can be added without a
-     * schema change.
      */
     @Column(nullable = false, length = 20)
     private String role;
 
+    /**
+     * Lifecycle status of the account.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserStatus status;
 
     /**
-     * Number of consecutive failed login attempts since last successful login.
+     * Number of consecutive failed login attempts.
      */
     @Column(name = "failed_attempts", nullable = false)
     @Builder.Default
@@ -82,7 +91,6 @@ public class AppUser implements UserDetails {
 
     /**
      * When set, the account is locked until this instant.
-     * {@code null} means the account is not locked.
      */
     @Column(name = "locked_until")
     private Instant lockedUntil;
@@ -106,28 +114,43 @@ public class AppUser implements UserDetails {
         updatedAt = Instant.now();
     }
 
-    // ── UserDetails ───────────────────────────────────────────────────────────
-
+    /**
+     * Returns the user's authority list.
+     *
+     * @return collection containing the assigned role
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
 
+    /**
+     * Checks whether the account is currently not locked.
+     *
+     * @return true when the lock is expired or absent
+     */
     @Override
     public boolean isAccountNonLocked() {
         return lockedUntil == null || Instant.now().isAfter(lockedUntil);
     }
 
+    /**
+     * Checks if the account is enabled.
+     *
+     * @return true for ACTIVE or CREATED accounts
+     */
     @Override
     public boolean isEnabled() {
         return status == UserStatus.ACTIVE || status == UserStatus.CREATED;
     }
 
-    // ── Domain helpers ────────────────────────────────────────────────────────
-
+    /**
+     * Determines whether this account has admin privileges.
+     *
+     * @return true if role is ROLE_ADMIN
+     */
     public boolean isAdmin() {
         return getAuthorities().stream()
                 .anyMatch(auth -> Objects.equals(auth.getAuthority(), "ROLE_ADMIN"));
     }
 }
-
