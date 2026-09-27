@@ -11,12 +11,10 @@ import org.mapstruct.Named;
 import java.util.List;
 
 /**
- * MapStruct mapper — {@link ProteinEntry} entity ↔ DTOs.
+ * MapStruct mapper used to project {@link ProteinEntry} persistence entities to API-facing DTOs.
  *
- * <p>Entities must never be returned directly from controllers.
- * This mapper is the only place where entity fields are projected to DTO fields.
- *
- * @see <a href="{@docRoot}/documentation/constitution.md">Backend Standards — DTOs for API contracts</a>
+ * <p>This layer ensures the REST API never exposes JPA entities directly and keeps the transformation
+ * logic in one explicit place. The keyword conversion helper is intentionally simple and deterministic.
  */
 @Mapper(componentModel = "spring")
 public interface GeneMapper {

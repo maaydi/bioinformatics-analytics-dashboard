@@ -15,16 +15,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Common {@link SecurityFilterChain} used by every microservice.
- * <ul>
- *   <li>Stateless JWT sessions (no cookies / no CSRF).</li>
- *   <li>Permits actuator health probes (k8s / load-balancer friendly).</li>
- *   <li>Everything else requires a valid Bearer token.</li>
- *   <li>Method-security ({@code @PreAuthorize}) is enabled.</li>
- * </ul>
- * <p>Individual services can override this bean by defining their own
- * {@code SecurityFilterChain} — this configuration backs off via
- * {@link ConditionalOnMissingBean}.
+ * Default security baseline for all microservices in the platform.
+ *
+ * <p>When a service does not define its own {@link SecurityFilterChain}, this configuration enables
+ * stateless JWT authentication, guards all non-public endpoints, and leaves metrics/health endpoints
+ * accessible for operational checks and load-balancer probes.
  */
 @Configuration
 @EnableWebSecurity
@@ -32,6 +27,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @ConditionalOnClass(SecurityFilterChain.class)
 public class CommonSecurityConfig {
 
+    /**
+     * Builds the default stateless security chain for microservices.
+     *
+     * @param http       HTTP security configuration
+     * @param jwtDecoder decoder used to validate bearer tokens
+     * @return default security filter chain
+     */
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     @ConditionalOnBean(JwtDecoder.class)

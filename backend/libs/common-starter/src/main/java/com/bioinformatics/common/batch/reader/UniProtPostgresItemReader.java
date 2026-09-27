@@ -15,31 +15,10 @@ import java.util.Deque;
 
 /**
  * Spring Batch {@link ItemStreamReader} that reads {@link ProteinEntry} objects
- * from a PostgreSQL database using offset-based pagination, one page at a time.
+ * from PostgreSQL using offset-based pagination.
  *
- * <h3>Pagination contract</h3>
- * <p>The reader uses standard offset-based pagination to query the database.
- * Each call to {@link #read()} checks if the internal buffer is empty;
- * if so, it fetches the next page using the current active page number.
- *
- * <ol>
- *   <li>On each call to {@link #read()}, if the internal buffer is empty and the
- *       source is not yet exhausted, the reader fetches the next page from
- *       the database via {@link ProteinEntryService#findAll(org.springframework.data.jpa.domain.Specification, org.springframework.data.domain.Pageable)}.</li>
- *   <li>Pages are fetched lazily: the reader never pre-fetches ahead of what the
- *       step needs.</li>
- *   <li>When the database returns no more results ({@code getTotalPages() <= activePage + 1}),
- *       the reader marks the source as exhausted and subsequent calls to {@link #read()} return
- *       {@code null} (end of stream).</li>
- * </ol>
- *
- * <h3>Restartability</h3>
- * The current page number is persisted in the Spring Batch
- * {@link ExecutionContext}. On a restart, the reader resumes exactly from the
- * page that was last checkpointed, without re-fetching earlier pages.
- *
- * <p><strong>Note:</strong> this reader is not thread-safe and is intended for
- * single-threaded step execution only.
+ * <p>The reader lazily fetches page-sized database chunks and persists the current page number in the
+ * execution context so an interrupted job can resume without re-reading earlier results.
  */
 @Slf4j
 public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry> {
@@ -57,16 +36,17 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
     private final Deque<ProteinEntry> buffer = new ArrayDeque<>();
 
     /**
-     * Cursor to pass on the next API call. {@code null} triggers the first-page call.
+     * Current page index used for the next database call.
      */
     private int activePage = -1;
+
     /**
      * Number of pages fetched so far (for logging / metrics only).
      */
     private int pageCount = 0;
 
     /**
-     * Set to {@code true} once the API signals there are no more pages.
+     * Set to {@code true} once there are no more pages.
      */
     private boolean exhausted = false;
 
@@ -76,10 +56,8 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
         this.requestPageSize = requestPageSize;
     }
 
-
     /**
-     * Restores cursor state from a previous execution (restart scenario).
-     * On a fresh start the context is empty and the reader begins at the first page.
+     * Restores page state from a previous execution (restart scenario).
      */
     @Override
     public void open(ExecutionContext executionContext) {
@@ -93,8 +71,7 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
     }
 
     /**
-     * Persists the current active page so the step can restart from the last
-     * successfully committed chunk.
+     * Persists the current page state so the step can resume from the last committed chunk.
      */
     @Override
     public void update(@NonNull ExecutionContext executionContext) {
@@ -102,6 +79,7 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
             executionContext.putInt(PAGE_NUMBER, activePage);
         }
         executionContext.putInt(PAGE_COUNT_KEY, pageCount);
+        log.debug("UniProtPostgresItemReader checkpointed page={} pageCount={}", activePage, pageCount);
     }
 
     /**
@@ -113,10 +91,8 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
         log.debug("UniProtPostgresItemReader closed after {} page(s)", pageCount);
     }
 
-
     /**
-     * Returns the next {@link ProteinEntry}, fetching a new page from the database
-     * when the buffer is empty.
+     * Returns the next {@link ProteinEntry}, fetching a new page when the buffer is empty.
      *
      * @return the next entry, or {@code null} when all pages have been consumed
      */
@@ -127,7 +103,6 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
         }
         return buffer.isEmpty() ? null : buffer.poll();
     }
-
 
     private void loadNextPage() {
         log.debug("Fetching UniProt Postgres page {} (size {})", activePage, requestPageSize);
@@ -142,4 +117,3 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
         log.info("Fetched page {} — {} entries, hasMore={}", activePage, entries.size(), !exhausted);
     }
 }
-

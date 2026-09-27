@@ -15,13 +15,11 @@ import java.util.Set;
 import static com.bioinformatics.shared.models.db.DbSchema.GENES_SCHEMA;
 
 /**
- * JPA entity for {@code protein_entry} table.
+ * JPA entity representing a UniProt protein entry.
  *
- * <p>DDL is authoritative in documentation/domain-model.md §1.
- * Do NOT modify column names without updating the Flyway migration AND domain-model.md.
- *
- * <p>Relationships are lazily loaded to avoid N+1 — use {@code @EntityGraph} or
- * JOIN FETCH in the repository for detail queries (see domain-model.md design goals).
+ * <p>DDL is authoritative in the domain model documentation and should remain aligned with the database
+ * schema. The entity intentionally keeps lazy collection loading to avoid large object graphs during
+ * list queries and only materializes child collections when required by a detail view.
  */
 @Entity
 @Table(schema = GENES_SCHEMA, name = "protein_entry")
@@ -166,25 +164,24 @@ public class ProteinEntry {
     private Set<HostOrganism> hostOrganisms = new HashSet<>();
 
     /**
-     * Cross-references are NOT cascade-persisted by JPA.
-     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
-     * This field is transient so that JPA never attempts to cascade-flush it.
+     * Cross-references are intentionally transient because they are loaded in a dedicated repository
+     * query and persisted explicitly by the import writer rather than by JPA cascade rules.
      */
     @Transient
     @Builder.Default
     private Set<CrossReference> crossReferences = new HashSet<>();
 
     /**
-     * Comments are NOT cascade-persisted by JPA.
-     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
+     * Comments are intentionally transient because they are assembled via dedicated repository queries
+     * and persist through the batch import writer.
      */
     @Transient
     @Builder.Default
     private Set<ProteinComment> comments = new HashSet<>();
 
     /**
-     * Publications are NOT cascade-persisted by JPA.
-     * They are persisted explicitly by {@code ProteinAggregateItemWriter}.
+     * Publications are intentionally transient because they are assembled via dedicated repository queries
+     * and persist through the batch import writer.
      */
     @Transient
     @Builder.Default

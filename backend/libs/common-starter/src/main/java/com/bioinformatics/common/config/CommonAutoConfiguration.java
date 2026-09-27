@@ -1,6 +1,5 @@
 package com.bioinformatics.common.config;
 
-
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -9,9 +8,18 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * Entry-point autoconfiguration for the {@code common-starter}.
- * <p>Enabled by default via {@code common.enabled=true} (or missing property).
- * Scans all sub-packages so that conditional beans are picked up automatically.
+ * Entry-point auto-configuration for the {@code common-starter}.
+ *
+ * <p>Enabled by default via {@code common.enabled=true} (or missing property), this configuration
+ * scans the {@code com.bioinformatics.common} package and loads the shared infrastructure beans used
+ * across services.
+ *
+ * <p>Purpose:
+ * <ul>
+ *   <li>Register common configuration properties</li>
+ *   <li>Enable package scanning for shared components</li>
+ *   <li>Bootstrap datasource / common infra wiring before database autoconfiguration</li>
+ * </ul>
  */
 @AutoConfiguration
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)

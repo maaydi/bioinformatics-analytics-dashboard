@@ -3,6 +3,7 @@ package com.bioinformatics.common.gene.specification;
 import com.bioinformatics.common.gene.entity.CrossReference;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
@@ -10,21 +11,13 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * JPA Specifications for dynamic multi-filter queries on {@link ProteinEntry}.
+ * JPA specifications for dynamic filtering on {@link ProteinEntry}.
  *
- * <p>Each static method returns a single predicate.  Predicates are combined
- * by the service layer using {@code .and()} / {@code .or()}.
- *
- * <p>Filter fields and their semantics are defined in documentation/api-contract.md §1
- * (POST /api/genes/search) and documentation/overview.md §9.
- *
- * <p>Example usage:
- * <pre>{@code
- * Specification<ProteinEntry> spec = Specification.where(GeneSpecification.reviewed(true))
- *         .and(GeneSpecification.organism("Human"))
- *         .and(GeneSpecification.lengthBetween(100, 500));
- * }</pre>
+ * <p>Each factory method builds a single predicate, and the service layer combines them into a single
+ * query. This keeps the domain query logic explicit, testable, and aligned with the filters exposed by
+ * the genes search API.
  */
+@Slf4j
 public final class GeneSpecification {
 
     private GeneSpecification() {
@@ -35,26 +28,30 @@ public final class GeneSpecification {
             return (root, query, cb) -> cb.conjunction();
         }
 
-        return Stream.of(globalSearch(req.globalSearch()),
-                        accession(req.accession()),
-                        entryName(req.entryName()),
-                        geneNamePrimary(req.geneNamePrimary()),
-                        proteinFullName(req.proteinFullName()),
-                        reviewed(req.reviewed()),
-                        organism(req.organism()),
-                        taxid(req.taxid()),
-                        lengthBetween(req.lengthMin(), req.lengthMax()),
-                        molecularWeightBetween(req.molecularWeightMin(), req.molecularWeightMax()),
-                        evidenceLevels(req.evidenceLevels()),
-                        keywords(req.keywords()),
-                        lineage(req.lineage()),
-                        hasGoTermId(req.goTermId()),
-                        goAspect(req.goAspect()),
-                        featureType(req.featureType()),
-                        crossRefSource(req.crossRefSource()))
-                .filter(Objects::nonNull)
+        var filters = Stream.of(globalSearch(req.globalSearch()),
+                accession(req.accession()),
+                entryName(req.entryName()),
+                geneNamePrimary(req.geneNamePrimary()),
+                proteinFullName(req.proteinFullName()),
+                reviewed(req.reviewed()),
+                organism(req.organism()),
+                taxid(req.taxid()),
+                lengthBetween(req.lengthMin(), req.lengthMax()),
+                molecularWeightBetween(req.molecularWeightMin(), req.molecularWeightMax()),
+                evidenceLevels(req.evidenceLevels()),
+                keywords(req.keywords()),
+                lineage(req.lineage()),
+                hasGoTermId(req.goTermId()),
+                goAspect(req.goAspect()),
+                featureType(req.featureType()),
+                crossRefSource(req.crossRefSource()));
+
+        var specification = filters.filter(Objects::nonNull)
                 .reduce(Specification::and)
                 .orElse((root, query, cb) -> cb.conjunction());
+
+        log.debug("Built GeneSpecification from request with {} active filters", filters.filter(Objects::nonNull).count());
+        return specification;
     }
 
     public static Specification<ProteinEntry> globalSearch(String query) {
@@ -155,7 +152,6 @@ public final class GeneSpecification {
     public static Specification<ProteinEntry> lineage(String lineageValue) {
         if (!StringUtils.hasText(lineageValue)) return null;
         return (root, query, cb) -> {
-            // Use PostgreSQL array_to_string to search within the lineage text[] column
             var arrayStr = cb.function("array_to_string", String.class, root.get("lineage"), cb.literal(","));
             return cb.like(cb.lower(arrayStr), "%" + lineageValue.toLowerCase() + "%");
         };

@@ -19,6 +19,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import javax.sql.DataSource;
 import java.util.HashMap;
 
+/**
+ * Routing datasource configuration for read/write database splitting.
+ *
+ * <p>Primary transactions use the writer datasource while read-only transactions are automatically
+ * routed to the replica. The outer {@link LazyConnectionDataSourceProxy} defers connection creation
+ * until the first actual database interaction.
+ */
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnClass(DataSource.class)
@@ -59,7 +66,7 @@ public class RoutingDataSourceConfig {
     @Bean
     @Primary
     public DataSource routingDataSource(DataSource primaryDataSource, DataSource replicaDataSource) {
-        log.debug("Creating routing datasource");
+        log.debug("Creating routing datasource with PRIMARY/REPLICA targets");
         var routingDataSource = new AbstractRoutingDataSource() {
             @Override
             protected Object determineCurrentLookupKey() {
@@ -69,7 +76,8 @@ public class RoutingDataSourceConfig {
             }
         };
 
-        var targets = new HashMap<Object, Object>();
+        var targets = new HashMap<>();
+
         targets.put(DataSourceType.PRIMARY, primaryDataSource);
         targets.put(DataSourceType.REPLICA, replicaDataSource);
 
@@ -82,6 +90,8 @@ public class RoutingDataSourceConfig {
 
     private DataSource createDataSource(DataSourceType type, String url, String username, String password,
                                         CommonProperties.DataSource.Pool pool) {
+        log.info("Initializing {} Hikari datasource for URL '{}' with pool maxSize={} minIdle={} timeoutMs={}",
+                type, url, pool.maxSize(), pool.minIdle(), pool.connectionTimeoutMs());
         var config = new HikariConfig();
         config.setJdbcUrl(url);
         config.setUsername(username);
