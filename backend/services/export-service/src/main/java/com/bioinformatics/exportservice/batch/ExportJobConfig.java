@@ -18,6 +18,27 @@ import org.springframework.transaction.PlatformTransactionManager;
 import static com.bioinformatics.exportservice.dto.Constants.ASSEMBLE_FINALIZE_TASK;
 import static com.bioinformatics.exportservice.dto.Constants.VALIDATE_ESTIMATE_TASK;
 
+/**
+ * Spring Batch job configuration for export pipelines.
+ *
+ * <p>Defines the job flow:
+ * <ol>
+ *   <li><strong>validate-and-estimate</strong> - Count rows and calculate chunks
+ *   <li><strong>export-source-decider</strong> - Route to API or Postgres step
+ *   <li><strong>uniprot-api-export-step</strong> or <strong>uniprot-postgres-export-step</strong> - Read/write data
+ *   <li><strong>assemble-and-finalize</strong> - Merge segments and mark complete
+ * </ol>
+ *
+ * <p>Listeners:
+ * <ul>
+ *   <li>{@link ExportJobLifecycleListener} - Lifecycle hooks (beforeJob, afterJob)
+ * </ul>
+ *
+ * <p>Profiles: Active when not testing (profile != "test").
+ *
+ * @see ExportJobParameters
+ * @see ExportSourceDecider
+ */
 @Configuration
 @Profile("!test")
 @RequiredArgsConstructor
@@ -27,11 +48,24 @@ public class ExportJobConfig {
     private final Step uniProtPostgresExportStep;
     private final ExportJobLifecycleListener exportJobListener;
 
+    /**
+     * Decider to route job to correct data source (API vs. Postgres).
+     *
+     * @return job execution decider
+     */
     @Bean
     public JobExecutionDecider exportSourceDecider() {
         return new ExportSourceDecider();
     }
 
+    /**
+     * Step for validating filter and estimating row count.
+     *
+     * @param jobRepository      job repository
+     * @param transactionManager transaction manager
+     * @param tasklet            validation tasklet
+     * @return configured step
+     */
     @Bean
     Step validateAndEstimateStep(
             JobRepository jobRepository,
@@ -43,6 +77,14 @@ public class ExportJobConfig {
                 .build();
     }
 
+    /**
+     * Step for assembling segments and finalizing export file.
+     *
+     * @param jobRepository job repository
+     * @param transactionManager transaction manager
+     * @param tasklet assembly tasklet
+     * @return configured step
+     */
     @Bean
     Step assembleAndFinalizeStep(
             JobRepository jobRepository,
@@ -54,6 +96,23 @@ public class ExportJobConfig {
                 .build();
     }
 
+    /**
+     * Main export pipeline job.
+     *
+     * <p>Flow:
+     * <pre>
+     * validate-and-estimate
+     *   ↓
+     * export-source-decider
+     *   ├→ [API] → uniprot-api-export-step → assemble-and-finalize → END
+     *   └→ [DB]  → uniprot-postgres-export-step → assemble-and-finalize → END
+     * </pre>
+     *
+     * @param jobRepository job repository
+     * @param validateAndEstimateStep validation step
+     * @param assembleAndFinalizeStep assembly step
+     * @return configured job
+     */
     @Bean
     Job exportPipelineJob(JobRepository jobRepository, Step validateAndEstimateStep, Step assembleAndFinalizeStep) {
 

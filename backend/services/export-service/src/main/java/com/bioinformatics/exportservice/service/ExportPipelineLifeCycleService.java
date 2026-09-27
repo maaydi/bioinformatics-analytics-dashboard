@@ -14,6 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * Manages the lifecycle and status updates of export pipelines.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Pipeline status transitions (QUEUED → RUNNING → COMPLETED/FAILED/CANCELLED)
+ *   <li>Progress tracking (estimated rows, chunk counts)
+ *   <li>Duration calculation
+ *   <li>Filter criteria retrieval
+ * </ul>
+ *
+ * <p>Called by:
+ * <ul>
+ *   <li>ExportJobLifecycleListener (status transitions)
+ *   <li>ValidateAndEstimateTasklet (row estimation)
+ *   <li>AssembleAndFinalizeTasklet (completion)
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,12 +41,29 @@ public class ExportPipelineLifeCycleService {
     private final ExportPipelineRepository pipelineRepository;
     private final ExportJobExecutionRepository jobExecutionRepository;
 
+    /**
+     * Marks a pipeline as COMPLETED with final file metadata.
+     *
+     * <p>Updates:
+     * <ul>
+     *   <li>Status → COMPLETED
+     *   <li>File path and size
+     *   <li>Actual rows processed
+     *   <li>Duration (completedAt - startedAt)
+     * </ul>
+     *
+     * @param pipelineId    pipeline identifier
+     * @param finalFile     absolute file path (null preserves existing)
+     * @param fileSizeBytes file size in bytes (null preserves existing)
+     * @param actualRows    rows written to file (null preserves existing)
+     */
     public void markAsCompleted(
             Long pipelineId,
             String finalFile,
             Long fileSizeBytes,
             Long actualRows) {
-        log.info("Marking Pipeline as Completed for Pipeline with id {}", pipelineId);
+        log.info("[LIFECYCLE] Marking COMPLETED - ID={}, finalFile={}, size={} bytes, rows={}",
+                pipelineId, finalFile, fileSizeBytes, actualRows);
 
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(pipeline -> {
@@ -42,39 +77,80 @@ public class ExportPipelineLifeCycleService {
 
                     pipelineRepository.save(pipeline);
 
-                    log.info(
-                            "Pipeline {} completed successfully",
-                            pipelineId
-                    );
+                    log.info("[LIFECYCLE] Pipeline COMPLETED - ID={}, finalFile={}, duration={}ms",
+                            pipelineId, pipeline.getFilePath(), pipeline.getDurationMs());
 
                 }, () -> logFailedUpdate(pipelineId));
     }
 
+    /**
+     * Retrieves the search filter criteria for a pipeline export.
+     *
+     * <p>Used by batch job to fetch data according to the stored filter.
+     *
+     * @param pipelineId pipeline identifier
+     * @return gene search request/filter
+     * @throws IllegalArgumentException if pipeline not found
+     */
     public GeneSearchRequest getExportPipelineSearchRequest(Long pipelineId) {
+        log.debug("[LIFECYCLE] Retrieving filter for pipeline - ID={}", pipelineId);
         var pipeline = pipelineRepository.findById(pipelineId)
-                .orElseThrow(() -> new IllegalArgumentException("Export Pipeline with id %d not found".formatted(pipelineId)));
+                .orElseThrow(() -> {
+                    log.error("[LIFECYCLE] Pipeline not found - ID={}", pipelineId);
+                    return new IllegalArgumentException("Export Pipeline with id %d not found".formatted(pipelineId));
+                });
+        log.debug("[LIFECYCLE] Filter retrieved - ID={}", pipelineId);
         return pipeline.getFilterJson();
     }
 
+    /**
+     * Updates estimated row count and recalculates chunk count.
+     *
+     * <p>Called during validation phase to inform UI and chunk processing.
+     *
+     * @param pipelineId   pipeline identifier
+     * @param estimatedRows total rows matching filter
+     * @param chunkSize    batch size per chunk
+     */
     public void updatePipelineEstimatedRows(Long pipelineId, Long estimatedRows, int chunkSize) {
-        log.info("Updating estimated rows for Pipeline with id {}", pipelineId);
+        log.info("[LIFECYCLE] Updating estimated rows - ID={}, estimatedRows={}, chunkSize={}",
+                pipelineId, estimatedRows, chunkSize);
+
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(exportPipeline -> {
                     exportPipeline.setEstimatedRows(estimatedRows);
                     pipelineRepository.save(exportPipeline);
+                    log.debug("[LIFECYCLE] Pipeline estimated rows saved - ID={}, estimatedRows={}", pipelineId, estimatedRows);
+
                     jobExecutionRepository.findByPipelineId(pipelineId)
                             .ifPresentOrElse(exportJobExecution -> {
                                 var estimatedChunks = (int) Math.ceil((double) estimatedRows / chunkSize);
                                 exportJobExecution.setChunksTotal(estimatedChunks);
                                 jobExecutionRepository.save(exportJobExecution);
+                                log.info("[LIFECYCLE] Job execution updated - ID={}, chunksTotal={}", pipelineId, estimatedChunks);
                             }, () -> logFailedUpdateExecution(pipelineId));
                 }, () -> logFailedUpdate(pipelineId));
     }
 
+    /**
+     * Marks a pipeline as RUNNING when batch job starts.
+     *
+     * <p>Updates:
+     * <ul>
+     *   <li>Status → RUNNING
+     *   <li>Batch job execution ID reference
+     *   <li>Started timestamp
+     *   <li>Creates ExportJobExecution record
+     * </ul>
+     *
+     * @param pipelineId    pipeline identifier
+     * @param jobExecutionId Spring Batch job execution ID
+     */
     public void markAsRunning(
             Long pipelineId,
             Long jobExecutionId) {
-        log.info("Marking Pipeline as Running for Pipeline with id {}", pipelineId);
+        log.info("[LIFECYCLE] Marking RUNNING - ID={}, batchJobExecutionId={}",
+                pipelineId, jobExecutionId);
 
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(pipeline -> {
@@ -83,25 +159,36 @@ public class ExportPipelineLifeCycleService {
                     pipeline.setJobExecutionId(jobExecutionId);
                     pipeline.setStartedAt(Instant.now());
                     pipelineRepository.save(pipeline);
-                    log.info("Creating Job Execution for pipeline {}", pipeline.getName());
+                    log.debug("[LIFECYCLE] Pipeline saved as RUNNING - ID={}, startedAt={}", pipelineId, pipeline.getStartedAt());
+
                     var exec = new ExportJobExecution();
                     exec.setPipeline(pipeline);
                     exec.setJobExecutionId(jobExecutionId);
                     jobExecutionRepository.save(exec);
-                    log.info(
-                            "Pipeline {} started with JobExecution {}",
-                            pipelineId,
-                            jobExecutionId
-                    );
+
+                    log.info("[LIFECYCLE] Job execution created - ID={}, jobExecutionId={}, pipelineId={}",
+                            exec.getId(), jobExecutionId, pipelineId);
 
                 }, () -> logFailedUpdate(pipelineId));
     }
 
-
+    /**
+     * Marks a pipeline as FAILED with error details.
+     *
+     * <p>Updates:
+     * <ul>
+     *   <li>Status → FAILED
+     *   <li>Error message (for UI display/debugging)
+     *   <li>Completion timestamp and duration
+     * </ul>
+     *
+     * @param pipelineId   pipeline identifier
+     * @param errorMessage description of failure cause
+     */
     public void markAsFailed(
             Long pipelineId,
             String errorMessage) {
-        log.info("Marking Pipeline as Failed for Pipeline with id {}, Raison: {}", pipelineId, errorMessage);
+        log.error("[LIFECYCLE] Marking FAILED - ID={}, reason='{}'", pipelineId, errorMessage);
 
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(pipeline -> {
@@ -113,17 +200,26 @@ public class ExportPipelineLifeCycleService {
 
                     pipelineRepository.save(pipeline);
 
-                    log.error(
-                            "Pipeline {} failed: {}",
-                            pipelineId,
-                            errorMessage
-                    );
+                    log.error("[LIFECYCLE] Pipeline FAILED - ID={}, duration={}ms, error='{}'",
+                            pipelineId, pipeline.getDurationMs(), errorMessage);
 
                 }, () -> logFailedUpdate(pipelineId));
     }
 
+    /**
+     * Marks a pipeline as CANCELLED (user or system initiated).
+     *
+     * <p>Updates:
+     * <ul>
+     *   <li>Status → CANCELLED
+     *   <li>Completion timestamp and duration
+     * </ul>
+     *
+     * @param pipelineId pipeline identifier
+     */
     public void markAsCancelled(Long pipelineId) {
-        log.info("Marking Pipeline as cancelled for Pipeline with id {}", pipelineId);
+        log.info("[LIFECYCLE] Marking CANCELLED - ID={}", pipelineId);
+
         pipelineRepository.findById(pipelineId)
                 .ifPresentOrElse(pipeline -> {
 
@@ -133,13 +229,18 @@ public class ExportPipelineLifeCycleService {
 
                     pipelineRepository.save(pipeline);
 
+                    log.info("[LIFECYCLE] Pipeline CANCELLED - ID={}, duration={}ms", pipelineId, pipeline.getDurationMs());
+
                 }, () -> logFailedUpdate(pipelineId));
     }
 
+    /**
+     * Calculates and sets completion timing metrics.
+     *
+     * @param pipeline pipeline entity to update
+     */
     private void completeTiming(ExportPipeline pipeline) {
-
         var completedAt = Instant.now();
-
         pipeline.setCompletedAt(completedAt);
 
         if (pipeline.getStartedAt() != null) {
@@ -147,17 +248,21 @@ public class ExportPipelineLifeCycleService {
                     completedAt.toEpochMilli()
                             - pipeline.getStartedAt().toEpochMilli()
             );
+            log.debug("[LIFECYCLE] Timing calculated - duration={}ms", pipeline.getDurationMs());
         }
     }
 
+    /**
+     * Logs when a pipeline update fails because the record is not found.
+     */
     private void logFailedUpdate(long pipelineId) {
-        log.error(
-                "Failed to update Pipeline: Pipeline with ID <{}> not found",
-                pipelineId
-        );
+        log.error("[LIFECYCLE] Failed to update pipeline - ID={} not found in database", pipelineId);
     }
 
+    /**
+     * Logs when a job execution update fails.
+     */
     private void logFailedUpdateExecution(long pipelineId) {
-        log.error("Failed to update job Execution for pipeline {} : Execution not found", pipelineId);
+        log.error("[LIFECYCLE] Failed to update job execution - no execution record found for pipeline ID={}", pipelineId);
     }
 }
