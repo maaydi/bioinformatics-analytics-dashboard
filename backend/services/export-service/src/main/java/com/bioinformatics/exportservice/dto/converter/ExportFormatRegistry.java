@@ -2,35 +2,34 @@ package com.bioinformatics.exportservice.dto.converter;
 
 import com.bioinformatics.exportservice.dto.ExportFormat;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class ExportFormatRegistry {
 
-    public static List<ExportFormat> getAllAvailableFormats(String basePackage) {
-        var allFormats = new ArrayList<ExportFormat>();
-        var scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(ExportFormat.class));
-        for (var bd : scanner.findCandidateComponents(basePackage)) {
-            try {
-                var clazz = Class.forName(bd.getBeanClassName());
-                if (clazz.isEnum()) {
-                    log.info("Found enum {} implements {}", clazz.getName(), ExportFormat.class.getName());
-                    var enumConstants = (ExportFormat[]) clazz.getEnumConstants();
-                    if (enumConstants != null) {
-                        allFormats.addAll(List.of(enumConstants));
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                log.error("Failed to get all available format {}", e.getMessage(), e);
-            }
-        }
+    private static final Map<String, ExportFormat> REGISTRY = new ConcurrentHashMap<>();
 
-        return allFormats;
+    public static void register(ExportFormat format) {
+        if (format != null) {
+            REGISTRY.put(format.name().toUpperCase(), format);
+            log.info("Registered ExportFormat: {} [{}]", format.name(), format.getClass().getName());
+        }
+    }
+
+    public static ExportFormat getFormat(String name) {
+        if (name == null || name.isBlank()) return null;
+        return REGISTRY.get(name.trim().toUpperCase());
+    }
+
+    public static Collection<ExportFormat> getAllAvailableFormats() {
+        return Collections.unmodifiableCollection(REGISTRY.values());
+    }
+
+    public static void clear() {
+        REGISTRY.clear();
     }
 }
-

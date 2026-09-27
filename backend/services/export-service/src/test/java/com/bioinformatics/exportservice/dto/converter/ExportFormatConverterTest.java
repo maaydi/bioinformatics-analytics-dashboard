@@ -32,7 +32,6 @@ class ExportFormatConverterTest {
 
     @Test
     void register_makesAdditionalFormatAvailableToPersistenceConverter() {
-        ExportFormatConverter.register(TestFormat.XML);
 
         assertThat(converter.convertToEntityAttribute("xml")).isEqualTo(TestFormat.XML);
         assertThat(converter.convertToDatabaseColumn(TestFormat.XML)).isEqualTo("XML");

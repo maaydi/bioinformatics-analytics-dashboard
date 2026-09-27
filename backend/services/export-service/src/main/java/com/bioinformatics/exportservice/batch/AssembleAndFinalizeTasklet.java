@@ -3,6 +3,7 @@ package com.bioinformatics.exportservice.batch;
 import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.dto.DefaultExportFormat;
 import com.bioinformatics.exportservice.dto.ExportFormat;
+import com.bioinformatics.exportservice.dto.converter.ExportFormatRegistry;
 import com.bioinformatics.exportservice.service.ExportFileStorageService;
 import com.bioinformatics.exportservice.service.ExportPipelineLifeCycleService;
 import lombok.RequiredArgsConstructor;
@@ -74,11 +75,12 @@ public class AssembleAndFinalizeTasklet implements Tasklet {
     }
 
     private ExportFormat getExportFormat(JobParameters parameters, ExportFormat defaultFormat) {
-        var format = parameters.getParameter(EXPORT_FORMAT.getKey());
-        if (Objects.isNull(format) || !format.type().isInstance(ExportFormat.class)) {
+        var format = ExportFormatRegistry.getFormat(parameters.getString(EXPORT_FORMAT.getKey()));
+
+        if (Objects.isNull(format)) {
             log.warn("Format parameter is not defined, use default format parameter {}", defaultFormat);
             return defaultFormat;
         }
-        return (ExportFormat) format.value();
+        return format;
     }
 }

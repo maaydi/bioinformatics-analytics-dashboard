@@ -2,6 +2,7 @@ package com.bioinformatics.exportservice.service;
 
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.exportservice.dto.ExportStatus;
+import com.bioinformatics.exportservice.entity.ExportJobExecution;
 import com.bioinformatics.exportservice.entity.ExportPipeline;
 import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
 import com.bioinformatics.exportservice.repository.ExportPipelineRepository;
@@ -82,12 +83,11 @@ public class ExportPipelineLifeCycleService {
                     pipeline.setJobExecutionId(jobExecutionId);
                     pipeline.setStartedAt(Instant.now());
                     pipelineRepository.save(pipeline);
-                    jobExecutionRepository.findByPipelineId(pipelineId)
-                            .ifPresentOrElse(jobExecution -> {
-                                jobExecution.setJobExecutionId(jobExecutionId);
-                                jobExecutionRepository.save(jobExecution);
-                            }, () -> logFailedUpdateExecution(pipelineId));
-
+                    log.info("Creating Job Execution for pipeline {}", pipeline.getName());
+                    var exec = new ExportJobExecution();
+                    exec.setPipeline(pipeline);
+                    exec.setJobExecutionId(jobExecutionId);
+                    jobExecutionRepository.save(exec);
                     log.info(
                             "Pipeline {} started with JobExecution {}",
                             pipelineId,

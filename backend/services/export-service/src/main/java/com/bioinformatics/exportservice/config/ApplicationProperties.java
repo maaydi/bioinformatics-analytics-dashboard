@@ -7,7 +7,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record ApplicationProperties(@DefaultValue Export export) {
     public record Export(@DefaultValue("100000") int maxRows, @DefaultValue String tempDir,
                          @DefaultValue ThreadPoolSettings pool, @DefaultValue Batch batch,
-                         @DefaultValue Cleanup cleanup) {
+                         @DefaultValue Cleanup cleanup,
+                         @DefaultValue("com.bioinformatics") String basePackage) {
     }
 
     public record ThreadPoolSettings(int coreSize,

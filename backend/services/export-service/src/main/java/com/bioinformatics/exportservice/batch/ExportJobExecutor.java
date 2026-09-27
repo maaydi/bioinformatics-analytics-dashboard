@@ -28,7 +28,7 @@ public class ExportJobExecutor {
     private final Job exportPipelineJob;
 
 
-    @Async("importExecutor")
+    @Async("exportExecutor")
     public void execute(JobParameters parameters) {
         try {
             var source = Objects.requireNonNull(parameters.getString(DATA_PROVIDER.getKey()));
@@ -41,6 +41,7 @@ public class ExportJobExecutor {
         }
     }
 
+    @Async("exportExecutor")
     public void stop(JobExecution jobExecution) {
         var id = jobExecution.getJobParameters().getLong(EXPORT_JOB_ID.getKey());
         try {

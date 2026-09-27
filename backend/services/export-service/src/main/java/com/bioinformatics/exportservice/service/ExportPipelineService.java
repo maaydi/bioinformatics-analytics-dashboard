@@ -9,7 +9,6 @@ import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.exportservice.batch.ExportJobExecutor;
 import com.bioinformatics.exportservice.dto.*;
-import com.bioinformatics.exportservice.entity.ExportJobExecution;
 import com.bioinformatics.exportservice.entity.ExportPipeline;
 import com.bioinformatics.exportservice.mapper.ExportPipelineMapper;
 import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
@@ -52,11 +51,8 @@ public class ExportPipelineService {
         log.info("Creating Pipeline with name {} and description {}", request.name(), request.description());
         var pipeline = mapper.toEntity(request, initiator.id());
         var result = pipelineRepository.save(pipeline);
-        log.info("Creating Job Execution for pipeline {}", request.name());
-        var exec = new ExportJobExecution();
-        exec.setPipeline(result);
-        jobExecutionRepository.save(exec);
-        return executePipelineJob(result, initiator, request.fieldSchema());
+        executePipelineJob(result, initiator, request.fieldSchema());
+        return mapper.toDto(pipeline);
     }
 
     public PagedResponse<ExportPipelineResponse> listPipelines(ExportStatus status, Pageable pageable, UserPrincipal user) {
@@ -168,7 +164,7 @@ public class ExportPipelineService {
         return pipeline.get();
     }
 
-    private ExportPipelineResponse executePipelineJob(ExportPipeline pipeline, UserPrincipal initiator, List<String> fields) {
+    private void executePipelineJob(ExportPipeline pipeline, UserPrincipal initiator, List<String> fields) {
         var provider = DataProvider.isApi(initiator.dataProvider()) ? DataProvider.API : DataProvider.POSTGRES;
         try {
             var parameters = new JobParametersBuilder()
@@ -176,11 +172,10 @@ public class ExportPipelineService {
                     .addString(Constants.USER_ID.getKey(), initiator.id())
                     .addJobParameter(Constants.USER_ROLE.getKey(), initiator.roles(), List.class)
                     .addString(Constants.DATA_PROVIDER.getKey(), provider.getKey())
-                    .addJobParameter(Constants.EXPORT_FORMAT.getKey(), pipeline.getFormat(), ExportFormat.class)
+                    .addString(Constants.EXPORT_FORMAT.getKey(), pipeline.getFormat().name())
                     .addJobParameter(Constants.EXPORTED_FIELDS.getKey(), fields, List.class)
                     .toJobParameters();
             executor.execute(parameters);
-            return mapper.toDto(pipeline);
         } catch (Exception e) {
             taskletService.markAsFailed(pipeline.getId(), "Failed to start Export Pipeline %s <ID=%d> : %s".formatted(pipeline.getName(), pipeline.getId(), e.getMessage()));
             throw e;

@@ -7,29 +7,11 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Converter
 @Slf4j
 public class ExportFormatConverter implements AttributeConverter<ExportFormat, String> {
-
-    private static final Map<String, ExportFormat> REGISTRY = new ConcurrentHashMap<>();
-
-    static {
-        for (var format : DefaultExportFormat.values()) {
-            register(format);
-        }
-        for (var format : ExportFormatRegistry.getAllAvailableFormats("com.bioinformatics")) {
-            register(format);
-        }
-    }
-
-    public static void register(ExportFormat format) {
-        REGISTRY.put(format.name().toUpperCase(), format);
-    }
-
     @Override
     public String convertToDatabaseColumn(ExportFormat attribute) {
         return attribute != null ? attribute.name() : null;
@@ -41,10 +23,10 @@ public class ExportFormatConverter implements AttributeConverter<ExportFormat, S
             return null;
         }
 
-        var format = REGISTRY.get(dbData.toUpperCase());
+        ExportFormat format = ExportFormatRegistry.getFormat(dbData);
+
         return Objects.requireNonNullElseGet(format, () -> {
-            log.error("No such export format: {}", dbData);
-            log.info("Returning default export format: {}", DefaultExportFormat.CSV);
+            log.error("No such export format in DB: {}. Falling back to CSV.", dbData);
             return DefaultExportFormat.CSV;
         });
     }

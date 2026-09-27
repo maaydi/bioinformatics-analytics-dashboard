@@ -10,6 +10,7 @@ import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.exportservice.config.ApplicationProperties;
 import com.bioinformatics.exportservice.dto.Constants;
+import com.bioinformatics.exportservice.dto.converter.ExportFormatRegistry;
 import com.bioinformatics.exportservice.listener.ExportProgressChunkListener;
 import com.bioinformatics.exportservice.processor.ProteinDetailProcessor;
 import com.bioinformatics.exportservice.processor.UniProtApiEntryProcessor;
@@ -109,15 +110,15 @@ public class UniProtExportJobStepConfig {
             ExportJobParameters params,
             ExportWriterFactory writerFactory,
             ExportFileStorageService storageService) {
-
-        var formatWriter = writerFactory.getWriter(params.getExportFormat());
+        var format = ExportFormatRegistry.getFormat(params.getExportFormat());
+        var formatWriter = writerFactory.getWriter(format);
 
         return new ExportItemWriter(
                 formatWriter,
                 storageService,
                 params.getInitiatorUserId(),
                 params.getJobId(),
-                params.getExportFormat(),
+                format,
                 params.getExportedFields()
         );
     }
