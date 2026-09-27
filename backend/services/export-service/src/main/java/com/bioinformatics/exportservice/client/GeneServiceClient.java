@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
-import static com.bioinformatics.shared.models.security.Constants.USER_ID_HEADER;
-import static com.bioinformatics.shared.models.security.Constants.USER_ROLE_HEADER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 
 @FeignClient(name = "dashboard")
 public interface GeneServiceClient {
     @PostMapping("/api/genes/count")
-    long countRequestRecords(@RequestBody GeneSearchRequest request, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) List<String> roles);
+    long countRequestRecords(@RequestBody GeneSearchRequest request, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) List<String> roles, @RequestHeader(DATA_PROVIDER_HEADER) String dataProvider);
 }
