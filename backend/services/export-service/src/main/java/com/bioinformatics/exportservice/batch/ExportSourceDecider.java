@@ -1,5 +1,6 @@
 package com.bioinformatics.exportservice.batch;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
@@ -8,6 +9,7 @@ import org.springframework.batch.core.step.StepExecution;
 
 import static com.bioinformatics.exportservice.dto.Constants.DATA_PROVIDER;
 
+@Slf4j
 public class ExportSourceDecider implements JobExecutionDecider {
 
     /**
@@ -21,7 +23,8 @@ public class ExportSourceDecider implements JobExecutionDecider {
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, @Nullable StepExecution stepExecution) {
         var source = jobExecution.getJobParameters().getString(DATA_PROVIDER.getKey());
-        return new FlowExecutionStatus(source != null ? source.toUpperCase() : "UNKNOWN");
+        log.info("[EXPORT] [DECIDER] Source={} jobExecution={}", source, jobExecution.getId());
+        return new FlowExecutionStatus(source != null ? source : "UNKNOWN");
 
     }
 }

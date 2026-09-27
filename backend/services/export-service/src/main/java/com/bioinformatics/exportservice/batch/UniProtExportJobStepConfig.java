@@ -3,7 +3,6 @@ package com.bioinformatics.exportservice.batch;
 import com.bioinformatics.common.batch.reader.UniProtApiItemReader;
 import com.bioinformatics.common.batch.reader.UniProtPostgresItemReader;
 import com.bioinformatics.common.config.CommonProperties;
-import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
@@ -15,8 +14,8 @@ import com.bioinformatics.exportservice.listener.ExportProgressChunkListener;
 import com.bioinformatics.exportservice.processor.ProteinDetailProcessor;
 import com.bioinformatics.exportservice.processor.UniProtApiEntryProcessor;
 import com.bioinformatics.exportservice.processor.UniProtPostgresEntryProcessor;
-import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
 import com.bioinformatics.exportservice.service.ExportFileStorageService;
+import com.bioinformatics.exportservice.service.ExportJobExecutionService;
 import com.bioinformatics.exportservice.writer.ExportItemWriter;
 import com.bioinformatics.exportservice.writer.ExportWriterFactory;
 import lombok.RequiredArgsConstructor;
@@ -71,7 +70,7 @@ public class UniProtExportJobStepConfig {
 
     private final ApplicationProperties appProperties;
     private final CommonProperties commonProperties;
-    private final ExportJobExecutionRepository jobExecutionRepository;
+    private final ExportJobExecutionService jobExecutionService;
     private final ProteinEntryService proteinEntryService;
 
 
@@ -82,11 +81,8 @@ public class UniProtExportJobStepConfig {
     @Bean
     @StepScope
     UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient, ExportJobParameters params) {
-        var filter = jobExecutionRepository.findByPipelineId(params.getJobId());
-        if (filter.isEmpty()) {
-            throw new ResourceNotFoundException("No Filter found for export pipeline %d".formatted(params.getJobId()));
-        }
-        var request = filter.get().getPipeline().getFilterJson().copy()
+        var filter = jobExecutionService.getPipelineRequest(params.getJobId());
+        var request = filter.copy()
                 .page(0)
                 .size(commonProperties.uniprotApi().batch().chunkSize())
                 .build();
@@ -149,12 +145,9 @@ public class UniProtExportJobStepConfig {
     @Bean
     @StepScope
     UniProtPostgresItemReader uniProtPostgresItemReader(ExportJobParameters params) {
-        var filter = jobExecutionRepository.findByPipelineId(params.getJobId());
-        if (filter.isEmpty()) {
-            throw new ResourceNotFoundException("No Filter found for export pipeline %d".formatted(params.getJobId()));
-        }
+        var filter = jobExecutionService.getPipelineRequest(params.getJobId());
         var chunkSize = appProperties.export().batch().chunkSize();
-        var request = filter.get().getPipeline().getFilterJson().copy()
+        var request = filter.copy()
                 .page(0)
                 .build();
         return new UniProtPostgresItemReader(proteinEntryService, request, chunkSize);

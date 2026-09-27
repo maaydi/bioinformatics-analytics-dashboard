@@ -2,7 +2,7 @@ package com.bioinformatics.exportservice.listener;
 
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.exportservice.batch.ExportJobParameters;
-import com.bioinformatics.exportservice.repository.ExportJobExecutionRepository;
+import com.bioinformatics.exportservice.service.ExportJobExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -30,9 +30,9 @@ import org.springframework.stereotype.Component;
 public class ExportProgressChunkListener implements ChunkListener<String, ProteinDetailDto> {
 
     /**
-     * Repository for updating chunk progress counters.
+     * Service for updating chunk progress counters.
      */
-    private final ExportJobExecutionRepository repository;
+    private final ExportJobExecutionService service;
 
     /**
      * Job parameters holder (provides pipeline ID and other context).
@@ -53,11 +53,11 @@ public class ExportProgressChunkListener implements ChunkListener<String, Protei
         log.debug("[CHUNK_LISTENER] Chunk processing complete - pipelineId={}, chunkSize={}",
                 jobId, chunk.size());
 
-        repository.findByPipelineId(jobId)
+        service.findByPipelineId(jobId)
                 .ifPresentOrElse(job -> {
                     var previous = job.getChunksProcessed();
                     job.setChunksProcessed(previous + 1);
-                    var saved = repository.save(job);
+                    var saved = service.save(job);
 
                     var progress = saved.getProgressPercent();
                     log.info("[CHUNK_LISTENER] Progress updated - pipelineId={}, chunks_processed={}/{}, progress={}%",
