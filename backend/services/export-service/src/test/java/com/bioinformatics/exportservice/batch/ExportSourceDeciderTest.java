@@ -14,12 +14,12 @@ class ExportSourceDeciderTest {
     private final ExportSourceDecider decider = new ExportSourceDecider();
 
     @Test
-    void decide_returnsUppercaseConfiguredProvider() {
+    void decide_returnsLowercaseConfiguredProvider() {
         var execution = jobExecution(new JobParametersBuilder()
                 .addString(DATA_PROVIDER.getKey(), "postgres")
                 .toJobParameters());
 
-        assertThat(decider.decide(execution, null).getName()).isEqualTo("POSTGRES");
+        assertThat(decider.decide(execution, null).getName()).isEqualTo("postgres");
     }
 
     @Test

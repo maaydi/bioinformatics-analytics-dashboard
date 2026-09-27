@@ -18,6 +18,9 @@ class ExportFormatConverterTest {
 
     @Test
     void convertToEntityAttribute_resolvesFormatsWithoutCaseSensitivity() {
+        for (var format : DefaultExportFormat.values()) {
+            ExportFormatRegistry.register(format);
+        }
         assertThat(converter.convertToEntityAttribute("csv")).isEqualTo(DefaultExportFormat.CSV);
         assertThat(converter.convertToEntityAttribute("TsV")).isEqualTo(DefaultExportFormat.TSV);
         assertThat(converter.convertToEntityAttribute("JSON")).isEqualTo(DefaultExportFormat.JSON);
@@ -32,6 +35,8 @@ class ExportFormatConverterTest {
 
     @Test
     void register_makesAdditionalFormatAvailableToPersistenceConverter() {
+        ExportFormatRegistry.clear();
+        ExportFormatRegistry.register(TestFormat.XML);
 
         assertThat(converter.convertToEntityAttribute("xml")).isEqualTo(TestFormat.XML);
         assertThat(converter.convertToDatabaseColumn(TestFormat.XML)).isEqualTo("XML");
@@ -51,4 +56,3 @@ class ExportFormatConverterTest {
         }
     }
 }
-

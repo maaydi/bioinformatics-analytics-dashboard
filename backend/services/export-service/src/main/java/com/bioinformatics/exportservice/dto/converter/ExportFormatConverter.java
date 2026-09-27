@@ -23,7 +23,7 @@ public class ExportFormatConverter implements AttributeConverter<ExportFormat, S
             return null;
         }
 
-        ExportFormat format = ExportFormatRegistry.getFormat(dbData);
+        var format = ExportFormatRegistry.getFormat(dbData);
 
         return Objects.requireNonNullElseGet(format, () -> {
             log.error("No such export format in DB: {}. Falling back to CSV.", dbData);
