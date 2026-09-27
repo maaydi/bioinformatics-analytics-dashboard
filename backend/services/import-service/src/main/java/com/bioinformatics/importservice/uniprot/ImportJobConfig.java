@@ -15,33 +15,38 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
- * Unified Spring Batch job configuration for UniProt imports.
+ * Spring Batch job configuration for unified UniProt data imports.
  *
- * <p>This configuration orchestrates two import paths via a runtime decision:
+ * <p>This configuration orchestrates two import paths via runtime decision:
  * <ul>
- *   <li><b>API-based import:</b> fetches protein data from UniProt REST API ({@code DATA_PROVIDER = "api"})</li>
- *   <li><b>File-based import:</b> reads from uploaded .dat or .tsv file ({@code DATA_PROVIDER = "file"})</li>
+ *   <li><b>API-based import:</b> Fetches protein data from UniProt REST API ({@code DATA_PROVIDER = "api"})
+ *   <li><b>File-based import:</b> Reads from uploaded .dat or .tsv file ({@code DATA_PROVIDER = "file"})
  * </ul>
  *
- * <p><b>Flow:</b> The job reads the {@code DATA_PROVIDER} job parameter, runs it through
- * {@link ImportSourceDecider}, and routes to the appropriate step ({@code uniProtApiImportStep} or
- * {@code uniProtImportStep}). Both steps share the same post-processing logic (database refresh,
- * cache eviction, audit logging) via global listeners.
+ * <p><b>Job Flow:</b>
+ * <pre>
+ * importSourceDecider
+ *   ├→ [API]  → uniProtApiImportStep
+ *   └→ [FILE] → uniProtImportStep
+ *   ↓
+ * Global Listeners (applied to all paths):
+ *   ├→ ImportJobDatabaseListener (persist final status/counts)
+ *   ├→ PostImportCacheEvictionListener (clear caches)
+ *   └→ ImportJobRefreshViewsListener (rebuild analytical views)
+ * </pre>
  *
- * <p><b>Advantages:</b>
+ * <p><b>Advantages of Unified Design:</b>
  * <ul>
- *   <li>Single job definition serves both sources — no code duplication</li>
- *   <li>Source selection is a runtime parameter, not a compile-time branch</li>
- *   <li>Easy to add new import sources: create a step config, add a decision path</li>
- *   <li>Listeners apply uniformly to all sources</li>
+ *   <li>Single job definition serves both sources — no code duplication
+ *   <li>Source selection is a runtime parameter, not compile-time branch
+ *   <li>Listeners apply uniformly to all sources
+ *   <li>Easy to add new import sources: create step config, add decision path
  * </ul>
  *
- * <p><b>Step implementations:</b>
+ * <p><b>Step Implementations:</b>
  * <ul>
- *   <li>{@link com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobConfig} —
- *       defines {@code uniProtApiImportStep}</li>
- *   <li>{@link com.bioinformatics.importservice.uniprot.fileloader.UniProtImportJobConfig} —
- *       defines {@code uniProtImportStep}</li>
+ *   <li>API: {@code com.bioinformatics.importservice.uniprot.apiloader.UniProtApiImportJobConfig}
+ *   <li>File: {@code com.bioinformatics.importservice.uniprot.fileloader.UniProtImportJobConfig}
  * </ul>
  */
 @Configuration
@@ -58,6 +63,8 @@ public class ImportJobConfig {
     /**
      * Creates the job execution decider that routes to API or file-based import steps.
      *
+     * <p>Reads DATA_PROVIDER parameter and returns decision status for flow routing.
+     *
      * @return a new {@link ImportSourceDecider} instance
      */
     @Bean
@@ -68,16 +75,25 @@ public class ImportJobConfig {
     /**
      * Defines the unified UniProt import job with conditional step routing.
      *
-     * <p>Job flow:
+     * <p><b>Job Flow:</b>
      * <ol>
-     *   <li>Launch job with job parameter {@code DATA_PROVIDER} set to "api" or "file"</li>
-     *   <li>Execute {@link #importSourceDecider()} to read and uppercase the parameter</li>
-     *   <li>Route to {@code uniProtApiImportStep} if decision is "API", or {@code uniProtImportStep} if "FILE"</li>
-     *   <li>Apply post-step listeners: database refresh, cache eviction, audit logging</li>
+     *   <li>Job starts with DATA_PROVIDER parameter ("api" or "file")
+     *   <li>Execute importSourceDecider to read and route parameter
+     *   <li>If "API" → execute uniProtApiImportStep
+     *   <li>If "FILE" → execute uniProtImportStep
+     *   <li>After step completion, apply global listeners:
+     *       <ul>
+     *         <li>DatabaseListener: persist final status/metrics
+     *         <li>CacheEvictionListener: clear all caches
+     *         <li>RefreshViewsListener: rebuild materialized views
+     *       </ul>
      * </ol>
      *
+     * <p>All listeners are executed after either step, ensuring
+     * consistent post-import behavior regardless of source.
+     *
      * @param jobRepository the Spring Batch job repository
-     * @return a configured {@link Job} that implements unified import orchestration
+     * @return a configured {@link Job} implementing unified import orchestration
      */
     @Bean
     public Job unifiedUniProtImportJob(JobRepository jobRepository) {

@@ -9,52 +9,45 @@ import org.springframework.batch.core.step.StepExecution;
 import static com.bioinformatics.importservice.dto.Constants.DATA_PROVIDER;
 
 /**
- * Spring Batch decider that routes UniProt import jobs to the appropriate step based on data source.
+ * Spring Batch job flow decider that routes to the appropriate import step.
  *
  * <p><b>Decision Logic:</b>
  * <ul>
- *   <li>Reads job parameter {@code DATA_PROVIDER} (set by caller via {@code JobParameters})</li>
- *   <li>Returns the parameter value (uppercased) as the flow decision status</li>
- *   <li>Flow routing is configured in {@link ImportJobConfig#unifiedUniProtImportJob(org.springframework.batch.core.repository.JobRepository)}</li>
+ *   <li>Reads job parameter {@code DATA_PROVIDER} (set by ImportService via JobParameters)
+ *   <li>Returns the parameter value (uppercased) as the flow decision status
+ *   <li>Flow routing configured in ImportJobConfig
  * </ul>
  *
- * <p><b>Supported Values:</b>
+ * <p><b>Supported Routes:</b>
  * <ul>
- *   <li>{@code "api"} → routes to {@code uniProtApiImportStep}</li>
- *   <li>{@code "file"} → routes to {@code uniProtImportStep}</li>
- *   <li>Any other value → results in status "UNKNOWN" (no matching transition, job fails gracefully)</li>
+ *   <li>{@code "API"} → routes to UniProt API import step (remote import)
+ *   <li>{@code "FILE"} → routes to UniProt file import step (local DAT/TSV)
+ *   <li>Other → "UNKNOWN" status (no matching transition, job fails gracefully)
  * </ul>
  *
- * <p><b>Example Usage:</b>
- * <pre>
- * JobParameters params = new JobParametersBuilder()
- *     .addString(Constants.DATA_PROVIDER.getKey(), "api")
- *     .toJobParameters();
- * JobExecution exec = jobLauncher.run(unifiedUniProtImportJob, params);
- * </pre>
- *
- * <p><b>Design Pattern:</b> This decider implements the Strategy pattern — the job flow is invariant,
- * but the actual step executed is determined by the runtime parameter. This allows:
+ * <p><b>Design Pattern:</b> Strategy pattern — job flow is invariant,
+ * actual step executed is determined by runtime parameter. Benefits:
  * <ul>
- *   <li>No code branching in the job definition itself</li>
- *   <li>Easy addition of new sources (add decision path, create step config)</li>
- *   <li>Testability: source selection is data-driven, not hard-coded</li>
+ *   <li>No code branching in job configuration
+ *   <li>Easy to add new import sources
+ *   <li>Source selection is data-driven
  * </ul>
  */
 public class ImportSourceDecider implements JobExecutionDecider {
 
     /**
-     * Decides which step to execute based on the {@code DATA_PROVIDER} job parameter.
+     * Decides which step to execute based on the DATA_PROVIDER job parameter.
      *
-     * @param jobExecution  the current job execution (contains job parameters)
-     * @param stepExecution null (deciders are not preceded by steps)
-     * @return a {@link FlowExecutionStatus} with the uppercased data provider value,
-     * or "UNKNOWN" if the parameter is null
+     * <p>Called at job flow decision point to route to API or FILE import step.
+     *
+     * @param jobExecution  job execution with parameters
+     * @param stepExecution null (deciders not preceded by steps)
+     * @return flow status (API, FILE, or UNKNOWN)
      */
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, @Nullable StepExecution stepExecution) {
         var source = jobExecution.getJobParameters().getString(DATA_PROVIDER.getKey());
-        return new FlowExecutionStatus(source != null ? source.toUpperCase() : "UNKNOWN");
-
+        var decision = source != null ? source.toUpperCase() : "UNKNOWN";
+        return new FlowExecutionStatus(decision);
     }
 }
