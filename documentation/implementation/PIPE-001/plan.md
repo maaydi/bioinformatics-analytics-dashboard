@@ -151,7 +151,7 @@
 
 - [x] `ExportFileStorageService` (`service/export/`):
     - [x] `createPipelineDirectory(Long userId, Long pipelineId): Path`
-        - [x] Use APP_EXPORT_TEMP_DIR=/tmp/.bio-export
+        - [x] Use APP_EXPORT_TEMP_DIR=/app/bio-export
         - [x] Creates `${APP_EXPORT_TEMP_DIR}/{userId}/{pipelineId}/`
         - [x] Creates `segments/` subdirectory
     - [x] `getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format): Path`

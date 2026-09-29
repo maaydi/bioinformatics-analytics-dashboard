@@ -52,7 +52,7 @@ app:
 
   export:
     max-rows: 100000
-    temp-dir: ${APP_EXPORT_TEMP_DIR:${user.home}/.bio-export}
+    temp-dir: ${APP_EXPORT_TEMP_DIR:${user.home}/bio-export}
     pool:
       core-size: 2
       max-size: 10

@@ -204,7 +204,7 @@ required dependencies.
   `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/service/export/DefaultExportFileStorageService.java`.
   - Methods implemented: `createPipelineDirectory`, `getSegmentPath`, `getFinalFilePath`, `assembleSegments`,
     `deletePipelineDirectory`, `getFileSize`, `validateFileExists`.
-  - Default base directory is configurable via `app.export.temp-dir` with fallback `/tmp/.bio-export`.
+  - Default base directory is configurable via `app.export.temp-dir` with fallback `/app/bio-export`.
   - Segment naming: `segments/segment_00001.<ext>` (zero-padded) and final file `export_{pipelineId}.<ext>`.
   - CSV/TSV assembly: concatenates segment files, removing duplicate headers after the first segment.
   - JSON assembly: merges JSON arrays from segments into a single array safely by stripping brackets and inserting
