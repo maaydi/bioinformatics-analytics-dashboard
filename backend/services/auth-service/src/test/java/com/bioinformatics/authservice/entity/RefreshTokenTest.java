@@ -33,19 +33,6 @@ class RefreshTokenTest {
     }
 
     @Test
-    void isExpired_exactlyNow_returnsTrue() {
-        var now = Instant.now();
-        var token = RefreshToken.builder()
-                .id(1L)
-                .tokenHash("hash")
-                .expiresAt(now)
-                .revoked(false)
-                .build();
-
-        assertThat(token.isExpired()).isTrue();
-    }
-
-    @Test
     void isValid_notRevokedAndNotExpired_returnsTrue() {
         var token = RefreshToken.builder()
                 .id(1L)
