@@ -84,9 +84,11 @@ Implement tickets in this order so dependencies are respected and each increment
 | 17    | `REMOTE-001`    | `done`        | User can fetch data from UniProtKB Remote Provider (GeneService over REST) | Users can switch between local UniProt data and live UniProtKB data when exploring proteins                                             |
 | 18    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                              | Users can interactively explore a protein's 3D structure directly from its Gene Detail page                                             |
 | 19    | `NLQ-001`       | `not-started` | Natural Language Query & AI Summarization Engine                           | Users can ask questions about proteins in plain English and receive relevant results with AI-generated summaries                        |
-| 20    | `PIPE-001`      | `not-started` | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
-| 21    | `ARCH-001`      | `in-progress` | Microservices Architecture Migration (Strangler Fig)                       | No changes for Users                                                                                                                    |
+| 20    | `PIPE-001`      | `in-progress` | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
+| 21    | `ARCH-001`      | `done` (*)    | Microservices Architecture Migration (Strangler Fig)                       | No changes for Users                                                                                                                    |
 | 21    | `ARCH-002`      | `not-started` | Protein Catalog Ownership & Database-per-Service Enforcement               | No changes for Users                                                                                                                    |
+
+(*) `ARCH-001` continues with `PIPE-001`, `NLQ-001` and `REMOTE-001`.
 
 ## End-User Validation Milestones
 
