@@ -43,9 +43,9 @@ class ExportItemProcessorTest {
 
         assertThat(result).containsOnlyKeys("accession", "geneNamePrimary", "keywords");
         assert result != null;
-        assertThat(result.get("accession")).isEqualTo("\"P12345\"");
-        assertThat(result.get("geneNamePrimary")).isEqualTo("\"BRCA1\"");
-        assertThat(result.get("keywords")).isEqualTo("\"DNA repair; cancer\"");
+        assertThat(result.get("accession")).isEqualTo("P12345");
+        assertThat(result.get("geneNamePrimary")).isEqualTo("BRCA1");
+        assertThat(result.get("keywords")).isEqualTo("DNA repair; cancer");
     }
 
     @Test
@@ -63,9 +63,9 @@ class ExportItemProcessorTest {
 
         assertThat(result).containsOnlyKeys("keywords", "features", "comments");
         assert result != null;
-        assertThat(result.get("keywords")).isEqualTo("\"\"");
-        assertThat(result.get("features")).isEqualTo("\"\"");
-        assertThat(result.get("comments")).isEqualTo("\"\"");
+        assertThat(result.get("keywords")).isEqualTo("");
+        assertThat(result.get("features")).isEqualTo("");
+        assertThat(result.get("comments")).isEqualTo("");
     }
 
     @Test
@@ -82,8 +82,8 @@ class ExportItemProcessorTest {
         var result = processor.process(dto);
 
         assert result != null;
-        assertThat(result.get("crossReferences")).isEqualTo("\"RefSeq:NP_001\"");
-        assertThat(result.get("hostOrganisms")).isEqualTo("\"Homo sapiens\"");
-        assertThat(result.get("goTerms")).isEqualTo("\"GO:0008150\"");
+        assertThat(result.get("crossReferences")).isEqualTo("RefSeq:NP_001");
+        assertThat(result.get("hostOrganisms")).isEqualTo("Homo sapiens");
+        assertThat(result.get("goTerms")).isEqualTo("GO:0008150");
     }
 }

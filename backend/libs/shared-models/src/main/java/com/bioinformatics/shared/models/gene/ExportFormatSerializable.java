@@ -9,15 +9,12 @@ public interface ExportFormatSerializable extends Serializable {
 
     default String format(Object value) {
         if (value == null) {
-            return "\"\"";
+            return "";
         }
 
-        var escaped = value.toString()
-                .replace("\"", "\"\"")
+        return value.toString()
                 .replace("\n", " ")
                 .replace("\r", " ");
-
-        return "\"" + escaped + "\"";
     }
 
     default String joinArray(String[] values) {
