@@ -75,7 +75,7 @@ public class ExportPipelineController {
      * @return OK (200) with paginated pipeline list
      */
     @GetMapping("/pipelines")
-    public ResponseEntity<PagedResponse<ExportPipelineResponse>> createPipeline(
+    public ResponseEntity<PagedResponse<ExportPipelineResponse>> listPipelines(
             @RequestParam(required = false) ExportStatus status,
             @RequestParam(defaultValue = "0") int page,
             @Min(value = 1, message = "Page size should be greater than 0")
