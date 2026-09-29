@@ -15,9 +15,6 @@ USER bioapp
 
 COPY target/*.jar dashboard.jar
 
-# Import temp directory
-RUN mkdir -p /tmp/bio-import
-
 EXPOSE 8084
 
 ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Deureka.client.serviceUrl.defaultZone=$EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE -jar dashboard.jar"]
