@@ -23,7 +23,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Manages operations and logic for RateLimitAspect.
+ * AOP aspect that enforces per-endpoint request throttling for the dashboard API.
+ *
+ * <p>The limiter is configured from {@link AppProperties} and is keyed by endpoint type and client IP. It prevents
+ * abusive access patterns by consuming tokens from a Bucket before allowing the annotated method invocation.</p>
  */
 @Aspect
 @Component
@@ -37,13 +40,13 @@ public class RateLimitAspect {
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
 
     /**
-     * Initialize rate limiter configurations after construction.
+     * Initializes the configured rate-limit definitions after the bean is created.
      */
     @PostConstruct
     public void init() {
+        log.info("[DASHBOARD][RATE_LIMIT] Initializing rate limiter configuration");
         rateLimiters = initRateLimiters(appProperties);
     }
-
 
     private static Map<String, AppProperties.RateLimiterSettings> initRateLimiters(AppProperties appProperties) {
         if (appProperties == null || appProperties.getRateLimiter() == null) {
@@ -74,18 +77,16 @@ public class RateLimitAspect {
     }
 
     /**
-     * Aspect that enforces rate limits for methods annotated with {@code @RateLimited}.
-     * <p>
-     * If the configured bucket allows consumption the original method is invoked,
-     * otherwise a RateLimitExceededException is thrown.
+     * Enforces the rate limit for any method annotated with {@link RateLimited}.
      *
      * @param joinPoint the proceeding join point
      * @return the original method result when permitted
-     * @throws Throwable if the underlying method throws any exception
+     * @throws Throwable when the underlying method fails
      */
     @Around("@annotation(com.bioinformatics.dashboard.audit.annotation.RateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
         if (!appProperties.getRateLimiter().isEnabled()) {
+            log.debug("[DASHBOARD][RATE_LIMIT] Rate limiting disabled for request to {}", joinPoint.getSignature().getName());
             return joinPoint.proceed();
         }
         var rateLimited = getAnnotation(joinPoint);
@@ -98,10 +99,11 @@ public class RateLimitAspect {
             if (bucket.tryConsume(1)) {
                 return joinPoint.proceed();
             } else {
+                log.warn("[DASHBOARD][RATE_LIMIT] Rate limit exceeded for endpoint={} clientIp={}", configKey, clientIp);
                 throw new RateLimitExceededException("Rate limit exceeded. Try again later.");
             }
         }
-        log.warn("RateLimit annotation is not enabled for this method {}", joinPoint.getSignature().getName());
+        log.warn("[DASHBOARD][RATE_LIMIT] RateLimit annotation is not enabled for this method {}", joinPoint.getSignature().getName());
         return joinPoint.proceed();
     }
 
@@ -114,7 +116,7 @@ public class RateLimitAspect {
 
             return method.getAnnotation(RateLimited.class);
         } catch (Exception e) {
-            log.warn("Could not extract @RateLimited annotation {}", e.getMessage());
+            log.warn("[DASHBOARD][RATE_LIMIT] Could not extract @RateLimited annotation for method={} error={}", joinPoint.getSignature().getName(), e.getMessage());
             return null;
         }
     }

@@ -1,6 +1,5 @@
 package com.bioinformatics.importservice.service;
 
-import com.bioinformatics.importservice.dto.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -11,12 +10,11 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import static com.bioinformatics.importservice.dto.Constants.*;
+import static com.bioinformatics.importservice.dto.Constants.IMPORT_JOB_ID;
+import static com.bioinformatics.importservice.dto.Constants.UNIPROT_IMPORT_JOB;
 
 
 @Component
@@ -31,26 +29,25 @@ public class JobRecoveryRunner implements ApplicationRunner {
 
     @Override
     public void run(@NonNull ApplicationArguments args) throws Exception {
-        Stream.of(IMPORT_FILE_JOB, IMPORT_API_JOB)
-                .map(Constants::getKey)
-                .map(jobRepository::getLastJobInstance)
-                .filter(Objects::nonNull)
-                .map(jobRepository::getJobExecutions)
-                .flatMap(List::stream)
-                .filter(jobExecution -> jobExecution.getStatus() != BatchStatus.COMPLETED
-                        // assert import job is saved in ImportJob table
-                        && Objects.nonNull(jobExecution.getJobParameters().getString(IMPORT_JOB_ID.getKey())))
-                .forEach(job -> {
-                    var jobId = UUID.fromString(Objects.requireNonNull(job.getJobParameters().getString(IMPORT_JOB_ID.getKey())));
-                    var jobname = job.getJobInstance().getJobName();
-                    log.info("Attempting to restart Job {} with Batch Execution ID {}", jobname, job.getId());
-                    try {
-                        jobOperator.restart(job);
-                    } catch (Exception e) {
-                        log.error("Failed to restart {} : {}", jobname, e.getMessage());
-                        importJobRecovery.markImportJobAsFailed(jobId);
-                    }
-                });
+        var lastExec = jobRepository.getLastJobInstance(UNIPROT_IMPORT_JOB.getKey());
+        if (Objects.nonNull(lastExec)) {
+            jobRepository.getJobExecutions(lastExec)
+                    .stream()
+                    .filter(jobExecution -> jobExecution.getStatus() != BatchStatus.COMPLETED
+                            // assert import job is saved in ImportJob table
+                            && Objects.nonNull(jobExecution.getJobParameters().getString(IMPORT_JOB_ID.getKey())))
+                    .forEach(job -> {
+                        var jobId = UUID.fromString(Objects.requireNonNull(job.getJobParameters().getString(IMPORT_JOB_ID.getKey())));
+                        var jobname = job.getJobInstance().getJobName();
+                        log.info("Attempting to restart Job {} with Batch Execution ID {}", jobname, job.getId());
+                        try {
+                            jobOperator.restart(job);
+                        } catch (Exception e) {
+                            log.error("Failed to restart {} : {}", jobname, e.getMessage());
+                            importJobRecovery.markImportJobAsFailed(jobId);
+                        }
+                    });
+        }
     }
 }
 

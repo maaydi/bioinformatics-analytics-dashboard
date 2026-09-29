@@ -1,6 +1,6 @@
 package com.bioinformatics.importservice.uniprot.fileloader.processor;
 
-import com.bioinformatics.common.exception.MalformedUniprotFileException;
+import com.bioinformatics.common.exception.MalformedFileException;
 import com.bioinformatics.common.gene.entity.*;
 import lombok.Data;
 
@@ -67,7 +67,7 @@ public class ProteinParsingContext {
                 .collect(Collectors.toSet()));
 
         if (entry.getAccession() == null || entry.getEntryName() == null) {
-            throw new MalformedUniprotFileException("Malformed Data: Missing Accession or Entry Name");
+            throw new MalformedFileException("Malformed Data: Missing Accession or Entry Name");
         }
 
         return entry;

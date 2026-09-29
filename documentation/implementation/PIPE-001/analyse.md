@@ -127,12 +127,14 @@
 
 ## Open Questions (non-blocking)
 
-| Question                                                                 | Owner   | Priority | Resolution Path                                                              |
-|--------------------------------------------------------------------------|---------|----------|------------------------------------------------------------------------------|
-| Should we support compressed exports (.zip, .gz) for large files?        | Product | Low      | Defer to v1.1; add `compressed: boolean` to `ExportPipelineCreateRequest`    |
-| Should completed pipelines be emailable with the file attached?          | Product | Low      | Defer; requires email service integration; file size may exceed email limits |
-| Should we support scheduled/recurring exports (e.g., weekly)?            | Product | Low      | Defer to v1.1; requires Quartz integration and cron expression UI            |
-| Should the wizard show a preview of the first 10 rows before confirming? | UX      | Low      | Defer; adds complexity; current filter chips provide sufficient context      |
+| Question                                                                 | Owner   | Priority | Resolution Path                                                              | Response                           |
+|--------------------------------------------------------------------------|---------|----------|------------------------------------------------------------------------------|------------------------------------|
+| Should we support compressed exports (.zip, .gz) for large files?        | Product | Low      | Defer to v1.1; add `compressed: boolean` to `ExportPipelineCreateRequest`    | YES Add it as checkbox in frontend |
+| Should completed pipelines be emailable with the file attached?          | Product | Low      | Defer; requires email service integration; file size may exceed email limits | YES but configurable               |
+| Should we support scheduled/recurring exports (e.g., weekly)?            | Product | Low      | Defer to v1.1; requires Quartz integration and cron expression UI            | NO                                 |
+| Should the wizard show a preview of the first 10 rows before confirming? | UX      | Low      | Defer; adds complexity; current filter chips provide sufficient context      | NO                                 |
+
+- All these points are nice to have so they could be added later.
 
 ---
 

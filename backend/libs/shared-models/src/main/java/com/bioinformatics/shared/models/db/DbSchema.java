@@ -5,4 +5,5 @@ public class DbSchema {
     public static final String ANALYTICS_SCHEMA = "analytics";
     public static final String AUTH_SCHEMA = "auth";
     public static final String IMPORT_BATCH_SCHEMA = "import_batch";
+    public static final String EXPORT_DATA_SCHEMA = "export_data";
 }

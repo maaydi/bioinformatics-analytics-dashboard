@@ -208,6 +208,143 @@ class AuthServiceTest {
         verify(jwtService, never()).generateServiceToken(any());
     }
 
+    @Test
+    void logout_revokeAllTokensAndClearContext() {
+        var user = activeUser();
+
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+
+        authService.logout("alice");
+
+        verify(refreshTokenRepository).revokeAllByUserId(user.getId());
+    }
+
+    @Test
+    void updatePassword_validCurrentPassword_succeeds() {
+        var user = activeUser();
+        var request = new ChangePasswordRequest("secret", "NewPassword123");
+
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("NewPassword123")).thenReturn("encoded-new-password");
+
+        var response = authService.updatePassword(request, "alice");
+
+        assertThat(response.success()).isTrue();
+        assertThat(response.message()).isEqualTo("Password changed successfully.");
+        verify(appUserRepository).save(any(AppUser.class));
+        verify(refreshTokenRepository).revokeAllByUserId(user.getId());
+    }
+
+    @Test
+    void refresh_invalidTokenType_throwsUnauthorized() {
+        var user = activeUser();
+        var request = new RefreshRequest("not-a-refresh-token");
+
+        when(jwtService.isRefreshToken("not-a-refresh-token")).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.refresh(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid or expired refresh token");
+
+        verify(jwtService, never()).extractUsername(any());
+    }
+
+    @Test
+    void refresh_userNotFound_throwsUnauthorized() {
+        var request = new RefreshRequest("refresh-token");
+
+        when(jwtService.isRefreshToken("refresh-token")).thenReturn(true);
+        when(jwtService.extractUsername("refresh-token")).thenReturn("nonexistent");
+        when(appUserRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.refresh(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid or expired refresh token");
+    }
+
+    @Test
+    void refresh_invalidSignature_throwsUnauthorized() {
+        var user = activeUser();
+        var request = new RefreshRequest("bad-token");
+
+        when(jwtService.isRefreshToken("bad-token")).thenReturn(true);
+        when(jwtService.extractUsername("bad-token")).thenReturn("alice");
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(jwtService.isTokenValid("bad-token", user)).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.refresh(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid or expired refresh token");
+    }
+
+    @Test
+    void refresh_revokedToken_throwsUnauthorized() {
+        var user = activeUser();
+        var request = new RefreshRequest("revoked-token");
+        var revokedToken = RefreshToken.builder()
+                .id(1L)
+                .user(user)
+                .tokenHash("revoked-hash")
+                .expiresAt(Instant.now().plusSeconds(300))
+                .revoked(true)
+                .build();
+
+        when(jwtService.isRefreshToken("revoked-token")).thenReturn(true);
+        when(jwtService.extractUsername("revoked-token")).thenReturn("alice");
+        when(appUserRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(jwtService.isTokenValid("revoked-token", user)).thenReturn(true);
+        when(refreshTokenRepository.findByTokenHash(any())).thenReturn(Optional.of(revokedToken));
+
+        assertThatThrownBy(() -> authService.refresh(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid or expired refresh token");
+    }
+
+    @Test
+    void login_userNotFound_throwsUnauthorized() {
+        var request = new LoginRequest("unknown", "password");
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken("unknown", "password"));
+        when(userDetailsService.loadUserByUsername("unknown")).thenReturn(
+                new org.springframework.security.core.userdetails.User(
+                        "unknown", "password", java.util.List.of())
+        );
+        when(appUserRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid credentials");
+    }
+
+    @Test
+    void issueServiceToken_adminNotInDatabase_throwsError() {
+        var adminFromContext = adminUser();
+
+        when(appUserRepository.findByUsername("admin")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.issueServiceToken("admin"))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessage("Invalid credentials");
+    }
+
+    @Test
+    void issueServiceToken_adminLostAdminStatus_throwsForbidden() {
+        var noLongerAdmin = AppUser.builder()
+                .id(10L)
+                .username("admin")
+                .password("bcrypt")
+                .role("ROLE_USER")
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        when(appUserRepository.findByUsername("admin")).thenReturn(Optional.of(noLongerAdmin));
+
+        assertThatThrownBy(() -> authService.issueServiceToken("admin"))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Only administrators can issue service tokens");
+    }
+
     private AppUser activeUser() {
         return AppUser.builder()
                 .id(1L)

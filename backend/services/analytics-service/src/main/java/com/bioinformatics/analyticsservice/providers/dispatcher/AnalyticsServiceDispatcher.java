@@ -10,8 +10,12 @@ import java.util.List;
 
 /**
  * Dispatcher for AnalyticsService implementations.
- * Routes all analytics operations to the active provider based on ProviderContextHolder.
+ *
+ * <p>Routes all analytics operations to the active provider based on ProviderContextHolder.
  * Marked as @Primary so controllers inject this dispatcher instead of concrete implementations.
+ *
+ * <p>Delegates all methods to the active provider (currently PostgreSQL, but can be extended
+ * to MongoDB, RDF, or other sources).
  */
 @Service
 @Primary
@@ -28,6 +32,8 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getDashboardKpis to active provider.
+     *
+     * @return dashboard KPIs from active provider
      */
     @Override
     public DashboardKpisDto getDashboardKpis() {
@@ -36,6 +42,8 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getLengthHistogram to active provider.
+     *
+     * @return length histogram buckets from active provider
      */
     @Override
     public List<LengthHistogramBucketDto> getLengthHistogram() {
@@ -44,6 +52,9 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getByOrganism to active provider.
+     *
+     * @param limit maximum organisms to return
+     * @return organism counts from active provider
      */
     @Override
     public List<OrganismCountDto> getByOrganism(int limit) {
@@ -52,6 +63,8 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getReviewedRatio to active provider.
+     *
+     * @return reviewed/unreviewed ratios from active provider
      */
     @Override
     public List<ReviewedRatioDto> getReviewedRatio() {
@@ -60,6 +73,8 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getEvidenceLevels to active provider.
+     *
+     * @return evidence level distribution from active provider
      */
     @Override
     public List<EvidenceDistributionDto> getEvidenceLevels() {
@@ -68,6 +83,9 @@ public class AnalyticsServiceDispatcher extends AbstractProviderDispatcher<Analy
 
     /**
      * Delegate getKeywordFrequency to active provider.
+     *
+     * @param limit maximum keywords to return
+     * @return keyword frequencies from active provider
      */
     @Override
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {

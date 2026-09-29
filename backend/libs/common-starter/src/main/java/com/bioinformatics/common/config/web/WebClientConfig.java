@@ -7,12 +7,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Provides two {@link WebClient.Builder} beans:
- * <ul>
- *   <li>{@code loadBalancedWebClientBuilder} — resolves service names via
- *       Eureka (e.g. {@code http://gene-service/api/genes}).</li>
- *   <li>{@code webClientBuilder} — plain builder for external URLs.</li>
- * </ul>
+ * Provides shared {@link WebClient.Builder} beans for the platform.
+ *
+ * <p>The load-balanced builder is intended for intra-service HTTP calls resolved through the service
+ * registry, while the primary builder is kept as the default choice for external HTTP or custom URI
+ * targets that do not require discovery.
  */
 @Configuration
 public class WebClientConfig {

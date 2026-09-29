@@ -1,11 +1,11 @@
 package com.bioinformatics.common.config.tracing;
 
-
 import brave.Tracing;
 import brave.propagation.B3Propagation;
 import brave.sampler.Sampler;
 import com.bioinformatics.common.config.CommonProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -17,15 +17,16 @@ import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 /**
- * Explicit Brave / Micrometer tracing configuration.
- * <p>Creates a {@link Tracing} bean that Spring Boot's autoconfiguration
- * will bridge into Micrometer's {@code Tracer}.  Propagation uses B3
- * (single + multi-header) so that trace-ids flow across service boundaries.
+ * Common Brave tracing configuration used by all backend services.
+ *
+ * <p>The starter creates a single {@link Tracing} bean that bridges into Spring Boot's Micrometer
+ * tracing integration and exports spans to Zipkin using B3 propagation headers.
  */
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnClass(Tracing.class)
 @EnableConfigurationProperties(CommonProperties.class)
+@Slf4j
 public class TracingConfig {
 
     private final CommonProperties commonProperties;
@@ -38,6 +39,9 @@ public class TracingConfig {
         var tracingProps = commonProperties.tracing();
         var sender = URLConnectionSender.create(tracingProps.zipkinEndpoint());
         var spanHandler = AsyncZipkinSpanHandler.create((BytesMessageSender) sender);
+
+        log.info("Configuring Brave tracing for service '{}' with Zipkin endpoint '{}' and sampling rate {}",
+                serviceName, tracingProps.zipkinEndpoint(), tracingProps.samplingRate());
 
         var builder = Tracing.newBuilder()
                 .localServiceName(serviceName)

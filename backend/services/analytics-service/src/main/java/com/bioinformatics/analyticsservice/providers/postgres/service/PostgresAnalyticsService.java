@@ -16,8 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Service for statically pre-aggregated analytics queries.
- * Driven strictly by PostgreSQL materialized views for high-performance (sub-500ms target).
+ * Service for static, pre-aggregated analytics queries.
+ *
+ * <p>Driven strictly by PostgreSQL materialized views for high-performance sub-500ms responses.
+ * All methods are cached via Redis or Spring Cache abstractions.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Query materialized views populated by import batch jobs
+ *   <li>Map entity results to DTOs
+ *   <li>Support caching for sub-100ms response times
+ *   <li>Handle cache eviction on data refresh
+ * </ul>
  */
 @Service
 @RequiredArgsConstructor
@@ -44,81 +54,132 @@ public class PostgresAnalyticsService extends AbstractPostgresProvider implement
     private final KeywordFrequencyMapper keywordFrequencyMapper;
 
     /**
-     * @return current dashboard KPIs from cache or materialized record.
+     * Retrieves top-level dashboard KPIs from materialized view.
+     *
+     * <p>Cached in Redis with cacheManager=redisNonFinalAndRecordCacheManager.
+     * Query hits: mv_dashboard_kpis.
+     *
+     * @return dashboard KPIs (total proteins, reviewed count, etc.)
+     * @throws ResourceNotFoundException if view is empty
      */
     @Override
     @Cacheable(value = "dashboardKpis", cacheManager = "redisNonFinalAndRecordCacheManager")
     public DashboardKpisDto getDashboardKpis() {
-        log.info("Retrieving Dashboard KPIs from materialized view");
+        log.debug("[ANALYTICS] Retrieving Dashboard KPIs from materialized view");
         var entity = dashboardKpisRepository.findFirstBy()
-                .orElseThrow(() -> new ResourceNotFoundException("Dashboard KPIs not found"));
+                .orElseThrow(() -> {
+                    log.error("[ANALYTICS] Dashboard KPIs not found in materialized view");
+                    return new ResourceNotFoundException("Dashboard KPIs not found");
+                });
+        log.debug("[ANALYTICS] Dashboard KPIs retrieved - totalProteins={}", entity.getTotalProteins());
         return dashboardKpisMapper.toDto(entity);
     }
 
     /**
-     * @return bucketed length frequency map natively computed in DB.
+     * Retrieves bucketed protein length frequency distribution.
+     *
+     * <p>Pre-computed buckets for chart rendering (e.g., 0-100, 100-200, etc.).
+     * Cached with cache=lengthHistogram.
+     * Query hits: mv_length_histogram.
+     *
+     * @return ordered list of histogram buckets
      */
     @Override
     @Cacheable(value = "lengthHistogram")
     public List<LengthHistogramBucketDto> getLengthHistogram() {
-        log.info("Retrieving Length Histogram from materialized view");
-        return lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
+        log.debug("[ANALYTICS] Retrieving Length Histogram from materialized view");
+        var buckets = lengthHistogramBucketRepository.findAllByOrderByBucketAsc()
                 .stream()
                 .map(lengthHistogramBucketMapper::toDto)
                 .toList();
+        log.debug("[ANALYTICS] Length Histogram retrieved - bucketCount={}", buckets.size());
+        return buckets;
     }
 
     /**
-     * @param limit limits response size for high-cardinality taxa mapping
-     * @return global occurrences of organisms sorted descending.
+     * Retrieves global occurrences of organisms sorted descending by count.
+     *
+     * <p>Highest-cardinality domain; limit parameter essential for performance.
+     * Cached per limit value with cache=byOrganism, key=#limit.
+     * Query hits: mv_organism_counts.
+     *
+     * @param limit maximum number of organisms to return (1-200)
+     * @return top organisms with counts
      */
     @Override
     @Cacheable(value = "byOrganism", key = "#limit")
     public List<OrganismCountDto> getByOrganism(int limit) {
-        log.info("Retrieving Organism Count from materialized view");
-        return organismCountRepository.findAll(Limit.of(limit))
+        log.debug("[ANALYTICS] Retrieving Organism Count from materialized view - limit={}", limit);
+        var organisms = organismCountRepository.findAll(Limit.of(limit))
                 .stream()
                 .map(organismCountMapper::toDto)
                 .toList();
+        log.debug("[ANALYTICS] Organism Count retrieved - resultCount={}", organisms.size());
+        return organisms;
     }
 
     /**
-     * @return ratio tracking verified vs newly-found sequences.
+     * Retrieves the ratio of reviewed (UniProt-reviewed) to unreviewed proteins.
+     *
+     * <p>Tracks verified sequences vs newly discovered entries.
+     * Cached with cache=reviewedRatio.
+     * Query hits: mv_reviewed_ratio.
+     *
+     * @return ratio metrics
      */
     @Override
     @Cacheable(value = "reviewedRatio")
     public List<ReviewedRatioDto> getReviewedRatio() {
-        log.info("Retrieving Reviewed Ratio from materialized view");
-        return reviewedRatioRepository.findAll()
+        log.debug("[ANALYTICS] Retrieving Reviewed Ratio from materialized view");
+        var ratios = reviewedRatioRepository.findAll()
                 .stream()
                 .map(reviewedRatioMapper::toDto)
                 .toList();
+        log.debug("[ANALYTICS] Reviewed Ratio retrieved - resultCount={}", ratios.size());
+        return ratios;
     }
 
     /**
-     * @return distribution grouped by evidence confirmation level.
+     * Retrieves distribution of evidence confirmation levels.
+     *
+     * <p>Maps protein function evidence from experiments to predictions.
+     * Cached with cache=evidenceLevels.
+     * Query hits: mv_evidence_distribution.
+     *
+     * @return evidence level distribution
      */
     @Override
     @Cacheable(value = "evidenceLevels")
     public List<EvidenceDistributionDto> getEvidenceLevels() {
-        log.info("Retrieving Evidence Levels from materialized view");
-        return evidenceDistributionRepository.findAll()
+        log.debug("[ANALYTICS] Retrieving Evidence Levels from materialized view");
+        var distribution = evidenceDistributionRepository.findAll()
                 .stream()
                 .map(evidenceDistributionMapper::toDto)
                 .toList();
+        log.debug("[ANALYTICS] Evidence Levels retrieved - resultCount={}", distribution.size());
+        return distribution;
     }
 
     /**
-     * @param limit limits response size for massive dictionary graphs
-     * @return common trait occurrences over entire domain dataset.
+     * Retrieves most frequently occurring keywords across dataset.
+     *
+     * <p>Useful for tag clouds and faceted search.
+     * Highest-cardinality dictionary; limit parameter essential.
+     * Cached per limit value with cache=keywordFrequency, key=#limit.
+     * Query hits: mv_keyword_frequency.
+     *
+     * @param limit maximum keywords to return (1-500)
+     * @return top keywords with occurrence counts
      */
     @Override
     @Cacheable(value = "keywordFrequency", key = "#limit")
     public List<KeywordFrequencyDto> getKeywordFrequency(int limit) {
-        log.info("Retrieving Keyword Frequency from materialized view");
-        return keywordFrequencyRepository.findAll(Limit.of(limit))
+        log.debug("[ANALYTICS] Retrieving Keyword Frequency from materialized view - limit={}", limit);
+        var keywords = keywordFrequencyRepository.findAll(Limit.of(limit))
                 .stream()
                 .map(keywordFrequencyMapper::toDto)
                 .toList();
+        log.debug("[ANALYTICS] Keyword Frequency retrieved - resultCount={}", keywords.size());
+        return keywords;
     }
 }

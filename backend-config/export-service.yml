@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Export Service — business configuration (all profiles)
+# ─────────────────────────────────────────────────────────────────────────────
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: export_data
+        '[format_sql]': false
+        '[default_batch_fetch_size]': 25
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
+  batch:
+    job:
+      enabled: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: export_data
+    default-schema: export_data
+    create-schemas: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+common:
+  enabled: true
+  cache:
+    enabled: true
+
+app:
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 200
+      tokens: 200
+      seconds: 60
+
+  audit-pool:
+    core-size: 1
+    max-size: 5
+    queue-capacity: 50
+    thread-name-prefix: export-audit-
+
+  export:
+    max-rows: 100000
+    temp-dir: ${APP_EXPORT_TEMP_DIR:${user.home}/bio-export}
+    pool:
+      core-size: 2
+      max-size: 10
+      queue-capacity: 25
+      thread-name-prefix: ExportBatchAsync-
+    batch:
+      chunk-size: ${APP_EXPORT_BATCH_CHUNK_SIZE:500}
+    cleanup:
+      retention-days: ${APP_EXPORT_CLEANUP_RETENTION_DAYS:30}

@@ -1,15 +1,14 @@
 package com.bioinformatics.dashboard.gene.service;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
+import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,10 +45,6 @@ class PostgresGeneServiceTest {
     @BeforeEach
     void setUp() {
         appProperties = new AppProperties();
-        var export = appProperties.getExport();
-        export.setCsv(new AppProperties.Csv());
-        export.getCsv().setMaxRows(1000);
-
         service = new PostgresGeneService(proteinEntryService, mapper, appProperties);
     }
 
@@ -141,25 +135,13 @@ class PostgresGeneServiceTest {
     }
 
     @Test
-    void assertWithinExportLimit_exceedsLimit_throws() {
-        appProperties.getExport().getCsv().setMaxRows(4);
-
-        var request = buildRequest(null, null, null, 10, null);
-
-        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(5L);
-
-        assertThrows(ExportRowCapExceededException.class, () -> service.assertWithinExportLimit(request));
-    }
-
-    @Test
     void assertWithinExportLimit_return_size() {
-        appProperties.getExport().getCsv().setMaxRows(4);
 
         var request = buildRequest(null, null, null, 10, null);
 
         when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(3L);
 
-        var count = service.assertWithinExportLimit(request);
+        var count = service.count(request);
         assertEquals(3L, count);
     }
 
@@ -210,35 +192,6 @@ class PostgresGeneServiceTest {
         var request = buildRequest(null, null, null, 10, "badSort");
         var allowed = Set.of("id");
         assertThrows(IllegalArgumentException.class, () -> request.getRequestPage(allowed, "id"));
-    }
-
-    @Test
-    void exportCsv_respectsLimit_noThrow() throws Exception {
-        appProperties.getExport().getCsv().setMaxRows(2);
-
-        var entry1 = new ProteinEntry();
-        entry1.setId(21L);
-        var entry2 = new ProteinEntry();
-        entry2.setId(22L);
-
-        var page = new PageImpl<>(List.of(entry1, entry2), PageRequest.of(0, 2), 2);
-        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
-
-        var dto1 = new ProteinSummaryDto(21L, "ACC21", "e21", "f21",
-                "g21", "o21", 201, true, 10, 20,
-                (short) 1, List.of());
-        var dto2 = new ProteinSummaryDto(22L, "ACC22", "e22", "f22",
-                "g22", "o22", 202, true, 11, 21,
-                (short) 1, List.of());
-        when(mapper.toSummary(entry1)).thenReturn(dto1);
-        when(mapper.toSummary(entry2)).thenReturn(dto2);
-
-        var request = buildRequest(null, null, null, 2, null);
-        var writer = new StringWriter();
-        service.exportCsv(request, writer, 2);
-        var output = writer.toString();
-        assertNotNull(output);
-        assertTrue(output.contains("accession") || output.contains("ACC21"));
     }
 }
 

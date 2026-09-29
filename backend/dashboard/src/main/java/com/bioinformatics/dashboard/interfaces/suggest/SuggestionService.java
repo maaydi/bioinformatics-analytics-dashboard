@@ -5,16 +5,21 @@ import com.bioinformatics.common.providers.Provider;
 import java.util.List;
 
 /**
- * Service interface for retrieving field suggestions based on query.
+ * Service contract for field-level autocomplete suggestions during gene search composition.
+ *
+ * <p>Implementations resolve a provider-specific suggestion source such as PostgreSQL or the UniProt API and expose a
+ * consistent search experience regardless of the underlying backend.</p>
  */
 public interface SuggestionService extends Provider {
     /**
-     * @return the target field for suggestions
+     * Returns the target field this suggestion implementation supports.
+     *
+     * @return suggestion field key
      */
     String field();
 
     /**
-     * Retrieves suggestions matching the query.
+     * Retrieves suggestions matching the query for this implementation's field.
      *
      * @param query the search query
      * @return list of up to 10 matching suggestions

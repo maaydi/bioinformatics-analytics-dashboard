@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.uniprotkb.dto.GeneLight;
 import com.bioinformatics.common.providers.uniprotkb.dto.UniProtLightEntry;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbRestService;
@@ -69,7 +70,7 @@ class GeneNamePrimaryUniprotApiSuggestionTest {
 
     @Test
     void getProviderName_returnsUniprotKb() {
-        assertThat(suggestion.getProviderName()).isEqualTo("uniprotKb");
+        assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.API.getKey());
     }
 
     // -------------------------------------------------------------------------

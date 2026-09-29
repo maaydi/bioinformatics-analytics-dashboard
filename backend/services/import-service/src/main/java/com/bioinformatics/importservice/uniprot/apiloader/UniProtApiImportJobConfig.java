@@ -1,5 +1,6 @@
 package com.bioinformatics.importservice.uniprot.apiloader;
 
+import com.bioinformatics.common.batch.reader.UniProtApiItemReader;
 import com.bioinformatics.common.config.CommonProperties;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
@@ -8,18 +9,13 @@ import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.importservice.client.SavedFilterService;
 import com.bioinformatics.importservice.config.ApplicationProperties;
 import com.bioinformatics.importservice.dto.Constants;
-import com.bioinformatics.importservice.listener.ImportJobDatabaseListener;
-import com.bioinformatics.importservice.listener.ImportJobRefreshViewsListener;
 import com.bioinformatics.importservice.listener.ImportProgressChunkListener;
-import com.bioinformatics.importservice.listener.PostImportCacheEvictionListener;
+import com.bioinformatics.importservice.uniprot.ImportJobParameters;
 import com.bioinformatics.importservice.uniprot.apiloader.processor.UniProtApiEntryProcessor;
-import com.bioinformatics.importservice.uniprot.apiloader.reader.UniProtApiItemReader;
 import com.bioinformatics.importservice.writer.ProteinAggregateItemWriter;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -74,7 +70,7 @@ public class UniProtApiImportJobConfig {
      */
     @Bean
     @StepScope
-    UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient, UniProtApiImportJobParameters params) {
+    UniProtApiItemReader uniProtApiItemReader(UniProtApiClient apiClient, ImportJobParameters params) {
         var user = new UserPrincipal(params.getInitiatorUserId(), params.getInitiatorRole(), null);
         var filter = savedFilterService.getSavedFilterById(params.getFilterId(), user);
         if (filter.isEmpty()) {
@@ -102,23 +98,6 @@ public class UniProtApiImportJobConfig {
                 .reader(uniProtApiItemReader)
                 .processor(processor)
                 .writer(writer)
-                .build();
-    }
-
-
-    @Bean
-    Job uniProtApiImportJob(
-            JobRepository jobRepository,
-            Step uniProtApiImportStep,
-            ImportJobDatabaseListener databaseListener,
-            PostImportCacheEvictionListener cacheEvictionListener,
-            ImportJobRefreshViewsListener refreshViewsListener) {
-
-        return new JobBuilder(Constants.IMPORT_API_JOB.getKey(), jobRepository)
-                .start(uniProtApiImportStep)
-                .listener(databaseListener)
-                .listener(cacheEvictionListener)
-                .listener(refreshViewsListener)
                 .build();
     }
 }

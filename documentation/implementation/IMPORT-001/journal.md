@@ -16,7 +16,7 @@
     - `com.bioinformatics.dashboard.job.mapper.ImportJobMapper` (MapStruct) — maps entity → DTO and calculates
       progress/elapsed time
     - `com.bioinformatics.dashboard.job.repository.ImportJobRepository` — repository + helper query `findByStatus`
-    - Exceptions added: `ImportAlreadyRunningException`, `ExecuteJobException`, `MalformedUniprotFileException`
+  - Exceptions added: `ConflictException`, `ExecuteJobException`, `MalformedFileException`
     - Backend files of note:
         - `backend/src/main/java/com/bioinformatics/dashboard/admin/service/ImportService.java`
         - `backend/src/main/java/com/bioinformatics/dashboard/admin/controller/ImportController.java`

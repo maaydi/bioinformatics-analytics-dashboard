@@ -16,16 +16,17 @@ import java.util.Objects;
 import static com.bioinformatics.shared.models.security.AppHeaders.DATA_PROVIDER;
 
 /**
- * HTTP filter that reads the X-Data-Provider header and sets the active provider for the request.
- * Default provider is "postgres" if header is absent or empty.
- * Filter runs at highest precedence to ensure context is set early.
+ * HTTP filter that reads the {@code X-Data-Provider} header and sets the active provider for the request.
+ *
+ * <p>If the header is absent or empty, the filter falls back to the default provider configured in the
+ * shared header metadata. The context is always cleared in the finally block to prevent leaks.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ProviderFilter extends OncePerRequestFilter {
 
     /**
-     * Intercept request, set provider context, and clean up after response.
+     * Intercepts the request, sets the provider context, and clears it after the chain completes.
      *
      * @param request     HTTP request
      * @param response    HTTP response

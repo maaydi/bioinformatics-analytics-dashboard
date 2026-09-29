@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.uniprotkb.dto.CrossRefLightEntry;
 import com.bioinformatics.common.providers.uniprotkb.service.DatabaseRestService;
 import com.bioinformatics.common.uniprot.dto.UniprotKbResponse;
@@ -43,7 +44,7 @@ class CrossReferenceUniprotApiSuggestionTest {
 
     @Test
     void getProviderName_returnsUniprotKb() {
-        assertThat(suggestion.getProviderName()).isEqualTo("uniprotKb");
+        assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.API.getKey());
     }
 
     // -------------------------------------------------------------------------

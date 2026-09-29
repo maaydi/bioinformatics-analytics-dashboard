@@ -66,7 +66,7 @@ app:
     thread-name-prefix: import-audit-
 
   import-config:
-    temp-dir: ${APP_IMPORT_CONFIG_TEMP_DIR:${user.home}/.bio-import}
+    temp-dir: ${APP_IMPORT_CONFIG_TEMP_DIR:${user.home}/bio-import}
     extensions: dat,tsv
     pool:
       core-size: 2

@@ -20,10 +20,12 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-
 /**
- * Manages operations and logic for AuditAspect.
+ * AOP aspect that records authenticated action audits for methods annotated with {@link Auditable}.
+ *
+ * <p>The aspect captures both successful and failing execution paths and stores the outcome in the central audit log,
+ * including a target identifier resolved from a SpEL expression when one is configured. This lets the dashboard
+ * maintain a read-only trail of sensitive actions such as searches, filter saves, and data exports.</p>
  */
 @Aspect
 @Component
@@ -40,7 +42,7 @@ public class AuditAspect {
      * Handles successful method executions annotated with {@code @Auditable} and records a success audit.
      *
      * @param joinPoint the join point of the executed method
-     * @param result    the returned value from the method (maybe {@code null})
+     * @param result the returned value from the method, or {@code null}
      */
     @AfterReturning(
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
@@ -50,7 +52,7 @@ public class AuditAspect {
         var auditable = getAuditableAnnotation(joinPoint);
         if (auditable == null || auditable.skip()) return;
         if (auditable.auditOnlyOnFailure()) {
-            log.debug("Skipping audit for {} (success, auditOnlyOnFailure=true)", auditable.action());
+            log.debug("[DASHBOARD][AUDIT] Skipping success audit for action={} because auditOnlyOnFailure=true", auditable.action());
             return;
         }
         var targetId = evaluateSPEL(joinPoint, auditable.targetId(), result);
@@ -61,7 +63,7 @@ public class AuditAspect {
      * Handles exceptions thrown by methods annotated with {@code @Auditable} and records a failure audit.
      *
      * @param joinPoint the join point of the executed method
-     * @param ex        the exception that was thrown
+     * @param ex the exception thrown by the method
      */
     @AfterThrowing(
             pointcut = "@annotation(com.bioinformatics.dashboard.audit.annotation.Auditable)",
@@ -73,7 +75,6 @@ public class AuditAspect {
         var targetId = evaluateSPEL(joinPoint, auditable.targetId(), null);
         recordAudit(auditable, targetId, AuditStatus.FAILURE);
     }
-
 
     private void recordAudit(Auditable auditable,
                              String targetId,
@@ -90,7 +91,7 @@ public class AuditAspect {
             var webDetails = AuditContextHolder.get();
             service.save(usr, userName, auditable.action(), targetId, status, webDetails);
         } catch (Exception e) {
-            log.error("Error during audit logging {}", e.getMessage());
+            log.error("[DASHBOARD][AUDIT] Error while persisting audit log action={} status={} targetId={} error={}", auditable.action(), status, targetId, e.getMessage(), e);
         }
     }
 
@@ -103,7 +104,7 @@ public class AuditAspect {
 
             return method.getAnnotation(Auditable.class);
         } catch (Exception e) {
-            log.warn("Could not extract @Auditable annotation {}", e.getMessage());
+            log.warn("[DASHBOARD][AUDIT] Could not extract @Auditable annotation for method={} error={}", joinPoint.getSignature().getName(), e.getMessage());
             return null;
         }
     }
@@ -132,7 +133,7 @@ public class AuditAspect {
             var value = expression.getValue(context);
             return value != null ? value.toString() : "N/A";
         } catch (Exception e) {
-            log.warn("Failed to evaluate audit SpEL expression [{}]: {}", expressionStr, e.getMessage());
+            log.warn("[DASHBOARD][AUDIT] Failed to evaluate audit SpEL expression={} error={}", expressionStr, e.getMessage());
             return "ERROR_PARSING_ID";
         }
     }

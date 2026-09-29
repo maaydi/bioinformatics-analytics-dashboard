@@ -8,6 +8,7 @@ WORKDIR /app
 # Non-root user for security (OWASP A05)
 RUN addgroup -S bioapp && adduser -S bioapp -G bioapp
 RUN mkdir -p /app/logs && chown -R bioapp:bioapp /app/logs
+RUN mkdir -p /app/bio-import && chown -R bioapp:bioapp /app/bio-import
 
 USER bioapp
 

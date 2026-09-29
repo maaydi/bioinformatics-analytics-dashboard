@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.providers.uniprotkb.suggest;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.uniprotkb.dto.UniProtLightEntry;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbRestService;
 import com.bioinformatics.common.uniprot.dto.FullName;
@@ -74,7 +75,7 @@ class ProteinFullNameUniprotApiSuggestionTest {
         @Test
         @DisplayName("should return 'uniprotKb' as the provider name")
         void shouldReturnUniprotKbAsProviderName() {
-            assertThat(suggestion.getProviderName()).isEqualTo("uniprotKb");
+            assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.API.getKey());
         }
     }
 

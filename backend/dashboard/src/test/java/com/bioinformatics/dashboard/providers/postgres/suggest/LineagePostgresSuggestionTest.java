@@ -1,6 +1,7 @@
 package com.bioinformatics.dashboard.providers.postgres.suggest;
 
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
+import com.bioinformatics.common.providers.DataProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class LineagePostgresSuggestionTest {
         @Test
         @DisplayName("should return 'postgres' as the provider name")
         void shouldReturnPostgresAsProviderName() {
-            assertThat(suggestion.getProviderName()).isEqualTo("postgres");
+            assertThat(suggestion.getProviderName()).isEqualTo(DataProvider.POSTGRES.getKey());
         }
     }
 

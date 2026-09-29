@@ -4,7 +4,7 @@ import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.importservice.entity.ImportJob;
 import com.bioinformatics.importservice.listener.ImportProgressChunkListener;
 import com.bioinformatics.importservice.repository.ImportJobRepository;
-import com.bioinformatics.importservice.uniprot.fileloader.UniProtImportJobParameters;
+import com.bioinformatics.importservice.uniprot.ImportJobParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ class ImportProgressChunkListenerTest {
     @Mock
     private ImportJobRepository repository;
     @Mock
-    private UniProtImportJobParameters jobParameters;
+    private ImportJobParameters jobParameters;
     private ImportProgressChunkListener listener;
 
     @BeforeEach

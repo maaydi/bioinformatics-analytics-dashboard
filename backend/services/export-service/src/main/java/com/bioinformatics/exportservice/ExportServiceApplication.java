@@ -7,13 +7,17 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableFeignClients
 @EnableConfigurationProperties(ApplicationProperties.class)
 @EnableCaching
+@EnableScheduling
 @ComponentScan(basePackages = {
         "com.bioinformatics.exportservice",
         "com.bioinformatics.common"
@@ -23,7 +27,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.bioinformatics.common"
 })
 @EntityScan(basePackages = {
-        "com.bioinformatics.importservice",
+        "com.bioinformatics.exportservice",
         "com.bioinformatics.common"
 })
 public class ExportServiceApplication {

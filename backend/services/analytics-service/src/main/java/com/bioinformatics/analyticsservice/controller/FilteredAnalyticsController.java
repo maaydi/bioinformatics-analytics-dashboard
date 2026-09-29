@@ -24,8 +24,21 @@ import java.util.List;
  * relies on Spring Data JPA Specifications built dynamically from user requests, thereby
  * returning aggregated analytical data corresponding exactly to the provided query parameters.</p>
  *
- * <p>Delegates calculation and projection to the {@link FilteredAnalyticsService}.
- * Strict payload schemas follow {@code documentation/api-contract.md}.</p>
+ * <p>Endpoints:
+ * <ul>
+ *   <li>POST /api/v1/analytics/filters/dashboard-kpis - KPIs for filtered subset
+ *   <li>POST /api/v1/analytics/filters/length-histogram - Length distribution for subset
+ *   <li>POST /api/v1/analytics/filters/by-organism - Top organisms in subset
+ *   <li>POST /api/v1/analytics/filters/reviewed-ratio - Reviewed ratio in subset
+ *   <li>POST /api/v1/analytics/filters/evidence-levels - Evidence distribution in subset
+ *   <li>POST /api/v1/analytics/filters/keyword-frequency - Top keywords in subset
+ *   <li>POST /api/v1/analytics/filters/length-weight - Raw length/weight pairs in subset
+ *   <li>POST /api/v1/analytics/filters/compare - Side-by-side comparison of two subsets
+ * </ul>
+ *
+ * <p>All methods accept a GeneSearchRequest (filter criteria) as POST body.
+ * Response times typically 100-2000ms depending on filter selectivity.
+ * Access: USER or ADMIN roles required.
  */
 @RestController
 @Validated
@@ -38,6 +51,12 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates top-level KPIs for a filtered subset.
+     *
+     * <p>Dynamic calculation based on provided filter criteria.
+     * No caching; results vary per filter.
+     *
+     * @param request gene search filter (organism, keyword, length range, etc.)
+     * @return OK (200) with filtered KPIs
      */
     @PostMapping("/dashboard-kpis")
     public ResponseEntity<DashboardKpisDto> getDashboardKpis(@RequestBody @Valid GeneSearchRequest request) {
@@ -47,6 +66,12 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates the length distribution histogram buckets for a filtered subset.
+     *
+     * <p>Dynamically buckets protein lengths based on filtered data.
+     * May return different bucket ranges than static histogram.
+     *
+     * @param request gene search filter
+     * @return OK (200) with filtered histogram buckets
      */
     @PostMapping("/length-histogram")
     public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram(@RequestBody @Valid GeneSearchRequest request) {
@@ -56,6 +81,10 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates top organism occurrences for a filtered subset.
+     *
+     * @param limit maximum results (default: 50, max: 200)
+     * @param request gene search filter
+     * @return OK (200) with filtered organism counts
      */
     @PostMapping("/by-organism")
     public ResponseEntity<List<OrganismCountDto>> getByOrganism(
@@ -69,6 +98,9 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates the ratio of reviewed to unreviewed proteins within the filtered subset.
+     *
+     * @param request gene search filter
+     * @return OK (200) with filtered reviewed/unreviewed ratios
      */
     @PostMapping("/reviewed-ratio")
     public ResponseEntity<List<ReviewedRatioDto>> getReviewedRatio(@RequestBody @Valid GeneSearchRequest request) {
@@ -78,6 +110,9 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates the distribution of evidence levels within the filtered subset.
+     *
+     * @param request gene search filter
+     * @return OK (200) with filtered evidence distribution
      */
     @PostMapping("/evidence-levels")
     public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels(@RequestBody @Valid GeneSearchRequest request) {
@@ -87,6 +122,10 @@ public class FilteredAnalyticsController {
 
     /**
      * Calculates the most frequent keywords for the filtered subset.
+     *
+     * @param limit maximum keywords (default: 100, max: 500)
+     * @param request gene search filter
+     * @return OK (200) with filtered keyword frequencies
      */
     @PostMapping("/keyword-frequency")
     public ResponseEntity<List<KeywordFrequencyDto>> getKeywordFrequency(
@@ -99,7 +138,13 @@ public class FilteredAnalyticsController {
     }
 
     /**
-     * Calculates raw protein length distribution, avoiding bucket scaling for granular analysis.
+     * Calculates raw protein length/weight counts for granular analysis.
+     *
+     * <p>Unlike bucketed histogram, returns individual (length, weight, count) tuples.
+     * Useful for fine-grained UI rendering (scatter plots, etc.).
+     *
+     * @param request gene search filter
+     * @return OK (200) with raw length/weight pairs
      */
     @PostMapping("/length-weight")
     public ResponseEntity<List<ProteinLengthWeightCount>> getProteinLengthWeightCount(
@@ -110,9 +155,19 @@ public class FilteredAnalyticsController {
 
     /**
      * Compares analytics metrics for two distinct search requests side by side.
-     * Useful for evaluating differences in metrics between separated groups.
      *
-     * @param request encapsulates subsets A and B
+     * <p>Useful for evaluating differences between separated groups:
+     * <ul>
+     *   <li>Pathway A vs Pathway B
+     *   <li>Species 1 vs Species 2
+     *   <li>New discoveries vs Reviewed entries
+     * </ul>
+     *
+     * <p>Request contains subsets A and B with independent filters.
+     * Response provides metrics for each subset.
+     *
+     * @param request comparison specification (subsetA and subsetB)
+     * @return OK (200) with comparison results
      */
     @PostMapping("/compare")
     public ResponseEntity<CompareResponseDto> compare(@RequestBody @Valid CompareRequestDto request) {

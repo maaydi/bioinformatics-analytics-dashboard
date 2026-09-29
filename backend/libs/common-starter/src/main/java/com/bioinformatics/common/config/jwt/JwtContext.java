@@ -1,6 +1,5 @@
 package com.bioinformatics.common.config.jwt;
 
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -16,8 +15,11 @@ import static com.bioinformatics.shared.models.security.Constants.ADMIN_ROLE;
 import static com.bioinformatics.shared.models.security.Constants.ROLE_PREFIX;
 
 /**
- * Convenience helper to extract information from the currently-authenticated
- * JWT without pulling in the monolith's {@code JwtUtil}.
+ * Convenience access helper for extracting the authenticated JWT subject and claims from the
+ * current Spring Security context.
+ *
+ * <p>This keeps controllers and services from reaching into security internals while still enabling
+ * straightforward checks for the current user identity, roles, and admin status.
  */
 @Component
 public class JwtContext {

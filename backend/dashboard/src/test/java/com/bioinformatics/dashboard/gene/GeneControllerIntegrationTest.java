@@ -1,9 +1,9 @@
 package com.bioinformatics.dashboard.gene;
 
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
+import com.bioinformatics.common.models.PagedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,37 +185,6 @@ class GeneControllerIntegrationTest {
                 .body(request)
                 .exchange()
                 .expectStatus().is4xxClientError();
-    }
-
-    @Test
-    void postExportCsv_returnsCsv() {
-        var entry = ProteinEntry.builder()
-                .accession("ECX1")
-                .entryName("csv1")
-                .reviewed(true)
-                .organismName("OrgCsv")
-                .taxid(999)
-                .length(10)
-                .evidenceLevel((short) 1)
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
-        proteinEntryRepository.save(entry);
-
-        var request = java.util.Map.<String, Object>of("page", 0, "size", 10);
-        restClient.post()
-                .uri("/api/genes/export-csv")
-                .header(USER_ID_HEADER, "admin_user")
-                .header(USER_ROLE_HEADER, ADMIN_ROLE)
-                .body(request)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(String.class)
-                .consumeWith(result -> {
-                    var body = result.getResponseBody();
-                    assertThat(body).isNotNull();
-                    assertThat(body).contains("accession");
-                });
     }
 
 }

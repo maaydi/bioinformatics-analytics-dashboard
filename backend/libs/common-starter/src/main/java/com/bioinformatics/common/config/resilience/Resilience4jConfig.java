@@ -1,6 +1,5 @@
 package com.bioinformatics.common.config.resilience;
 
-
 import com.bioinformatics.common.config.CommonProperties;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -10,6 +9,7 @@ import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,14 +18,16 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 
 /**
- * Provides default Resilience registries with sensible microservice defaults.
- * <p>Services can retrieve named instances from the registries and annotate
- * methods with {@code @CircuitBreaker(name = "...")}, {@code @Retry}, etc.
+ * Shared Resilience4j registry configuration used by all microservices.
+ *
+ * <p>The starter provisions default circuit breaker, retry, and rate limiter registries so service
+ * code can opt into standard resilience patterns without repeating boilerplate configuration.
  */
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnClass(CircuitBreakerRegistry.class)
 @EnableConfigurationProperties(CommonProperties.class)
+@Slf4j
 public class Resilience4jConfig {
 
     private final CommonProperties commonProperties;
@@ -41,6 +43,9 @@ public class Resilience4jConfig {
                 .permittedNumberOfCallsInHalfOpenState(conf.permittedNumberOfCallsInHalfOpenState())
                 .slidingWindowSize(conf.slidingWindowSize())
                 .build();
+
+        log.info("Creating default CircuitBreaker registry with failure rate {}%, slow call threshold {}% and open-state wait {}ms",
+                conf.failureRateThreshold(), conf.slowCallRateThreshold(), conf.waitDurationInOpenStateMs());
         return CircuitBreakerRegistry.of(config);
     }
 
@@ -53,6 +58,9 @@ public class Resilience4jConfig {
                         Duration.ofMillis(conf.waitDurationMs()),
                         conf.exponentialBackoffMultiplier()
                 )).build();
+
+        log.info("Creating default Retry registry with maxAttempts={} and exponential backoff base {}ms",
+                conf.maxAttempts(), conf.waitDurationMs());
         return RetryRegistry.of(config);
     }
 
@@ -64,6 +72,9 @@ public class Resilience4jConfig {
                 .limitRefreshPeriod(Duration.ofMillis(conf.limitRefreshPeriodMs()))
                 .timeoutDuration(Duration.ofMillis(conf.timeoutDurationMs()))
                 .build();
+
+        log.info("Creating default RateLimiter registry with limitForPeriod={} and refresh period {}ms",
+                conf.limitForPeriod(), conf.limitRefreshPeriodMs());
         return RateLimiterRegistry.of(config);
     }
 }

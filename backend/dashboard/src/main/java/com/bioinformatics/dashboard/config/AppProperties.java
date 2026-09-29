@@ -7,34 +7,16 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Central application properties for the dashboard module.
+ */
 @Configuration
 @ConfigurationProperties(prefix = "app")
 @Getter
+@Setter
 public class AppProperties {
-
-    private final Batch batch = new Batch();
-    private final ImportConfig importConfig = new ImportConfig();
-    private final Export export = new Export();
-    private final ViewRefresh viewRefresh = new ViewRefresh();
-    private final ThreadPoolSettings auditPool = new ThreadPoolSettings();
-    private final RateLimiter rateLimiter = new RateLimiter();
-    private final UniProtApi uniprotApi = new UniProtApi();
-
-    @Getter
-    @Setter
-    public static class Batch {
-        private int chunkSize;
-        private int skipLimit;
-
-    }
-
-    @Getter
-    @Setter
-    public static class ImportConfig {
-        private String tempDir;
-        private List<String> extensions;
-        private ThreadPoolSettings pool;
-    }
+    private ThreadPoolSettings auditPool = new ThreadPoolSettings();
+    private RateLimiter rateLimiter = new RateLimiter();
 
     @Getter
     @Setter
@@ -43,54 +25,6 @@ public class AppProperties {
         private int maxSize;
         private int queueCapacity;
         private String threadNamePrefix;
-    }
-
-    @Getter
-    @Setter
-    public static class Export {
-        private Csv csv;
-    }
-
-    @Getter
-    @Setter
-    public static class Csv {
-        private int maxRows;
-    }
-
-    @Getter
-    public static class ViewRefresh {
-        private int maxAttempts;
-        private long perViewTimeoutMs;
-        private long retryBackoffMs;
-        private long sequenceSlaMs;
-
-        public void setMaxAttempts(int maxAttempts) {
-            if (maxAttempts < 1) {
-                throw new IllegalStateException("app.view-refresh.max-attempts must be >= 1");
-            }
-            this.maxAttempts = maxAttempts;
-        }
-
-        public void setPerViewTimeoutMs(long perViewTimeoutMs) {
-            if (perViewTimeoutMs < 1) {
-                throw new IllegalStateException("app.view-refresh.per-view-timeout-ms must be >= 1");
-            }
-            this.perViewTimeoutMs = perViewTimeoutMs;
-        }
-
-        public void setRetryBackoffMs(long retryBackoffMs) {
-            if (retryBackoffMs < 0) {
-                throw new IllegalStateException("app.view-refresh.retry-backoff-ms must be >= 0");
-            }
-            this.retryBackoffMs = retryBackoffMs;
-        }
-
-        public void setSequenceSlaMs(long sequenceSlaMs) {
-            if (sequenceSlaMs < 1) {
-                throw new IllegalStateException("app.view-refresh.sequence-sla-ms must be >= 1");
-            }
-            this.sequenceSlaMs = sequenceSlaMs;
-        }
     }
 
     @Getter
@@ -108,12 +42,5 @@ public class AppProperties {
         private int capacity;
         private int tokens;
         private int seconds;
-    }
-
-    @Getter
-    @Setter
-    public static class UniProtApi {
-        private String baseUrl;
-        private Batch batch;
     }
 }

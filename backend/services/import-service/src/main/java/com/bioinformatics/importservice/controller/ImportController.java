@@ -1,7 +1,7 @@
 package com.bioinformatics.importservice.controller;
 
 import com.bioinformatics.common.config.web.CurrentUser;
-import com.bioinformatics.common.models.other.PagedResponse;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
 import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.service.ImportService;
@@ -17,12 +17,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * REST Controller for managing UniProt batch import operations.
- * <p>
- * Exposes endpoints to trigger large-scale data imports and monitor job status.
- * Access is restricted to users with the ROLE_ADMIN authority.
- * Delegates orchestration of Spring Batch jobs to the {@link ImportService}.
- * Consult {@code documentation/api-contract.md} for detailed endpoint specifications.
- * </p>
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Receive file uploads or remote filter selections
+ *   <li>Validate requests and delegate to ImportService
+ *   <li>Return job summaries and progress information
+ * </ul>
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>POST /api/v1/admin/import/uniprot - Trigger file-based import
+ *   <li>POST /api/v1/admin/import/uniprot/remote - Trigger API-based import
+ *   <li>GET /api/v1/admin/import/status - List all import jobs (paginated)
+ *   <li>GET /api/v1/admin/import/status/{jobId} - Poll single job progress
+ * </ul>
+ *
+ * <p>Access: Admin-only (requires ROLE_ADMIN).
+ * Delegates orchestration of Spring Batch jobs to {@link ImportService}.
  */
 @RestController
 @RequestMapping("/api/v1/admin/import")
@@ -33,7 +45,14 @@ public class ImportController {
     private final ImportService service;
 
     /**
-     * POST /api/v1/admin/import/uniprot — triggers Spring Batch import job.
+     * Triggers a file-based UniProt import job.
+     *
+     * <p>Accepts a UniProt data file (.dat or .tsv) and import strategy.
+     * Enqueues async batch job and returns job summary immediately.
+     *
+     * @param file     uploaded file (.dat or .tsv)
+     * @param strategy import strategy (OVERWRITE or APPEND)
+     * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot")
     public ResponseEntity<ImportJobSummary> triggerImport(
@@ -44,16 +63,29 @@ public class ImportController {
     }
 
     /**
-     * POST /api/v1/admin/import/uniprot/remote — triggers remote UniProt API import job.
+     * Triggers a remote UniProt API-based import job.
+     *
+     * <p>Fetches protein data from UniProt API using a saved filter.
+     * Enqueues async batch job and returns job summary immediately.
+     *
+     * @param filterId    saved filter identifier
+     * @param currentUser authenticated user making request
+     * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot/remote")
-    public ResponseEntity<ImportJobSummary> triggerRemoteImport(@RequestParam("filterId") long filterId, @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<ImportJobSummary> triggerRemoteImport(
+            @RequestParam("filterId") long filterId,
+            @CurrentUser UserPrincipal currentUser) {
         var job = service.triggerRemoteImport(filterId, currentUser);
         return ResponseEntity.accepted().body(job);
     }
 
     /**
-     * GET /api/v1/admin/import/status — paginated list of all import jobs.
+     * Lists all import jobs with pagination.
+     *
+     * @param page zero-indexed page number (default: 0)
+     * @param size page size, max 200 (default: 20)
+     * @return paginated list of import job summaries
      */
     @GetMapping("/status")
     public PagedResponse<ImportJobSummary> listImportJobs(
@@ -65,7 +97,19 @@ public class ImportController {
     }
 
     /**
-     * GET /api/v1/admin/import/status/{jobId} — real-time progress of a single job.
+     * Polls current progress of a single import job.
+     *
+     * <p>Returns:
+     * <ul>
+     *   <li>Current status (RUNNING/COMPLETED/FAILED)
+     *   <li>Records processed vs. estimated
+     *   <li>Progress percentage
+     *   <li>Timing information
+     *   <li>Error message (if failed)
+     * </ul>
+     *
+     * @param jobId import job UUID as string
+     * @return job progress with metrics
      */
     @GetMapping("/status/{jobId}")
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {

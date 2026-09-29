@@ -15,11 +15,18 @@ import static com.bioinformatics.shared.models.security.AppClaims.ROLES;
 import static com.bioinformatics.shared.models.security.Constants.ROLE_PREFIX;
 
 /**
- * Extracts authorities from the {@code roles} claim (comma-separated).
- * <p>Compatible with tokens issued by the monolith's {@code JwtUtil}.
+ * Converts a JWT's {@code roles} claim into Spring Security {@link GrantedAuthority} objects.
+ *
+ * <p>This is used when a service validates JWTs directly through a {@code JwtDecoder}, allowing
+ * standard {@code @PreAuthorize("hasRole('ADMIN')") } checks without custom parsing logic.
  */
 public class CustomJwtAuthenticationConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
+    /**
+     * Constructs a JWT authentication converter configured with this custom role extractor.
+     *
+     * @return a ready-to-use JWT authentication converter
+     */
     public static JwtAuthenticationConverter jwtAuthenticationConverter() {
         var converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(new CustomJwtAuthenticationConverter());
@@ -27,6 +34,12 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Collecti
         return converter;
     }
 
+    /**
+     * Extracts the role claims from the JWT and turns them into {@link GrantedAuthority} objects.
+     *
+     * @param jwt validated JWT payload
+     * @return collection of granted authorities, or empty collection if no roles are present
+     */
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         var rolesClaim = jwt.getClaimAsString(ROLES.getClaim());

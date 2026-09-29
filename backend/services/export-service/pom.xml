@@ -49,6 +49,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <!-- ── Open Feign  ─────────────────────────────────────────────── -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
         <!-- ── Batch   ───────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -75,6 +81,19 @@
             <groupId>com.bioinformatics</groupId>
             <artifactId>common-starter</artifactId>
         </dependency>
+
+        <!-- ── Writers ─────────────────────────────────────────────────── -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.14.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+
         <!-- ── Test ────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -129,6 +148,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-openfeign-core</artifactId>
         </dependency>
     </dependencies>
 

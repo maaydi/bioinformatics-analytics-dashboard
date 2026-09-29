@@ -1,18 +1,16 @@
 package com.bioinformatics.dashboard.providers.postgres.gene.service;
 
-import com.bioinformatics.common.exception.ExportRowCapExceededException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.gene.specification.GeneSpecification;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.providers.postgres.AbstractPostgresProvider;
 import com.bioinformatics.dashboard.config.AppProperties;
-import com.bioinformatics.dashboard.csv.CsvWriter;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
-import com.bioinformatics.dashboard.model.gene.PagedResponse;
-import com.bioinformatics.dashboard.model.gene.ProteinDetailDto;
-import com.bioinformatics.dashboard.model.gene.ProteinSummaryDto;
-import com.bioinformatics.dashboard.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.providers.postgres.gene.mapper.GeneMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,9 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Service for gene/protein operations.
@@ -85,33 +80,10 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
 
     }
 
-    /**
-     * Streams all filtered rows as CSV into the provided writer.
-     * Page configuration is ignored and all data are returned
-     *
-     */
     @Override
-    public void exportCsv(GeneSearchRequest request, Writer writer, long totalRows) throws IOException {
-        log.info("Exporting protein entries for filters: {}", request);
-        request.getRequestPage(SORT_WHITELIST, "id");
-        var page = PageRequest.of(0, (int) totalRows);
+    public long count(GeneSearchRequest request) {
         var spec = GeneSpecification.fromRequest(request);
-        var genes = proteinService.findAll(spec, page);
-        var csvWriter = new CsvWriter();
-        csvWriter.write(writer, genes.get().map(mapper::toSummary).toList());
-
-    }
-
-    @Override
-    public long assertWithinExportLimit(GeneSearchRequest request) {
-        var maxSize = appProperties.getExport().getCsv().getMaxRows();
-        var spec = GeneSpecification.fromRequest(request);
-        var totalRows = proteinService.count(spec);
-        if (totalRows > maxSize) {
-            throw new ExportRowCapExceededException("Export limit exceeded. Result contains %d rows; maximum is %d. Please refine your filter"
-                    .formatted(totalRows, maxSize));
-        }
-        return totalRows;
+        return proteinService.count(spec);
 
     }
 }

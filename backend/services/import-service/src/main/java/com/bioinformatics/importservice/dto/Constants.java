@@ -7,19 +7,27 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Constants {
 
-    IMPORT_FILE_JOB("uniProtImportJob"),
+    UNIPROT_IMPORT_JOB("uniProtImportJob"),
     IMPORT_STEP("uniProtImportStep"),
+    /**
+     * import Job Parameters
+     */
     IMPORT_JOB_ID("importUniprotJobId"),
     FILE_PATH("filePath"),
     TIMESTAMP("timestamp"),
     SAVED_FILTER_ID("filterId"),
     USER_ID("initiatorUserId"),
     USER_ROLE("initiatorRole"),
+    /**
+     * Data provider for import jobs
+     */
+    DATA_PROVIDER("dataProvider"),
+    FILE("file"),
+    API("api"),
 
     /**
-     * API-based import job constants
+     * API-based import job Step
      */
-    IMPORT_API_JOB("uniProtApiImportJob"),
     API_IMPORT_STEP("uniProtApiImportStep");
 
     private final String key;

@@ -11,8 +11,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Clears all caches after successful protein import job completion.
- * Ensures downstream consumers (analytics views, search results) refresh with new data.
+ * Job lifecycle listener that clears all caches after successful import completion.
+ *
+ * <p>Ensures downstream consumers (analytics views, search results, protein lookups)
+ * fetch fresh data on next query, preventing stale cached results.
+ *
+ * <p>Only executes on COMPLETED status; skips on FAILED to preserve current cache state
+ * for debugging failed imports.
  */
 @Component
 @RequiredArgsConstructor
@@ -22,33 +27,41 @@ public class PostImportCacheEvictionListener implements JobExecutionListener {
     private final List<CacheManager> cacheManagers;
 
     /**
-     * On successful job completion, evicts all caches across all managers.
-     * Prevents stale cached results from shadowing newly imported protein data.
+     * Called after import job completes.
+     *
+     * <p>If job completed successfully, iterates all cache managers and evicts all named caches.
+     * Prevents stale results from shadowing newly imported protein data.
+     *
+     * @param jobExecution batch job execution with final status
      */
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-            log.info("Batch job completed successfully. Evicting all Redis caches...");
+            log.info("[CACHE_LISTENER] Job completed successfully - evicting all caches");
 
             for (CacheManager cacheManager : cacheManagers) {
                 evictCachesForManager(cacheManager);
             }
 
-            log.info("Cache eviction complete.");
+            log.info("[CACHE_LISTENER] Cache eviction complete - all caches cleared");
         } else {
-            log.warn("Batch job did not complete successfully (Status: {}). Skipping cache eviction.", jobExecution.getStatus());
+            log.debug("[CACHE_LISTENER] Job did not complete successfully - status={}, skipping cache eviction",
+                    jobExecution.getStatus());
         }
     }
 
     /**
      * Clears all named caches within a single cache manager.
+     *
+     * @param manager cache manager to evict
      */
     private void evictCachesForManager(CacheManager manager) {
+        log.debug("[CACHE_LISTENER] Evicting caches from manager - cacheCount={}", manager.getCacheNames().size());
         manager.getCacheNames().forEach(cacheName -> {
             var cache = manager.getCache(cacheName);
             if (cache != null) {
                 cache.clear();
-                log.debug("Cleared cache: {}", cacheName);
+                log.debug("[CACHE_LISTENER] Cache evicted - name='{}'", cacheName);
             }
         });
     }

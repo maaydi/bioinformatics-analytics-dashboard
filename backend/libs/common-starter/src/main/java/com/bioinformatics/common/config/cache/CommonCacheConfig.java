@@ -3,6 +3,7 @@ package com.bioinformatics.common.config.cache;
 import com.bioinformatics.common.config.CommonProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -28,6 +29,14 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Centralized Redis cache configuration for shared services.
+ *
+ * <p>This configuration enables Spring caching with a JSON-based Redis serializer that supports
+ * domain object typing while keeping the default cache TTL and package allow-list aligned across
+ * all microservices. Typed cache registrations can be contributed by individual services through
+ * {@link CacheRegistryProvider} implementations.
+ */
 @Configuration
 @EnableCaching
 @Profile("!test")
@@ -35,6 +44,7 @@ import java.util.List;
 @ConditionalOnClass({RedisConnectionFactory.class, RedisCacheManager.class})
 @ConditionalOnProperty(prefix = "common.cache", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(CommonProperties.class)
+@Slf4j
 public class CommonCacheConfig {
 
     private final CommonProperties commonProperties;
@@ -70,6 +80,9 @@ public class CommonCacheConfig {
         var builder = RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultGlobalConfig);
 
+        log.info("Initializing default Redis cache manager with TTL '{}' and {} allowed base packages",
+                commonProperties.cache().entryTtlDuration(), commonProperties.cache().allowedBasePackages().size());
+
         // Dynamically register typed caches defined by the host microservice
         if (cacheProviders != null) {
             for (CacheRegistryProvider provider : cacheProviders) {
@@ -88,6 +101,7 @@ public class CommonCacheConfig {
      */
     @Bean
     public RedisCacheManager redisNonFinalAndRecordCacheManager(RedisConnectionFactory connectionFactory) {
+        log.info("Creating fallback Redis cache manager for records and non-final serialized types");
         var nonFinalMapper = getBaseMapper(DefaultTyping.NON_FINAL_AND_RECORDS);
         var baseSerializer = RedisSerializationContext.SerializationPair.fromSerializer(
                 new GenericJacksonJsonRedisSerializer(nonFinalMapper));
@@ -121,6 +135,7 @@ public class CommonCacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
         for (String name : cacheNames) {
+            log.debug("Registering typed Redis cache '{}' with parameterized type {}<{}>", name, parametrizedType.getName(), elementType.getName());
             builder.withCacheConfiguration(name, cacheConfig);
         }
     }

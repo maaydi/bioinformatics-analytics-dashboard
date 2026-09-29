@@ -30,26 +30,26 @@
 
 - [x] Requirements analyzed
 - [x] Ambiguities resolved (see analyse.md)
-- [ ] DB migration created
-- [ ] Entities implemented
-- [ ] Repositories implemented
-- [ ] DTOs and mappers implemented
-- [ ] ExportFileStorageService implemented
-- [ ] Format writers implemented
-- [ ] Spring Batch job config implemented
-- [ ] Batch components implemented
-- [ ] ExportPipelineService implemented
-- [ ] ExportPipelineController implemented
+- [x] DB migration created
+- [x] Entities implemented
+- [x] Repositories implemented
+- [x] DTOs and mappers implemented
+- [x] ExportFileStorageService implemented
+- [x] Format writers implemented
+- [x] Spring Batch job config implemented
+- [x] Batch components implemented
+- [x] ExportPipelineService implemented
+- [x] ExportPipelineController implemented
 - [ ] Audit hooks wired
-- [ ] Scheduled cleanup job implemented
+- [x] Scheduled cleanup job implemented
 - [ ] Angular models defined
 - [ ] Frontend service implemented
 - [ ] ExportPipelineWizardComponent implemented
 - [ ] FieldPickerComponent implemented
 - [ ] ExportPipelineListComponent implemented
-- [ ] Backend unit tests written
+- [x] Backend unit tests written
 - [ ] Frontend unit tests written
-- [ ] Integration tests written
+- [x] Integration tests written
 - [ ] Documentation updated
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80 %
@@ -58,260 +58,257 @@
 
 ## Detailed Checklist
 
-### Database Migration (`V12__export_pipeline.sql`)
+### Database Migration (`V1__export_pipeline.sql`)
 
-- [ ] `export_pipeline` table:
-  ```sql
-  CREATE TABLE export_pipeline (
-      id BIGSERIAL PRIMARY KEY,
-      user_id BIGINT NOT NULL REFERENCES app_user(id),
-      name VARCHAR(200) NOT NULL,
-      description VARCHAR(500),
-      filter_json JSONB NOT NULL,              -- serialized GeneSearchRequest
-      format VARCHAR(10) NOT NULL CHECK (format IN ('CSV','TSV','JSON','EXCEL')),
-      field_schema JSONB NOT NULL,               -- ordered list of selected field names
-      status VARCHAR(20) NOT NULL DEFAULT 'QUEUED' CHECK (status IN ('QUEUED','RUNNING','COMPLETED','FAILED','CANCELLED')),
-      estimated_rows BIGINT,
-      actual_rows BIGINT,
-      file_path VARCHAR(500),
-      file_size_bytes BIGINT,
-      error_message TEXT,
-      job_execution_id BIGINT,                 -- references BATCH_JOB_EXECUTION
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      started_at TIMESTAMPTZ,
-      completed_at TIMESTAMPTZ,
-      deleted_at TIMESTAMPTZ,
-      duration_ms BIGINT
-  );
-  CREATE INDEX idx_export_pipeline_user ON export_pipeline (user_id, created_at DESC);
-  CREATE INDEX idx_export_pipeline_status ON export_pipeline (status);
-  CREATE INDEX idx_export_pipeline_deleted ON export_pipeline (deleted_at) WHERE deleted_at IS NULL;
-  ```
-- [ ] `export_job_execution` table (optional denormalization for fast queries):
-  ```sql
-  CREATE TABLE export_job_execution (
-      id BIGSERIAL PRIMARY KEY,
-      pipeline_id BIGINT NOT NULL REFERENCES export_pipeline(id),
-      job_execution_id BIGINT NOT NULL UNIQUE,
-      chunks_total INTEGER,
-      chunks_processed INTEGER DEFAULT 0,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  );
-  ```
+- [x] `export_pipeline` table created with all required columns and indexes
+- [x] `export_job_execution` table created for chunk progress tracking
+- [x] Migration file: `backend/services/export-service/src/main/resources/db/migration/V1__export_pipeline.sql`
 
 ### Backend — Entity Layer
 
-- [ ] `ExportPipeline` entity:
-    - [ ] `id: Long`, `user: AppUser` (ManyToOne), `name: String`, `description: String`
-    - [ ] `filterJson: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`)
-    - [ ] `format: ExportFormat` (enum: CSV, TSV, JSON, EXCEL)
-    - [ ] `fieldSchema: List<String>` (`@JdbcTypeCode(SqlTypes.JSON)` — ordered field names)
-    - [ ] `status: ExportStatus` (enum: QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED)
-    - [ ] `estimatedRows: Long`, `actualRows: Long`
-    - [ ] `filePath: String`, `fileSizeBytes: Long`
-    - [ ] `errorMessage: String`, `jobExecutionId: Long`
-    - [ ] `createdAt`, `startedAt`, `completedAt`, `deletedAt`, `durationMs`
-- [ ] `ExportJobExecution` entity (tracks chunk progress):
-    - [ ] `id`, `pipeline: ExportPipeline`, `jobExecutionId`, `chunksTotal`, `chunksProcessed`, `updatedAt`
+- [x] `ExportPipeline` entity:
+    - [x] `id: Long` (auto-generated), `userId: String` (username), `name: String`, `description: String`
+    - [x] `filterJson: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`) — serialized GeneSearchRequest
+    - [x] `format: ExportFormat` (enum: CSV, TSV, JSON, EXCEL)
+    - [x] `fieldSchema: JsonNode` (`@JdbcTypeCode(SqlTypes.JSON)`) — ordered field names as JSONB array
+    - [x] `status: ExportStatus` (enum: QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED)
+    - [x] `estimatedRows: Long`, `actualRows: Long`
+    - [x] `filePath: String`, `fileSizeBytes: Long`
+    - [x] `errorMessage: String`, `jobExecutionId: Long`
+    - [x] `createdAt`, `startedAt`, `completedAt`, `deletedAt`, `durationMs` (Instant)
+    - [x] Helper methods: `isTerminal()`, `isDeleted()`
+    - [x] `@PrePersist` lifecycle hook for `createdAt`
+- [x] `ExportJobExecution` entity (tracks chunk progress):
+    - [x] `id: Long` (auto-generated)
+    - [x] `pipeline: ExportPipeline` (ManyToOne, LAZY fetch, cascade delete)
+    - [x] `jobExecutionId: Long` (unique, reference to Spring Batch job execution)
+    - [x] `chunksTotal: Integer`, `chunksProcessed: Integer`
+    - [x] `updatedAt: Instant`
+    - [x] Helper method: `getProgressPercent()`
+    - [x] `@PrePersist` and `@PreUpdate` lifecycle hooks
 
 ### Backend — Repository Layer
 
-- [ ] `ExportPipelineRepository extends JpaRepository<ExportPipeline, Long>`:
-    - [ ] `findByUserAndDeletedAtIsNullOrderByCreatedAtDesc(AppUser user, Pageable pageable): Page<ExportPipeline>`
-    - [ ] 
-      `findByUserAndStatusAndDeletedAtIsNull(AppUser user, ExportStatus status, Pageable pageable): Page<ExportPipeline>`
-    - [ ] `findByIdAndUser(Long id, AppUser user): Optional<ExportPipeline>`
-    - [ ] `countByUserAndStatusAndDeletedAtIsNull(AppUser user, ExportStatus status): Long`
-- [ ] `ExportJobExecutionRepository extends JpaRepository<ExportJobExecution, Long>`:
-    - [ ] `findByPipelineId(Long pipelineId): Optional<ExportJobExecution>`
+- [x] `ExportPipelineRepository extends JpaRepository<ExportPipeline, Long>`:
+    - [x] `findByUserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String userId, Pageable pageable): Page<ExportPipeline>`
+    - [x] 
+      `findByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus status, Pageable pageable): Page<ExportPipeline>`
+    - [x] `findByIdAndUserIdAndDeletedAtIsNull(Long id, String userId): Optional<ExportPipeline>`
+    - [x] `countByUserIdAndStatusAndDeletedAtIsNull(String userId, ExportStatus status): long`
+    - [x] Repository file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportPipelineRepository.java`
+- [x] `ExportJobExecutionRepository extends JpaRepository<ExportJobExecution, Long>`:
+    - [x] `findByPipelineId(Long pipelineId): Optional<ExportJobExecution>`
+    - [x] Repository file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/repository/ExportJobExecutionRepository.java`
 
 ### Backend — DTOs
 
-- [ ] `ExportPipelineCreateRequest`:
-    - [ ] `@NotBlank @Size(max=200) String name`
-    - [ ] `@Size(max=500) String description`
-    - [ ] `@NotNull @Valid GeneSearchRequest filter`
-    - [ ] `@NotNull ExportFormat format`
-    - [ ] `@NotEmpty @Size(max=50) List<@NotBlank String> fieldSchema`
-- [ ] `ExportPipelineResponse`:
-    - [ ] `Long id`, `String name`, `String description`, `ExportFormat format`, `List<String> fieldSchema`
-    - [ ] `ExportStatus status`, `Long estimatedRows`, `Long actualRows`
-    - [ ] `String filePath`, `Long fileSizeBytes`, `String errorMessage`
-    - [ ] `Instant createdAt`, `Instant startedAt`, `Instant completedAt`, `Long durationMs`
-- [ ] `ExportJobStatusResponse`:
-    - [ ] `Long pipelineId`, `ExportStatus status`, `Integer progressPercent`
-    - [ ] `Long chunksProcessed`, `Long chunksTotal`, `String currentStep`
-    - [ ] `Instant updatedAt`
-- [ ] `ExportFieldSchemaDto`:
-    - [ ] `String fieldName`, `String displayName`, `String dataType` (STRING, NUMBER, BOOLEAN, DATE, ARRAY)
-    - [ ] `String description`, `boolean available`
-- [ ] `DownloadUrlDto`:
-    - [ ] `String downloadUrl`, `String filename`, `Long fileSizeBytes`, `String contentType`
-- [ ] `ExportPipelineRetryRequest`:
-    - [ ] `Long pipelineId` (re-run existing pipeline with same config)
+- [x] `ExportPipelineCreateRequest`:
+    - [x] `@NotBlank @Size(max=200) String name`
+    - [x] `@Size(max=500) String description`
+    - [x] `@NotNull JsonNode filter` — filter criteria (flexible JSON structure)
+    - [x] `@NotNull ExportFormat format`
+    - [x] `@NotEmpty @Size(max=50) List<@NotBlank String> fieldSchema`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineCreateRequest.java`
+- [x] `ExportPipelineResponse`:
+    - [x] `Long id`, `String name`, `String description`, `ExportFormat format`, `List<String> fieldSchema`
+    - [x] `ExportStatus status`, `Long estimatedRows`, `Long actualRows`
+    - [x] `String filePath`, `Long fileSizeBytes`, `String errorMessage`
+    - [x] `Instant createdAt`, `Instant startedAt`, `Instant completedAt`, `Long durationMs`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineResponse.java`
+- [x] `ExportJobStatusResponse`:
+    - [x] `Long pipelineId`, `ExportStatus status`, `Integer progressPercent`
+    - [x] `Integer chunksProcessed`, `Integer chunksTotal`, `String currentStep`
+    - [x] `Instant updatedAt`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportJobStatusResponse.java`
+- [x] `ExportFieldSchema`:
+    - [x] `String fieldName`, `String displayName`, `String dataType` (STRING, NUMBER, BOOLEAN, DATE, ARRAY)
+    - [x] `String description`, `boolean available`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportFieldSchemaDto.java`
+- [x] `DownloadUrlDto`:
+    - [x] `String downloadUrl`, `String filename`, `Long fileSizeBytes`, `String contentType`
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/DownloadUrlDto.java`
+- [x] `ExportPipelineRetryRequest`:
+    - [x] `@NotNull Long pipelineId` (re-run existing pipeline with same config)
+    - [x] DTO file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/dto/ExportPipelineRetryRequest.java`
 
 ### Backend — Mappers
 
-- [ ] `ExportPipelineMapper` (MapStruct):
-    - [ ] `toDto(ExportPipeline): ExportPipelineResponse`
-    - [ ] `toEntity(ExportPipelineCreateRequest, AppUser): ExportPipeline`
+- [x] `ExportPipelineMapper` (MapStruct):
+    - [x] `toDto(ExportPipeline): ExportPipelineResponse` — converts JSONB fieldSchema to List<String>
+    - [x] `toEntity(ExportPipelineCreateRequest, String userId): ExportPipeline` — creates entity from request
+    - [x] Mapper file:
+      `backend/services/export-service/src/main/java/com/bioinformatics/exportservice/mapper/ExportPipelineMapper.java`
 
 ### Backend — File Storage Service
 
-- [ ] `ExportFileStorageService` (`service/export/`):
-    - [ ] `createPipelineDirectory(Long userId, Long pipelineId): Path`
-        - [ ] Creates `${APP_DIR}/exports/{userId}/{pipelineId}/`
-        - [ ] Creates `segments/` subdirectory
-    - [ ] `getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format): Path`
-    - [ ] `getFinalFilePath(Long userId, Long pipelineId, ExportFormat format): Path`
-    - [ ] `assembleSegments(Long userId, Long pipelineId, ExportFormat format): Path`
-        - [ ] Reads all segment files in order
-        - [ ] For CSV/TSV/JSON: streams segments into final file (concatenation)
-        - [ ] For Excel: opens each segment workbook, copies sheets into master workbook
-    - [ ] `deletePipelineDirectory(Long userId, Long pipelineId): void`
-    - [ ] `getFileSize(Long userId, Long pipelineId, ExportFormat format): Long`
-    - [ ] `validateFileExists(Long userId, Long pipelineId, ExportFormat format): boolean`
+- [x] `ExportFileStorageService` (`service/export/`):
+    - [x] `createPipelineDirectory(Long userId, Long pipelineId): Path`
+        - [x] Use APP_EXPORT_TEMP_DIR=/app/bio-export
+        - [x] Creates `${APP_EXPORT_TEMP_DIR}/{userId}/{pipelineId}/`
+        - [x] Creates `segments/` subdirectory
+    - [x] `getSegmentPath(Long userId, Long pipelineId, int chunkNumber, ExportFormat format): Path`
+    - [x] `getFinalFilePath(Long userId, Long pipelineId, ExportFormat format): Path`
+    - [x] `assembleSegments(Long userId, Long pipelineId, ExportFormat format): Path`
+        - [x] Reads all segment files in order
+        - [x] For CSV/TSV/JSON: streams segments into final file (concatenation)
+        - [x] For Excel: opens each segment workbook, copies sheets into master workbook (see note)
+    - [x] `deletePipelineDirectory(Long userId, Long pipelineId): void`
+    - [x] `getFileSize(Long userId, Long pipelineId, ExportFormat format): Long`
+    - [x] `validateFileExists(Long userId, Long pipelineId, ExportFormat format): boolean`
 
 ### Backend — Format Writers
 
-- [ ] `ExportFormatWriter` interface:
-    - [ ] `void writeHeader(List<String> fields, OutputStream out) throws IOException`
-    - [ ] `void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException`
-    - [ ] `void close(OutputStream out) throws IOException`
-    - [ ] `String getFileExtension()`
-    - [ ] `String getContentType()`
-- [ ] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
-- [ ] `TsvExportWriter` — Apache Commons CSV with TSV format, tab delimiter
-- [ ] `JsonExportWriter` — Jackson `SequenceWriter`, writes `[` then rows as objects, then `]`
-- [ ] `ExcelExportWriter` — Apache POI SXSSF (streaming), auto-size columns, freeze pane
-- [ ] `ExportWriterFactory` — `getWriter(ExportFormat): ExportFormatWriter`
+- [x] `ExportFormatWriter` interface:
+    - [x] `void writeHeader(List<String> fields, OutputStream out) throws IOException`
+    - [x] `void writeRow(Map<String, Object> row, List<String> fields, OutputStream out) throws IOException`
+    - [x] `void close(OutputStream out) throws IOException`
+    - [x] `String getFileExtension()` Moved to ExportFormat enum
+    - [x] `String getContentType()` Moved to ExportFormat enum
+- [x] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
+- [x] `TsvExportWriter` — Apache Commons CSV with TSV format, tab delimiter
+- [x] `JsonExportWriter` — Jackson `SequenceWriter`, writes `[` then rows as objects, then `]`
+- [x] `ExcelExportWriter` — Apache POI SXSSF (streaming), auto-size columns, freeze pane
+- [x] `ExportWriterFactory` — `getWriter(ExportFormat): ExportFormatWriter`
 
 ### Backend — Spring Batch Job Configuration
 
-- [ ] `ExportJobConfig` (`batch/export/`):
-    - [ ] Job name: `exportPipelineJob`
-    - [ ] Step 1: `validateAndEstimateStep` (Tasklet)
-        - [ ] Reads `filterJson` from job parameters
-        - [ ] Calls `GeneService.count()` with specification to get estimated rows
-        - [ ] If estimated rows == 0: fail job with exit code `NO_DATA`
-        - [ ] If estimated rows > 1,000,000: log warning but continue
-        - [ ] Updates `ExportPipeline.estimatedRows` and `status = RUNNING`
-    - [ ] Step 2: `exportChunkStep` (chunk-oriented)
-        - [ ] Chunk size: 500 (configurable via `app.export.chunk-size`)
-        - [ ] Reader: `ExportItemReader` (see below)
-        - [ ] Processor: `ExportItemProcessor` — `ProteinEntry` → `Map<String, Object>`
-        - [ ] Writer: `ExportItemWriter` — writes to segment files
-        - [ ] Listener: `ChunkListener` updates `ExportJobExecution.chunksProcessed`
-    - [ ] Step 3: `assembleAndFinalizeStep` (Tasklet)
-        - [ ] Calls `ExportFileStorageService.assembleSegments()`
-        - [ ] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
-        - [ ] Cleans up segment files
-    - [ ] Job listener: `ExportJobListener` (implements `JobExecutionListener`)
-        - [ ] `beforeJob`: set `startedAt = NOW()`
-        - [ ] `afterJob`: if FAILED, set `status = FAILED`, populate `errorMessage`, cleanup segments
-- [ ] Job parameters:
-    - [ ] `pipelineId` (Long)
-    - [ ] `userId` (Long)
-    - [ ] `format` (String)
-    - [ ] `fieldSchema` (JSON string)
-    - [ ] `filterJson` (JSON string)
+- [x] `ExportJobConfig` (`batch/export/`):
+    - [x] Job name: `exportPipelineJob`
+    - [x] Step 1: `validateAndEstimateStep` (Tasklet)
+        - [x] Reads `filterJson` from job parameters
+        - [x] Calls `GeneService.count()` with specification to get estimated rows
+        - [x] If estimated rows == 0: fail job with exit code `NO_DATA`
+        - [x] If estimated rows > 1,000,000: log warning but continue
+        - [x] Updates `ExportPipeline.estimatedRows` and `status = RUNNING`
+  - [x] Step 2: `exportChunkStep` (chunk-oriented)
+      - [x] Chunk size: 500 (configurable via `app.export.chunk-size`)
+      - [x] Reader: `ExportItemReader` (see below)
+      - [x] Processor: `ExportItemProcessor` — `ProteinEntry` → `Map<String, Object>`
+      - [x] Writer: `ExportItemWriter` — writes to segment files
+      - [x] Listener: `ChunkListener` updates `ExportJobExecution.chunksProcessed`
+    - [X] Step 3: `assembleAndFinalizeStep` (Tasklet)
+        - [X] Calls `ExportFileStorageService.assembleSegments()`
+        - [X] Updates `ExportPipeline` with `filePath`, `fileSizeBytes`, `actualRows`, `status = COMPLETED`
+        - [X] Cleans up segment files
+    - [x] Job listener: `ExportJobListener` (implements `JobExecutionListener`)
+        - [x] `beforeJob`: set `startedAt = NOW()`
+        - [x] `afterJob`: if FAILED, set `status = FAILED`, populate `errorMessage`, cleanup segments
+- [x] Job parameters:
+    - [x] `pipelineId` (Long)
+    - [x] `userId` (Long)
+    - [x] `format` (String)
+    - [x] `fieldSchema` (JSON string)
+    - [x] `filterJson` (JSON string)
 
 ### Backend — Batch Components
 
-- [ ] `ExportItemReader` (`batch/export/`):
-    - [ ] Extends `JpaPagingItemReader<ProteinEntry>` for Postgres provider
-    - [ ] For UniProt provider: implements `ItemReader<ProteinSummaryDto>` with cursor-based pagination via
+- [x] `ExportItemReader` (`batch/export/`):
+    - [x] Extends `JpaPagingItemReader<ProteinEntry>` for Postgres provider
+    - [x] For UniProt provider: implements `ItemReader<ProteinSummaryDto>` with cursor-based pagination via
       `UniprotKbRestService`
-    - [ ] Applies `GeneSpecification` from deserialized `filterJson`
-    - [ ] Page size = chunk size
-    - [ ] `read()` returns null when no more data
-- [ ] `ExportItemProcessor` (`batch/export/`):
-    - [ ] `process(ProteinEntry protein): Map<String, Object>`
-    - [ ] Extracts only the fields listed in `fieldSchema` from the entity
-    - [ ] Handles nested collections:
-        - [ ] `keywords` → comma-separated string or JSON array (depending on format)
-        - [ ] `goTerms` → list of `goId`
-        - [ ] `features` → count or list of `featureType`
-        - [ ] `crossReferences` → count or list of `source:identifier`
-        - [ ] `comments` → list of `commentType: text`
-        - [ ] `publications` → count or list of `pubmedId`
-        - [ ] `hostOrganisms` → count or list of `name`
-    - [ ] Null-safe: missing fields render as empty string/0/null
-- [ ] `ExportItemWriter` (`batch/export/`):
-    - [ ] `write(Chunk<? extends Map<String, Object>> chunk)`
-    - [ ] Opens segment file for the current chunk number
-    - [ ] Delegates to `ExportFormatWriter` for each row
-    - [ ] Closes file after chunk
-    - [ ] For Excel: maintains a single SXSSF workbook across chunks (not segments); flushes rows periodically
+    - [x] Applies `GeneSpecification` from deserialized `filterJson`
+    - [x] Page size = chunk size
+    - [x] `read()` returns null when no more data
+- [x] `ExportItemProcessor` (`batch/export/`):
+    - [x] `process(ProteinEntry protein): Map<String, Object>`
+    - [x] Extracts only the fields listed in `fieldSchema` from the entity
+    - [x] Handles nested collections:
+        - [x] `keywords` → comma-separated string or JSON array (depending on format)
+        - [x] `goTerms` → list of `goId`
+        - [x] `features` → count or list of `featureType`
+        - [x] `crossReferences` → count or list of `source:identifier`
+        - [x] `comments` → list of `commentType: text`
+        - [x] `publications` → count or list of `pubmedId`
+        - [x] `hostOrganisms` → count or list of `name`
+    - [x] Null-safe: missing fields render as empty string/0/null
+- [x] `ExportItemWriter` (`batch/export/`):
+    - [x] `write(Chunk<? extends Map<String, Object>> chunk)` exists in `writer/ExportItemWriter`.
+    - [x] Opens one segment file for each non-empty chunk and delegates its header and rows to `ExportFormatWriter`.
+    - [x] Finalizes the format writer and closes the segment stream after each chunk.
+    - [x] Persist and restore the segment index through `ExecutionContext`; existing committed segments are skipped
+      after a restart.
+    - [x] Guarantee directory initialization from the explicit `ItemStream#open` lifecycle contract.
+    - [x] Use a lossless XLSX strategy by completely merging all SXSSF chunk workbooks into one final workbook and
+      closing SXSSF resources.
+    - [x] Ensure writer state is cleaned up on write/finalization failure and delete incomplete segments.
 
 ### Backend — Service Layer
 
-- [ ] `ExportPipelineService` (`service/export/`):
-    - [ ] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
-        - [ ] Validates filter yields > 0 rows (pre-check via `GeneService.count()`)
-        - [ ] Persists pipeline with status = QUEUED
-        - [ ] Launches Spring Batch job asynchronously via `JobLauncher.run()`
-        - [ ] Returns response immediately (HTTP 202)
-    - [ ] `listPipelines(ExportStatus status, Pageable pageable, AppUser user): Page<ExportPipelineResponse>`
-        - [ ] Filters by user + status (optional) + not deleted
-    - [ ] `getPipelineStatus(Long pipelineId, AppUser user): ExportJobStatusResponse`
-        - [ ] Reads `ExportPipeline` + `ExportJobExecution` for progress
-        - [ ] Calculates `progressPercent = (chunksProcessed / chunksTotal) * 100`
-        - [ ] If COMPLETED/FAILED, returns final state
-    - [ ] `getDownloadUrl(Long pipelineId, AppUser user): DownloadUrlDto`
-        - [ ] Verifies ownership
-        - [ ] Verifies status = COMPLETED
-        - [ ] Returns direct download URL: `/api/exports/pipelines/{id}/download-file` (streamed)
-    - [ ] `retryPipeline(Long pipelineId, AppUser user): ExportPipelineResponse`
-        - [ ] Clones existing pipeline config, resets status to QUEUED, launches new job
-    - [ ] `deletePipeline(Long pipelineId, AppUser user): void`
-        - [ ] Soft delete: sets `deletedAt = NOW()`
-        - [ ] If job is RUNNING, calls `JobOperator.stop()` first
-        - [ ] Schedules physical file deletion after 30 days
-    - [ ] `getAvailableFields(): List<ExportFieldSchemaDto>`
-        - [ ] Returns all possible export fields with metadata for the field picker
+- [x] `ExportPipelineService` (`service/export/`):
+    - [x] `createPipeline(ExportPipelineCreateRequest request, AppUser user): ExportPipelineResponse`
+        - [x] Validates filter yields > 0 rows (pre-check via `GeneService.count()`) **Duplicated from
+          validateAndEstimateStep**
+        - [x] Persists pipeline with status = QUEUED
+        - [x] Launches Spring Batch job asynchronously via `JobLauncher.run()`
+        - [x] Returns response immediately (HTTP 202)
+  - [x] `listPipelines(ExportStatus status, Pageable pageable, AppUser user): Page<ExportPipelineResponse>`
+      - [x] Filters by user + status (optional) + not deleted
+  - [x] `getPipelineStatus(Long pipelineId, AppUser user): ExportJobStatusResponse`
+      - [x] Reads `ExportPipeline` + `ExportJobExecution` for progress
+      - [x] Calculates `progressPercent = (chunksProcessed / chunksTotal) * 100`
+      - [x] If COMPLETED/FAILED, returns final state
+    - [x] `getDownloadUrl(Long pipelineId, AppUser user): DownloadUrlDto`
+        - [x] Verifies ownership
+        - [x] Verifies status = COMPLETED
+        - [x] Returns direct download URL: `/api/exports/pipelines/{id}/download-file` (streamed)
+    - [x] `retryPipeline(Long pipelineId, AppUser user): ExportPipelineResponse`
+        - [x] Clones existing pipeline config, resets status to QUEUED, launches new job
+    - [x] `deletePipeline(Long pipelineId, AppUser user): void`
+        - [x] Soft delete: sets `deletedAt = NOW()`
+        - [x] If job is RUNNING, calls `JobOperator.stop()` first
+        - [x] Schedules physical file deletion after 30 days // Configurable
+    - [x] `getAvailableFields(): List<ExportFieldSchemaDto>`
+        - [x] Returns all possible export fields with metadata for the field picker
 
 ### Backend — Controller
 
-- [ ] `ExportPipelineController` (`controller/`):
-    - [ ] `POST /api/exports/pipelines` → `201 Created` with `ExportPipelineResponse`
-        - [ ] `@Valid @RequestBody ExportPipelineCreateRequest`
-        - [ ] Returns immediately (async); body includes pipelineId for polling
-    - [ ] `GET /api/exports/pipelines` → `200 OK` with `PagedResponse<ExportPipelineResponse>`
-        - [ ] Query param: `status` (optional filter)
-        - [ ] Query param: `page`, `size` (max 50)
-    - [ ] `GET /api/exports/pipelines/{id}` → `200 OK` with `ExportPipelineResponse`
-        - [ ] Returns full pipeline details
-    - [ ] `GET /api/exports/pipelines/{id}/status` → `200 OK` with `ExportJobStatusResponse`
-        - [ ] Frontend polls this every 3 seconds
-    - [ ] `GET /api/exports/pipelines/{id}/download` → `200 OK` with `DownloadUrlDto`
-        - [ ] Returns metadata + presigned/direct URL
-    - [ ] `GET /api/exports/pipelines/{id}/download-file` → streams file bytes
-        - [ ] `Content-Type` from `ExportFormatWriter.getContentType()`
-        - [ ] `Content-Disposition: attachment; filename="..."`
-        - [ ] Streams via `InputStreamResource` to avoid loading file in memory
-    - [ ] `POST /api/exports/pipelines/{id}/retry` → `202 Accepted`
-    - [ ] `DELETE /api/exports/pipelines/{id}` → `204 No Content`
-    - [ ] `GET /api/exports/fields` → `200 OK` with `List<ExportFieldSchemaDto>`
-        - [ ] Returns available fields for the field picker
-    - [ ] Error responses:
-        - [ ] `400` — validation failure, 0-row filter
-        - [ ] `401` — missing JWT
-        - [ ] `403` — pipeline belongs to another user
-        - [ ] `404` — pipeline not found
-        - [ ] `409` — pipeline not in a retryable state
-        - [ ] `410` — file expired (deleted after retention)
+- [x] `ExportPipelineController` (`controller/`):
+    - [x] `POST /api/exports/pipelines` → `201 Created` with `ExportPipelineResponse`
+        - [x] `@Valid @RequestBody ExportPipelineCreateRequest`
+        - [x] Returns immediately (async); body includes pipelineId for polling
+    - [x] `GET /api/exports/pipelines` → `200 OK` with `PagedResponse<ExportPipelineResponse>`
+        - [x] Query param: `status` (optional filter)
+        - [x] Query param: `page`, `size` (max 50)
+    - [x] `GET /api/exports/pipelines/{id}` → `200 OK` with `ExportPipelineResponse`
+        - [x] Returns full pipeline details
+    - [x] `GET /api/exports/pipelines/{id}/status` → `200 OK` with `ExportJobStatusResponse`
+        - [x] Frontend polls this every 3 seconds
+    - [x] `GET /api/exports/pipelines/{id}/download` → `200 OK` with `DownloadUrlDto`
+        - [x] Returns metadata + presigned/direct URL
+    - [x] `GET /api/exports/pipelines/{id}/download-file` → streams file bytes
+        - [x] `Content-Type` from `ExportFormatWriter.getContentType()`
+        - [x] `Content-Disposition: attachment; filename="..."`
+        - [x] Streams via `InputStreamResource` to avoid loading file in memory
+    - [x] `POST /api/exports/pipelines/{id}/retry` → `202 Accepted`
+    - [x] `DELETE /api/exports/pipelines/{id}` → `204 No Content`
+    - [x] `GET /api/exports/fields` → `200 OK` with `List<ExportFieldSchemaDto>`
+        - [x] Returns available fields for the field picker
+    - [x] Error responses:
+        - [x] `400` — validation failure, 0-row filter
+        - [x] `401` — missing JWT
+        - [x] `403` — pipeline belongs to another user
+        - [x] `404` — pipeline not found
+        - [x] `409` — pipeline not in a retryable state
+        - [x] `410` — file expired (deleted after retention)
 
 ### Backend — Audit & Cleanup
 
 - [ ] `ExportPipelineAuditListener`:
     - [ ] Records `EXPORT_PIPELINE_CREATED`, `EXPORT_PIPELINE_COMPLETED`, `EXPORT_PIPELINE_FAILED` in `audit_log`
       (reuses OPS-001)
-- [ ] `ExportCleanupJob` (`@Scheduled(cron = "0 0 2 * * SUN")`):
-    - [ ] Finds pipelines with `deletedAt < NOW() - INTERVAL '30 days'`
-    - [ ] Deletes physical files via `ExportFileStorageService`
-    - [ ] Hard-deletes DB records
-    - [ ] Logs count of cleaned records
+- [x] `ExportCleanupJob` (`@Scheduled(cron = "0 0 2 * * SUN")`):
+    - [x] Finds pipelines with `deletedAt < NOW() - INTERVAL '30 days'`
+    - [x] Deletes physical files via `ExportFileStorageService`
+    - [x] Hard-deletes DB records
+    - [x] Logs count of cleaned records
 
 ### Frontend — Models (`core/models/export-pipeline.model.ts`)
 
@@ -441,35 +438,44 @@
 
 ### Tests — Backend
 
-- [ ] `ExportFileStorageServiceTest`:
-    - [ ] `createPipelineDirectory_createsExpectedStructure`
-    - [ ] `assembleSegments_concatenatesCsvFiles`
-    - [ ] `deletePipelineDirectory_removesAllFiles`
-- [ ] `CsvExportWriterTest`:
-    - [ ] `writeHeader_outputsCorrectColumns`
-    - [ ] `writeRow_escapesCommasAndQuotes`
-    - [ ] `writeRow_outputsUtf8Bom`
-- [ ] `ExcelExportWriterTest`:
-    - [ ] `writeRow_createsValidXlsx`
-    - [ ] `close_finalizesWorkbook`
-- [ ] `ExportItemProcessorTest`:
-    - [ ] `process_extractsSelectedFields`
-    - [ ] `process_handlesNullCollections`
-    - [ ] `process_mapsNestedObjects`
-- [ ] `ExportPipelineServiceTest`:
-    - [ ] `createPipeline_validRequest_returnsQueuedPipeline`
-    - [ ] `createPipeline_zeroRows_throws`
-    - [ ] `getDownloadUrl_completedPipeline_returnsUrl`
-    - [ ] `getDownloadUrl_incompletePipeline_throws`
-    - [ ] `retryPipeline_failedPipeline_requeues`
-    - [ ] `deletePipeline_softDeletesAndStopsJob`
-- [ ] `ExportPipelineControllerIntegrationTest`:
-    - [ ] `POST /api/exports/pipelines` → `201`
-    - [ ] `GET /api/exports/pipelines` → `200` paginated
-    - [ ] `GET /api/exports/pipelines/{id}/status` → `200` with progress
-    - [ ] `GET /api/exports/pipelines/{id}/download-file` → streams file
-    - [ ] `DELETE /api/exports/pipelines/{id}` → `204`
-    - [ ] `POST /api/exports/pipelines` with 0-row filter → `400`
+- [x] `ExportFileStorageServiceTest`:
+    - [x] `createPipelineDirectory_createsExpectedStructure`
+    - [x] `assembleSegments_concatenatesCsvFiles`
+    - [x] `deletePipelineDirectory_removesAllFiles`
+- [x] `CsvExportWriterTest`:
+    - [x] Header and UTF-8 BOM behavior covered by `ExportWritersTest`.
+  - [x] `writeRow_escapesCommasAndQuotes`
+  - [x] Preserve the caller-selected `fieldSchema` order using an ordered list.
+- [x] `ExcelExportWriterTest`:
+    - [x] Single-workbook rows, headers and typed cells covered by `ExportWritersTest`.
+    - [x] Multi-chunk XLSX export retains rows from every chunk.
+  - [x] Workbook finalization flushes and disposes SXSSF resources.
+- [x] `ExportItemWriterTest`:
+    - [x] Writes ordered headers and rows into sequential chunk segments.
+    - [x] Restarts without overwriting committed segments or mixing outputs from executions.
+    - [x] Cleans up writer state after an I/O failure.
+- [x] `SegmentAssemblyTest`:
+    - [x] CSV supports quoted fields containing line breaks and retains RFC 4180-compatible line endings.
+    - [x] CSV/TSV/JSON assembly remains memory-bounded for large segments.
+    - [x] Multiple XLSX chunks are assembled without data loss.
+- [x] `ExportItemProcessorTest`:
+    - [x] `process_extractsSelectedFields`
+    - [x] `process_handlesNullCollections`
+    - [x] `process_mapsNestedObjects`
+- [x] `ExportPipelineServiceTest`:
+    - [x] `createPipeline_validRequest_returnsQueuedPipeline`
+    - [x] `createPipeline_zeroRows_throws`
+    - [x] `getDownloadUrl_completedPipeline_returnsUrl`
+    - [x] `getDownloadUrl_incompletePipeline_throws`
+    - [x] `retryPipeline_failedPipeline_requeues`
+    - [x] `deletePipeline_softDeletesAndStopsJob`
+- [x] `ExportPipelineControllerIntegrationTest`:
+    - [x] `POST /api/exports/pipelines` → `201`
+    - [x] `GET /api/exports/pipelines` → `200` paginated
+    - [x] `GET /api/exports/pipelines/{id}/status` → `200` with progress
+    - [x] `GET /api/exports/pipelines/{id}/download-file` → streams file
+    - [x] `DELETE /api/exports/pipelines/{id}` → `204`
+    - [x] `POST /api/exports/pipelines` with 0-row filter → `400`
 
 ### Tests — Frontend
 

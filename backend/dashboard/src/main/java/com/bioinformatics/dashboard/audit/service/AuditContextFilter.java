@@ -3,6 +3,7 @@ package com.bioinformatics.dashboard.audit.service;
 import com.bioinformatics.dashboard.audit.dto.AuditWebDetails;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -10,14 +11,18 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Manages operations and logic for AuditContextFilter.
+ * Filter that captures the current request metadata needed for an audit trail.
+ *
+ * <p>Each request is inspected once, the request method, URI, and client IP are stored in a thread-local audit
+ * context, and the context is always cleared in a finally block to avoid leaking state across requests.</p>
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class AuditContextFilter implements Filter {
     /**
-     * Populate the audit context with web request details for the current thread,
-     * invoke the filter chain, and ensure the context is cleared afterward.
+     * Populates the audit context with web request details for the current thread, invokes the filter chain, and
+     * ensures the context is cleared afterward.
      *
      * @param request the servlet request
      * @param response the servlet response
@@ -37,6 +42,8 @@ public class AuditContextFilter implements Filter {
             } finally {
                 AuditContextHolder.clear();
             }
+        } else {
+            chain.doFilter(request, response);
         }
     }
 
