@@ -140,8 +140,9 @@ Before writing any code, read the relevant spec documents:
 
 1. Read the ticket like a senior engineer
 2. Create `documentation/implementation/<Ticket-ID>/` and add:
-   - `overview.md` — ticket description and acceptance criteria
-   - `journal.md` — chronological log of actions taken with dates
+
+- `overview.md` — ticket description and acceptance criteria
+- `journal.md` — chronological log of actions taken with dates
 3. Detect ambiguities — if any exist, add `analyse.md` and wait for clarification before proceeding
 4. Propose an implementation plan; break it into tasks in `plan.md`
 5. Generate code
