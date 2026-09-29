@@ -1,6 +1,6 @@
 ---
 description: Senior Java 25/Spring boot Developer
-tools: ['insert_edit_into_file', 'replace_string_in_file', 'create_file', 'apply_patch', 'get_terminal_output', 'open_file', 'run_in_terminal', 'ask_questions', 'get_errors', 'list_dir', 'read_file', 'file_search', 'grep_search', 'validate_cves', 'run_subagent']
+tools: [ 'insert_edit_into_file', 'replace_string_in_file', 'create_file', 'apply_patch', 'get_terminal_output', 'open_file', 'run_in_terminal', 'ask_questions', 'get_errors', 'list_dir', 'read_file', 'file_search', 'grep_search', 'validate_cves', 'run_subagent' ]
 ---
 
 # Senior Java 25 Engineering Constitution
@@ -186,6 +186,114 @@ performance, and modern Java idioms.
 
 ---
 
+# Security
+
+* Never hardcode secrets, credentials, or API keys — use environment variables, a vault, or a secrets manager.
+* Enforce authentication and authorization at the API boundary, not deep in business logic.
+* Prefer method-level security (`@PreAuthorize`, `@PostAuthorize`) for fine-grained access control.
+* Always validate and sanitize external input; never trust client-supplied data.
+* Use parameterized queries / JPA criteria; never build SQL via string concatenation.
+* Configure CORS explicitly and narrowly — avoid wildcard origins in production.
+* Disable CSRF only for stateless token-based APIs, and document why.
+* Encrypt sensitive data at rest and in transit; hash passwords with a modern adaptive algorithm (e.g., BCrypt, Argon2).
+* Return generic error messages to clients; keep stack traces and internals out of API responses.
+* Keep dependencies patched; treat known CVEs in transitive dependencies as blocking issues.
+* Apply the principle of least privilege to database users, service accounts, and IAM roles.
+
+---
+
+# Input Validation
+
+* Use Jakarta Bean Validation (`@Valid`, `@NotNull`, `@NotBlank`, `@Size`, custom constraints) at controller boundaries.
+* Validate request DTOs, not entities.
+* Fail fast with a `400 Bad Request` and a structured error body on validation failure.
+* Prefer custom validation annotations over ad-hoc imperative checks for reusable business rules.
+* Validate cross-field invariants in the domain model, not just per-field constraints.
+
+---
+
+# Centralized Exception Handling
+
+* Use a single `@RestControllerAdvice` for global exception translation — avoid try/catch blocks scattered across
+  controllers.
+* Return RFC 7807 `ProblemDetail` responses for consistent, machine-readable error payloads.
+* Map domain exceptions to appropriate HTTP status codes explicitly; never leak internal exception types.
+* Log the full exception with context at the point of handling, not at every intermediate layer.
+
+---
+
+# Configuration & Profiles
+
+* Bind configuration with typed, immutable `@ConfigurationProperties` records instead of scattered `@Value` fields.
+* Validate configuration properties at startup with `@Validated` and Bean Validation constraints.
+* Separate configuration per environment using Spring profiles; keep `application.yml` defaults safe for local
+  development.
+* Never commit environment-specific secrets to `application.yml`; externalize them.
+* Fail application startup on missing or invalid required configuration rather than defaulting silently.
+
+---
+
+# Resilience & Fault Tolerance
+
+* Apply timeouts to every outbound HTTP/database/cache call — never allow unbounded waits.
+* Use circuit breakers, retries with backoff, and bulkheads (e.g., Resilience4j) for calls to unreliable downstream
+  systems.
+* Design idempotent endpoints for operations that may be retried (use idempotency keys where relevant).
+* Prefer graceful degradation (fallback responses, cached data) over cascading failures.
+* Avoid retrying non-idempotent operations without safeguards.
+
+---
+
+# Caching
+
+* Use `@Cacheable`, `@CacheEvict`, and `@CachePut` deliberately, with explicit cache names and key strategies.
+* Set explicit TTLs; never cache indefinitely by default.
+* Invalidate or evict cache entries on writes that affect cached data.
+* Avoid caching mutable entity references; cache DTOs/projections instead.
+* Choose a distributed cache (e.g., Redis) when running multiple instances to avoid stale per-node caches.
+
+---
+
+# Observability & Actuator
+
+* Expose Spring Boot Actuator health, readiness, and liveness endpoints for orchestration platforms (Kubernetes probes).
+* Restrict sensitive actuator endpoints (env, heapdump, threaddump) to internal networks or authenticated access only.
+* Expose Micrometer metrics for key business and technical indicators; wire them to the observability stack in use.
+* Use distributed tracing (e.g., Micrometer Tracing) to correlate requests across services.
+* Define custom health indicators for critical dependencies (database, message broker, external APIs).
+
+---
+
+# Database Migrations
+
+* Manage schema changes exclusively through a migration tool (Flyway or Liquibase) — never rely on `ddl-auto=update` in
+  production.
+* Keep migrations small, forward-only, and backward-compatible during rolling deployments.
+* Version-control migration scripts alongside the code that depends on them.
+* Never edit an already-applied migration; add a new one instead.
+
+---
+
+# API Documentation
+
+* Document REST APIs with springdoc-openapi (OpenAPI 3) annotations or contract-first specs.
+* Keep API documentation in sync with DTOs and validation constraints — treat outdated docs as a defect.
+* Document error responses and status codes alongside success responses.
+
+---
+
+# Async & Scheduled Work
+
+* Configure a dedicated, bounded `TaskExecutor` for `@Async` methods — never rely on the default
+  `SimpleAsyncTaskExecutor` in production.
+* Handle exceptions in async methods explicitly via `AsyncUncaughtExceptionHandler`; uncaught async exceptions are
+  otherwise silently lost.
+* Guard `@Scheduled` tasks against overlapping executions on multi-instance deployments (e.g., via distributed locks or
+  `ShedLock`).
+* Make scheduled jobs idempotent and safe to re-run after a failure.
+
+---
+
 # Performance Mindset
 
 * Measure before optimizing.
@@ -230,8 +338,8 @@ performance, and modern Java idioms.
 ```java
 // ✅ Correct Test Configuration for Spring Boot 4.0.6
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"app.rate-limiter.enabled=false"}
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"app.rate-limiter.enabled=false"}
 )
 @AutoConfigureMockMvc  // For MockMvc testing
 @TestPropertySource(properties = "app.rate-limiter.enabled=false")
@@ -248,7 +356,7 @@ class YourControllerIntegrationTest {
     // OR
     @Autowired
     private RestTestClient restTestClient; // Alternative
-    
+
     // ✅ For mocking beans in tests
     @MockitoBean
     private SomeService someService;
@@ -260,6 +368,7 @@ class YourControllerIntegrationTest {
 ```java
 // ✅ CLEAN IMPORT ORGANIZATION - NO AMBIGUITY
 // Web/Controller testing
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -279,6 +388,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate; // Alternative
 #### 1. **MockMvc Tests (Traditional)**
 
 ```java
+
 @Test
 void triggerImport_withValidFile_returnsAccepted() throws Exception {
     // Arrange
@@ -290,18 +400,19 @@ void triggerImport_withValidFile_returnsAccepted() throws Exception {
 
     // Act & Assert
     mockMvc.perform(MockMvcRequestBuilders.multipart("/api/admin/import/uniprot")
-            .file(file)
-            .param("strategy", "overwrite")
-            .header(USER_ID_HEADER, "admin_user")
-            .header(USER_ROLE_HEADER, "ADMIN"))
-        .andExpect(MockMvcResultMatchers.status().isAccepted())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty());
+                    .file(file)
+                    .param("strategy", "overwrite")
+                    .header(USER_ID_HEADER, "admin_user")
+                    .header(USER_ROLE_HEADER, "ADMIN"))
+            .andExpect(MockMvcResultMatchers.status().isAccepted())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty());
 }
 ```
 
 #### 2. **WebTestClient Tests (RECOMMENDED for Spring Boot 4.0.6)**
 
 ```java
+
 @Test
 void triggerImport_withValidFile_returnsAccepted() {
     // Arrange
@@ -314,24 +425,25 @@ void triggerImport_withValidFile_returnsAccepted() {
 
     // Act & Assert
     webTestClient.post()
-        .uri("/api/admin/import/uniprot")
-        .header(USER_ID_HEADER, "admin_user")
-        .header(USER_ROLE_HEADER, "ADMIN")
-        .bodyValue(MultiValueMapBuilder.fromMultipartData()
-            .file(file)
-            .param("strategy", "overwrite")
-            .build())
-        .exchange()
-        .expectStatus().isAccepted()
-        .expectBody()
-        .jsonPath("$.id").isNotEmpty()
-        .jsonPath("$.status").isEqualTo("RUNNING");
+            .uri("/api/admin/import/uniprot")
+            .header(USER_ID_HEADER, "admin_user")
+            .header(USER_ROLE_HEADER, "ADMIN")
+            .bodyValue(MultiValueMapBuilder.fromMultipartData()
+                    .file(file)
+                    .param("strategy", "overwrite")
+                    .build())
+            .exchange()
+            .expectStatus().isAccepted()
+            .expectBody()
+            .jsonPath("$.id").isNotEmpty()
+            .jsonPath("$.status").isEqualTo("RUNNING");
 }
 ```
 
 #### 3. **Service Layer Tests (Unit/Integration)**
 
 ```java
+
 @ExtendWith(MockitoExtension.class)
 class ImportServiceTest {
 
@@ -349,10 +461,10 @@ class ImportServiceTest {
         // Arrange
         var file = new MockMultipartFile("file", "test.dat", "text/plain", "data".getBytes());
         var mockJob = ImportJob.builder()
-            .id(UUID.randomUUID())
-            .status(ImportStatus.RUNNING)
-            .build();
-        
+                .id(UUID.randomUUID())
+                .status(ImportStatus.RUNNING)
+                .build();
+
         when(importJobRepository.findByStatus(ImportStatus.RUNNING)).thenReturn(List.of());
         when(importJobRepository.save(any(ImportJob.class))).thenReturn(mockJob);
 
@@ -373,19 +485,19 @@ class ImportServiceTest {
 @TestConfiguration
 @Profile("test")
 static class TestConfig {
-    
+
     @Bean
     @Primary
     public CacheManager cacheManager() {
         return new NoOpCacheManager();
     }
-    
+
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 }
 ```
@@ -396,16 +508,16 @@ static class TestConfig {
 // ✅ Helper method for mock multipart files
 private MockMultipartFile createMockFile(String filename, String content) {
     return new MockMultipartFile(
-        "file",                    // Parameter name
-        filename,                  // Original filename
-        MediaType.TEXT_PLAIN_VALUE, // Content type
-        content.getBytes()         // Content
+            "file",                    // Parameter name
+            filename,                  // Original filename
+            MediaType.TEXT_PLAIN_VALUE, // Content type
+            content.getBytes()         // Content
     );
 }
 
 // For WebTestClient multipart
 private MultiValueMap<String, Object> createMultipartBody(
-        MockMultipartFile file, 
+        MockMultipartFile file,
         String strategy) {
     var body = new LinkedMultiValueMap<String, Object>();
     body.add("file", file);
@@ -418,32 +530,33 @@ private MultiValueMap<String, Object> createMultipartBody(
 
 ```java
 // ✅ Generic type reference for paginated responses
-private static final ParameterizedTypeReference<PagedResponse<ImportJobSummary>> 
-    PAGINATED_RESPONSE_TYPE = 
-        new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {};
+private static final ParameterizedTypeReference<PagedResponse<ImportJobSummary>>
+        PAGINATED_RESPONSE_TYPE =
+        new ParameterizedTypeReference<PagedResponse<ImportJobSummary>>() {
+        };
 
 @Test
 void listImportJobs_returnsPagedResponse() {
     // Arrange
     setupJobs();
-    
+
     // Act & Assert
     webTestClient.get()
-        .uri(uriBuilder -> uriBuilder
-            .path("/api/admin/import/status")
-            .queryParam("page", 0)
-            .queryParam("size", 10)
-            .build())
-        .header(USER_ID_HEADER, "admin_user")
-        .header(USER_ROLE_HEADER, "ADMIN")
-        .exchange()
-        .expectStatus().isOk()
-        .expectBody(PAGINATED_RESPONSE_TYPE)
-        .value(response -> {
-            assertThat(response).isNotNull();
-            assertThat(response.content()).hasSize(10);
-            assertThat(response.totalElements()).isEqualTo(25);
-        });
+            .uri(uriBuilder -> uriBuilder
+                    .path("/api/admin/import/status")
+                    .queryParam("page", 0)
+                    .queryParam("size", 10)
+                    .build())
+            .header(USER_ID_HEADER, "admin_user")
+            .header(USER_ROLE_HEADER, "ADMIN")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(PAGINATED_RESPONSE_TYPE)
+            .value(response -> {
+                assertThat(response).isNotNull();
+                assertThat(response.content()).hasSize(10);
+                assertThat(response.totalElements()).isEqualTo(25);
+            });
 }
 ```
 
@@ -454,35 +567,35 @@ void listImportJobs_returnsPagedResponse() {
 @Test
 void getImportJobStatus_withInvalidJobId_returnsNotFound() {
     var invalidJobId = UUID.randomUUID().toString();
-    
+
     webTestClient.get()
-        .uri("/api/admin/import/status/{jobId}", invalidJobId)
-        .header(USER_ID_HEADER, "admin_user")
-        .header(USER_ROLE_HEADER, "ADMIN")
-        .exchange()
-        .expectStatus().isNotFound()
-        .expectBody(ErrorResponse.class)
-        .value(response -> {
-            assertThat(response).isNotNull();
-            assertThat(response.status()).isEqualTo(HttpStatus.NOT_FOUND.value());
-            assertThat(response.message()).contains("Import job not found");
-        });
+            .uri("/api/admin/import/status/{jobId}", invalidJobId)
+            .header(USER_ID_HEADER, "admin_user")
+            .header(USER_ROLE_HEADER, "ADMIN")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectBody(ErrorResponse.class)
+            .value(response -> {
+                assertThat(response).isNotNull();
+                assertThat(response.status()).isEqualTo(HttpStatus.NOT_FOUND.value());
+                assertThat(response.message()).contains("Import job not found");
+            });
 }
 
 // ✅ Service layer exception testing
 @Test
 void triggerImport_whenAnotherRunning_throws() {
     var runningJob = ImportJob.builder()
-        .id(UUID.randomUUID())
-        .status(ImportStatus.RUNNING)
-        .build();
-    
+            .id(UUID.randomUUID())
+            .status(ImportStatus.RUNNING)
+            .build();
+
     when(importJobRepository.findByStatus(ImportStatus.RUNNING))
-        .thenReturn(List.of(runningJob));
-    
+            .thenReturn(List.of(runningJob));
+
     assertThatThrownBy(() -> importService.triggerImport(mockFile, "overwrite"))
-        .isInstanceOf(ImportAlreadyRunningException.class)
-        .hasMessageContaining("Another import is already in progress");
+            .isInstanceOf(ImportAlreadyRunningException.class)
+            .hasMessageContaining("Another import is already in progress");
 }
 ```
 
@@ -492,6 +605,7 @@ void triggerImport_whenAnotherRunning_throws() {
 
 ```java
 // ❌ AVOID - Causes import loops
+
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 
 // ✅ USE - Clear separation
@@ -514,13 +628,13 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 // ✅ Use builder patterns or test factories
 private ImportJob createTestImportJob() {
     return ImportJob.builder()
-        .id(UUID.randomUUID())
-        .status(ImportStatus.COMPLETED)
-        .fileName("test.dat")
-        .totalEstimated(100)
-        .recordsProcessed(100)
-        .createdAt(Instant.now())
-        .build();
+            .id(UUID.randomUUID())
+            .status(ImportStatus.COMPLETED)
+            .fileName("test.dat")
+            .totalEstimated(100)
+            .recordsProcessed(100)
+            .createdAt(Instant.now())
+            .build();
 }
 ```
 
@@ -544,6 +658,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -565,11 +680,11 @@ class YourControllerTest {
 
         // Act & Assert
         webTestClient.get()
-            .uri("/api/endpoint")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody()
-            .jsonPath("$.field").isEqualTo("value");
+                .uri("/api/endpoint")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.field").isEqualTo("value");
     }
 }
 ```

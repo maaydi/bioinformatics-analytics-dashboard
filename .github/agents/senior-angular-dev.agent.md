@@ -156,6 +156,87 @@ Never expose backend DTOs directly to templates.
 * Normalize API responses where useful.
 * Prefer pure mapping functions.
 
+# Security
+
+* Never use `bypassSecurityTrustHtml`, `bypassSecurityTrustUrl`, `bypassSecurityTrustResourceUrl`, or similar
+  `DomSanitizer` bypasses without explicit justification and input provenance review.
+* Rely on Angular's built-in sanitization for interpolation and property binding; avoid `[innerHTML]` unless content is
+  trusted and sanitized.
+* Never construct URLs, HTML, or scripts via string concatenation with user input.
+* Enforce a strict Content Security Policy at the hosting layer; avoid `unsafe-inline` and `unsafe-eval`.
+* Store no sensitive tokens or secrets in `localStorage`/`sessionStorage`; prefer secure, `HttpOnly` cookies where
+  possible.
+* Validate and encode all data crossing the client/server boundary; never trust query params, route params, or fragment
+  data.
+* Keep dependencies patched; treat known CVEs in npm packages as blocking issues.
+
+# RxJS Best Practices
+
+* Prefer `takeUntilDestroyed()` (or `DestroyRef`) over manual `Subscription` bookkeeping.
+* Avoid nested subscriptions; use flattening operators (`switchMap`, `mergeMap`, `concatMap`, `exhaustMap`) chosen for
+  their concurrency semantics.
+* Always handle errors within the stream (`catchError`) rather than letting them terminate a long-lived subscription
+  silently.
+* Prefer `async` pipe in templates over manual `subscribe()` calls.
+* Avoid side effects inside `map`; use `tap` explicitly and sparingly for side effects.
+* Share hot observables with `shareReplay`/`share` deliberately, understanding replay and reference-counting behavior.
+* Cancel in-flight requests on unmount or superseding events using `switchMap` or explicit teardown.
+
+# Dependency Injection
+
+* Prefer `providedIn: 'root'` for singleton services; avoid re-providing services at multiple levels unintentionally.
+* Use `InjectionToken` for configuration values and non-class dependencies instead of string tokens.
+* Avoid circular dependencies between injectables; break cycles with interfaces or event-based decoupling.
+* Scope services to the feature/route level when state must not leak across features.
+* Prefer functional interceptors/guards/resolvers (`HttpInterceptorFn`, `CanActivateFn`, `ResolveFn`) over class-based
+  equivalents.
+
+# Routing & Navigation
+
+* Use lazy-loaded, route-level code splitting via `loadComponent`/`loadChildren` for every feature.
+* Type route parameters and query parameters explicitly; never access `params` as untyped objects.
+* Use guards for authorization/authentication checks, never inline checks inside component constructors.
+* Use resolvers to prefetch required data before activation when the component cannot render meaningfully without it.
+* Keep route configuration colocated with the feature it belongs to.
+
+# Error Handling & Observability
+
+* Implement a global `ErrorHandler` for uncaught exceptions; never let errors silently disappear.
+* Centralize HTTP error handling in an interceptor; map backend error shapes to typed client-side error models.
+* Log actionable errors with enough context (correlation id, route, user action) to debug without reproducing locally.
+* Distinguish between recoverable errors (show inline UI feedback) and fatal errors (fallback/error boundary UI).
+* Integrate a real-user-monitoring or error-tracking tool for production observability.
+
+# Internationalization
+
+* Externalize all user-facing strings; never hardcode text in templates or components.
+* Use Angular's built-in i18n or a well-supported library consistently across the app.
+* Format dates, numbers, and currencies through locale-aware pipes, never manual string formatting.
+* Design layouts to tolerate text expansion/contraction across locales.
+
+# Build & Tooling
+
+* Enforce strict TypeScript compiler options (`strict`, `noImplicitOverride`, `noUncheckedIndexedAccess`,
+  `noPropertyAccessFromIndexSignature`).
+* Enforce lint rules via ESLint with Angular-specific plugins; treat lint errors as build failures in CI.
+* Set and monitor bundle size budgets in `angular.json`; fail builds that regress beyond threshold.
+* Keep Angular, TypeScript, and tooling versions current; avoid multi-major version drift.
+* Use path aliases for feature-root imports instead of long relative paths.
+
+# Environment Configuration
+
+* Never hardcode environment-specific values (API URLs, feature flags, keys) in components or services.
+* Inject configuration via `InjectionToken` backed by environment files or runtime-fetched config.
+* Keep secrets out of client bundles entirely; the client build is public by definition.
+* Support runtime configuration injection for containerized deployments where the same build artifact targets multiple
+  environments.
+
+# Documentation
+
+* Document WHY, not WHAT, using concise JSDoc on public service methods and complex signals/computations.
+* Document non-obvious architectural decisions (e.g., why RxJS over Signals in a given spot) near the code.
+* Keep README/feature-level docs current with folder structure changes.
+
 # Testing
 
 * Use Vitest.
