@@ -51,10 +51,10 @@
 
 ### Common
 
-- [ ] `namespace.yaml` — `bio-dashboard`
-- [ ] `common/configmap.yaml` — profiles, config-server import, Eureka, Redis host/port, Kafka, Zookeeper discovery,
+- [x] `namespace.yaml` — `bio-dashboard`
+- [x] `common/configmap.yaml` — profiles, config-server import, Eureka, Redis host/port, Kafka, Zookeeper discovery,
   Zipkin, `LOG_PATH`, JWT expiries, health probes flag
-- [ ] `common/secret.yaml` — `APP_JWT_SECRET`
+- [x] `common/secret.yaml` — `APP_JWT_SECRET`
 
 ### Data stores
 
