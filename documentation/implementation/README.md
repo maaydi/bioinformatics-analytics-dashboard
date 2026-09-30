@@ -55,7 +55,7 @@ documentation/implementation/
 | `REMOTE-001`    | User can fetch data from UniProtKB Remote Provider (GeneService over REST)   | `done`        |
 | `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                | `not-started` |
 | `NLQ-001`       | Natural Language Query & AI Summarization Engine                             | `not-started` |
-| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `not-started` |
+| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `in-progress` |
 | `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                         | `not-started` | 
 | `ARCH-002`      | Protein Catalog Ownership & Database-per-Service Enforcement                 | `not-started` | 
 | `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                       | `in-progress` | 
