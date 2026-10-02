@@ -49,3 +49,14 @@
   No own Secret: credentials are read from `postgres-secret` (single source of truth for rotation).
 - `redis/` → `configmap.yaml` (`redis.conf`), `secret.yaml` (`REDIS_PASSWORD`), `pvc.yaml` (1Gi),
   `deployment.yaml` (`--requirepass` from Secret, `redis-cli ping` probes), `service.yaml`.
+
+### Step 5 — Messaging & observability
+
+- `zipkin/` → ConfigMap (in-memory storage, heap), Deployment (`/health` probes), Service NodePort `30941`.
+- `zookeeper/` → ConfigMap (client port, tick time, `ruok` whitelist), Deployment (`ruok` readiness), Service 2181.
+- `kafka/` → ConfigMap (explicit `KAFKA_LISTENERS`, advertised `kafka:29092` kept identical to compose),
+  Deployment (startup TCP probe, `kafka-topics --list` readiness), Service exposing 29092 and 9092.
+- `kafka-init-topics/` → ConfigMap (topic list `topic:partitions:rf` + idempotent `create-topics.sh`) and a **Job**
+  (`backoffLimit: 6`, `activeDeadlineSeconds: 600`) replacing the compose one-shot container.
+- `kafka-ui/` → ConfigMap, Deployment (image pinned to `v0.7.2` instead of `latest`), Service NodePort `30090`.
+- `enableServiceLinks: false` on every pod — mandatory for Confluent images (`KAFKA_PORT=tcp://…` injection).

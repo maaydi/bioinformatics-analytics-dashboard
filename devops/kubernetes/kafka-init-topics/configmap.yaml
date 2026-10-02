@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-init-topics-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: kafka-init-topics
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: messaging
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+  # Format: <topic>:<partitions>:<replication-factor> — one per line.
+  topics.txt: |
+    protein.events.imported:3:1
+    export.events.completed:3:1
+    auth.events.authenticated:1:1
+    audit.events.log:6:1
+    nlq.events.executed:1:1
+    structure.events.viewed:1:1
+    notification.events.trigger:3:1
+  create-topics.sh: |
+    #!/bin/sh
+    set -eu
+    echo "Creating Kafka topics on ${KAFKA_BOOTSTRAP_SERVERS}..."
+    while IFS=: read -r topic partitions replication; do
+      [ -z "${topic}" ] && continue
+      kafka-topics --bootstrap-server "${KAFKA_BOOTSTRAP_SERVERS}" --create --if-not-exists \
+        --topic "${topic}" --partitions "${partitions}" --replication-factor "${replication}"
+    done < /config/topics.txt
+    echo "Topics created successfully."
+

@@ -64,11 +64,11 @@
 
 ### Messaging & observability
 
-- [ ] `zipkin` — NodePort 30941
-- [ ] `zookeeper` — tcp probe 2181
-- [ ] `kafka` — listeners `PLAINTEXT://kafka:29092`, `PLAINTEXT_HOST://localhost:9092`
-- [ ] `kafka-init-topics` — Job, topic list in ConfigMap, idempotent (`--if-not-exists`), `backoffLimit`
-- [ ] `kafka-ui` — NodePort 30090
+- [x] `zipkin` — NodePort 30941
+- [x] `zookeeper` — tcp probe 2181
+- [x] `kafka` — listeners `PLAINTEXT://kafka:29092`, `PLAINTEXT_HOST://localhost:9092`
+- [x] `kafka-init-topics` — Job, topic list in ConfigMap, idempotent (`--if-not-exists`), `backoffLimit`
+- [x] `kafka-ui` — NodePort 30090
 
 ### Platform
 

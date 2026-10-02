@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zookeeper-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: zookeeper
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: coordination
+data:
+  ZOOKEEPER_CLIENT_PORT: "2181"
+  ZOOKEEPER_TICK_TIME: "2000"
+  KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok"
+  KAFKA_HEAP_OPTS: "-Xms128m -Xmx256m"
+
