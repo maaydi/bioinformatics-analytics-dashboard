@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: export-service-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: export-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+data:
+  SERVER_PORT: "8085"
+  SPRING_APPLICATION_NAME: "export-service"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/bioinformatics_db"
+  SPRING_BATCH_JOB_ENABLED: "false"
+  SPRING_BATCH_JOB_NAME: "NONE"
+  APP_EXPORT_TEMP_DIR: "/app/bio-export"
+

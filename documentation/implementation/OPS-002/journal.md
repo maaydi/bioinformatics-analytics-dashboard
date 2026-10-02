@@ -73,3 +73,17 @@
   itself).
 - `api-gateway/` → ConfigMap, Deployment (`bio-common-config` + `bio-common-secret` + Redis password from
   `redis-secret`), Service NodePort `30080`. No own Secret (JWT secret is shared).
+
+### Step 7 — Business services
+
+- `auth-service/`, `analytics-service/`, `dashboard/`, `import-service/`, `export-service/` → each has
+  `configmap.yaml` (port, application name, JDBC URLs, service-specific flags), `secret.yaml` (service-owned DB
+  credentials — `SPRING_DATASOURCE_*` and/or `COMMON_DATASOURCE_*`), `deployment.yaml`, `service.yaml` (ClusterIP).
+- Common wiring for every Spring pod: `envFrom` `bio-common-config` → `bio-common-secret` → own ConfigMap → own
+  Secret (later sources win), Redis password via `secretKeyRef` → `redis-secret`, `emptyDir` on `/app/logs`,
+  startup (5–6 min budget) + readiness + liveness probes on actuator health groups.
+- `dashboard` = compose `backend` (renamed, see Step 1); memory limit 1.5Gi (Dockerfile uses `MaxRAMPercentage=75`).
+- `import-service/pvc.yaml` (`import-uploads`, 10Gi → `/app/bio-import`) and `export-service/pvc.yaml`
+  (`export-data`, 5Gi → `/app/bio-export`); both Deployments use `Recreate` (RWO volumes).
+- Variables previously inherited implicitly through compose `env_file: .env` are now explicit (`APP_BATCH_CHUNK_SIZE`,
+  `UNIPROT_API_BASE_URL`, `APP_IMPORT_CONFIG_TEMP_DIR`, `APP_EXPORT_TEMP_DIR`, multipart sizes).

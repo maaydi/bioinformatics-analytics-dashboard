@@ -80,12 +80,12 @@
 
 ### Business services
 
-- [ ] `auth-service`, `analytics-service`, `dashboard`, `import-service`, `export-service`
-    - [ ] `envFrom` common ConfigMap/Secret + own ConfigMap/Secret
-    - [ ] Redis password via `secretKeyRef` → `redis-secret` (single source of truth)
-    - [ ] Startup / readiness / liveness probes on actuator health groups
-    - [ ] `emptyDir` for `/app/logs` (stdout remains the primary log sink)
-    - [ ] PVC for `/app/bio-import` (import) and `/app/bio-export` (export)
+- [x] `auth-service`, `analytics-service`, `dashboard`, `import-service`, `export-service`
+  - [x] `envFrom` common ConfigMap/Secret + own ConfigMap/Secret
+  - [x] Redis password via `secretKeyRef` → `redis-secret` (single source of truth)
+  - [x] Startup / readiness / liveness probes on actuator health groups
+  - [x] `emptyDir` for `/app/logs` (stdout remains the primary log sink)
+  - [x] PVC for `/app/bio-import` (import) and `/app/bio-export` (export)
 
 ### Frontend
 

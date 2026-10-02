@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: export-data
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: export-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: import-service
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: import-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO upload volume
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: import-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: import-service
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: business-service
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: import-service
+          image: bio-dashboard/import-service:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: bio-common-config
+            - secretRef:
+                name: bio-common-secret
+            - configMapRef:
+                name: import-service-config
+            - secretRef:
+                name: import-service-secret
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 768Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/bio-import
+            - name: logs
+              mountPath: /app/logs
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: import-uploads
+        - name: logs
+          emptyDir: { }
+
