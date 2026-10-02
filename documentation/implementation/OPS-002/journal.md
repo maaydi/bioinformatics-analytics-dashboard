@@ -60,3 +60,16 @@
   (`backoffLimit: 6`, `activeDeadlineSeconds: 600`) replacing the compose one-shot container.
 - `kafka-ui/` → ConfigMap, Deployment (image pinned to `v0.7.2` instead of `latest`), Service NodePort `30090`.
 - `enableServiceLinks: false` on every pod — mandatory for Confluent images (`KAFKA_PORT=tcp://…` injection).
+
+### Step 6 — Platform services
+
+- `discovery-server/` → ConfigMap (standalone Eureka: no self-registration), Deployment (image
+  `bio-dashboard/discovery-server:local`, actuator liveness/readiness + startup probe), Service NodePort `30761`.
+- `gitea-db/` → ConfigMap (`POSTGRES_DB=gitea`, `PGDATA`), Secret (`gitea-db-secret`), PVC 2Gi, Deployment, Service.
+- `gitea-server/` → ConfigMap (`GITEA__*` settings), PVC 5Gi, Deployment (image pinned `gitea/gitea:1.22`, DB
+  credentials via `secretKeyRef` → `gitea-db-secret`), Service NodePort `30300` (HTTP) / `30222` (SSH).
+- `config-server/` → ConfigMap (Git URI, Eureka), Secret (Git username/token, `ENCRYPT_KEY`), Deployment, Service 8888.
+  Deliberately **not** wired to `bio-common-config` (its `SPRING_CONFIG_IMPORT` would make config-server import from
+  itself).
+- `api-gateway/` → ConfigMap, Deployment (`bio-common-config` + `bio-common-secret` + Redis password from
+  `redis-secret`), Service NodePort `30080`. No own Secret (JWT secret is shared).

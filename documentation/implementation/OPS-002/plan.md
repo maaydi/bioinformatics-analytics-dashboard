@@ -72,11 +72,11 @@
 
 ### Platform
 
-- [ ] `discovery-server` — NodePort 30761
-- [ ] `gitea-db` — PVC 2Gi
-- [ ] `gitea-server` — PVC 5Gi, NodePort 30300 (HTTP) / 30222 (SSH), manual gate in the deploy script
-- [ ] `config-server` — Git credentials + `ENCRYPT_KEY` in Secret
-- [ ] `api-gateway` — NodePort 30080
+- [x] `discovery-server` — NodePort 30761
+- [x] `gitea-db` — PVC 2Gi
+- [x] `gitea-server` — PVC 5Gi, NodePort 30300 (HTTP) / 30222 (SSH), manual gate in the deploy script
+- [x] `config-server` — Git credentials + `ENCRYPT_KEY` in Secret
+- [x] `api-gateway` — NodePort 30080
 
 ### Business services
 

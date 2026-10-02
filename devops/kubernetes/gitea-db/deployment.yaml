@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea-db
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: gitea-db
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: config-repository-database
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gitea-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gitea-db
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: config-repository-database
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: gitea-db
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: gitea-db-config
+            - secretRef:
+                name: gitea-db-secret
+          readinessProbe:
+            exec:
+              command: [ "sh", "-c", "pg_isready -q -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"" ]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command: [ "sh", "-c", "pg_isready -q -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"" ]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gitea-db-data
+
