@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: database
+data:
+  POSTGRES_DB: "bioinformatics_db"
+  # Sub-directory avoids initdb failures when the volume root is not empty (e.g. lost+found).
+  PGDATA: "/var/lib/postgresql/data/pgdata"
+---
+# Executed once by the official image entrypoint on first initialisation (empty PGDATA).
+# Replaces the background pg_hba.conf patch used in docker-compose.yml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: database
+data:
+  01-enable-replication.sh: |
+    #!/bin/sh
+    set -eu
+    echo "host replication ${POSTGRES_USER} all scram-sha-256" >> "${PGDATA}/pg_hba.conf"
+    echo "Replication access granted to ${POSTGRES_USER}."
+

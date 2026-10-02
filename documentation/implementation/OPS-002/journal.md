@@ -38,3 +38,14 @@
 - Note: the IDE workspace index referenced an older draft of `devops/kubernetes/` (e.g. `kafka/deployment.yaml~`), but
   no such file existed on disk (`find devops/kubernetes` only returned the files created in this step, untracked in
   Git). All manifests are therefore written from scratch.
+
+### Step 4 — Data stores
+
+- `postgres/` → `configmap.yaml` (`POSTGRES_DB`, `PGDATA` sub-directory + `postgres-init-scripts` with
+  `01-enable-replication.sh`), `secret.yaml` (`POSTGRES_USER`/`POSTGRES_PASSWORD`), `pvc.yaml` (10Gi),
+  `deployment.yaml` (`wal_level=replica`, `pg_isready` probes, `Recreate`), `service.yaml` (ClusterIP 5432).
+- `postgres-replica/` → `configmap.yaml` (primary host/port + `start-replica.sh` bootstrap script ported from compose),
+  `pvc.yaml` (10Gi), `deployment.yaml` (startup probe up to 10 min for `pg_basebackup`), `service.yaml`.
+  No own Secret: credentials are read from `postgres-secret` (single source of truth for rotation).
+- `redis/` → `configmap.yaml` (`redis.conf`), `secret.yaml` (`REDIS_PASSWORD`), `pvc.yaml` (1Gi),
+  `deployment.yaml` (`--requirepass` from Secret, `redis-cli ping` probes), `service.yaml`.

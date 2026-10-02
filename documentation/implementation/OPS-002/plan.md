@@ -53,14 +53,14 @@
 
 - [x] `namespace.yaml` — `bio-dashboard`
 - [x] `common/configmap.yaml` — profiles, config-server import, Eureka, Redis host/port, Kafka, Zookeeper discovery,
-  Zipkin, `LOG_PATH`, JWT expiries, health probes flag
+  Zipkin, `LOG_PATH`, JWT expires, health probes flag
 - [x] `common/secret.yaml` — `APP_JWT_SECRET`
 
 ### Data stores
 
-- [ ] `postgres` — PVC 10Gi, init script enabling replication in `pg_hba.conf`, `wal_level=replica`, `pg_isready` probes
-- [ ] `postgres-replica` — PVC 10Gi, `pg_basebackup` bootstrap script from ConfigMap, reuses `postgres-secret`
-- [ ] `redis` — PVC 1Gi, `--requirepass` from `redis-secret`, `redis-cli ping` probes
+- [x] `postgres` — PVC 10Gi, init script enabling replication in `pg_hba.conf`, `wal_level=replica`, `pg_isready` probes
+- [x] `postgres-replica` — PVC 10Gi, `pg_basebackup` bootstrap script from ConfigMap, reuses `postgres-secret`
+- [x] `redis` — PVC 1Gi, `--requirepass` from `redis-secret`, `redis-cli ping` probes
 
 ### Messaging & observability
 
