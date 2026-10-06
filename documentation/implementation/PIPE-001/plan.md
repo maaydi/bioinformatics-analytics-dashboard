@@ -332,17 +332,17 @@
 
 ### Frontend — Service (`features/export/export-pipeline.service.ts`)
 
-- [ ] `createPipeline(request: ExportPipelineCreateRequest): Observable<ExportPipeline>`
-- [ ] `listPipelines(status?: ExportStatus, page?: number, size?: number): Observable<PagedResponse<ExportPipeline>>`
-- [ ] `getPipeline(id: number): Observable<ExportPipeline>`
-- [ ] `getStatus(id: number): Observable<ExportJobStatus>`
-- [ ] `getDownloadUrl(id: number): Observable<DownloadUrl>`
-- [ ] `downloadFile(id: number): Observable<Blob>` — calls `/download-file`
-- [ ] `retryPipeline(id: number): Observable<ExportPipeline>`
-- [ ] `deletePipeline(id: number): Observable<void>`
-- [ ] `getAvailableFields(): Observable<ExportFieldSchema[]>`
+- [x] `createPipeline(request: ExportPipelineCreateRequest): Observable<ExportPipeline>`
+- [x] `listPipelines(status?: ExportStatus, page?: number, size?: number): Observable<PagedResponse<ExportPipeline>>`
+- [x] `getPipeline(id: number): Observable<ExportPipeline>`
+- [x] `getStatus(id: number): Observable<ExportJobStatus>`
+- [x] `getDownloadUrl(id: number): Observable<DownloadUrl>`
+- [x] `downloadFile(id: number): Observable<Blob>` — calls `/download-file`
+- [x] `retryPipeline(id: number): Observable<ExportPipeline>`
+- [x] `deletePipeline(id: number): Observable<void>`
+- [x] `getAvailableFields(): Observable<ExportFieldSchema[]>`
 - [ ] `pollStatus(id: number, intervalMs = 3000): Observable<ExportJobStatus>` — wraps `getStatus` with `interval()` +
-  `takeWhile(status !== 'COMPLETED' && status !== 'FAILED')`
+  `takeWhile(status !== 'COMPLETED' && status !== 'FAILED')` --> ToBeDone in component
 
 ### Frontend — `ExportPipelineWizardComponent` (`features/export/export-pipeline-wizard/`)
 
