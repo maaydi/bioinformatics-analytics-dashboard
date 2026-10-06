@@ -5,11 +5,11 @@ import {GenesStore} from './filters.store';
 import {GenesService} from '@features/genes/genes.service';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
 describe('GenesStore', () => {
   type GenesStoreContract = {
-    activeFilters: () => GeneFilterSnapshot | null;
+    activeFilters: () => GeneSearchRequest | null;
     chipsCount: () => number;
     searchResult: () => PagedResponse<ProteinSummary> | null;
     onErrorMessage: () => string | null;
@@ -17,16 +17,16 @@ describe('GenesStore', () => {
     loading: () => boolean;
     selectGeneSummary: (protein: ProteinSummary) => void;
     updateChipsCount: (value: number) => void;
-    setActiveFilters: (snapshot: GeneFilterSnapshot) => void;
+    setActiveFilters: (snapshot: GeneSearchRequest) => void;
     clearFilters: () => void;
-    removeFilter: (key: keyof GeneFilterSnapshot) => void;
+    removeFilter: (key: keyof GeneSearchRequest) => void;
     updatePaginationAndSort: (params: {
       page?: number;
       size?: number;
       sort?: string;
       direction?: 'asc' | 'desc'
     }) => void;
-    searchGene: (snapshot: GeneFilterSnapshot) => void;
+    searchGene: (snapshot: GeneSearchRequest) => void;
   };
 
   let store: GenesStoreContract;
@@ -91,7 +91,7 @@ describe('GenesStore', () => {
   });
 
   it('should store active filters without triggering a search request', () => {
-    const snapshot: GeneFilterSnapshot = {evidenceLevels: [1]};
+    const snapshot: GeneSearchRequest = {evidenceLevels: [1]};
 
     store.setActiveFilters(snapshot);
 
@@ -103,7 +103,7 @@ describe('GenesStore', () => {
   });
 
   it('should clear filters and result state via clearFilters', () => {
-    const snapshot: GeneFilterSnapshot = {globalSearch: 'kinase'};
+    const snapshot: GeneSearchRequest = {globalSearch: 'kinase'};
     store.searchGene(snapshot);
     store.selectGeneSummary(summary);
 
@@ -117,7 +117,7 @@ describe('GenesStore', () => {
   });
 
   it('should search genes and store result on success', () => {
-    const snapshot: GeneFilterSnapshot = {
+    const snapshot: GeneSearchRequest = {
       globalSearch: 'kinase',
       reviewed: true
     };
@@ -201,7 +201,7 @@ describe('GenesStore', () => {
   });
 
   it('should re-trigger search with current filters after pagination/sort update', () => {
-    const snapshot: GeneFilterSnapshot = {globalSearch: 'kinase'};
+    const snapshot: GeneSearchRequest = {globalSearch: 'kinase'};
     store.searchGene(snapshot);
     genesServiceMock.searchGenes.mockClear();
 

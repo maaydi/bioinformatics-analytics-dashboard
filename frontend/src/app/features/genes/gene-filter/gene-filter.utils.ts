@@ -1,4 +1,4 @@
-import {GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterFormValue, GeneSearchRequest} from '@core/models/saved-filter.model';
 
 /**
  * Converts form raw values to an immutable filter snapshot for API requests.
@@ -7,7 +7,7 @@ import {GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter
  * @param rawValue submitted form data
  * @returns normalized filter snapshot
  */
-export const toSnapshot = (rawValue: GeneFilterFormValue): GeneFilterSnapshot => {
+export const toSnapshot = (rawValue: GeneFilterFormValue): GeneSearchRequest => {
   return {
     accession: rawValue.accession || null,
     entryName: rawValue.entryName || null,
@@ -39,7 +39,7 @@ export const toSnapshot = (rawValue: GeneFilterFormValue): GeneFilterSnapshot =>
  * @param snapshot immutable filter snapshot
  * @returns partial form values
  */
-export const toForm = (snapshot: GeneFilterSnapshot): Partial<GeneFilterFormValue> => {
+export const toForm = (snapshot: GeneSearchRequest): Partial<GeneFilterFormValue> => {
   return {
     globalSearch: snapshot.globalSearch ?? '',
     accession: snapshot.accession ?? '',

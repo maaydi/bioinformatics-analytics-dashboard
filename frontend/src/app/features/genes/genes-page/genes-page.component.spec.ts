@@ -4,7 +4,7 @@ import {GenesPageComponent} from './genes-page.component';
 import {Router} from '@angular/router';
 import {ProteinSummary} from '@core/models/protein.model';
 import {GenesStore} from '@features/genes/state/filters.store';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {GenesService} from '@features/genes/genes.service';
 import {NotificationService} from '@shared/directive/notification.service';
 import {PagedResponse} from '@core/models/paged-response.model';
@@ -98,7 +98,7 @@ describe('GenesPageComponent', () => {
   });
 
   it('should trigger initial search with preloaded active filters on creation', () => {
-    const filters: GeneFilterSnapshot = {evidenceLevels: [1]};
+    const filters: GeneSearchRequest = {evidenceLevels: [1]};
     const localStore = TestBed.inject(GenesStore);
     vi.spyOn(localStore, 'activeFilters').mockReturnValue(filters);
     const searchSpy = vi.spyOn(localStore, 'searchGene').mockImplementation((() => {
@@ -145,7 +145,7 @@ describe('GenesPageComponent', () => {
   describe('Filter Management', () => {
     it('should apply filters when applyFilters is called', () => {
       const searchSpy = vi.spyOn(component.store, 'searchGene');
-      const snapshot: GeneFilterSnapshot = {evidenceLevels: [1, 2]};
+      const snapshot: GeneSearchRequest = {evidenceLevels: [1, 2]};
 
       component.applyFilters(snapshot);
 
@@ -164,7 +164,7 @@ describe('GenesPageComponent', () => {
 
     it('should apply multiple filter types in snapshot', () => {
       const searchSpy = vi.spyOn(component.store, 'searchGene');
-      const complexSnapshot: GeneFilterSnapshot = {
+      const complexSnapshot: GeneSearchRequest = {
         globalSearch: 'insulin',
         evidenceLevels: [1, 2],
         organism: 'Homo sapiens',
@@ -177,7 +177,7 @@ describe('GenesPageComponent', () => {
 
     it('should apply empty snapshot as filter clear', () => {
       const searchSpy = vi.spyOn(component.store, 'searchGene');
-      const emptySnapshot: GeneFilterSnapshot = {};
+      const emptySnapshot: GeneSearchRequest = {};
 
       component.applyFilters(emptySnapshot);
 
@@ -222,7 +222,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {organism: 'Homo sapiens'};
+      const mockFilters: GeneSearchRequest = {organism: 'Homo sapiens'};
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
       vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
@@ -240,7 +240,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {evidenceLevels: [3]};
+      const mockFilters: GeneSearchRequest = {evidenceLevels: [3]};
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
       vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
@@ -263,7 +263,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {};
+      const mockFilters: GeneSearchRequest = {};
       const mockBlob = new Blob(['test'], {type: 'text/csv'});
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
@@ -288,7 +288,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {};
+      const mockFilters: GeneSearchRequest = {};
       const mockError = {error: {message: 'Export service unavailable'}};
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
@@ -313,7 +313,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {};
+      const mockFilters: GeneSearchRequest = {};
       const mockError = {};
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
@@ -337,7 +337,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {};
+      const mockFilters: GeneSearchRequest = {};
       const mockBlob = new Blob(['test'], {type: 'text/csv'});
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
@@ -421,7 +421,7 @@ describe('GenesPageComponent', () => {
         totalElements: 1,
         totalPages: 1,
       };
-      const mockFilters: GeneFilterSnapshot = {};
+      const mockFilters: GeneSearchRequest = {};
       const mockBlob = new Blob(['test'], {type: 'text/csv'});
 
       vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);

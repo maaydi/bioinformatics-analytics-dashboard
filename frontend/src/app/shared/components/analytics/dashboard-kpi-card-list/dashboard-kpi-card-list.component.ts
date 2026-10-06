@@ -17,7 +17,7 @@ import {
 } from '@shared/components/analytics/dashboard-kpi-card/dashboard-kpi-card.component';
 import {DashboardKpis} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatButton} from '@angular/material/button';
 import {isPlatformBrowser} from '@angular/common';
@@ -41,7 +41,7 @@ import {isPlatformBrowser} from '@angular/common';
 })
 
 export class DashboardKpiCardListComponent {
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   public readonly kpiLoading = model<boolean>(true);
   protected readonly kpiCards = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
   protected readonly kpiError = signal<string | null>(null);

@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
 import {ActiveFiltersComponent} from './active-filters.component';
 
@@ -30,7 +30,7 @@ describe('ActiveFiltersComponent', () => {
   });
 
   it('should build chips for non-empty scalar and array filters', () => {
-    const filters: GeneFilterSnapshot = {
+    const filters: GeneSearchRequest = {
       globalSearch: 'kinase',
       reviewed: true,
       taxid: 9606,
@@ -50,7 +50,7 @@ describe('ActiveFiltersComponent', () => {
   });
 
   it('should map reviewed=false to No and keep zero values', () => {
-    const filters: GeneFilterSnapshot = {
+    const filters: GeneSearchRequest = {
       reviewed: false,
       taxid: 0,
       lengthMin: 0
@@ -66,7 +66,7 @@ describe('ActiveFiltersComponent', () => {
   });
 
   it('should emit filterRemoved when removeFilter is called', async () => {
-    let removedKey: keyof GeneFilterSnapshot | undefined;
+    let removedKey: keyof GeneSearchRequest | undefined;
     component.filterRemoved.subscribe((key) => {
       removedKey = key;
     });
@@ -85,7 +85,7 @@ describe('ActiveFiltersComponent', () => {
     fixture.componentRef.setInput('filters', {
       accession: 'P12345',
       keywords: ['kinase']
-    } satisfies GeneFilterSnapshot);
+    } satisfies GeneSearchRequest);
     fixture.detectChanges();
 
     component.filtersChips();

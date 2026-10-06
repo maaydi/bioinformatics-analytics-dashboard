@@ -4,12 +4,12 @@ import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {pipe, switchMap, tap} from 'rxjs';
 import {ProteinSummary} from '@core/models/protein.model';
 import {PagedResponse} from '@core/models/paged-response.model';
-import {GeneFilterPageSort, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterPageSort, GeneSearchRequest} from '@core/models/saved-filter.model';
 import {GenesService} from '@features/genes/genes.service';
 import {tapResponse} from '@ngrx/operators';
 
 export interface FilterState {
-  activeFilters: GeneFilterSnapshot | null;
+  activeFilters: GeneSearchRequest | null;
   chipsCount: number;
   searchResult: PagedResponse<ProteinSummary> | null;
   onErrorMessage: string | null;
@@ -59,7 +59,7 @@ export const GenesStore = signalStore(
     },
 
     /** Stores filters for the next Genes page load without issuing an immediate API request. */
-    setActiveFilters(snapshot: GeneFilterSnapshot): void {
+    setActiveFilters(snapshot: GeneSearchRequest): void {
       patchState(store, {
         activeFilters: snapshot,
         selectedGene: null,
@@ -85,7 +85,7 @@ export const GenesStore = signalStore(
       });
     },
     /** Remove a filter by key and refresh gene table by search */
-    removeFilter(key: keyof GeneFilterSnapshot): void {
+    removeFilter(key: keyof GeneSearchRequest): void {
       const currentFilters = store.activeFilters();
       if (!currentFilters) {
         return;
@@ -112,7 +112,7 @@ export const GenesStore = signalStore(
     },
 
     /** Runs server-side search and updates loading, result, and error state. */
-    searchGene: rxMethod<GeneFilterSnapshot>(
+    searchGene: rxMethod<GeneSearchRequest>(
       pipe(
         tap((snapshot) => {
           patchState(store, {

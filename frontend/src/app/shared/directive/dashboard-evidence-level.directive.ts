@@ -3,7 +3,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {GenesStore} from '@features/genes/state/filters.store';
@@ -12,7 +12,7 @@ import {isPlatformBrowser} from '@angular/common';
 
 @Directive()
 export abstract class AbstractDashboardEvidenceLevelsDirective {
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   protected readonly evidenceItems = signal<ReadonlyArray<EvidenceLevelItem>>([]);

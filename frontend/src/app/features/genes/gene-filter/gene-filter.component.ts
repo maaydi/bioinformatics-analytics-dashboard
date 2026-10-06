@@ -10,7 +10,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import {GeneFilterFormControls, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterFormControls, GeneSearchRequest} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
@@ -89,7 +89,7 @@ export type DisplayMode = 'sidebar' | 'grid';
  * - Prevents emission while the form is invalid.
  *
  * Outputs:
- * - `filterChange`: emits a normalized `GeneFilterSnapshot`.
+ * - `filterChange`: emits a normalized `GeneSearchRequest`.
  * - `filterClear`: emits after form reset.
  */
 @Component({
@@ -168,9 +168,9 @@ export class GeneFilterComponent {
     featureType: new FormControl('', {nonNullable: false}),
     crossRefSource: new FormControl('', {nonNullable: false}),
   });
-  readonly value = input<GeneFilterSnapshot | null>(null);
+  readonly value = input<GeneSearchRequest | null>(null);
 
-  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterChange = output<GeneSearchRequest>();
   readonly filterClear = output<void>();
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly dialog = inject(MatDialog);
@@ -280,7 +280,7 @@ export class GeneFilterComponent {
   }
 
   /** Maps form raw values to the API-compatible filter snapshot. */
-  private toSnapshot(): GeneFilterSnapshot {
+  private toSnapshot(): GeneSearchRequest {
     const rawValue = this.form.getRawValue();
     return toSnapshot(rawValue);
   }

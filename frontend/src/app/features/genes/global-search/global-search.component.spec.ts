@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {GlobalSearchComponent} from './global-search.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
 describe('GlobalSearchComponent', () => {
   let component: GlobalSearchComponent;
@@ -30,7 +30,7 @@ describe('GlobalSearchComponent', () => {
   it('should reflect incoming globalSearch value in input signal', () => {
     fixture.componentRef.setInput('filters', {
       globalSearch: 'kinase'
-    } satisfies GeneFilterSnapshot);
+    } satisfies GeneSearchRequest);
     fixture.detectChanges();
 
     expect(component.globalSearchValue()).toBe('kinase');
@@ -43,7 +43,7 @@ describe('GlobalSearchComponent', () => {
     fixture.componentRef.setInput('filters', {
       accession: 'P12345',
       reviewed: true
-    } satisfies GeneFilterSnapshot);
+    } satisfies GeneSearchRequest);
     fixture.detectChanges();
 
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;

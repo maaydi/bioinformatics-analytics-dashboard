@@ -21,7 +21,7 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
@@ -50,7 +50,7 @@ export class DashboardLengthHistogramComponent {
   chartCard!: ElementRef<HTMLElement>;
 
   private readonly imageExportService = inject(ImageExportService);
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private lenHistogramSub?: Subscription;
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);

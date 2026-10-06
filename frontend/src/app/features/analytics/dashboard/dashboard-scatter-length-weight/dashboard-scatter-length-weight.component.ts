@@ -15,7 +15,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Subscription} from 'rxjs';
 import {ECElementEvent, ECharts, EChartsOption} from 'echarts';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {NGX_ECHARTS_CONFIG, NgxEchartsDirective} from 'ngx-echarts';
 import {GenesStore} from '@features/genes/state/filters.store';
@@ -42,7 +42,7 @@ export class DashboardScatterLengthWeightComponent {
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
 
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   public readonly rawLoading = model<boolean>(true);
 
   protected readonly scatterData = signal<ReadonlyArray<[number, number, number]>>([]);
@@ -151,7 +151,7 @@ export class DashboardScatterLengthWeightComponent {
   protected onChartClick(event: any) {
     const echartsEvent = event as ECElementEvent;
     const data: number[] = echartsEvent.data as number[];
-    const snapshot: GeneFilterSnapshot = {
+    const snapshot: GeneSearchRequest = {
       lengthMin: data[0],
       lengthMax: data[0],
       molecularWeightMin: data[1],

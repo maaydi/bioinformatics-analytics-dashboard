@@ -9,13 +9,13 @@ import {FormControl} from '@angular/forms';
 export interface SavedFilter {
   id: number;
   name: string;
-  filterJson: GeneFilterSnapshot;
+  filterJson: GeneSearchRequest;
   createdAt: string;
 }
 
 export interface CreateSavedFilterRequest {
   name: string;
-  filterJson: GeneFilterSnapshot;
+  filterJson: GeneSearchRequest;
 }
 
 export interface GeneFilterPageSort {
@@ -29,7 +29,7 @@ export interface GeneFilterPageSort {
  * The filter state that is serialized and stored.
  * Fields mirror the POST /api/genes/search request body.
  */
-export interface GeneFilterSnapshot {
+export interface GeneSearchRequest {
   globalSearch?: string | null;
   accession?: string | null;
   entryName?: string | null;
@@ -76,5 +76,5 @@ export type GeneFilterFormControls = {
   [K in keyof GeneFilterFormValue]: FormControl<GeneFilterFormValue[K]>;
 };
 
-export type GeneFilterPageable = GeneFilterSnapshot & GeneFilterPageSort
+export type GeneFilterPageable = GeneSearchRequest & GeneFilterPageSort
 

@@ -1,13 +1,13 @@
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
-export type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string };
+export type FilterChip = { key: keyof GeneSearchRequest, label: string, value: string };
 
 /** Converts non-empty filter fields into display chips. */
-export const buildFiltersChips = (filters: GeneFilterSnapshot | null): FilterChip[] => {
+export const buildFiltersChips = (filters: GeneSearchRequest | null): FilterChip[] => {
   if (!filters) {
     return [];
   }
-  const config: Array<{ key: keyof GeneFilterSnapshot; label: string }> = [
+  const config: Array<{ key: keyof GeneSearchRequest; label: string }> = [
     {key: 'globalSearch', label: 'Search'},
     {key: 'accession', label: 'Accession'},
     {key: 'entryName', label: 'Entry'},

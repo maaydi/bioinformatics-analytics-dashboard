@@ -20,7 +20,7 @@ import {LimitSelectorComponent} from '@shared/components/limit-selector/limit-se
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
@@ -39,7 +39,7 @@ interface KeywordBucket {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardKeywordFrequencyHistogramComponent {
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private keywordSub?: Subscription;
   protected readonly Math = Math;
   protected readonly loading = signal<boolean>(true);
@@ -96,7 +96,7 @@ export class DashboardKeywordFrequencyHistogramComponent {
   }
 
   protected selectKeyword(bucket: KeywordBucket) {
-    const snapshot: GeneFilterSnapshot = {keywords: [bucket.keyword]};
+    const snapshot: GeneSearchRequest = {keywords: [bucket.keyword]};
     this.genesStore.setActiveFilters(snapshot);
     void this.router.navigate(['/genes']);
   }

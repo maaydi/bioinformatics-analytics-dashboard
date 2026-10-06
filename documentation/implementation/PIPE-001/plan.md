@@ -312,23 +312,23 @@
 
 ### Frontend — Models (`core/models/export-pipeline.model.ts`)
 
-- [ ] `ExportPipeline`:
-    - [ ] `id: number`, `name: string`, `description?: string`, `format: ExportFormat`
-    - [ ] `fieldSchema: string[]`, `status: ExportStatus`, `estimatedRows?: number`, `actualRows?: number`
-    - [ ] `fileSizeBytes?: number`, `errorMessage?: string`, `createdAt: string`, `completedAt?: string`
-- [ ] `ExportPipelineCreateRequest`:
-    - [ ] `name: string`, `description?: string`, `filter: GeneSearchRequest`, `format: ExportFormat`,
+- [x] `ExportPipeline`:
+    - [x] `id: number`, `name: string`, `description?: string`, `format: ExportFormat`
+    - [x] `fieldSchema: string[]`, `status: ExportStatus`, `estimatedRows?: number`, `actualRows?: number`
+    - [x] `fileSizeBytes?: number`, `errorMessage?: string`, `createdAt: string`, `completedAt?: string`
+- [x] `ExportPipelineCreateRequest`:
+    - [x] `name: string`, `description?: string`, `filter: GeneSearchRequest`, `format: ExportFormat`,
       `fieldSchema: string[]`
-- [ ] `ExportJobStatus`:
-    - [ ] `pipelineId: number`, `status: ExportStatus`, `progressPercent: number`, `chunksProcessed?: number`,
+- [x] `ExportJobStatus`:
+    - [x] `pipelineId: number`, `status: ExportStatus`, `progressPercent: number`, `chunksProcessed?: number`,
       `chunksTotal?: number`, `currentStep?: string`
-- [ ] `ExportFieldSchema`:
-    - [ ] `fieldName: string`, `displayName: string`, `dataType: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'ARRAY'`,
+- [x] `ExportFieldSchema`:
+    - [x] `fieldName: string`, `displayName: string`, `dataType: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'ARRAY'`,
       `description: string`
-- [ ] `DownloadUrl`:
-    - [ ] `downloadUrl: string`, `filename: string`, `fileSizeBytes: number`, `contentType: string`
-- [ ] `ExportFormat` — enum: `'CSV' | 'TSV' | 'JSON' | 'EXCEL'`
-- [ ] `ExportStatus` — enum: `'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'`
+- [x] `DownloadUrl`:
+    - [x] `downloadUrl: string`, `filename: string`, `fileSizeBytes: number`, `contentType: string`
+- [x] `ExportFormat` — enum: `'CSV' | 'TSV' | 'JSON' | 'EXCEL'`
+- [x] `ExportStatus` — enum: `'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'`
 
 ### Frontend — Service (`features/export/export-pipeline.service.ts`)
 

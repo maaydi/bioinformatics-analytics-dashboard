@@ -7,7 +7,7 @@ import {GenesTableComponent} from '@features/genes/genes-table/genes-table.compo
 import {GenesStore} from '@features/genes/state/filters.store';
 import {ActiveFiltersComponent} from '@features/genes/active-filters/active-filters.component';
 import {ResultHeaderComponent} from '@features/genes/result-header/result-header.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {NotificationService} from '@shared/directive/notification.service';
 import {GenesService} from '@features/genes/genes.service';
@@ -49,7 +49,7 @@ export class GenesPageComponent {
     }
   }
 
-  applyFilters(snapshot: GeneFilterSnapshot): void {
+  applyFilters(snapshot: GeneSearchRequest): void {
     this.store.updatePaginationAndSort({page: 0});
     this.store.searchGene(snapshot);
   }

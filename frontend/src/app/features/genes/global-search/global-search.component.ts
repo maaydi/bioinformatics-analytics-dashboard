@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, input, linkedSignal, output} from '@angular/core';
 import {MatFormField, MatInput, MatSuffix} from '@angular/material/input';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MAX_GLOBAL_SEARCH_LENGTH} from '@core/models/protein.model';
@@ -23,9 +23,9 @@ import {DataProviderService} from '@core/provider/data-provider.service';
 })
 export class GlobalSearchComponent {
   protected readonly MAX_GLOBAL_SEARCH_LEN: number = MAX_GLOBAL_SEARCH_LENGTH;
-  readonly filters = input<GeneFilterSnapshot | null>(null);
+  readonly filters = input<GeneSearchRequest | null>(null);
 
-  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterChange = output<GeneSearchRequest>();
 
   readonly globalSearchValue = linkedSignal(() => this.filters()?.globalSearch ?? '');
   private readonly destroyRef = inject(DestroyRef);

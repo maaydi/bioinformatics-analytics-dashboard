@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {buildFiltersChips} from './filter-chips-builder';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
 describe('filter-chips-builder', () => {
   it('should return empty array when filters is null', () => {
@@ -8,7 +8,7 @@ describe('filter-chips-builder', () => {
   });
 
   it('should return chips for populated fields', () => {
-    const filters: GeneFilterSnapshot = {
+    const filters: GeneSearchRequest = {
       globalSearch: 'kinase',
       accession: 'P12345',
       entryName: null,
@@ -44,10 +44,10 @@ describe('filter-chips-builder', () => {
   });
 
   it('should return No for reviewed: false', () => {
-    const filters: Partial<GeneFilterSnapshot> = {
+    const filters: Partial<GeneSearchRequest> = {
       reviewed: false
     };
-    const chips = buildFiltersChips(filters as GeneFilterSnapshot);
+    const chips = buildFiltersChips(filters as GeneSearchRequest);
     expect(chips).toEqual([
       {key: 'reviewed', label: 'Reviewed', value: 'No'},
     ]);

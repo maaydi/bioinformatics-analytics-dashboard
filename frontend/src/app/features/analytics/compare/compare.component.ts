@@ -5,7 +5,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatButtonModule} from '@angular/material/button';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {AnalyticsSubset} from '@core/models/analytics.model';
 import {
@@ -59,8 +59,8 @@ export class CompareComponent {
   readonly filterBComp = viewChild.required<GeneFilterComponent>('filterBComp');
 
   // Filter state: Current filter snapshots for A and B
-  readonly filterA = signal<GeneFilterSnapshot | null>(null);
-  readonly filterB = signal<GeneFilterSnapshot | null>(null);
+  readonly filterA = signal<GeneSearchRequest | null>(null);
+  readonly filterB = signal<GeneSearchRequest | null>(null);
 
   // Results state: Paginated protein search results
   readonly resultsA = signal<AnalyticsSubset | null>(null);
@@ -114,14 +114,14 @@ export class CompareComponent {
   /**
    * Applies Filter A: updates filterA signal and triggers search.
    */
-  applyFilterA(snapshot: GeneFilterSnapshot): void {
+  applyFilterA(snapshot: GeneSearchRequest): void {
     this.filterA.set(snapshot);
   }
 
   /**
    * Applies Filter B: updates filterB signal and triggers search.
    */
-  applyFilterB(snapshot: GeneFilterSnapshot): void {
+  applyFilterB(snapshot: GeneSearchRequest): void {
     this.filterB.set(snapshot);
   }
 
@@ -152,7 +152,7 @@ export class CompareComponent {
    * @param filterA first filter snapshot
    * @param filterB second filter snapshot
    */
-  private search(filterA: GeneFilterSnapshot, filterB: GeneFilterSnapshot): void {
+  private search(filterA: GeneSearchRequest, filterB: GeneSearchRequest): void {
     this.loadingA.set(true);
     this.loadingB.set(true);
     this.errorA.set(null);

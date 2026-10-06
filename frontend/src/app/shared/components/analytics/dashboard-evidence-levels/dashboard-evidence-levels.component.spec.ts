@@ -6,11 +6,11 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {vi} from 'vitest';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {Router} from '@angular/router';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 
 interface GenesStoreMock {
-  setActiveFilters(snapshot: GeneFilterSnapshot): void;
+  setActiveFilters(snapshot: GeneSearchRequest): void;
 }
 
 describe('DashboardEvidenceLevelsComponent', () => {
