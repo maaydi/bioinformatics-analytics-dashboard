@@ -3,28 +3,25 @@
     <div class="label-container">
       <label class="section-label">Active Filters</label>
       <div aria-hidden="false" class="actions">
-        <button (click)="exportResultCsv()" [disabled]="filtersChips().length === 0 || isExportinProgress()"
+        <button (click)="openCreateExportPipelineDialog()" [disabled]="filtersChips().length === 0"
                 class="export-btn" color="primary"
                 mat-raised-button>
-          @if (isExportinProgress()) {
-            <!-- Use explicit diameter and strokeWidth so spinner visually matches the mat-icon (24px size, thin stroke) -->
-            <mat-spinner aria-hidden="true" class="mat-spinner" diameter="24" mode="indeterminate"
-                         strokeWidth="2"></mat-spinner>
-          } @else {
-            <mat-icon aria-hidden="true">image</mat-icon>
-          }
-          <span>Export CSV</span>
+          <mat-icon aria-hidden="true">image</mat-icon>
+          <span>Export Data</span>
         </button>
       </div>
     </div>
-    <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
+    <ul aria-label="Active filters" class="chip-list">
       @for (chip of filtersChips(); track chip.label + chip.value) {
-        <mat-chip (removed)="removeFilter(chip.key)" removable>{{ chip.label }}: {{ chip.value }}
-          <button aria-label="Remove Filter" matChipRemove>
-            <mat-icon>cancel</mat-icon>
+        <li class="chip"><span class="chip-label">{{ chip.label }}:</span> {{ chip.value }}
+          <button (click)="removeFilter(chip.key)" aria-label="Remove Filter" class="chip-remove-btn">
+            <mat-icon class="mat-icon">cancel</mat-icon>
           </button>
-        </mat-chip>
+        </li>
       }
+    </ul>
+    <mat-chip-set aria-label="Active search criteria" class="criteria-chip-set">
+
     </mat-chip-set>
   }
 </div>

@@ -1,4 +1,5 @@
 import {GeneSearchRequest} from '@core/models/saved-filter.model';
+import {EVIDENCE_LEVEL_LABELS, EvidenceLevel} from '@core/models/protein.model';
 
 export type FilterChip = { key: keyof GeneSearchRequest, label: string, value: string };
 
@@ -37,6 +38,14 @@ export const buildFiltersChips = (filters: GeneSearchRequest | null): FilterChip
     }
     if (Array.isArray(rawValue)) {
       if (rawValue.length === 0) {
+        continue;
+      }
+      if (item.key === 'evidenceLevels') {
+        chips.push({
+          key: item.key,
+          label: item.label,
+          value: rawValue.map(l => EVIDENCE_LEVEL_LABELS[l as EvidenceLevel]).join(', ')
+        });
         continue;
       }
       chips.push({key: item.key, label: item.label, value: rawValue.join(', ')});
