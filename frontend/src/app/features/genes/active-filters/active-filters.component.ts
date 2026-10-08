@@ -21,7 +21,6 @@ import {NotificationService} from '@shared/directive/notification.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActiveFiltersComponent {
-  readonly exportCsv = output<void>();
   readonly filterRemoved = output<keyof GeneSearchRequest>();
   readonly setChipsCount = output<number>();
   readonly filters = input<GeneSearchRequest | null>(null);
@@ -29,6 +28,7 @@ export class ActiveFiltersComponent {
   readonly filtersChips = computed(() => this.buildChips(this.filters()));
 
   private readonly notify = inject(NotificationService);
+  readonly readOnlyChips = input<boolean>(true);
 
   constructor(private dialog: MatDialog) {
   }

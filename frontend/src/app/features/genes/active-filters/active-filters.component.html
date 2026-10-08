@@ -14,9 +14,11 @@
     <ul aria-label="Active filters" class="chip-list">
       @for (chip of filtersChips(); track chip.label + chip.value) {
         <li class="chip"><span class="chip-label">{{ chip.label }}:</span> {{ chip.value }}
-          <button (click)="removeFilter(chip.key)" aria-label="Remove Filter" class="chip-remove-btn">
-            <mat-icon class="mat-icon">cancel</mat-icon>
-          </button>
+          @if (!readOnlyChips()) {
+            <button (click)="removeFilter(chip.key)" aria-label="Remove Filter" class="chip-remove-btn">
+              <mat-icon class="mat-icon">cancel</mat-icon>
+            </button>
+          }
         </li>
       }
     </ul>

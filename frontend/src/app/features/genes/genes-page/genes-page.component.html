@@ -16,6 +16,7 @@
         (filterRemoved)="store.removeFilter($event)"
         (setChipsCount)="store.updateChipsCount($event)"
         [filters]="store.activeFilters()"
+        [readOnlyChips]="false"
       ></app-active-filters>
     </div>
     <div class="result-card__search">
