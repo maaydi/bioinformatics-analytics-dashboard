@@ -1,0 +1,40 @@
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: ds.$font-family-base;
+}
+
+.chip-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.25rem;
+  height: 1.25rem;
+
+  padding: 0;
+  border: 0;
+  background: none;
+
+  cursor: pointer;
+  color: inherit;
+
+  border-radius: 50%;
+}
+
+.chip-remove-btn:hover {
+  background: var(--surface-container-high);
+}
+
+.chip-remove-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}

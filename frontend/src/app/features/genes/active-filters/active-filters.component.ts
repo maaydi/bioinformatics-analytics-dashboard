@@ -1,20 +1,20 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {GeneSearchRequest} from '@core/models/saved-filter.model';
-import {MatChipSet} from '@angular/material/chips';
 import {MatIcon} from '@angular/material/icon';
 import {buildFiltersChips, FilterChip} from '@shared/utils/filter-chips-builder';
 import {MatButton} from '@angular/material/button';
 import {MatDialog} from '@angular/material/dialog';
 import {ExportPipelineWizardComponent} from '@features/export/export-pipeline-wizard/export-pipeline-wizard.component';
 import {NotificationService} from '@shared/directive/notification.service';
+import {ChipListComponent} from '@shared/components/chip-list/chip-list.component';
 
 
 @Component({
   selector: 'app-active-filters',
   imports: [
-    MatChipSet,
     MatIcon,
-    MatButton
+    MatButton,
+    ChipListComponent
   ],
   templateUrl: './active-filters.component.html',
   styleUrl: './active-filters.component.scss',
@@ -29,6 +29,7 @@ export class ActiveFiltersComponent {
 
   private readonly notify = inject(NotificationService);
   readonly readOnlyChips = input<boolean>(true);
+  readonly title = input<string>('Active Filters');
 
   constructor(private dialog: MatDialog) {
   }

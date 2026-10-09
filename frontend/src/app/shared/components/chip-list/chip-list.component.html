@@ -1,0 +1,27 @@
+@if (chips().length > 0) {
+  <ul
+    [attr.aria-label]="ariaLabel()"
+    class="chip-list">
+
+    @for (chip of chips(); track chip.label + chip.value) {
+      <li class="chip">
+        <span class="chip-label">{{ chip.label }}:</span>
+        {{ chip.value }}
+
+        @if (!readOnly()) {
+          <button
+            (click)="removeChip(chip.key)"
+            aria-label="Remove Filter"
+            class="chip-remove-btn"
+            type="button">
+
+            <mat-icon aria-hidden="true">
+              cancel
+            </mat-icon>
+          </button>
+        }
+      </li>
+    }
+  </ul>
+}
+
