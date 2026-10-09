@@ -22,8 +22,6 @@ public enum Constants {
      * Data provider for import jobs
      */
     DATA_PROVIDER("dataProvider"),
-    FILE("file"),
-    API("api"),
 
     /**
      * API-based import job Step

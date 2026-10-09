@@ -1,5 +1,6 @@
 package com.bioinformatics.importservice.uniprot;
 
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.importservice.dto.Constants;
 import com.bioinformatics.importservice.listener.ImportJobDatabaseListener;
 import com.bioinformatics.importservice.listener.ImportJobRefreshViewsListener;
@@ -102,9 +103,9 @@ public class ImportJobConfig {
                 .listener(cacheEvictionListener)
                 .listener(refreshViewsListener)
                 .start(importSourceDecider())
-                .on(Constants.API.getKey()).to(uniProtApiImportStep)
+                .on(DataProvider.API.getKey()).to(uniProtApiImportStep)
                 .from(importSourceDecider())
-                .on(Constants.FILE.getKey()).to(uniProtImportStep)
+                .on(DataProvider.FILE.getKey()).to(uniProtImportStep)
                 .end()
                 .build();
     }

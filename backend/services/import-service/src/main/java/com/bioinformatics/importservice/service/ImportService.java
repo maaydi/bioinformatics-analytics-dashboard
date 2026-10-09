@@ -6,6 +6,7 @@ import com.bioinformatics.common.exception.MalformedFileException;
 import com.bioinformatics.common.exception.ResourceNotFoundException;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.importservice.client.SavedFilterService;
 import com.bioinformatics.importservice.config.ApplicationProperties;
@@ -356,7 +357,7 @@ public class ImportService {
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addString(Constants.FILE_PATH.getKey(), file.toAbsolutePath().toString())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
-                .addString(DATA_PROVIDER.getKey(), FILE.getKey())
+                .addString(DATA_PROVIDER.getKey(), DataProvider.FILE.getKey())
                 .toJobParameters();
         log.debug("[IMPORT] Submitting file import to async executor - ID={}", importJob.id());
         importJobExecutor.execute(parameters);
@@ -378,15 +379,13 @@ public class ImportService {
         var parameters = new JobParametersBuilder()
                 .addString(Constants.IMPORT_JOB_ID.getKey(), importJob.id())
                 .addLong(Constants.TIMESTAMP.getKey(), System.currentTimeMillis())
-                .addString(DATA_PROVIDER.getKey(), API.getKey())
+                .addString(DATA_PROVIDER.getKey(), DataProvider.API.getKey())
                 .addLong(SAVED_FILTER_ID.getKey(), filterId);
 
-        if (initiator != null) {
-            log.debug("[IMPORT] Adding user context to parameters - ID={}, user='{}', roles={}",
-                    importJob.id(), initiator.id(), initiator.roles());
-            parameters.addString(USER_ID.getKey(), initiator.id());
-            parameters.addJobParameter(USER_ROLE.getKey(), initiator.roles(), List.class);
-        }
+        log.debug("[IMPORT] Adding user context to parameters - ID={}, user='{}', roles={}",
+                importJob.id(), initiator.id(), initiator.roles());
+        parameters.addString(USER_ID.getKey(), initiator.id());
+        parameters.addJobParameter(USER_ROLE.getKey(), initiator.roles(), List.class);
 
         log.debug("[IMPORT] Submitting remote import to async executor - ID={}", importJob.id());
         importJobExecutor.execute(parameters.toJobParameters());
