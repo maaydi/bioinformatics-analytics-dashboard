@@ -1,0 +1,157 @@
+<h2 mat-dialog-title>Create Export Pipeline</h2>
+<mat-divider/>
+<form class="wizard-form">
+  <mat-stepper>
+    <!-- Step 1 — Filter Review -->
+    <mat-step label="Filter Review">
+      <section aria-labelledby="step-filter-title" class="step-content">
+        <h3 class="step-title" id="step-filter-title">Current filters</h3>
+        <p class="step-hint">These filters will be applied to the exported data.</p>
+
+        <app-chip-list
+          [chips]="filtersChips()"
+          [readOnly]="true"></app-chip-list>
+
+        <div aria-live="polite" class="row-count-card" role="status">
+          <span class="row-count-label">Estimated rows</span>
+          <strong class="row-count-value">12,345</strong>
+        </div>
+
+        <p class="warning-message" role="alert">
+          No data matches the current filters. Adjust them to continue.
+        </p>
+
+        <div class="step-actions">
+          <button matButton type="button">Save this filter</button>
+        </div>
+      </section>
+    </mat-step>
+
+    <!-- Step 2 — Format Selection -->
+    <mat-step label="Format Selection">
+      <fieldset class="step-content format-fieldset">
+        <legend class="step-title">Choose a file format</legend>
+
+        <div class="format-grid">
+          <label class="format-option">
+            <input checked class="format-input" name="format" type="radio" value="CSV"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">CSV</span>
+              <span class="format-name">CSV</span>
+              <span class="format-desc">Comma-separated values, compatible with most tools.</span>
+              <span class="format-size">~ 2 MB</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" name="format" type="radio" value="TSV"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">TSV</span>
+              <span class="format-name">TSV</span>
+              <span class="format-desc">Tab-separated values, ideal for bioinformatics pipelines.</span>
+              <span class="format-size">~ 2 MB</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" name="format" type="radio" value="JSON"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">JSON</span>
+              <span class="format-name">JSON</span>
+              <span class="format-desc">Structured data preserving nested collections.</span>
+              <span class="format-size">~ 5 MB</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" name="format" type="radio" value="EXCEL"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">XLSX</span>
+              <span class="format-name">Excel</span>
+              <span class="format-desc">Spreadsheet with formatted headers (max 500K rows).</span>
+              <span class="format-size">~ 4 MB</span>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+    </mat-step>
+
+    <!-- Step 3 — Field Selection -->
+    <mat-step label="Field Selection">
+      <section aria-labelledby="step-fields-title" class="step-content">
+        <h3 class="step-title" id="step-fields-title">Select fields to export</h3>
+
+        <div aria-label="Field selection mode" class="toggle-group" role="radiogroup">
+          <label class="toggle-option">
+            <input checked name="fieldMode" type="radio" value="ALL"/>
+            <span>All Fields</span>
+          </label>
+          <label class="toggle-option">
+            <input name="fieldMode" type="radio" value="CUSTOM"/>
+            <span>Custom Fields</span>
+          </label>
+        </div>
+
+        <p class="step-hint">All available fields will be included in the export.</p>
+
+        <!-- Reserved for the field picker component (Custom Fields mode only) -->
+        <div aria-label="Field picker area" class="field-picker-slot"></div>
+      </section>
+    </mat-step>
+
+    <!-- Step 4 — Summary & Confirm -->
+    <mat-step label="Summary & Confirm">
+      <section aria-labelledby="step-summary-title" class="step-content summary-layout">
+        <h3 class="step-title" id="step-summary-title">Summary</h3>
+
+        <div class="form-fields">
+          <label class="field">
+            <span class="field-label">Name</span>
+            <input class="field-input" maxlength="200" name="name" placeholder="Export_2026-10-08" required
+                   type="text"/>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Description (optional)</span>
+            <textarea class="field-input" maxlength="500" name="description" rows="3"></textarea>
+          </label>
+        </div>
+
+        <dl class="summary-card">
+          <div class="summary-row">
+            <dt>Filters</dt>
+            <dd>3 active</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Format</dt>
+            <dd>CSV</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Fields</dt>
+            <dd>23</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Estimated rows</dt>
+            <dd>12,345</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Estimated size</dt>
+            <dd>~ 2 MB</dd>
+          </div>
+        </dl>
+
+        <div class="step-actions">
+          <button matButton="filled" type="button">Create &amp; Run</button>
+        </div>
+      </section>
+    </mat-step>
+  </mat-stepper>
+  <mat-divider/>
+  <div class="wizard-nav">
+    <button (click)="cancel()" matButton type="button">Cancel</button>
+    <div class="wizard-nav-steps">
+      <button (click)="previous()" matButton type="button">Previous</button>
+      <button (click)="next()" matButton type="button">Next</button>
+    </div>
+  </div>
+</form>

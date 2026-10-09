@@ -346,8 +346,8 @@
 
 ### Frontend — `ExportPipelineWizardComponent` (`features/export/export-pipeline-wizard/`)
 
-- [ ] `export-pipeline-wizard.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone, `MatDialog` or route-based
-- [ ] Stepper (Angular Material `mat-stepper`):
+- [x] `export-pipeline-wizard.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone, `MatDialog` or route-based
+- [x] Stepper (Angular Material `mat-stepper`):
     - [ ] **Step 1 — Filter Review:**
         - [ ] Displays current `filtersStore` state as read-only chips
         - [ ] Button: "Save this filter" → opens `SaveFilterDialog` (reuses FILTER-001)
