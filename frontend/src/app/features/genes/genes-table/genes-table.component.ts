@@ -3,11 +3,14 @@ import {AgGridAngular} from 'ag-grid-angular';
 import {
   AllCommunityModule,
   ColDef,
+  GetRowIdParams,
   GridReadyEvent,
   GridSizeChangedEvent,
+  ITooltipParams,
   ModuleRegistry,
   RowClickedEvent,
-  SortChangedEvent
+  SortChangedEvent,
+  ValueGetterParams
 } from 'ag-grid-community';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
@@ -41,13 +44,14 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 export class GenesTableComponent {
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
   readonly errorMessage = input<string | null>(null);
-  readonly loading = input(false);
+  readonly loading = input(true);
   readonly chipsCount = input<number>(0);
 
   readonly rows = computed(() => this.data()?.content ?? []);
   readonly hasRows = computed(() => this.rows().length > 0);
   readonly hasError = computed(() => Boolean(this.errorMessage()));
-
+  readonly isDataLoaded = computed(() => this.data() !== null);
+  readonly isEmpty = computed(() => this.isDataLoaded() && !this.loading() && !this.hasError() && !this.hasRows());
   readonly columnDefs: ColDef<ProteinSummary>[] = [
     {
       field: 'accession',
@@ -66,16 +70,16 @@ export class GenesTableComponent {
       headerName: 'Gene Name',
       sortable: true,
       minWidth: 100,
-      valueFormatter: ({value}) => value ?? '-',
-      tooltipValueGetter: ({value}) => value ?? '-',
+      valueGetter: (params: ValueGetterParams<ProteinSummary>) => params.data?.geneNamePrimary ?? '-',
+      tooltipValueGetter: (params: ITooltipParams<ProteinSummary>) => params.data?.geneNamePrimary ?? '-',
     },
     {
       field: 'proteinFullName',
       headerName: 'Protein Name',
       sortable: true,
       minWidth: 100,
-      valueFormatter: ({value}) => value ?? '-',
-      tooltipValueGetter: ({value}) => value ?? '-',
+      valueGetter: (params: ValueGetterParams<ProteinSummary>) => params.data?.proteinFullName ?? '-',
+      tooltipValueGetter: (params: ITooltipParams<ProteinSummary>) => params.data?.proteinFullName ?? '-',
     },
     {
       field: 'organismName',
@@ -123,45 +127,22 @@ ${value ?? '-'}
       headerName: 'Keywords',
       sortable: false,
       minWidth: 150,
-
+      valueFormatter: (params) => params.value?.join(', ') ?? '-',
       cellRenderer: ({value}: { value: string[] }) => {
         if (!Array.isArray(value) || value.length === 0) {
           return '<span class="empty-value">-</span>';
         }
-
         const visible = value.slice(0, 2);
-
         const chips = visible
-          .map(
-            keyword => `
-          <span class="keyword-chip">
-            ${keyword}
-          </span>
-        `
-          )
+          .map(keyword => `<span class="keyword-chip">${keyword}</span>`)
           .join('\n');
-
-        const more =
-          value.length > 2
-            ? `
-          <span
-            class="keyword-chip more-counter-chip"
-            title="${value.slice(2).join(', ')}"
-          >
-            +${value.length - 2} more
-          </span>
-        `
-            : '';
-
-        return `
-      <div class="keywords-cell">
-        ${chips}
-        ${more}
-      </div>
-    `;
+        const more = value.length > 2 ? `<span class="keyword-chip more-counter-chip" title="${value.slice(2).join(', ')}">+${value.length - 2} more</span>` : '';
+        return `<div class="keywords-cell">${chips} ${more} </div>`;
       },
     },
   ];
+
+  readonly getRowId = (params: GetRowIdParams<ProteinSummary>) => String(params.data.id);
 
   readonly defaultColDef: ColDef<ProteinSummary> = {
     resizable: true,

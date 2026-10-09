@@ -11,6 +11,8 @@
       [rowData]="rows()"
       [rowSelection]="rowSelection"
       [suppressCellFocus]="false"
+      [getRowId]="getRowId"
+      [suppressNoRowsOverlay]="true"
       aria-label="Gene explorer results"
       class="ag-theme-quartz gene-grid"
     ></ag-grid-angular>
@@ -19,7 +21,6 @@
       <p class="table-state">Loading proteins...</p>
     </div>
   }
-
 
   @if (loading()) {
     <div aria-live="polite" class="state-overlay">
@@ -37,10 +38,9 @@
     </div>
   }
 
-  @if (!loading() && !hasError() && !hasRows()) {
+  @if (isEmpty()) {
     <div aria-live="polite" class="state-overlay">
       <p class="table-state">No proteins found</p>
     </div>
   }
 </section>
-
