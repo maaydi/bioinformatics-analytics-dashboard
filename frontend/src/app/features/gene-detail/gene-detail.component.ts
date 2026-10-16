@@ -13,7 +13,9 @@ import {isPlatformBrowser} from '@angular/common';
 import {MatTabsModule} from '@angular/material/tabs';
 import {GenesService} from '@features/genes/genes.service';
 import {BreadcrumbItem, BreadcrumbsComponent} from '@shared/components/breadcrumbs/breadcrumbs.component';
-import {EVIDENCE_LEVEL_LABELS, ProteinDetail, PublicationItem} from '@core/models/protein.model';
+import {ProteinDetail, PublicationItem} from '@core/models/protein.model';
+import {EVIDENCE_LEVEL_MESSAGES} from '@shared/messages/protein.messages';
+import {GENE_DETAIL_MESSAGES} from './gene-detail.messages';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {MatCard} from '@angular/material/card';
 import {MatError} from '@angular/material/input';
@@ -54,6 +56,7 @@ import {formatDate} from '@shared/utils/date-formatter';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneDetailComponent implements OnInit {
+  protected readonly messages = GENE_DETAIL_MESSAGES;
   loading = signal<boolean>(true);
   readonly accession = input.required<string>();
   proteinDetails = signal<ProteinDetail | null>(null);
@@ -62,9 +65,9 @@ export class GeneDetailComponent implements OnInit {
   readonly copyFeedbackMessage = signal<string | null>(null);
   readonly breadcrumbItems = computed<readonly BreadcrumbItem[]>(() => {
     return [
-      {label: 'Dashboard', routerLink: ['/']},
-      {label: 'Gene Explorer', routerLink: ['/genes']},
-      {label: 'Gene Detail', isActive: true},
+      {label: this.messages.dashboard, routerLink: ['/']},
+      {label: this.messages.explorer, routerLink: ['/genes']},
+      {label: this.messages.detail, isActive: true},
     ];
   });
   private readonly service = inject(GenesService);
@@ -93,7 +96,7 @@ export class GeneDetailComponent implements OnInit {
           }
 
           this.notFound.set(false);
-          this.errorMessage.set('Failed to load protein details.');
+          this.errorMessage.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });
@@ -102,9 +105,9 @@ export class GeneDetailComponent implements OnInit {
   evidenceLevelStr(): string {
     const level = this.proteinDetails()?.evidenceLevel;
     if (level) {
-      return `${EVIDENCE_LEVEL_LABELS[level]} (Evidence level ${level})`;
+      return this.messages.evidenceLevel(EVIDENCE_LEVEL_MESSAGES[level], level);
     }
-    return 'Unknown Evidence level';
+    return this.messages.unknownEvidence;
   }
 
   reviewBadgeClass(): string {
@@ -122,14 +125,14 @@ export class GeneDetailComponent implements OnInit {
     }
     try {
       await navigator.clipboard.writeText(accession);
-      this.showCopyFeedback('Accession copied.');
+      this.showCopyFeedback(this.messages.copied);
     } catch {
-      this.showCopyFeedback('Unable to copy accession.');
+      this.showCopyFeedback(this.messages.copyFailed);
     }
   }
 
   copyTooltipLabel(): string {
-    return this.copyFeedbackMessage() ?? 'Copy accession';
+    return this.copyFeedbackMessage() ?? this.messages.copyAccession;
   }
 
   private showCopyFeedback(message: string): void {
@@ -150,7 +153,7 @@ export class GeneDetailComponent implements OnInit {
 
   /** Strip surrounding quotes from a raw API note/featureId/evidence string. */
   stripQuotes(value: string | null | undefined): string {
-    if (!value) return '–';
+    if (!value) return this.messages.missingValue;
     return value.replace(/^"|"$/g, '');
   }
 
@@ -198,14 +201,14 @@ export class GeneDetailComponent implements OnInit {
   /** Safely parse molecular weight as number with K suffix if > 1000. */
   formatMolecularWeight(): string {
     const weight = this.proteinDetails()?.molecularWeight;
-    if (!weight) return '–';
-    return weight >= 1000 ? `${(weight / 1000).toFixed(1)}K Da` : `${weight} Da`;
+    if (!weight) return this.messages.missingValue;
+    return this.messages.weight(weight);
   }
 
   /** Get display text for null/empty arrays. */
   getDisplayValue(value: string | string[] | null | undefined): string {
-    if (!value) return '–';
-    if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '–';
+    if (!value) return this.messages.missingValue;
+    if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : this.messages.missingValue;
     return value;
   }
 
