@@ -353,14 +353,14 @@
         - [ ] Button: "Save this filter" → opens `SaveFilterDialog` (reuses FILTER-001)
         - [ ] Shows estimated row count (calls `GeneService.count()` with current filters)
         - [ ] Validation: if count == 0, disable next step
-    - [ ] **Step 2 — Format Selection:**
-        - [ ] Radio group: CSV, TSV, JSON, Excel
-        - [ ] Each option shows icon + brief description + estimated file size hint
-        - [ ] Default: CSV
-    - [ ] **Step 3 — Field Selection:**
-        - [ ] Toggle: "All Fields" / "Custom Fields"
-        - [ ] If Custom: `<app-field-picker>` dual-list component
-        - [ ] If All: all fields pre-selected, picker hidden
+  - [x] **Step 2 — Field Selection:**
+      - [x] Toggle: "All Fields" / "Custom Fields"
+      - [x] If Custom: `<app-field-picker>` dual-list component
+      - [x] If All: all fields pre-selected, picker hidden
+  - [ ] **Step 3 — Format Selection:**
+      - [ ] Radio group: CSV, TSV, JSON, Excel
+      - [ ] Each option shows icon + brief description + estimated file size hint
+      - [ ] Default: CSV
     - [ ] **Step 4 — Summary & Confirm:**
         - [ ] Name input (default: `Export_${date}`)
         - [ ] Description textarea (optional)

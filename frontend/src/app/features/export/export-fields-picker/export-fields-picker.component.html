@@ -1,0 +1,41 @@
+<fieldset (focusout)="markTouched()" [disabled]="disabled()" class="field-picker">
+  <legend>{{ messages.pickerLegend }}</legend>
+  <div class="field-picker-toolbar">
+    <p class="selection-count" role="status">{{ selectedCount() | i18nPlural: messages.selectionCount }}</p>
+    <div class="field-picker-actions">
+      <button (click)="selectAll()" [disabled]="disabled() || selectedCount() === fields().length"
+              type="button">{{ messages.selectAll }}
+      </button>
+      <button (click)="clearAll()" [disabled]="disabled() || selectedFields().length === 0"
+              type="button">{{ messages.clearAll }}
+      </button>
+    </div>
+  </div>
+
+  @if (fields().length) {
+    <div class="field-picker-grid">
+      @for (field of fields(); track field.fieldName) {
+        <label class="field-picker-item">
+          <input
+            (change)="toggleField(field.fieldName)"
+            [checked]="selectedFieldNames().has(field.fieldName)"
+            [disabled]="disabled()"
+            [matTooltipDisabled]="!field.description"
+            [matTooltip]="field.description"
+            matTooltipPosition="above"
+            type="checkbox"
+          />
+          <span class="field-details">
+            <span class="field-heading">
+              <span [title]="field.displayName || field.fieldName"
+                    class="field-name">{{ field.displayName || field.fieldName }}</span>
+              <span class="field-type">{{ field.dataType }}</span>
+            </span>
+          </span>
+        </label>
+      }
+    </div>
+  } @else {
+    <p class="field-picker-empty" role="status">{{ messages.noFields }}</p>
+  }
+</fieldset>

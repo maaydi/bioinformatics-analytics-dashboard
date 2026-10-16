@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Create Export Pipeline</h2>
 <mat-divider/>
-<form class="wizard-form">
+<form (ngSubmit)="onSubmit()" [formGroup]="form" class="wizard-form">
   <mat-stepper>
     <!-- Step 1 — Filter Review -->
     <mat-step label="Filter Review">
@@ -14,12 +14,14 @@
 
         <div aria-live="polite" class="row-count-card" role="status">
           <span class="row-count-label">Estimated rows</span>
-          <strong class="row-count-value">12,345</strong>
+          <strong class="row-count-value">{{ estimatedRows() }}</strong>
         </div>
 
-        <p class="warning-message" role="alert">
-          No data matches the current filters. Adjust them to continue.
-        </p>
+        @if (estimatedRows() === 0) {
+          <p class="warning-message" role="alert">
+            No data matches the current filters. Adjust them to continue.
+          </p>
+        }
 
         <div class="step-actions">
           <button matButton type="button">Save this filter</button>
@@ -27,7 +29,40 @@
       </section>
     </mat-step>
 
-    <!-- Step 2 — Format Selection -->
+    <!-- Step 2 — Field Selection -->
+    <mat-step label="Field Selection">
+      <section aria-labelledby="step-fields-title" class="step-content">
+        <h3 class="step-title" id="step-fields-title">Select fields to export</h3>
+
+        <div [attr.aria-label]="fieldSelectionMessages.modeLabel" class="toggle-group" role="radiogroup">
+          <label class="toggle-option">
+            <input (change)="setFieldMode('ALL')" [checked]="fieldMode() === 'ALL'"
+                   name="fieldMode" type="radio" value="ALL"/>
+            <span>{{ fieldSelectionMessages.allFields }}</span>
+          </label>
+          <label class="toggle-option">
+            <input (change)="setFieldMode('CUSTOM')" [checked]="fieldMode() === 'CUSTOM'"
+                   name="fieldMode" type="radio" value="CUSTOM"/>
+            <span>{{ fieldSelectionMessages.customFields }}</span>
+          </label>
+        </div>
+
+        @if (fieldsLoadFailed()) {
+          <p class="warning-message" role="alert">{{ fieldSelectionMessages.loadError }}</p>
+        }
+
+        @if (fieldMode() === 'ALL') {
+          <p class="step-hint">{{ fieldSelectionMessages.allFieldsHint }}</p>
+        } @else {
+          <app-export-fields-picker
+            [fields]="availableFields()"
+            formControlName="fieldSchema"
+          ></app-export-fields-picker>
+        }
+      </section>
+    </mat-step>
+
+    <!-- Step 3 — Format Selection -->
     <mat-step label="Format Selection">
       <fieldset class="step-content format-fieldset">
         <legend class="step-title">Choose a file format</legend>
@@ -76,28 +111,6 @@
       </fieldset>
     </mat-step>
 
-    <!-- Step 3 — Field Selection -->
-    <mat-step label="Field Selection">
-      <section aria-labelledby="step-fields-title" class="step-content">
-        <h3 class="step-title" id="step-fields-title">Select fields to export</h3>
-
-        <div aria-label="Field selection mode" class="toggle-group" role="radiogroup">
-          <label class="toggle-option">
-            <input checked name="fieldMode" type="radio" value="ALL"/>
-            <span>All Fields</span>
-          </label>
-          <label class="toggle-option">
-            <input name="fieldMode" type="radio" value="CUSTOM"/>
-            <span>Custom Fields</span>
-          </label>
-        </div>
-
-        <p class="step-hint">All available fields will be included in the export.</p>
-
-        <!-- Reserved for the field picker component (Custom Fields mode only) -->
-        <div aria-label="Field picker area" class="field-picker-slot"></div>
-      </section>
-    </mat-step>
 
     <!-- Step 4 — Summary & Confirm -->
     <mat-step label="Summary & Confirm">
