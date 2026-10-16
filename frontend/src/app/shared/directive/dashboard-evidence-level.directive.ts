@@ -9,6 +9,7 @@ import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider
 import {GenesStore} from '@features/genes/state/filters.store';
 import {EvidenceLevel} from '@core/models/protein.model';
 import {isPlatformBrowser} from '@angular/common';
+import {DASHBOARD_EVIDENCE_LEVELS_MESSAGES} from '@shared/components/analytics/dashboard-evidence-levels.messages';
 
 @Directive()
 export abstract class AbstractDashboardEvidenceLevelsDirective {
@@ -80,7 +81,7 @@ export abstract class AbstractDashboardEvidenceLevelsDirective {
         },
         error: (_error: HttpErrorResponse) => {
           this.evidenceItems.set([]);
-          this.error.set('Unable to load evidence level distribution.');
+          this.error.set(DASHBOARD_EVIDENCE_LEVELS_MESSAGES.loadFailed);
           this.loading.set(false);
         }
       });

@@ -21,6 +21,7 @@ import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatButton} from '@angular/material/button';
 import {isPlatformBrowser} from '@angular/common';
+import {DASHBOARD_KPI_CARD_LIST_MESSAGES} from './dashboard-kpi-card-list.messages';
 
 
 /**
@@ -41,6 +42,7 @@ import {isPlatformBrowser} from '@angular/common';
 })
 
 export class DashboardKpiCardListComponent {
+  protected readonly messages = DASHBOARD_KPI_CARD_LIST_MESSAGES;
   public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   public readonly kpiLoading = model<boolean>(true);
   protected readonly kpiCards = signal<ReadonlyArray<DashboardKpiViewModel>>([]);
@@ -81,7 +83,7 @@ export class DashboardKpiCardListComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.kpiCards.set([]);
-          this.kpiError.set('Unable to load dashboard KPIs.');
+          this.kpiError.set(this.messages.loadFailed);
           this.kpiLoading.set(false);
         }
       });
@@ -89,15 +91,13 @@ export class DashboardKpiCardListComponent {
 
   private toKpiCards(kpis: DashboardKpis): ReadonlyArray<DashboardKpiViewModel> {
     return [
-      {title: 'Total', label: 'Total proteins', value: this.numberFormatter.format(kpis.totalProteins)},
-      {title: 'Reviewed', label: 'Reviewed count', value: this.numberFormatter.format(kpis.reviewedCount)},
-      {title: 'Organisms', label: 'Distinct organisms', value: this.numberFormatter.format(kpis.organismCount)},
-      {title: 'Taxa', label: 'Distinct taxa', value: this.numberFormatter.format(kpis.taxonCount)},
+      {...this.messages.total, value: this.numberFormatter.format(kpis.totalProteins)},
+      {...this.messages.reviewed, value: this.numberFormatter.format(kpis.reviewedCount)},
+      {...this.messages.organisms, value: this.numberFormatter.format(kpis.organismCount)},
+      {...this.messages.taxa, value: this.numberFormatter.format(kpis.taxonCount)},
       {
-        title: 'Avg Len',
-        label: 'Average Length',
+        ...this.messages.averageLength,
         value: this.numberFormatter.format(Math.round(kpis.avgLength)),
-        unit: 'AA'
       },
     ];
   }

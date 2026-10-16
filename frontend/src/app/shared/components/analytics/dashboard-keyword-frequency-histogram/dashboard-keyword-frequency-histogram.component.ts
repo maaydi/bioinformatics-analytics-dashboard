@@ -25,6 +25,7 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {DASHBOARD_KEYWORD_FREQUENCY_HISTOGRAM_MESSAGES} from './dashboard-keyword-frequency-histogram.messages';
 
 interface KeywordBucket {
   readonly keyword: string;
@@ -39,6 +40,7 @@ interface KeywordBucket {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardKeywordFrequencyHistogramComponent {
+  protected readonly messages = DASHBOARD_KEYWORD_FREQUENCY_HISTOGRAM_MESSAGES;
   public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private keywordSub?: Subscription;
   protected readonly Math = Math;
@@ -121,7 +123,7 @@ export class DashboardKeywordFrequencyHistogramComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.buckets.set([]);
-          this.error.set('Unable to load keyword frequency.');
+          this.error.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });

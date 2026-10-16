@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core
 import {MatCardModule} from '@angular/material/card';
 import {DecimalPipe} from '@angular/common';
 import {EvidenceLevelItem} from '@core/models/analytics.model';
+import {COMPARE_EVIDENCE_LEVEL_MESSAGES} from './compare-evidence-level.messages';
 
 /**
  * Comparison row view model for evidence level distribution.
@@ -24,11 +25,11 @@ interface CompareRowView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareEvidenceLevelComponent {
+  public readonly primaryLabel = input<string>(COMPARE_EVIDENCE_LEVEL_MESSAGES.primaryLabel);
   public readonly primaryData = input<ReadonlyArray<EvidenceLevelItem>>([]);
   public readonly secondaryData = input<ReadonlyArray<EvidenceLevelItem>>([]);
-
-  public readonly primaryLabel = input<string>('Base Filter');
-  public readonly secondaryLabel = input<string>('Compare Filter');
+  public readonly secondaryLabel = input<string>(COMPARE_EVIDENCE_LEVEL_MESSAGES.secondaryLabel);
+  protected readonly messages = COMPARE_EVIDENCE_LEVEL_MESSAGES;
 
   protected readonly items = computed<ReadonlyArray<CompareRowView>>(() => {
     const primary = this.primaryData();

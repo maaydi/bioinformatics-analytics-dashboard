@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -14,7 +15,8 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Subscription} from 'rxjs';
-import {ECElementEvent, ECharts, EChartsOption} from 'echarts';
+import {EChartsOption} from 'echarts';
+import {ECElementEvent, ECharts} from 'echarts/core';
 import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {NGX_ECHARTS_CONFIG, NgxEchartsDirective} from 'ngx-echarts';
@@ -25,6 +27,12 @@ import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {ImageExportService} from '@shared/directive/image-export-service';
 import {isPlatformBrowser} from '@angular/common';
+import {DASHBOARD_SCATTER_LENGTH_WEIGHT_MESSAGES} from './dashboard-scatter-length-weight.messages';
+
+function isScatterPoint(value: unknown): value is readonly [number, number, number] {
+  return Array.isArray(value) && value.length === 3 &&
+    value.every((coordinate: unknown) => typeof coordinate === 'number' && Number.isFinite(coordinate));
+}
 
 @Component({
   selector: 'app-dashboard-scatter-length-weight',
@@ -37,8 +45,10 @@ import {isPlatformBrowser} from '@angular/common';
     },
   ],
   styleUrls: ['./dashboard-scatter-length-weight.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardScatterLengthWeightComponent {
+  protected readonly messages = DASHBOARD_SCATTER_LENGTH_WEIGHT_MESSAGES;
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
 
@@ -69,7 +79,7 @@ export class DashboardScatterLengthWeightComponent {
         orient: 'vertical',
         right: 10,
         top: 'center',
-        text: ['High', 'Low'],
+        text: [this.messages.high, this.messages.low],
         inRange: {
           color: ['#a5b4fc', '#080117'],
         },
@@ -81,25 +91,30 @@ export class DashboardScatterLengthWeightComponent {
       tooltip: {
         trigger: 'item',
         axisPointer: {type: 'cross'},
-        formatter: (params: any) => {
+        formatter: (params) => {
+          const point = Array.isArray(params) ? params[0] : params;
+          const value: unknown = point?.value;
+          if (!isScatterPoint(value)) return '';
+
+          const [length, weight, count] = value;
           return `
-            <div style="font-weight: bold; margin-bottom: 4px;">Molecule Stat</div>
-            Length: <b>${params.value[0]}</b><br/>
-            Weight: <b>${params.value[1]} Da</b><br/>
-            Count: <b>${params.value[2]} protein${params.value[2] > 1 ? 's' : ''}</b>
+            <div style="font-weight: bold; margin-bottom: 4px;">${this.messages.tooltipTitle}</div>
+            ${this.messages.lengthLabel} <b>${length}</b><br/>
+            ${this.messages.weightLabel} <b>${this.messages.weight(weight)}</b><br/>
+            ${this.messages.countLabel} <b>${this.messages.proteins(count)}</b>
           `;
         },
       },
       xAxis: {
         type: 'value',
-        name: 'Length',
+        name: this.messages.lengthAxis,
         nameLocation: 'middle',
         nameGap: 30,
         splitLine: {show: true, lineStyle: {type: 'dashed'}},
       },
       yAxis: {
         type: 'value',
-        name: 'Molecular Weight (Da)',
+        name: this.messages.weightAxis,
         nameLocation: 'middle',
         nameGap: 45,
         splitLine: {show: true, lineStyle: {type: 'dashed'}},
@@ -140,17 +155,18 @@ export class DashboardScatterLengthWeightComponent {
     });
   }
 
-  onChartInit(ec: any) {
-    this.echartsInstance = ec as ECharts;
+  onChartInit(ec: ECharts): void {
+    this.echartsInstance = ec;
   }
 
   protected retryChart(): void {
     this.loadChartData();
   }
 
-  protected onChartClick(event: any) {
-    const echartsEvent = event as ECElementEvent;
-    const data: number[] = echartsEvent.data as number[];
+  protected onChartClick(event: ECElementEvent): void {
+    const data: unknown = event.data;
+    if (!isScatterPoint(data)) return;
+
     const snapshot: GeneSearchRequest = {
       lengthMin: data[0],
       lengthMax: data[0],
@@ -176,7 +192,7 @@ export class DashboardScatterLengthWeightComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.scatterData.set([]);
-          this.chartError.set('Unable to load chart data.');
+          this.chartError.set(this.messages.loadFailed);
           this.rawLoading.set(false);
         },
       });

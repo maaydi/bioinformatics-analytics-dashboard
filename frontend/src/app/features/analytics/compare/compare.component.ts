@@ -20,6 +20,7 @@ import {
 } from '@shared/components/analytics/compare-evidence-level/compare-evidence-level.component';
 import {NotificationService} from '@shared/directive/notification.service';
 import {isEqual} from '@features/genes/gene-filter/gene-filter.utils';
+import {COMPARE_MESSAGES} from './compare.messages';
 
 /**
  * Compare Component
@@ -54,6 +55,7 @@ import {isEqual} from '@features/genes/gene-filter/gene-filter.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareComponent {
+  protected readonly messages = COMPARE_MESSAGES;
 
   readonly filterAComp = viewChild.required<GeneFilterComponent>('filterAComp');
   readonly filterBComp = viewChild.required<GeneFilterComponent>('filterBComp');
@@ -96,7 +98,7 @@ export class CompareComponent {
     const filterA = this.filterA()!;
     const filterB = this.filterB()!;
     if (isEqual(filterA, filterB)) {
-      this.notify.error('Filters are identical');
+      this.notify.error(this.messages.identicalFilters);
     } else {
       this.search(this.filterA()!, this.filterB()!);
     }
@@ -179,8 +181,8 @@ export class CompareComponent {
         this.loadingB.set(false);
       },
       error: (_) => {
-        this.errorA.set('Failed to load results for Filter A');
-        this.errorB.set('Failed to load results for Filter B');
+        this.errorA.set(this.messages.loadFailedA);
+        this.errorB.set(this.messages.loadFailedB);
         this.loadingA.set(false);
         this.loadingB.set(false);
       }
@@ -195,15 +197,13 @@ export class CompareComponent {
    */
   private toKpiCards(result: AnalyticsSubset): ReadonlyArray<DashboardKpiViewModel> {
     return [
-      {title: 'Total', label: 'Total proteins', value: this.numberFormatter.format(result.count)},
+      {...this.messages.total, value: this.numberFormatter.format(result.count)},
       {
-        title: 'Avg Len',
-        label: 'Average Length',
+        ...this.messages.averageLength,
         value: this.numberFormatter.format(Math.round(result.avgLength)),
-        unit: 'AA'
       },
-      {title: 'Reviewed', label: 'Reviewed count', value: this.numberFormatter.format(result.reviewedCount)},
-      {title: 'Ratio', label: 'Reviewed Ratio', value: this.numberFormatter.format(result.reviewedRatio)},
+      {...this.messages.reviewed, value: this.numberFormatter.format(result.reviewedCount)},
+      {...this.messages.ratio, value: this.numberFormatter.format(result.reviewedRatio)},
     ];
   }
 

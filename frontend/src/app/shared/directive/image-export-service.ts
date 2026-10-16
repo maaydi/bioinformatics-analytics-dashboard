@@ -54,7 +54,7 @@ export class ImageExportService {
     }
   }
 
-  public async exportEChart(parent: HTMLElement, chart: ECharts, fileName: string, hideSelector?: string) {
+  public async exportEChart(parent: HTMLElement, chart: Pick<ECharts, 'getDataURL'>, fileName: string, hideSelector?: string) {
     const originalVisibilities = new Map<HTMLElement, string>();
 
     if (hideSelector) {

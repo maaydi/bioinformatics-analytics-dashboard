@@ -25,6 +25,7 @@ import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
 import {isPlatformBrowser} from '@angular/common';
+import {DASHBOARD_REVIEWED_RATIO_MESSAGES} from './dashboard-reviewed-ratio.messages';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -34,6 +35,7 @@ import {isPlatformBrowser} from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardReviewedRatioComponent {
+  protected readonly messages = DASHBOARD_REVIEWED_RATIO_MESSAGES;
   public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private reviewedSub?: Subscription;
 
@@ -109,7 +111,7 @@ export class DashboardReviewedRatioComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.data.set([]);
-          this.error.set('Unable to load reviewed ratio data.');
+          this.error.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });

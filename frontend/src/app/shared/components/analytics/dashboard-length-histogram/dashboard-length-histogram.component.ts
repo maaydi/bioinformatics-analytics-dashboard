@@ -25,6 +25,7 @@ import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {DASHBOARD_LENGTH_HISTOGRAM_MESSAGES} from './dashboard-length-histogram.messages';
 
 interface HistogramBucket {
   readonly rangeLabel: string;  // e.g. "0–100"
@@ -46,6 +47,7 @@ interface HistogramXAxisTick {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardLengthHistogramComponent {
+  protected readonly messages = DASHBOARD_LENGTH_HISTOGRAM_MESSAGES;
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
 
@@ -152,7 +154,7 @@ export class DashboardLengthHistogramComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.buckets.set([]);
-          this.error.set('Unable to load protein length distribution.');
+          this.error.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });

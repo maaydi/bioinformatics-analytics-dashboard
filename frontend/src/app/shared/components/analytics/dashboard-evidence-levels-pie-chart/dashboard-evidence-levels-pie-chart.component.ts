@@ -6,6 +6,7 @@ import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loadin
 import {AbstractDashboardEvidenceLevelsDirective} from '@shared/directive/dashboard-evidence-level.directive';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {DASHBOARD_EVIDENCE_LEVELS_MESSAGES} from '../dashboard-evidence-levels.messages';
 
 interface EvidenceLevelView {
   readonly level: number;
@@ -23,6 +24,7 @@ interface EvidenceLevelView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardEvidenceLevelsPieChartComponent extends AbstractDashboardEvidenceLevelsDirective {
+  protected readonly messages = DASHBOARD_EVIDENCE_LEVELS_MESSAGES;
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
 

@@ -1,8 +1,8 @@
 <mat-card #chartCard appearance="outlined" class="chart-card">
   <header class="chart-header-export-png" role="group">
     <div class="header-main">
-      <h2>Keyword Frequency</h2>
-      <p>Top keywords by protein occurrence</p>
+      <h2>{{ messages.title }}</h2>
+      <p>{{ messages.hint }}</p>
     </div>
 
 
@@ -15,10 +15,10 @@
       />
       <button
         (click)="exportAsImage()"
-        aria-label="Export chart as image"
+        [attr.aria-label]="messages.exportImageLabel"
         class="no-export"
         mat-icon-button
-        title="Export as Image"
+        [title]="messages.exportImage"
         type="button"
       >
         <mat-icon>download</mat-icon>
@@ -33,12 +33,12 @@
   } @else if (error()) {
     <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
       <p>{{ error() }}</p>
-      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+      <button (click)="retry()" mat-stroked-button type="button">{{ messages.retry }}</button>
     </div>
   } @else if (!hasData()) {
-    <p aria-live="polite" class="chart-state">No keyword data available.</p>
+    <p aria-live="polite" class="chart-state">{{ messages.empty }}</p>
   } @else {
-    <div aria-label="Keyword frequency histogram" class="chart-area" role="img">
+    <div [attr.aria-label]="messages.chartLabel" class="chart-area" role="img">
 
       <!-- Y axis labels -->
       <div aria-hidden="true" class="y-axis">
@@ -59,14 +59,14 @@
           @for (bucket of visibleBuckets(); track bucket.keyword) {
             <button
               (click)="selectKeyword(bucket)"
-              [attr.aria-label]="'Keyword ' + bucket.keyword + ', count ' + bucket.count"
+              [attr.aria-label]="messages.bucketLabel(bucket.keyword, bucket.count)"
               class="bar-col"
               type="button"
             >
               <span class="bar-tooltip">
-                <span>Keyword: {{ bucket.keyword }}</span>
-                <span>Count: {{ bucket.count | number }}</span>
-                <span>Share: {{ barShare(bucket.count) | number:'1.0-2' }}%</span>
+                <span>{{ messages.keyword(bucket.keyword) }}</span>
+                <span>{{ messages.count(bucket.count | number) }}</span>
+                <span>{{ messages.share(barShare(bucket.count) | number:'1.0-2') }}</span>
               </span>
 
               <div
