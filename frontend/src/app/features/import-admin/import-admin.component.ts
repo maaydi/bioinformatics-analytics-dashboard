@@ -29,6 +29,7 @@ import {SavedFiltersService} from '@features/saved-filters/saved-filters.service
 import {catchError, EMPTY, interval, Subscription, switchMap, takeWhile} from 'rxjs';
 import {ImportAdminService} from './import-admin.service';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
+import {IMPORT_ADMIN_MESSAGES} from './import-admin.messages';
 
 /**
  * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
@@ -71,6 +72,7 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportAdminComponent implements OnDestroy {
+  protected readonly messages = IMPORT_ADMIN_MESSAGES;
   private readonly importService = inject(ImportAdminService);
   isRemoteMode = signal<boolean>(false);
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
@@ -165,7 +167,7 @@ export class ImportAdminComponent implements OnDestroy {
       this.errorMessage.set(null);
 
       if (file.size > this.MAX_FILE_SIZE) {
-        this.errorMessage.set('Payload Too Large: file exceeds the 2 GB limit.');
+        this.errorMessage.set(this.messages.fileTooLarge);
         this.selectedFile.set(null);
         input.value = '';
         return;
@@ -173,7 +175,7 @@ export class ImportAdminComponent implements OnDestroy {
       const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
       if (!this.ALLOWED_EXTENSIONS.includes(fileExt)) {
         this.errorMessage.set(
-          `Unprocessable Entity: Unsupported file type. Only ${this.ALLOWED_EXTENSIONS} are allowed`,
+          this.messages.unsupportedFile(this.ALLOWED_EXTENSIONS),
         );
         this.selectedFile.set(null);
         input.value = '';
@@ -209,7 +211,7 @@ export class ImportAdminComponent implements OnDestroy {
         }
 
         this.isUploading.set(false);
-        this.errorMessage.set('The server did not return an import job identifier.');
+        this.errorMessage.set(this.messages.missingJobId);
       },
       error: (err: HttpErrorResponse) => {
         this.handleError(err);
@@ -235,7 +237,7 @@ export class ImportAdminComponent implements OnDestroy {
         }
 
         this.isUploading.set(false);
-        this.errorMessage.set('The server did not return an import job identifier.');
+        this.errorMessage.set(this.messages.missingJobId);
       },
       error: (err: HttpErrorResponse) => {
         this.handleError(err);
@@ -255,16 +257,16 @@ export class ImportAdminComponent implements OnDestroy {
     let msg: string | null = null;
     switch (error.status) {
       case 409:
-        msg = 'Conflict: An import is already running.';
+        msg = this.messages.conflict;
         break;
       case 413:
-        msg = 'Payload Too Large: The file size exceeds the 2 GB limit.';
+        msg = this.messages.payloadTooLarge;
         break;
       case 422:
-        msg = 'Unprocessable Entity: Unsupported file type.';
+        msg = this.messages.unsupportedType;
         break;
       default:
-        msg = 'An unexpected error occurred while communicating with server.';
+        msg = this.messages.unexpectedError;
         break;
     }
     this.errorMessage.set(msg);
@@ -297,12 +299,12 @@ export class ImportAdminComponent implements OnDestroy {
             this.activeJobId.set(null);
             this.loadJobHistory();
             if (jobProgress.status === 'FAILED') {
-              this.errorMessage.set(`Import job ${jobId} failed to complete.`);
+              this.errorMessage.set(this.messages.jobFailed(jobId));
             }
           }
         },
         error: () => {
-          this.errorMessage.set('Lost connection to server while checking import status');
+          this.errorMessage.set(this.messages.statusConnectionLost);
           this.isUploading.set(false);
           this.activeJobId.set(null);
           this.stopPolling();
@@ -331,7 +333,7 @@ export class ImportAdminComponent implements OnDestroy {
 
           return this.importService.listImportJobs(this.pageIndex(), this.pageSize()).pipe(
             catchError(() => {
-              this.errorMessage.set('Failed to load import job history.');
+              this.errorMessage.set(this.messages.historyLoadFailed);
               return EMPTY;
             }),
           );
@@ -351,7 +353,7 @@ export class ImportAdminComponent implements OnDestroy {
           }
         },
         error: () => {
-          this.errorMessage.set('Lost connection to server while loading job history');
+          this.errorMessage.set(this.messages.historyConnectionLost);
           this.stopLoadHistory();
         },
       });
@@ -384,7 +386,7 @@ export class ImportAdminComponent implements OnDestroy {
       },
       error: () => {
         this.savedFiltersLoading.set(false);
-        this.savedFiltersError.set('Failed to load saved filters.');
+        this.savedFiltersError.set(this.messages.filtersLoadFailed);
       },
     });
 

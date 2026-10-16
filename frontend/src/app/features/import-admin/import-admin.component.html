@@ -1,13 +1,13 @@
-<div aria-label="Import administration" class="import-container">
+<div [attr.aria-label]="messages.pageLabel" class="import-container">
   <div class="left-cards">
     <mat-card class="upload-card">
       <mat-card-header>
-        <mat-card-title>Import UniProt Data</mat-card-title>
-        <mat-card-subtitle>Import data from a local file or the UniProt Knowledge Base API.</mat-card-subtitle>
+        <mat-card-title>{{ messages.title }}</mat-card-title>
+        <mat-card-subtitle>{{ messages.subtitle }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="source-switch-row">
-          <span id="import-source-label">Import source: </span>
+          <span id="import-source-label">{{ messages.sourceLabel }}</span>
           <mat-slide-toggle
             (change)="onSourceModeChange($event.checked)"
             [checked]="isRemoteMode()"
@@ -15,7 +15,7 @@
             aria-labelledby="import-source-label"
           >
           </mat-slide-toggle>
-          <span> {{ isRemoteMode() ? 'UniProt KB API' : 'Local File' }}</span>
+          <span> {{ isRemoteMode() ? messages.remoteSource : messages.localSource }}</span>
         </div>
 
         @if (errorMessage()) {
@@ -28,9 +28,9 @@
         <div class="form-section">
           @if (isRemoteMode()) {
             <div class="remote-filter-section">
-              <label for="import-filter-select">Select a filter</label>
+              <label for="import-filter-select">{{ messages.selectFilter }}</label>
               @if (savedFiltersLoading()) {
-                <div aria-live="polite" class="state-message" role="status">Loading saved filters...</div>
+                <div aria-live="polite" class="state-message" role="status">{{ messages.filtersLoading }}</div>
               } @else if (savedFiltersError()) {
                 <div class="state-message error-state" role="alert">{{ savedFiltersError() }}</div>
                 <button
@@ -39,22 +39,22 @@
                   mat-stroked-button
                   type="button"
                 >
-                  Retry
+                  {{ messages.retry }}
                 </button>
               } @else if (savedFilters().length === 0) {
                 <div aria-live="polite" class="state-message" role="status">
-                  No saved filters found. Save a filter before starting a remote import.
+                  {{ messages.noFilters }}
                 </div>
               } @else {
                 <select
                   (change)="onFilterSelect($event)"
                   [disabled]="isUploading()"
-                  aria-label="Select a saved filter for remote import"
+                  [attr.aria-label]="messages.filterSelectLabel"
                   class="filter-select"
                   id="import-filter-select"
                 >
                   <option [selected]="selectedFilterId() === null" disabled value="">
-                    -- Select a filter --
+                    {{ messages.filterPlaceholder }}
                   </option>
                   @for (filter of savedFilters(); track filter.id) {
                     <option [value]="filter.id">{{ filter.name }}</option>
@@ -78,13 +78,13 @@
                 type="button"
               >
                 <mat-icon>attach_file</mat-icon>
-                Select File
+                {{ messages.selectFile }}
               </button>
               @if (selectedFile()) {
                 <span aria-live="polite" class="file-name">
                   {{ selectedFile()?.name }}
                   <span class="file-size">
-                    ({{ (selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2' }} MB)
+                    {{ messages.fileSize((selectedFile()?.size || 0) / 1024 / 1024 | number: '1.2-2') }}
                   </span>
                 </span>
               }
@@ -94,7 +94,7 @@
           @if (isUploading()) {
             <div aria-live="polite" class="progress-section">
               <div class="progress-label">
-                <span>Import in progress...</span>
+                <span>{{ messages.inProgress }}</span>
                 <span>{{ currentProgress() }}%</span>
               </div>
               <mat-progress-bar [value]="currentProgress()" mode="determinate"></mat-progress-bar>
@@ -111,7 +111,7 @@
             mat-raised-button
           >
             <mat-icon>cloud_upload</mat-icon>
-            Submit Import
+            {{ messages.submit }}
           </button>
         </mat-card-actions>
       }
@@ -121,43 +121,43 @@
   <!--History section -->
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Import Job History</mat-card-title>
+      <mat-card-title>{{ messages.history }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div class="history-table-wrapper">
         <table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table" mat-table>
-          <caption class="sr-only">Import jobs history</caption>
+          <caption class="sr-only">{{ messages.historyCaption }}</caption>
           <ng-container matColumnDef="jobId">
-            <th *matHeaderCellDef mat-header-cell>Job ID</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.jobId }}</th>
             <td *matCellDef="let job" mat-cell>{{ job.id }}</td>
           </ng-container>
 
           <ng-container matColumnDef="jobSource">
-            <th *matHeaderCellDef mat-header-cell>Source</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.source }}</th>
             <td *matCellDef="let job" mat-cell>{{ job.fileName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th *matHeaderCellDef mat-header-cell>Status</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.status }}</th>
             <td *matCellDef="let job" mat-cell>
               <span [class]="'status-badge '+ job.status.toLowerCase()">{{ job.status }}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="progress">
-            <th *matHeaderCellDef mat-header-cell>Progress</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.progress }}</th>
             <td *matCellDef="let job" mat-cell>{{ job.progressPercent }} %</td>
           </ng-container>
 
           <ng-container matColumnDef="startTime">
-            <th *matHeaderCellDef mat-header-cell>Start Time</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.startTime }}</th>
             <td *matCellDef="let job" mat-cell>{{ job.createdAt | date: 'medium' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="endTime">
-            <th *matHeaderCellDef mat-header-cell>End Time</th>
+            <th *matHeaderCellDef mat-header-cell>{{ messages.endTime }}</th>
             <td *matCellDef="let job" mat-cell>
-              {{ job.completedAt ? (job.completedAt | date: 'medium') : '-' }}
+              {{ job.completedAt ? (job.completedAt | date: 'medium') : messages.missingValue }}
             </td>
           </ng-container>
           <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
@@ -165,7 +165,7 @@
 
           <tr *matNoDataRow mat-row>
             <td [colSpan]="displayedColumns.length" class="mat-cell empty-cell">
-              No import history found.
+              {{ messages.noHistory }}
             </td>
           </tr>
         </table>
