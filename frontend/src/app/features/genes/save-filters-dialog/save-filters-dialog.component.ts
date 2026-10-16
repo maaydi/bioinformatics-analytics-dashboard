@@ -4,6 +4,7 @@ import {MatInput, MatLabel} from '@angular/material/input';
 import {MatError, MatFormField} from '@angular/material/form-field';
 import {MatButton} from '@angular/material/button';
 import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {SAVE_FILTERS_DIALOG_MESSAGES} from '@features/genes/genes.messages';
 
 /** Dialog used to collect the name for a saved filter set. */
 @Component({
@@ -14,6 +15,7 @@ import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
   imports: [ReactiveFormsModule, MatFormField, MatInput, MatError, MatButton, MatDialogModule, MatLabel],
 })
 export class SaveFiltersDialogComponent {
+  protected readonly messages = SAVE_FILTERS_DIALOG_MESSAGES;
   readonly form = new FormGroup<{ name: FormControl<string> }>({
     name: new FormControl<string>('', {
       nonNullable: true,

@@ -1,4 +1,5 @@
-import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
 import {AgGridAngular} from 'ag-grid-angular';
 import {
   AllCommunityModule,
@@ -15,6 +16,7 @@ import {
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {GeneFilterPageSort} from '@core/models/saved-filter.model';
+import {GENES_TABLE_MESSAGES} from '@features/genes/genes.messages';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -42,6 +44,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesTableComponent {
+  protected readonly messages = GENES_TABLE_MESSAGES;
+  private readonly document = inject(DOCUMENT);
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
   readonly errorMessage = input<string | null>(null);
   readonly loading = input(true);
@@ -55,19 +59,19 @@ export class GenesTableComponent {
   readonly columnDefs: ColDef<ProteinSummary>[] = [
     {
       field: 'accession',
-      headerName: 'Accession',
+      headerName: this.messages.accession,
       sortable: true,
       minWidth: 80,
       sort: 'asc',
       sortIndex: 0,
       tooltipField: 'accession',
       cellRenderer: ({value}: { value: string }) => {
-        return `<span class="accession-col">${value}</span>`;
+        return this.createCell('accession-col', value);
       }
     },
     {
       field: 'geneNamePrimary',
-      headerName: 'Gene Name',
+      headerName: this.messages.geneName,
       sortable: true,
       minWidth: 100,
       valueGetter: (params: ValueGetterParams<ProteinSummary>) => params.data?.geneNamePrimary ?? '-',
@@ -75,7 +79,7 @@ export class GenesTableComponent {
     },
     {
       field: 'proteinFullName',
-      headerName: 'Protein Name',
+      headerName: this.messages.proteinName,
       sortable: true,
       minWidth: 100,
       valueGetter: (params: ValueGetterParams<ProteinSummary>) => params.data?.proteinFullName ?? '-',
@@ -83,14 +87,14 @@ export class GenesTableComponent {
     },
     {
       field: 'organismName',
-      headerName: 'Organism',
+      headerName: this.messages.organism,
       sortable: true,
       minWidth: 100,
       tooltipField: 'organismName',
     },
     {
       field: 'length',
-      headerName: 'Length',
+      headerName: this.messages.length,
       sortable: true,
       minWidth: 80,
       type: 'numericColumn',
@@ -98,46 +102,48 @@ export class GenesTableComponent {
     },
     {
       field: 'reviewed',
-      headerName: 'Reviewed',
+      headerName: this.messages.reviewed,
       sortable: true,
       minWidth: 80,
 
-      cellRenderer: ({value}: { value: boolean }) => `
-    <span class="review-badge ${value ? 'is-reviewed' : 'not-reviewed'}">
-      ${value ? 'Yes' : 'No'}
-    </span>
-  `,
+      cellRenderer: ({value}: { value: boolean }) => this.createCell(
+        `review-badge ${value ? 'is-reviewed' : 'not-reviewed'}`,
+        value ? this.messages.yes : this.messages.no,
+      ),
     },
 
     {
       field: 'evidenceLevel',
-      headerName: 'Evidence Level',
+      headerName: this.messages.evidenceLevel,
       sortable: true,
       minWidth: 100,
       type: 'numericColumn',
 
-      cellRenderer: ({value}: { value: number }) => `
-<span class="evidence-badge level-${value}">
-${value ?? '-'}
-    </span>
-  `,
+      cellRenderer: ({value}: { value: number }) =>
+        this.createCell(`evidence-badge level-${value}`, String(value ?? this.messages.missingValue)),
     },
     {
       field: 'keywords',
-      headerName: 'Keywords',
+      headerName: this.messages.keywords,
       sortable: false,
       minWidth: 150,
       valueFormatter: (params) => params.value?.join(', ') ?? '-',
       cellRenderer: ({value}: { value: string[] }) => {
         if (!Array.isArray(value) || value.length === 0) {
-          return '<span class="empty-value">-</span>';
+          return this.createCell('empty-value', this.messages.missingValue);
         }
         const visible = value.slice(0, 2);
-        const chips = visible
-          .map(keyword => `<span class="keyword-chip">${keyword}</span>`)
-          .join('\n');
-        const more = value.length > 2 ? `<span class="keyword-chip more-counter-chip" title="${value.slice(2).join(', ')}">+${value.length - 2} more</span>` : '';
-        return `<div class="keywords-cell">${chips} ${more} </div>`;
+        const container = this.document.createElement('div');
+        container.className = 'keywords-cell';
+        for (const keyword of visible) {
+          container.append(this.createCell('keyword-chip', keyword));
+        }
+        if (value.length > 2) {
+          const more = this.createCell('keyword-chip more-counter-chip', this.messages.more(value.length - 2));
+          more.title = value.slice(2).join(', ');
+          container.append(more);
+        }
+        return container;
       },
     },
   ];
@@ -159,6 +165,13 @@ ${value ?? '-'}
   readonly updateSortDirection = output<GeneFilterPageSort>();
   readonly rowClick = output<ProteinSummary>();
   readonly retryClick = output<void>();
+
+  private createCell(className: string, text: string): HTMLSpanElement {
+    const cell = this.document.createElement('span');
+    cell.className = className;
+    cell.textContent = text;
+    return cell;
+  }
 
   onGridRowClicked(event: RowClickedEvent<ProteinSummary>): void {
     if (event.data) {

@@ -6,24 +6,24 @@
   <button (click)="openSaveFiltersDialog()"
           color="primary"
           mat-button
-          title="Save filters"
+          [title]="messages.saveTitle"
           type="button">
     <mat-icon>save</mat-icon>
-    Save Filters
+    {{ messages.save }}
   </button>
   <button (click)="clearAll()"
           color="primary"
           mat-button
-          title="Clear all filters"
+          [title]="messages.clearTitle"
           type="button">
     <mat-icon>delete_sweep</mat-icon>
-    Clear All
+    {{ messages.clear }}
   </button>
 </mat-card-header>
 <mat-divider/>
 <mat-card-content>
   <form (ngSubmit)="applyFilters()"
-        aria-label="Gene filters form"
+        [attr.aria-label]="messages.formLabel"
         [formGroup]="form"
         class="filters-form"
         [class.mode-grid]="displayMode() === 'grid'"
@@ -33,82 +33,82 @@
       <!--  Basic fields -->
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Accession</label>
+          <label class="section-label">{{ messages.accession }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="Accession" formControlName="accession"
-                                  placeholder="e.g. P12345"></app-generic-autocomplete>
+                                  [placeholder]="messages.accessionPlaceholder"></app-generic-autocomplete>
         @if (form.controls.accession.touched && form.controls.accession.hasError('maxlength')) {
-          <mat-error class="error-message">Accession is limited to 20 characters.</mat-error>
+          <mat-error class="error-message">{{ messages.accessionTooLong }}</mat-error>
         }
       </section>
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Entry Name</label>
+          <label class="section-label">{{ messages.entryName }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="EntryName" formControlName="entryName"
-                                  placeholder="e.g. 001R_FRG3G"></app-generic-autocomplete>
+                                  [placeholder]="messages.entryNamePlaceholder"></app-generic-autocomplete>
       </section>
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Gene Name</label>
+          <label class="section-label">{{ messages.geneName }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="GeneNamePrimary" formControlName="geneNamePrimary"
-                                  placeholder="e.g. 1-CysPxn {ECO:0000305}"></app-generic-autocomplete>
+                                  [placeholder]="messages.geneNamePlaceholder"></app-generic-autocomplete>
         @if (form.controls.geneNamePrimary.touched && form.controls.geneNamePrimary.hasError('maxlength')) {
-          <mat-error class="error-message">Gene Name is limited to 100 characters.</mat-error>
+          <mat-error class="error-message">{{ messages.geneNameTooLong }}</mat-error>
         }
       </section>
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Protein Name</label>
+          <label class="section-label">{{ messages.proteinName }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="ProteinFullName" formControlName="proteinFullName"
-                                  placeholder="e.g. Breast cancer type 1"></app-generic-autocomplete>
+                                  [placeholder]="messages.proteinNamePlaceholder"></app-generic-autocomplete>
       </section>
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Organism</label>
+          <label class="section-label">{{ messages.organism }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="OrganismName" formControlName="organism"
-                                  placeholder="e.g. Homo Sapiens"></app-generic-autocomplete>
+                                  [placeholder]="messages.organismPlaceholder"></app-generic-autocomplete>
         @if (form.controls.organism.touched && form.controls.organism.hasError('maxlength')) {
-          <mat-error class="error-message">Organism is limited to 300 characters.</mat-error>
+          <mat-error class="error-message">{{ messages.organismTooLong }}</mat-error>
         }
       </section>
 
       <app-input formControlName="taxid"
-                 placeholder="e.g. 9606"
-                 title="Taxonomy ID"
+                 [placeholder]="messages.taxidPlaceholder"
+                 [title]="messages.taxid"
       >
       </app-input>
       @if (form.controls.taxid.touched && form.controls.taxid.hasError('min')) {
-        <mat-error class="error-message">Taxonomy ID must be greater than 0.</mat-error>
+        <mat-error class="error-message">{{ messages.taxidMinimum }}</mat-error>
       }
       @if (form.controls.taxid.touched && form.controls.taxid.hasError('taxidPositiveInteger')) {
-        <mat-error class="error-message">Taxonomy ID must be a positive integer.</mat-error>
+        <mat-error class="error-message">{{ messages.taxidInteger }}</mat-error>
       }
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Lineage</label>
+          <label class="section-label">{{ messages.lineage }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="Lineage" formControlName="lineage"
-                                  placeholder="e.g. Eukaryota; Metazoa"></app-generic-autocomplete>
+                                  [placeholder]="messages.lineagePlaceholder"></app-generic-autocomplete>
       </section>
 
       <!--    Reviewed   -->
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Reviewed</label>
+          <label class="section-label">{{ messages.reviewed }}</label>
         </div>
-        <mat-button-toggle-group aria-label="Reviewed status" formControlName="reviewed">
-          <mat-button-toggle [value]="null">All</mat-button-toggle>
-          <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-          <mat-button-toggle [value]="false">No</mat-button-toggle>
+        <mat-button-toggle-group [attr.aria-label]="messages.reviewedLabel" formControlName="reviewed">
+          <mat-button-toggle [value]="null">{{ messages.all }}</mat-button-toggle>
+          <mat-button-toggle [value]="true">{{ messages.yes }}</mat-button-toggle>
+          <mat-button-toggle [value]="false">{{ messages.no }}</mat-button-toggle>
         </mat-button-toggle-group>
         <div aria-hidden="true" class="group-spacer"></div>
       </section>
@@ -116,21 +116,21 @@
       <!--    Length   -->
       <app-range-input
         formControlName="length"
-        hintLabel="Filter results by length"
-        label="Length (aa)"
+        [hintLabel]="messages.lengthHint"
+        [label]="messages.length"
       ></app-range-input>
       <!--    Molecular weight  -->
       <app-range-input
         formControlName="molecularWeight"
-        hintLabel="Filter results by molecular mass bounds"
-        label="Molecular Weight (kDa)">
+        [hintLabel]="messages.weightHint"
+        [label]="messages.weight">
       </app-range-input>
       <!-- Evidence level -->
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Evidence Levels</label>
+          <label class="section-label">{{ messages.evidenceLevels }}</label>
         </div>
-        <div aria-label="Evidence levels" class="checkbox-flex" role="group">
+        <div [attr.aria-label]="messages.evidenceLabel" class="checkbox-flex" role="group">
           @for (level of evidenceLevels; track level) {
             <mat-checkbox (change)="toggleEvidence(level)"
                           [checked]="isEvidenceSelected(level)">
@@ -143,26 +143,26 @@
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Go Term ID</label>
+          <label class="section-label">{{ messages.goTermId }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="GoTermId" formControlName="goTermId"
-                                  placeholder="e.g. GO:0008150"></app-generic-autocomplete>
+                                  [placeholder]="messages.goTermPlaceholder"></app-generic-autocomplete>
         @if (form.get('goTermId')?.hasError('pattern')) {
-          <mat-error class="error-message">Format must be GO:1234567</mat-error>
+          <mat-error class="error-message">{{ messages.goTermInvalid }}</mat-error>
         }
       </section>
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Go Aspect</label>
+          <label class="section-label">{{ messages.goAspect }}</label>
         </div>
         <mat-form-field appearance="outline">
           <mat-select formControlName="goAspect"
-                      placeholder="Select GO Aspect"
-                      title="GO Aspect">
-            <mat-option [value]="null">All</mat-option>
-            <mat-option value="P">Biological Process</mat-option>
-            <mat-option value="F">Molecular Function</mat-option>
-            <mat-option value="C">Cellular Component</mat-option>
+                      [placeholder]="messages.goAspectPlaceholder"
+                      [title]="messages.goAspectTitle">
+            <mat-option [value]="null">{{ messages.all }}</mat-option>
+            <mat-option value="P">{{ messages.biologicalProcess }}</mat-option>
+            <mat-option value="F">{{ messages.molecularFunction }}</mat-option>
+            <mat-option value="C">{{ messages.cellularComponent }}</mat-option>
           </mat-select>
         </mat-form-field>
       </section>
@@ -171,33 +171,33 @@
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Feature Type</label>
+          <label class="section-label">{{ messages.featureType }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="FeatureType" formControlName="featureType"
-                                  placeholder="e.g. DOMAIN"></app-generic-autocomplete>
+                                  [placeholder]="messages.featurePlaceholder"></app-generic-autocomplete>
       </section>
 
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Cross-Ref Source</label>
+          <label class="section-label">{{ messages.crossRefSource }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="false" field="CrossReferenceSource" formControlName="crossRefSource"
-                                  placeholder="e.g. InterPro"></app-generic-autocomplete>
+                                  [placeholder]="messages.crossRefPlaceholder"></app-generic-autocomplete>
 
       </section>
 
       <!--    Keywords   -->
       <section class="filter-group">
         <div class="label-container">
-          <label class="section-label">Keywords</label>
+          <label class="section-label">{{ messages.keywords }}</label>
         </div>
         <app-generic-autocomplete [multiSelect]="true" field="KeywordName" formControlName="keywords"
-                                  placeholder="e.g. Kinase, Receptor"></app-generic-autocomplete>
+                                  [placeholder]="messages.keywordsPlaceholder"></app-generic-autocomplete>
         @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordsMaxCount')) {
-          <mat-error class="error-message">Maximum 10 keywords are allowed.</mat-error>
+          <mat-error class="error-message">{{ messages.tooManyKeywords }}</mat-error>
         }
         @if (form.controls.keywords.touched && form.controls.keywords.hasError('keywordMaxLength')) {
-          <mat-error class="error-message">Each keyword must be at most 100 characters.</mat-error>
+          <mat-error class="error-message">{{ messages.keywordTooLong }}</mat-error>
         }
       </section>
     </div>
@@ -207,9 +207,9 @@
         <button [disabled]="form.invalid"
                 color="primary"
                 mat-flat-button
-                title="Apply filters"
+                [title]="messages.applyTitle"
                 type="submit"
-        >Apply Filters
+        >{{ messages.apply }}
         </button>
       </section>
     }

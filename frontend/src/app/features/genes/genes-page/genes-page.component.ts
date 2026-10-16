@@ -11,6 +11,7 @@ import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {isPlatformBrowser} from '@angular/common';
 import {MatStepperModule} from '@angular/material/stepper';
+import {GENES_PAGE_MESSAGES} from '@features/genes/genes.messages';
 
 /**
  * Container component for the Genes feature.
@@ -36,6 +37,7 @@ import {MatStepperModule} from '@angular/material/stepper';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenesPageComponent {
+  protected readonly messages = GENES_PAGE_MESSAGES;
   readonly store = inject(GenesStore);
   private readonly router = inject(Router);
   // private geneService = inject(GenesService);

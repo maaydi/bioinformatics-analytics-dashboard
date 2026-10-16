@@ -10,6 +10,7 @@ import {ExportPipelineWizardComponent} from '@features/export/export-pipeline-wi
 import {NotificationService} from '@shared/directive/notification.service';
 import {ChipListComponent} from '@shared/components/chip-list/chip-list.component';
 import {EXPORT_CONFIRMATION_MESSAGES} from '@features/export/export-pipeline-wizard/export-confirmation.messages';
+import {ACTIVE_FILTERS_MESSAGES} from '@features/genes/genes.messages';
 
 
 @Component({
@@ -24,6 +25,7 @@ import {EXPORT_CONFIRMATION_MESSAGES} from '@features/export/export-pipeline-wiz
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActiveFiltersComponent {
+  protected readonly messages = ACTIVE_FILTERS_MESSAGES;
   readonly filterRemoved = output<keyof GeneSearchRequest>();
   readonly setChipsCount = output<number>();
   readonly filters = input<GeneSearchRequest | null>(null);
@@ -32,7 +34,7 @@ export class ActiveFiltersComponent {
 
   private readonly notify = inject(NotificationService);
   readonly readOnlyChips = input<boolean>(true);
-  readonly title = input<string>('Active Filters');
+  readonly title = input<string>(ACTIVE_FILTERS_MESSAGES.title);
 
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);

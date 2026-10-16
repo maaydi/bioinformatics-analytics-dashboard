@@ -1,13 +1,13 @@
 <div class="table-header-actions">
   @if (filtersChips().length > 0) {
     <div class="label-container">
-      <label class="section-label">Active Filters</label>
+      <label class="section-label">{{ messages.title }}</label>
       <div aria-hidden="false" class="actions">
         <button (click)="openCreateExportPipelineDialog()" [disabled]="filtersChips().length === 0"
                 class="export-btn" color="primary"
                 mat-raised-button>
           <mat-icon aria-hidden="true">image</mat-icon>
-          <span>Export Data</span>
+          <span>{{ messages.export }}</span>
         </button>
       </div>
     </div>

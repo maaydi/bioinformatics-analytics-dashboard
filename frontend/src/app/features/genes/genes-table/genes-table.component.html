@@ -13,12 +13,12 @@
       [suppressCellFocus]="false"
       [getRowId]="getRowId"
       [suppressNoRowsOverlay]="true"
-      aria-label="Gene explorer results"
+      [attr.aria-label]="messages.resultsLabel"
       class="ag-theme-quartz gene-grid"
     ></ag-grid-angular>
   } @placeholder {
     <div aria-live="polite" class="state-overlay">
-      <p class="table-state">Loading proteins...</p>
+      <p class="table-state">{{ messages.loading }}</p>
     </div>
   }
 
@@ -34,13 +34,13 @@
   @if (hasError()) {
     <div class="state-overlay" role="alert">
       <p class="error-msg">{{ errorMessage() }}</p>
-      <button (click)="retrySearch()" class="retry-button" type="button">Retry</button>
+      <button (click)="retrySearch()" class="retry-button" type="button">{{ messages.retry }}</button>
     </div>
   }
 
   @if (isEmpty()) {
     <div aria-live="polite" class="state-overlay">
-      <p class="table-state">No proteins found</p>
+      <p class="table-state">{{ messages.empty }}</p>
     </div>
   }
 </section>
