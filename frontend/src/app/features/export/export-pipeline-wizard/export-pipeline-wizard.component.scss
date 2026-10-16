@@ -1,3 +1,5 @@
+@use 'design-system' as ds;
+
 :host {
   display: block;
   min-width: min(720px, 90vw);
@@ -38,28 +40,83 @@
 }
 
 // Step 1
+.filter-review-heading {
+  display: grid;
+  gap: ds.$spacing-sm;
+}
 
+.filter-review-chips {
+  min-width: 0;
+  padding: ds.$spacing-lg;
+  border: 1px solid var(--color-border-light);
+  border-radius: ds.$border-radius-lg;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  overflow-x: auto;
+  overflow-wrap: anywhere;
+
+  @include ds.focus-visible;
+}
+
+.filter-review-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ds.$spacing-lg;
+}
 
 .row-count-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--color-surface-subtle, #f9fafb);
-  border: 1px solid var(--color-surface-active, #e5e7eb);
+  flex: 1 1 12rem;
+  min-width: 0;
+  gap: ds.$spacing-xs;
+  padding: ds.$spacing-lg;
+  border-radius: ds.$border-radius-lg;
+  background: var(--status-blue-bg);
+  border: 1px solid var(--status-blue-border);
+  overflow-wrap: anywhere;
 }
 
 .row-count-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-on-surface-variant, #6b7280);
+  @include ds.text-label-md;
+  color: var(--color-on-surface);
 }
 
 .row-count-value {
   font-size: 1.5rem;
-  color: var(--accent-blue, #1565c0);
+  font-variant-numeric: tabular-nums;
+  color: var(--status-blue-text);
+}
+
+.save-filter-action {
+  min-height: 44px;
+  max-width: 100%;
+  height: auto;
+  padding-block: ds.$spacing-sm;
+  overflow-wrap: anywhere;
+
+  @include ds.focus-visible;
+}
+
+.filter-review .filter-review-warning {
+  background: var(--status-red-bg);
+  border-color: var(--status-red-border);
+  color: var(--status-red-text);
+}
+
+@include ds.respond-up-to('sm') {
+  .filter-review {
+    padding-inline: ds.$spacing-md;
+  }
+
+  .filter-review-footer {
+    align-items: stretch;
+  }
+
+  .save-filter-action {
+    width: 100%;
+  }
 }
 
 .warning-message {

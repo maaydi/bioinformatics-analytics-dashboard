@@ -349,10 +349,12 @@
 - [x] `export-pipeline-wizard.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone, `MatDialog` or route-based
 - [x] Stepper (Angular Material `mat-stepper`):
     - [ ] **Step 1 — Filter Review:**
-        - [ ] Displays current `filtersStore` state as read-only chips
-        - [ ] Button: "Save this filter" → opens `SaveFilterDialog` (reuses FILTER-001)
-        - [ ] Shows estimated row count (calls `GeneService.count()` with current filters)
-        - [ ] Validation: if count == 0, disable next step
+        - [x] Displays current `GenesStore` state as read-only chips (with an unfiltered-search empty state)
+        - [x] Button: "Save this filter" → reuses FILTER-001 `SaveFiltersDialogComponent` and
+          `SavedFiltersService.createSavedFilter({name, filterJson})`, preserving the reviewed snapshot and existing
+          success/error snackbars; cancellation leaves the wizard unchanged
+        - [x] Shows estimated row count (calls `GeneService.count()` with current filters)
+        - [x] Validation: if count == 0, disable next step
   - [x] **Step 2 — Field Selection:**
       - [x] Toggle: "All Fields" / "Custom Fields"
       - [x] If Custom: `<app-field-picker>` dual-list component

@@ -1,5 +1,8 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal, viewChild} from '@angular/core';
-import {MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, viewChild} from '@angular/core';
+import {DecimalPipe} from '@angular/common';
+import {MatDialog, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
+import {MatIcon} from '@angular/material/icon';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatStepper, MatStepperModule} from '@angular/material/stepper';
 import {MatDivider} from '@angular/material/list';
 import {MatButton} from '@angular/material/button';
@@ -12,14 +15,20 @@ import {ExportFieldsPickerComponent} from '@features/export/export-fields-picker
 import {ExportFieldSchema} from '@core/models/export-pipeline.model';
 import {ExportPipelineService} from '@features/export/export-pipeline.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {catchError, of} from 'rxjs';
+import {catchError, EMPTY, finalize, of, switchMap, tap} from 'rxjs';
 import {EXPORT_FIELD_SELECTION_MESSAGES} from '@features/export/export-field-selection.messages';
+import {SavedFilter} from '@core/models/saved-filter.model';
+import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
+import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
+import {EXPORT_FILTER_REVIEW_MESSAGES} from './export-filter-review.messages';
 
 type FieldSelectionMode = 'ALL' | 'CUSTOM';
 
 @Component({
   selector: 'app-export-pipeline-wizard',
   imports: [
+    DecimalPipe,
+    MatIcon,
     MatStepperModule,
     MatDialogTitle,
     MatDivider,
@@ -64,6 +73,12 @@ export class ExportPipelineWizardComponent {
   protected readonly fieldsLoadFailed = signal(false);
   private readonly exportPipelineService = inject(ExportPipelineService);
   private customFieldSelection: readonly string[] | undefined;
+  protected readonly filterReviewMessages = EXPORT_FILTER_REVIEW_MESSAGES;
+  protected readonly savingFilter = signal(false);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly savedFiltersService = inject(SavedFiltersService);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.exportPipelineService.getAvailableFields().pipe(
@@ -78,6 +93,49 @@ export class ExportPipelineWizardComponent {
         this.selectAllFields();
       }
     });
+  }
+
+  /** Saves the reviewed snapshot without changing the active search or leaving the wizard. */
+  protected saveFilter(): void {
+    const filters = this.filters();
+    if (filters === null || this.savingFilter()) {
+      return;
+    }
+
+    // The shared dialog collects only a name; preserve the criteria reviewed when it opens.
+    const filterJson = structuredClone(filters);
+    this.savingFilter.set(true);
+    this.dialog.open<SaveFiltersDialogComponent, void, Pick<SavedFilter, 'name'> | null>(
+      SaveFiltersDialogComponent,
+      {width: '420px'},
+    ).afterClosed().pipe(
+      switchMap((response) => {
+        if (!response) {
+          return EMPTY;
+        }
+
+        // SavedFiltersService retains the application's shared auth/refresh interceptor flow.
+        return this.savedFiltersService.createSavedFilter({name: response.name, filterJson}).pipe(
+          tap(() => this.snackBar.open(this.filterReviewMessages.savedFilter(response.name), this.filterReviewMessages.close, {
+            duration: 4000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar'],
+          })),
+          catchError(() => {
+            this.snackBar.open(this.filterReviewMessages.saveFailed(response.name), this.filterReviewMessages.retry, {
+              duration: 6000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar'],
+            });
+            return EMPTY;
+          }),
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.savingFilter.set(false)),
+    ).subscribe();
   }
 
   protected setFieldMode(mode: FieldSelectionMode): void {

@@ -3,29 +3,43 @@
 <form (ngSubmit)="onSubmit()" [formGroup]="form" class="wizard-form">
   <mat-stepper>
     <!-- Step 1 — Filter Review -->
-    <mat-step label="Filter Review">
-      <section aria-labelledby="step-filter-title" class="step-content">
-        <h3 class="step-title" id="step-filter-title">Current filters</h3>
-        <p class="step-hint">These filters will be applied to the exported data.</p>
+    <mat-step [label]="filterReviewMessages.stepLabel">
+      <section aria-describedby="step-filter-hint" aria-labelledby="step-filter-title"
+               class="step-content filter-review">
+        <header class="filter-review-heading">
+          <h3 class="step-title" id="step-filter-title">{{ filterReviewMessages.title }}</h3>
+          <p class="step-hint" id="step-filter-hint">{{ filterReviewMessages.hint }}</p>
+        </header>
 
-        <app-chip-list
-          [chips]="filtersChips()"
-          [readOnly]="true"></app-chip-list>
+        <div [attr.aria-label]="filterReviewMessages.filtersLabel" class="filter-review-chips" role="region"
+             tabindex="0">
+          @if (filtersChips().length > 0) {
+            <app-chip-list
+              [ariaLabel]="filterReviewMessages.filtersLabel"
+              [chips]="filtersChips()"
+              [readOnly]="true"></app-chip-list>
+          } @else {
+            <p class="step-hint">{{ filterReviewMessages.noFilters }}</p>
+          }
+        </div>
 
-        <div aria-live="polite" class="row-count-card" role="status">
-          <span class="row-count-label">Estimated rows</span>
-          <strong class="row-count-value">{{ estimatedRows() }}</strong>
+        <div class="filter-review-footer">
+          <div aria-atomic="true" aria-live="polite" class="row-count-card" role="status">
+            <span class="row-count-label">{{ filterReviewMessages.estimatedRows }}</span>
+            <strong class="row-count-value">{{ estimatedRows() | number }}</strong>
+          </div>
+          <button (click)="saveFilter()" [disabled]="filters() === null || savingFilter()"
+                  aria-haspopup="dialog" class="save-filter-action" matButton="outlined" type="button">
+            <mat-icon aria-hidden="true">save</mat-icon>
+            {{ filterReviewMessages.saveFilter }}
+          </button>
         </div>
 
         @if (estimatedRows() === 0) {
-          <p class="warning-message" role="alert">
-            No data matches the current filters. Adjust them to continue.
+          <p class="warning-message filter-review-warning" role="alert">
+            {{ filterReviewMessages.noResults }}
           </p>
         }
-
-        <div class="step-actions">
-          <button matButton type="button">Save this filter</button>
-        </div>
       </section>
     </mat-step>
 
