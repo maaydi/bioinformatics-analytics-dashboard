@@ -34,61 +34,63 @@ documentation/implementation/
 
 ## Ticket Catalog (Planned)
 
-| ID              | Scope                                                                        | Status        |
-|-----------------|------------------------------------------------------------------------------|---------------|
-| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                | `done`        |
-| `IMPORT-001`    | Spring Batch import pipeline + ImportController                              | `done`        |
-| `GENE-001`      | GeneController + GeneService + GeneSpecification                             | `done`        |
-| `GENE-002`      | GeneFilter Angular component + reactive form                                 | `done`        |
-| `GENE-003`      | GenesTable AG Grid component                                                 | `done`        |
-| `DETAIL-001`    | Gene Detail page (all tabs)                                                  | `done`        |
-| `ANALYTICS-001` | Analytics endpoints + materialized views                                     | `done`        |
-| `DASH-001`      | Dashboard page (KPI cards + charts)                                          | `done`        |
-| `FILTER-001`    | Saved filter feature (backend + frontend)                                    | `done`        |
-| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                            | `done`        |
-| `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                      | `done`        |
-| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                        | `done`        |
-| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                | `done`        |
-| `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                | `done`        |     
-| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change | `done`        |
-| `REFACTOR-001`  | Refctoring - Pluggable Data Provider Architecture                            | `done`        |
-| `REMOTE-001`    | User can fetch data from UniProtKB Remote Provider (GeneService over REST)   | `done`        |
-| `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                | `not-started` |
-| `NLQ-001`       | Natural Language Query & AI Summarization Engine                             | `not-started` |
-| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `in-progress` |
-| `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                         | `not-started` | 
-| `ARCH-002`      | Protein Catalog Ownership & Database-per-Service Enforcement                 | `not-started` | 
-| `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                       | `in-progress` | 
+| ID              | Scope                                                                                          | Status        |
+|-----------------|------------------------------------------------------------------------------------------------|---------------|
+| `AUTH-001`      | DB schema (V1 migration) + JWT auth endpoints                                                  | `done`        |
+| `IMPORT-001`    | Spring Batch import pipeline + ImportController                                                | `done`        |
+| `GENE-001`      | GeneController + GeneService + GeneSpecification                                               | `done`        |
+| `GENE-002`      | GeneFilter Angular component + reactive form                                                   | `done`        |
+| `GENE-003`      | GenesTable AG Grid component                                                                   | `done`        |
+| `DETAIL-001`    | Gene Detail page (all tabs)                                                                    | `done`        |
+| `ANALYTICS-001` | Analytics endpoints + materialized views                                                       | `done`        |
+| `DASH-001`      | Dashboard page (KPI cards + charts)                                                            | `done`        |
+| `FILTER-001`    | Saved filter feature (backend + frontend)                                                      | `done`        |
+| `EXPORT-001`    | CSV export (backend streaming + frontend trigger)                                              | `done`        |
+| `COMPARE-001`   | Compare mode analytics (Set A vs Set B)                                                        | `done`        |
+| `PERF-001`      | DB & ORM performance tuning for 570k UniProt proteins                                          | `done`        |
+| `OPS-001`       | Audit log + health/readiness + rate limiting + pagination cap                                  | `done`        |
+| `CACHE-001`     | Distributed Caching with Batch Eviction Hooks                                                  | `done`        |     
+| `A11Y-001`      | Accessibility, loading/error/empty state host, theme toggle, password change                   | `done`        |
+| `REFACTOR-001`  | Refctoring - Pluggable Data Provider Architecture                                              | `done`        |
+| `REMOTE-001`    | User can fetch data from UniProtKB Remote Provider (GeneService over REST)                     | `done`        |
+| `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                                  | `not-started` |
+| `NLQ-001`       | Natural Language Query & AI Summarization Engine                                               | `not-started` |
+| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                                   | `in-progress` |
+| `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                                           | `not-started` | 
+| `ARCH-002`      | Protein Catalog Ownership & Database-per-Service Enforcement                                   | `not-started` | 
+| `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                                         | `in-progress` | 
+| `AUTH-002`      | Keycloak confidential OIDC client in auth-service BFF; opaque server-side sessions for Angular | `not-started` |
 
 ## Chronological Implementation Order (Recommended)
 
 Implement tickets in this order so dependencies are respected and each increment is visible to end users.
 
-| Order | Ticket          | Status        | Why Now                                                                    | End-User Visible Result                                                                                                                 |
-|-------|-----------------|---------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access               | Users can log in/out, refresh sessions, and access only authorized pages                                                                |
-| 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration                    | Admin can upload UniProt files and monitor import jobs                                                                                  |
-| 3     | `GENE-001`      | `done`        | Core backend APIs needed by all gene views                                 | `/api/genes` list/search/detail/export endpoints become functional                                                                      |
-| 4     | `GENE-002`      | `done`        | Filter UX depends on search contract from `GENE-001`                       | Users can apply complex filters and see active filter chips                                                                             |
-| 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs                           | Users can browse, sort, paginate, and open gene rows                                                                                    |
-| 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                                | Users can inspect full protein details, sequence, annotations, and references                                                           |
-| 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources                            | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets                                                                |
-| 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                                     | Users see dashboard KPI cards and charts with fast load times                                                                           |
-| 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational                    | Users can save, reload, and delete personal filter presets                                                                              |
-| 10    | `EXPORT-001`    | `done`        | Export is meaningful after search/table/charts are stable                  | Users can export filtered CSV and chart PNG images                                                                                      |
-| 11    | `COMPARE-001`   | `done`        | Compare mode reuses filters + analytics foundation                         | Users can compare two populations side by side                                                                                          |
-| 12    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins                      | Improve import performance for the whole UNIPROT data                                                                                   |     
-| 13    | `OPS-001`       | `done`        | Hardening after core features are in place                                 | Better reliability: health probes, throttling, auditability, safe page-size limits                                                      |
-| 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                              | Distributed Caching with Batch Eviction Hooks                                                                                           |     
-| 15    | `A11Y-001`      | `done`        | Final polish/certification after features are complete                     | Improved accessibility, theme toggle, consistent states, password update flow                                                           |
-| 16    | `REFACTOR-001`  | `done`        | Pluggable Data Provider Architecture                                       | Users can continue using the application normally while the platform gains the ability to support multiple data sources                 |
-| 17    | `REMOTE-001`    | `done`        | User can fetch data from UniProtKB Remote Provider (GeneService over REST) | Users can switch between local UniProt data and live UniProtKB data when exploring proteins                                             |
-| 18    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                              | Users can interactively explore a protein's 3D structure directly from its Gene Detail page                                             |
-| 19    | `NLQ-001`       | `not-started` | Natural Language Query & AI Summarization Engine                           | Users can ask questions about proteins in plain English and receive relevant results with AI-generated summaries                        |
-| 20    | `PIPE-001`      | `in-progress` | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
-| 21    | `ARCH-001`      | `done` (*)    | Microservices Architecture Migration (Strangler Fig)                       | No changes for Users                                                                                                                    |
-| 22    | `ARCH-002`      | `not-started` | Protein Catalog Ownership & Database-per-Service Enforcement               | No changes for Users                                                                                                                    |
-| 23    | `OPS-002`       | `in-progress` | Migration from Docker Compose to Kubernetes (Minikube)                     | No changes for Users                                                                                                                    |
+| Order | Ticket          | Status        | Why Now                                                                                        | End-User Visible Result                                                                                                                 |
+|-------|-----------------|---------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | `AUTH-001`      | `done`        | Security baseline for protected routes and role-based access                                   | Users can log in/out, refresh sessions, and access only authorized pages                                                                |
+| 2     | `IMPORT-001`    | `done`        | Data ingestion must exist before meaningful exploration                                        | Admin can upload UniProt files and monitor import jobs                                                                                  |
+| 3     | `GENE-001`      | `done`        | Core backend APIs needed by all gene views                                                     | `/api/genes` list/search/detail/export endpoints become functional                                                                      |
+| 4     | `GENE-002`      | `done`        | Filter UX depends on search contract from `GENE-001`                                           | Users can apply complex filters and see active filter chips                                                                             |
+| 5     | `GENE-003`      | `done`        | Table view consumes filters and list/search APIs                                               | Users can browse, sort, paginate, and open gene rows                                                                                    |
+| 6     | `DETAIL-001`    | `done`        | Detail page depends on gene detail endpoint                                                    | Users can inspect full protein details, sequence, annotations, and references                                                           |
+| 7     | `ANALYTICS-001` | `done`        | Dashboard/charts require analytics data sources                                                | Analytics endpoints return KPI/histogram/ratio/evidence/keyword datasets                                                                |
+| 8     | `DASH-001`      | `done`        | UI layer on top of analytics endpoints                                                         | Users see dashboard KPI cards and charts with fast load times                                                                           |
+| 9     | `FILTER-001`    | `done`        | Saved work is useful once filters/table are operational                                        | Users can save, reload, and delete personal filter presets                                                                              |
+| 10    | `EXPORT-001`    | `done`        | Export is meaningful after search/table/charts are stable                                      | Users can export filtered CSV and chart PNG images                                                                                      |
+| 11    | `COMPARE-001`   | `done`        | Compare mode reuses filters + analytics foundation                                             | Users can compare two populations side by side                                                                                          |
+| 12    | `PERF-001`      | `done`        | DB & ORM performance tuning for 570k UniProt proteins                                          | Improve import performance for the whole UNIPROT data                                                                                   |     
+| 13    | `OPS-001`       | `done`        | Hardening after core features are in place                                                     | Better reliability: health probes, throttling, auditability, safe page-size limits                                                      |
+| 14    | `CACHE-001`     | `done`        | Distributed Caching with Batch Eviction Hooks                                                  | Distributed Caching with Batch Eviction Hooks                                                                                           |     
+| 15    | `A11Y-001`      | `done`        | Final polish/certification after features are complete                                         | Improved accessibility, theme toggle, consistent states, password update flow                                                           |
+| 16    | `REFACTOR-001`  | `done`        | Pluggable Data Provider Architecture                                                           | Users can continue using the application normally while the platform gains the ability to support multiple data sources                 |
+| 17    | `REMOTE-001`    | `done`        | User can fetch data from UniProtKB Remote Provider (GeneService over REST)                     | Users can switch between local UniProt data and live UniProtKB data when exploring proteins                                             |
+| 18    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                                                  | Users can interactively explore a protein's 3D structure directly from its Gene Detail page                                             |
+| 19    | `NLQ-001`       | `not-started` | Natural Language Query & AI Summarization Engine                                               | Users can ask questions about proteins in plain English and receive relevant results with AI-generated summaries                        |
+| 20    | `PIPE-001`      | `in-progress` | Visual Export Pipeline & Batch Export Engine                                                   | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
+| 21    | `ARCH-001`      | `done` (*)    | Microservices Architecture Migration (Strangler Fig)                                           | No changes for Users                                                                                                                    |
+| 22    | `ARCH-002`      | `not-started` | Protein Catalog Ownership & Database-per-Service Enforcement                                   | No changes for Users                                                                                                                    |
+| 23    | `OPS-002`       | `in-progress` | Migration from Docker Compose to Kubernetes (Minikube)                                         | No changes for Users                                                                                                                    |
+| 24    | `AUTH-002`      | `not-started` | Keycloak confidential OIDC client in auth-service BFF; opaque server-side sessions for Angular | UI to connect to Keycloak provider                                                                                                      |
 
 (*) `ARCH-001` continues with `PIPE-001`, `NLQ-001` and `REMOTE-001`.
 
@@ -96,7 +98,8 @@ Implement tickets in this order so dependencies are respected and each increment
 
 Use these milestone checks after each phase to confirm user-visible progress.
 
-1. **Authentication Ready** (`AUTH-001`): login works, protected routes redirect unauthenticated users, admin-only pages
+1. **Authentication Ready** (`AUTH-001`, `AUTH-002`): login works, protected routes redirect unauthenticated users,
+   admin-only pages
    block standard users.
 2. **Data Available** (`IMPORT-001`): admin import starts/completes and imported records appear in gene listing.
 3. **Explorer Usable** (`GENE-001` + `GENE-002` + `GENE-003` + `DETAIL-001`): users can search/filter/sort/paginate and
