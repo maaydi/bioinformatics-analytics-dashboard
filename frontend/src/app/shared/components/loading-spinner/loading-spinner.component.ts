@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {LOADING_MESSAGES} from '@shared/messages/ui.messages';
 
 /**
  * Reusable loading spinner.
@@ -13,4 +14,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrl: './loading-spinner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadingSpinnerComponent {}
+export class LoadingSpinnerComponent {
+  protected readonly messages = LOADING_MESSAGES;
+}

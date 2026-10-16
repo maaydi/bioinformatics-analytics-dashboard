@@ -23,6 +23,7 @@ import {AsyncPipe} from '@angular/common';
 import {combineLatest, Observable, of} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
 import {AutoCompleteService} from './autocomplete.service';
+import {AUTOCOMPLETE_MESSAGES} from '@shared/messages/ui.messages';
 
 @Component({
   selector: 'app-generic-autocomplete',
@@ -48,9 +49,10 @@ import {AutoCompleteService} from './autocomplete.service';
   ],
 })
 export class GenericAutocompleteComponent implements ControlValueAccessor, OnInit {
+  protected readonly messages = AUTOCOMPLETE_MESSAGES;
   field = input.required<string>();
   multiSelect = input<boolean>(true);
-  placeholder = input<string>('Search...');
+  placeholder = input<string>(AUTOCOMPLETE_MESSAGES.placeholder);
 
   protected selectedValue = signal<string | string[] | null>(null);
   protected searchCtrl = new FormControl<string>('', {nonNullable: true});
@@ -132,7 +134,7 @@ export class GenericAutocompleteComponent implements ControlValueAccessor, OnIni
   protected getHintLabel(): string {
     if (this.multiSelect()) {
       const val = this.selectedValue() as string[];
-      return val?.length > 0 ? `${val.length} Selected` : '';
+      return val?.length > 0 ? this.messages.selected(val.length) : '';
     }
     return '';
   }

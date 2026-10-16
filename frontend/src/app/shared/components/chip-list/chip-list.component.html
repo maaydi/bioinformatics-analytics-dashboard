@@ -11,7 +11,7 @@
         @if (!readOnly()) {
           <button
             (click)="removeChip(chip.key)"
-            aria-label="Remove Filter"
+            [attr.aria-label]="messages.remove"
             class="chip-remove-btn"
             type="button">
 

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import {MatIconModule} from '@angular/material/icon';
+import {EMPTY_STATE_MESSAGES} from '@shared/messages/ui.messages';
 
 /**
  * Reusable empty-state placeholder.
@@ -14,6 +15,6 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateComponent {
-  readonly message = input('No data found');
+  readonly message = input<string>(EMPTY_STATE_MESSAGES.message);
   readonly icon = input('search_off');
 }
