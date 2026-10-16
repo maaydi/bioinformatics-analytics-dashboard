@@ -1,5 +1,5 @@
-<section aria-label="Saved filters" class="saved-filters-page">
-  <h1>Saved Filters</h1>
+<section [attr.aria-label]="messages.pageLabel" class="saved-filters-page">
+  <h1>{{ messages.title }}</h1>
   @if (loading()) {
     <mat-card appearance="outlined" class="loading-spinner">
       <app-loading-spinner/>
@@ -9,21 +9,21 @@
       <mat-error>{{ errors() }}</mat-error>
     </mat-card>
   } @else if (filters().length > 0) {
-    <div aria-label="Saved Filters" class="filters-table-wrapper" role="region">
-      <table aria-label="Saved Filters Table" class="filters-table">
+    <div [attr.aria-label]="messages.regionLabel" class="filters-table-wrapper" role="region">
+      <table [attr.aria-label]="messages.tableLabel" class="filters-table">
         <thead>
         <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Filter Summary</th>
-          <th scope="col">Created At</th>
-          <th scope="col">Actions</th>
+          <th scope="col">{{ messages.name }}</th>
+          <th scope="col">{{ messages.summary }}</th>
+          <th scope="col">{{ messages.createdAt }}</th>
+          <th scope="col">{{ messages.actions }}</th>
         </tr>
         </thead>
         <tbody>
           @for (filter of filters(); track filter.id) {
             <tr class="filters-table-row">
               <td>
-                        <span [attr.aria-label]="'Filter Name: ' + filter.name"
+                        <span [attr.aria-label]="messages.nameLabel(filter.name)"
                               class="filter-name">
                           {{ filter.name }}
                         </span>
@@ -31,13 +31,13 @@
               <td class="filter-summary">
                 @if (buildFiltersChips(filter.filterJson); as chips) {
                   @if (chips.length > 0) {
-                    <mat-chip-set aria-label="Saved Filter criteria" class="criteria-chip-set">
+                    <mat-chip-set [attr.aria-label]="messages.criteriaLabel" class="criteria-chip-set">
                       @for (chip of chips; track chip.label + chip.value) {
                         <mat-chip>{{ chip.label }}: {{ chip.value }}</mat-chip>
                       }
                     </mat-chip-set>
                   } @else {
-                    <span class="filter-empty-value">–</span>
+                    <span class="filter-empty-value">{{ messages.missingValue }}</span>
                   }
                 }
               </td>
@@ -46,10 +46,10 @@
                 <div class="action-container">
                   <button (click)="onApply(filter)" color="primary" mat-flat-button>
                     <mat-icon>play_arrow</mat-icon>
-                    Apply
+                    {{ messages.apply }}
                   </button>
 
-                  <button (click)="promptDelete(filter)" aria-label="Delete filter" color="warn" mat-icon-button>
+                  <button (click)="promptDelete(filter)" [attr.aria-label]="messages.deleteLabel" color="warn" mat-icon-button>
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -67,7 +67,7 @@
     </div>
   } @else {
     <div aria-live="polite" class="saved-empty-state" role="status">
-      <span>No saved filters yet. Create and save filter snapshots from the Genes Explorer to see them listed here.</span>
+      <span>{{ messages.empty }}</span>
     </div>
   }
 </section>

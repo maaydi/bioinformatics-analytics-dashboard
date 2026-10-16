@@ -15,6 +15,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-dialog.component';
 import {NotificationService} from '@shared/directive/notification.service';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
+import {SAVED_FILTERS_MESSAGES} from './saved-filters.messages';
 
 /**
  * SavedFiltersComponent — Manage persisted gene filter snapshots.
@@ -53,6 +54,7 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavedFiltersComponent {
+  protected readonly messages = SAVED_FILTERS_MESSAGES;
   /** True while loading saved filters from API. */
   loading = signal<boolean>(true);
 
@@ -91,10 +93,10 @@ export class SavedFiltersComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '350px',
       data: {
-        title: 'Confirm Deletion',
-        message: 'Are you sure you want to delete this filter ?',
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel'
+        title: this.messages.confirmTitle,
+        message: this.messages.confirmMessage,
+        confirmLabel: this.messages.confirmDelete,
+        cancelLabel: this.messages.cancel
       }
     });
 
@@ -131,7 +133,7 @@ export class SavedFiltersComponent {
         this.loading.set(false);
       },
       error: _ => {
-        this.errors.set('Failed to load saved filters');
+        this.errors.set(this.messages.loadFailed);
         this.loading.set(false);
       }
     });
@@ -147,11 +149,11 @@ export class SavedFiltersComponent {
         this.filters.update((currentFilters) =>
           currentFilters.filter(f => f.id !== filter.id)
         );
-        this.notify.success(`Deleted filter "${filter.name}"`, 'Close');
+        this.notify.success(this.messages.deleted(filter.name), this.messages.close);
       },
       error: _ => {
-        this.errors.set('Failed to delete Filter ' + filter.name);
-        this.notify.error(`Failed to delete filter "${filter.name}"`, 'Close');
+        this.errors.set(this.messages.deleteError(filter.name));
+        this.notify.error(this.messages.deleteFailed(filter.name), this.messages.close);
       }
     });
   }
