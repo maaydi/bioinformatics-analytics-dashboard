@@ -9,7 +9,7 @@ import {Router} from '@angular/router';
 import {Validators} from '@angular/forms';
 import {of, Subject} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {ExportFieldSchema, ExportFormat} from '@core/models/export-pipeline.model';
+import {ExportFieldSchema, ExportFormat, ExportPipeline} from '@core/models/export-pipeline.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {ExportPipelineService} from '@features/export/export-pipeline.service';
 import {GeneSearchRequest, SavedFilter} from '@core/models/saved-filter.model';
@@ -29,16 +29,25 @@ describe('ExportPipelineWizardComponent', () => {
   let fixture: ComponentFixture<ExportPipelineWizardComponent>;
   let availableFields$: Subject<ExportFieldSchema[]>;
   const getAvailableFields = vi.fn<ExportPipelineService['getAvailableFields']>();
+  const createPipeline = vi.fn<ExportPipelineService['createPipeline']>();
   const activeFilters = signal<GeneSearchRequest | null>(null);
   const searchResult = signal<PagedResponse<ProteinSummary> | null>(null);
+  const loading = signal(false);
+  const onErrorMessage = signal<string | null>(null);
   const openDialog = vi.fn();
   const closeWizard = vi.fn();
+  const wizardDialogRef = {close: closeWizard, disableClose: false};
   const openSnackBar = vi.fn<MatSnackBar['open']>();
   const createSavedFilter = vi.fn<SavedFiltersService['createSavedFilter']>();
   const navigate = vi.fn<Router['navigate']>();
   const navigateByUrl = vi.fn<Router['navigateByUrl']>();
   let dialogResult$: Subject<Pick<SavedFilter, 'name'> | null | undefined>;
   let savedFilter$: Subject<SavedFilter>;
+  let createdPipeline$: Subject<ExportPipeline>;
+  const pipeline: ExportPipeline = {
+    id: 19, name: 'My export', format: 'CSV', fieldSchema: ['accession', 'length'],
+    status: 'QUEUED', createdAt: '2026-01-01T00:00:00Z',
+  };
 
   const currentFilters: GeneSearchRequest = {
     globalSearch: 'kinase', reviewed: false, taxid: 9606, lengthMin: 0,
@@ -81,6 +90,17 @@ describe('ExportPipelineWizardComponent', () => {
     await fixture.whenStable();
   }
 
+  function submitForm(): void {
+    element<HTMLFormElement>('.wizard-form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
+  }
+
+  async function editText(selector: string, value: string): Promise<void> {
+    const input = element<HTMLInputElement | HTMLTextAreaElement>(selector);
+    input.value = value;
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    await fixture.whenStable();
+  }
+
   async function reviewFilters(): Promise<void> {
     element<HTMLButtonElement>('.wizard-nav-steps button:first-child').click();
     await fixture.whenStable();
@@ -103,11 +123,16 @@ describe('ExportPipelineWizardComponent', () => {
     getAvailableFields.mockReset().mockReturnValue(availableFields$.asObservable());
     activeFilters.set(null);
     searchResult.set(null);
+    loading.set(false);
+    onErrorMessage.set(null);
+    createdPipeline$ = new Subject<ExportPipeline>();
+    createPipeline.mockReset().mockReturnValue(createdPipeline$.asObservable());
     dialogResult$ = new Subject<Pick<SavedFilter, 'name'> | null | undefined>();
     savedFilter$ = new Subject<SavedFilter>();
     openDialog.mockReset().mockReturnValue({afterClosed: () => dialogResult$.asObservable()});
     createSavedFilter.mockReset().mockReturnValue(savedFilter$.asObservable());
     closeWizard.mockReset();
+    wizardDialogRef.disableClose = false;
     openSnackBar.mockReset();
     navigate.mockReset();
     navigateByUrl.mockReset();
@@ -117,14 +142,14 @@ describe('ExportPipelineWizardComponent', () => {
       providers: [
         {
           provide: GenesStore,
-          useValue: {activeFilters, searchResult},
+          useValue: {activeFilters, searchResult, loading, onErrorMessage},
         },
-        {provide: MatDialogRef, useValue: {close: closeWizard}},
+        {provide: MatDialogRef, useValue: wizardDialogRef},
         {provide: MatDialog, useValue: {open: openDialog}},
         {provide: MatSnackBar, useValue: {open: openSnackBar}},
         {provide: SavedFiltersService, useValue: {createSavedFilter}},
         {provide: Router, useValue: {navigate, navigateByUrl}},
-        {provide: ExportPipelineService, useValue: {getAvailableFields}},
+        {provide: ExportPipelineService, useValue: {getAvailableFields, createPipeline}},
       ],
     }).compileComponents();
 
@@ -518,5 +543,297 @@ describe('ExportPipelineWizardComponent', () => {
     expect(savedFilter$.observed).toBe(false);
     savedFilter$.next(savedFilter);
     expect(openSnackBar).not.toHaveBeenCalled();
+  });
+
+  describe('Step 4 confirmation', () => {
+    beforeEach(async () => {
+      availableFields$.next(fields);
+      activeFilters.set(currentFilters);
+      searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
+      await showStep(3);
+    });
+
+    it('defaults to the current UTC date, binds both inputs and enforces backend maximum lengths', async () => {
+      fixture.destroy();
+      getAvailableFields.mockReturnValue(of(fields));
+      const isoDate = vi.spyOn(Date.prototype, 'toISOString').mockReturnValueOnce('2031-04-09T23:30:00.000Z');
+      fixture = TestBed.createComponent(ExportPipelineWizardComponent);
+      component = fixture.componentInstance;
+      isoDate.mockRestore();
+      await showStep(3);
+      expect(component.form.controls.name.value).toBe('Export_2031-04-09');
+      expect(component.form.controls.name.defaultValue).toBe('Export_2031-04-09');
+      expect(element<HTMLInputElement>('#export-name').value).toBe('Export_2031-04-09');
+      expect(element<HTMLInputElement>('#export-name').maxLength).toBe(200);
+      expect(element<HTMLTextAreaElement>('#export-description').maxLength).toBe(500);
+      expect(component.form.valid).toBe(true); // No unrelated password validator.
+      await editText('#export-name', 'Export changed');
+      await editText('#export-description', 'Useful context');
+      expect(component.form.getRawValue()).toMatchObject({name: 'Export changed', description: 'Useful context'});
+      expect(element<HTMLButtonElement>('.create-pipeline-action').type).toBe('submit');
+
+      await editText('#export-name', 'x'.repeat(200));
+      await editText('#export-description', 'x'.repeat(500));
+      expect(component.form.valid).toBe(true);
+      await editText('#export-name', 'x'.repeat(201));
+      await editText('#export-description', 'x'.repeat(501));
+      expect(element<HTMLElement>('#export-name-error').textContent).toContain('200 characters');
+      expect(element<HTMLElement>('#export-description-error').textContent).toContain('500 characters');
+      expect(element<HTMLInputElement>('#export-name').getAttribute('aria-invalid')).toBe('true');
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(true);
+      submitForm();
+      expect(createPipeline).not.toHaveBeenCalled();
+      await editText('#export-name', 'Valid again');
+      await editText('#export-description', '');
+      expect(element<HTMLElement>('#export-name-error').textContent?.trim()).toBe('');
+      expect(element<HTMLElement>('#export-description-error').textContent?.trim()).toBe('');
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(false);
+    });
+
+    it.each(['', '   \t\n'])('rejects a blank name %j with live validation and no API call', async (name) => {
+      await editText('#export-name', name);
+      expect(element<HTMLElement>('#export-name-error').textContent).toContain('non-whitespace');
+      submitForm();
+      await fixture.whenStable();
+      expect(Object.values(component.form.controls).every((control) => control.touched)).toBe(true);
+      expect(createPipeline).not.toHaveBeenCalled();
+    });
+
+    it('rejects an empty field selection or missing format even on a direct form submission', async () => {
+      component.form.controls.fieldSchema.setValue([]);
+      component.form.controls.format.setErrors({required: true});
+      submitForm();
+      await fixture.whenStable();
+      expect(createPipeline).not.toHaveBeenCalled();
+      expect(element<HTMLElement>('.summary-layout').textContent).toContain('Select at least one field');
+      expect(element<HTMLElement>('.summary-layout').textContent).toContain('Choose a format in Step 3');
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(true);
+    });
+
+    it('submits the latest filter contract, ordered fields, selected format and trimmed metadata exactly', async () => {
+      await editText('#export-name', '  Human kinases  ');
+      await editText('#export-description', '  For analysis \n ');
+      await showStep(1);
+      await selectMode('CUSTOM');
+      const latestFilters: GeneSearchRequest = {
+        reviewed: false, lengthMin: 0, lengthMax: 800, evidenceLevels: [1, 2], keywords: ['ATP', 'kinase'],
+      };
+      activeFilters.set(latestFilters);
+      component.form.controls.fieldSchema.setValue(['length', 'accession']);
+      component.form.controls.format.setValue('TSV');
+      await showStep(3);
+      element<HTMLButtonElement>('.create-pipeline-action').click();
+      expect(createPipeline).toHaveBeenCalledExactlyOnceWith({
+        name: 'Human kinases', description: 'For analysis', filter: latestFilters,
+        fieldSchema: ['length', 'accession'], format: 'TSV',
+      });
+      expect(createPipeline.mock.calls[0]?.[0].filter).not.toBe(latestFilters);
+      expect(createPipeline.mock.calls[0]?.[0].fieldSchema).not.toBe(component.form.controls.fieldSchema.value);
+      expect(closeWizard).not.toHaveBeenCalled();
+    });
+
+    it.each(['', '  \n '])('omits an empty optional description %j', async (description) => {
+      await editText('#export-description', description);
+      submitForm();
+      expect(createPipeline).toHaveBeenCalledOnce();
+      expect(createPipeline.mock.calls[0]?.[0]).not.toHaveProperty('description');
+    });
+
+    it('submits the default ALL selection and CSV without extra UI or paging properties', () => {
+      const defaultName = component.form.controls.name.value;
+      submitForm();
+      expect(createPipeline).toHaveBeenCalledExactlyOnceWith({
+        name: defaultName, format: 'CSV', fieldSchema: ['accession', 'length'], filter: currentFilters,
+      });
+    });
+
+    it('blocks submission while field metadata is still loading, even with manually populated selections', async () => {
+      fixture.destroy();
+      availableFields$ = new Subject<ExportFieldSchema[]>();
+      getAvailableFields.mockReturnValue(availableFields$);
+      fixture = TestBed.createComponent(ExportPipelineWizardComponent);
+      component = fixture.componentInstance;
+      component.form.controls.fieldSchema.setValue(['accession']);
+      await showStep(3);
+      submitForm();
+      expect(createPipeline).not.toHaveBeenCalled();
+      expect(element<HTMLElement>('.confirmation-notice').textContent).toContain('Loading available fields');
+      availableFields$.next(fields);
+      await fixture.whenStable();
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(false);
+    });
+
+    it.each([null, {}])('uses documented unfiltered semantics for filters %j with loaded positive results', async (filter) => {
+      activeFilters.set(filter);
+      await fixture.whenStable();
+      expect(summaryValue('Filters')).toBe('0 active');
+      submitForm();
+      expect(createPipeline.mock.calls[0]?.[0].filter).toEqual({});
+    });
+
+    it('emits and closes with the created pipeline once, without treating cancellation as success', async () => {
+      const emitted = vi.fn();
+      component.pipelineCreated.subscribe(emitted);
+      submitForm();
+      createdPipeline$.next(pipeline);
+      createdPipeline$.next(pipeline);
+      createdPipeline$.complete();
+      await fixture.whenStable();
+      expect(emitted).toHaveBeenCalledExactlyOnceWith(pipeline);
+      expect(closeWizard).toHaveBeenCalledExactlyOnceWith(pipeline);
+      expect(wizardDialogRef.disableClose).toBe(false);
+      submitForm();
+      expect(createPipeline).toHaveBeenCalledOnce();
+    });
+
+    it('prevents duplicate requests, edits, header/back navigation and cancellation while submitting', async () => {
+      submitForm();
+      await fixture.whenStable();
+      submitForm();
+      element<HTMLButtonElement>('.create-pipeline-action').click();
+      element<HTMLButtonElement>('.wizard-nav > button').click();
+      element<HTMLButtonElement>('.wizard-nav-steps button:first-child').click();
+      element<HTMLButtonElement>('.wizard-nav-steps button:last-child').click();
+      const stepper = fixture.debugElement.query(By.directive(MatStepper)).injector.get(MatStepper);
+      stepper.selectedIndex = 0;
+      await fixture.whenStable();
+      expect(stepper.selectedIndex).toBe(3);
+      expect(wizardDialogRef.disableClose).toBe(true);
+      expect(element<HTMLInputElement>('#export-name').readOnly).toBe(true);
+      expect(element<HTMLTextAreaElement>('#export-description').readOnly).toBe(true);
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(true);
+      expect(element<HTMLElement>('.summary-layout').getAttribute('aria-busy')).toBe('true');
+      expect(element<HTMLElement>('.summary-layout').textContent).toContain('Creating your export pipeline');
+      expect(createPipeline).toHaveBeenCalledOnce();
+      expect(closeWizard).not.toHaveBeenCalled();
+    });
+
+    it('keeps errors visible with the form intact and permits one explicit retry', async () => {
+      await editText('#export-name', 'Keep my name');
+      wizardDialogRef.disableClose = true;
+      submitForm();
+      createdPipeline$.error(new HttpErrorResponse({status: 500}));
+      await fixture.whenStable();
+      expect(element<HTMLElement>('.submit-error').textContent).toContain('try again');
+      expect(element<HTMLButtonElement>('.create-pipeline-action').textContent).toContain('Retry Create & Run');
+      expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(false);
+      expect(element<HTMLInputElement>('#export-name').value).toBe('Keep my name');
+      expect(element<HTMLInputElement>('#export-name').readOnly).toBe(false);
+      expect(wizardDialogRef.disableClose).toBe(true); // Restore the caller's original setting.
+      expect(closeWizard).not.toHaveBeenCalled();
+      const retry$ = new Subject<ExportPipeline>();
+      createPipeline.mockReturnValue(retry$);
+      element<HTMLButtonElement>('.create-pipeline-action').click();
+      await fixture.whenStable();
+      expect((fixture.nativeElement as HTMLElement).querySelector('.submit-error')).toBeNull();
+      expect(createPipeline).toHaveBeenCalledTimes(2);
+      retry$.next(pipeline);
+      expect(closeWizard).toHaveBeenCalledExactlyOnceWith(pipeline);
+    });
+
+    it('allows null cancellation after a failed create without emitting a pipeline', async () => {
+      const emitted = vi.fn();
+      component.pipelineCreated.subscribe(emitted);
+      submitForm();
+      createdPipeline$.error(new HttpErrorResponse({status: 400}));
+      await fixture.whenStable();
+      expect(wizardDialogRef.disableClose).toBe(false);
+      element<HTMLButtonElement>('.wizard-nav > button').click();
+      expect(closeWizard).toHaveBeenCalledExactlyOnceWith(null);
+      expect(emitted).not.toHaveBeenCalled();
+      expect(createPipeline).toHaveBeenCalledOnce();
+    });
+
+    it('keeps the summary live for chips, zero/all/custom fields, format, result count and size', async () => {
+      expect(summaryValue('Filters')).toBe('7 active');
+      expect(summaryValue('Fields')).toBe('2');
+      expect(summaryValue('Estimated rows')).toBe('1,000');
+      expect(summaryValue('Estimated size')).toBe('~ 24 KB');
+      activeFilters.set({reviewed: false, lengthMin: 0, keywords: ['A', 'B'], evidenceLevels: [], accession: ''});
+      await fixture.whenStable();
+      expect(summaryValue('Filters')).toBe('3 active');
+      await showStep(1);
+      await selectMode('CUSTOM');
+      element<HTMLButtonElement>('app-export-fields-picker button:last-child').click();
+      await showStep(3);
+      expect(summaryValue('Fields')).toBe('0');
+      expect(summaryValue('Estimated size')).toBe('~ 0 B');
+      await showStep(1);
+      await selectMode('ALL');
+      await showStep(3);
+      expect(summaryValue('Fields')).toBe('2');
+      await showStep(1);
+      await selectMode('CUSTOM');
+      element<HTMLInputElement>('app-export-fields-picker input[type="checkbox"]').click();
+      component.form.controls.format.setValue('JSON');
+      searchResult.set({content: [], page: 0, size: 50, totalElements: 2000, totalPages: 40});
+      await showStep(3);
+      expect(summaryValue('Fields')).toBe('1');
+      expect(summaryValue('Format')).toBe('JSON');
+      expect(summaryValue('Estimated rows')).toBe('2,000');
+      expect(summaryValue('Estimated size')).toBe('~ 50 KB');
+      searchResult.set(null);
+      activeFilters.set(null);
+      await fixture.whenStable();
+      expect(summaryValue('Filters')).toBe('0 active');
+      expect(summaryValue('Estimated rows')).toBe('0');
+      expect(summaryValue('Estimated size')).toBe('~ 0 B');
+    });
+
+    it.each(['no rows', 'null result', 'search loading', 'search error', 'fields failed', 'fields empty'])(
+      'blocks creation for %s without a count request', async (state) => {
+        switch (state) {
+          case 'no rows':
+            searchResult.set({content: [], page: 0, size: 50, totalElements: 0, totalPages: 0});
+            break;
+          case 'null result':
+            searchResult.set(null);
+            break;
+          case 'search loading':
+            loading.set(true);
+            break;
+          case 'search error':
+            onErrorMessage.set('Search failed');
+            break;
+          case 'fields failed':
+            availableFields$.error(new Error('Fields failed'));
+            break;
+          case 'fields empty':
+            availableFields$.next([]);
+            break;
+        }
+        await fixture.whenStable();
+        submitForm();
+        expect(createPipeline).not.toHaveBeenCalled();
+        expect(element<HTMLButtonElement>('.create-pipeline-action').disabled).toBe(true);
+        expect(element<HTMLElement>('.confirmation-notice').textContent?.trim().length).toBeGreaterThan(0);
+      },
+    );
+
+    it('does not submit from Enter/form submission in earlier steps and preserves normal null cancellation', async () => {
+      const emitted = vi.fn();
+      component.pipelineCreated.subscribe(emitted);
+      for (const index of [0, 1, 2]) {
+        await showStep(index);
+        submitForm();
+      }
+      expect(createPipeline).not.toHaveBeenCalled();
+      element<HTMLButtonElement>('.wizard-nav > button').click();
+      expect(closeWizard).toHaveBeenCalledExactlyOnceWith(null);
+      expect(emitted).not.toHaveBeenCalled();
+    });
+
+    it('unsubscribes creation on destruction and does not emit a late success or close', () => {
+      const emitted = vi.fn();
+      component.pipelineCreated.subscribe(emitted);
+      submitForm();
+      expect(createdPipeline$.observed).toBe(true);
+      fixture.destroy();
+      expect(createdPipeline$.observed).toBe(false);
+      expect(wizardDialogRef.disableClose).toBe(false);
+      createdPipeline$.next(pipeline);
+      expect(emitted).not.toHaveBeenCalled();
+      expect(closeWizard).not.toHaveBeenCalled();
+    });
   });
 });

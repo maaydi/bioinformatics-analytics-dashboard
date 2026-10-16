@@ -245,67 +245,165 @@
 
 // Step 4
 .summary-layout {
-  gap: 20px;
-}
+  gap: ds.$spacing-lg;
+  color: var(--color-on-surface);
 
-.form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.field-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  border: 1px solid var(--chart-state-border, #d1d5db);
-  border-radius: 6px;
-  font: inherit;
-  color: var(--color-on-surface, #1a1a1a);
-  background: var(--color-surface, #fff);
-  resize: vertical;
-
-  &:focus-visible {
-    outline: 2px solid var(--accent-blue-strong, #1d4ed8);
-    outline-offset: 1px;
-  }
-}
-
-.summary-card {
-  margin: 0;
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--color-surface-subtle, #f9fafb);
-  border: 1px solid var(--color-surface-active, #e5e7eb);
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-surface-active, #e5e7eb);
+  .summary-heading,
+  .summary-details {
+    display: grid;
+    gap: ds.$spacing-sm;
+    min-width: 0;
   }
 
-  dt {
-    color: var(--color-on-surface-variant, #6b7280);
+  .confirmation-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: ds.$spacing-lg;
+    align-items: start;
   }
 
-  dd {
+  .form-fields,
+  .summary-card {
+    min-width: 0;
     margin: 0;
-    font-weight: 600;
+    padding: ds.$spacing-lg;
+    border: 1px solid var(--color-border-light);
+    border-radius: ds.$border-radius-lg;
+    background: var(--color-surface);
+  }
+
+  .form-fields {
+    display: grid;
+    gap: ds.$spacing-lg;
+  }
+
+  .field {
+    display: grid;
+    gap: ds.$spacing-xs;
+    min-width: 0;
+  }
+
+  .field-label {
+    font-size: ds.$font-size-sm;
+    font-weight: ds.$font-weight-semibold;
+  }
+
+  .field-input {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: ds.$spacing-sm ds.$spacing-md;
+    border: 1px solid var(--color-border-medium);
+    border-radius: ds.$border-radius-md;
+    font: inherit;
+    color: var(--color-on-surface);
+    background: var(--color-surface);
+    resize: vertical;
+
+    &:hover:not([readonly]) {
+      border-color: var(--color-border-strong);
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--status-red-text);
+      background: var(--status-red-bg);
+    }
+
+    &[readonly] {
+      color: var(--color-on-surface-variant);
+      background: var(--color-surface-subtle);
+    }
+
+    @include ds.focus-visible;
+  }
+
+  .field-hint,
+  .field-error {
+    margin: 0;
+    font-size: ds.$font-size-xs;
+    line-height: ds.$line-height-normal;
+    overflow-wrap: anywhere;
+  }
+
+  .field-hint {
+    color: var(--color-on-surface-variant);
+  }
+
+  .field-error {
+    color: var(--status-red-text);
+  }
+
+  .summary-card {
+    background: var(--color-surface-subtle);
+  }
+
+  .summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: ds.$spacing-sm;
+    padding-block: ds.$spacing-sm;
+    overflow-wrap: anywhere;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    dt {
+      color: var(--color-on-surface-variant);
+    }
+
+    dd {
+      margin: 0;
+      font-weight: ds.$font-weight-semibold;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .confirmation-error,
+  .confirmation-notice {
+    margin: 0;
+    padding: ds.$spacing-md;
+    border: 1px solid var(--status-blue-border);
+    border-radius: ds.$border-radius-md;
+    background: var(--status-blue-bg);
+    color: var(--status-blue-text);
+    font-size: ds.$font-size-sm;
+    overflow-wrap: anywhere;
+  }
+
+  .confirmation-error {
+    border-color: var(--status-red-border);
+    background: var(--status-red-bg);
+    color: var(--status-red-text);
+  }
+
+  .create-pipeline-action {
+    min-height: 44px;
+    max-width: 100%;
+    height: auto;
+    padding-block: ds.$spacing-sm;
+    white-space: normal;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    @include ds.focus-visible;
+  }
+}
+
+@include ds.respond-up-to('sm') {
+  .summary-layout {
+    padding-inline: ds.$spacing-md;
+
+    .confirmation-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .create-pipeline-action {
+      width: 100%;
+    }
   }
 }
 

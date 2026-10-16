@@ -363,11 +363,11 @@
       - [x] Radio group: CSV, TSV, JSON, Excel
       - [x] Each option shows icon + brief description + estimated file size hint
       - [x] Default: CSV
-    - [ ] **Step 4 — Summary & Confirm:**
-        - [ ] Name input (default: `Export_${date}`)
-        - [ ] Description textarea (optional)
-        - [ ] Summary card: filter count, format, field count, estimated rows, estimated size
-        - [ ] "Create & Run" button (primary) + "Cancel" button
+    - [x] **Step 4 — Summary & Confirm:**
+        - [x] Name input (default: `Export_${date}`)
+        - [x] Description textarea (optional)
+        - [x] Summary card: filter count, format, field count, estimated rows, estimated size
+        - [x] "Create & Run" button (primary) + "Cancel" button
 - [ ] Outputs:
     - [ ] `pipelineCreated = output<ExportPipeline>()`
 
@@ -485,8 +485,10 @@
     - [ ] Stepper advances through all 4 steps
     - [ ] Step 1 disables next if row count is 0
     - [ ] Step 3 shows field picker only for Custom Fields
-    - [ ] Step 4 summary reflects selections
-    - [ ] Emits `pipelineCreated` on confirm
+  - [x] Step 4 summary reflects selections (including zero/all/custom fields and live chips/rows/format/size)
+  - [x] Emits `pipelineCreated` and closes with the service result on successful confirm; mocked-stream tests also
+    cover binding/defaults/limits, invalid forms, exact payloads, omitted description, busy duplicate prevention,
+    final-step gating, retryable errors, cancellation and destruction cleanup
 - [ ] `FieldPickerComponent` unit tests:
     - [ ] Moving field updates selected list
     - [ ] Drag-and-drop reorders selected fields

@@ -1,5 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, output} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {GeneSearchRequest} from '@core/models/saved-filter.model';
+import {ExportPipeline} from '@core/models/export-pipeline.model';
 import {MatIcon} from '@angular/material/icon';
 import {buildFiltersChips, FilterChip} from '@shared/utils/filter-chips-builder';
 import {MatButton} from '@angular/material/button';
@@ -7,6 +9,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ExportPipelineWizardComponent} from '@features/export/export-pipeline-wizard/export-pipeline-wizard.component';
 import {NotificationService} from '@shared/directive/notification.service';
 import {ChipListComponent} from '@shared/components/chip-list/chip-list.component';
+import {EXPORT_CONFIRMATION_MESSAGES} from '@features/export/export-pipeline-wizard/export-confirmation.messages';
 
 
 @Component({
@@ -31,8 +34,8 @@ export class ActiveFiltersComponent {
   readonly readOnlyChips = input<boolean>(true);
   readonly title = input<string>('Active Filters');
 
-  constructor(private dialog: MatDialog) {
-  }
+  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   removeFilter(key: keyof GeneSearchRequest): void {
     this.filterRemoved.emit(key);
@@ -46,22 +49,17 @@ export class ActiveFiltersComponent {
   }
 
 
-  protected openCreateExportPipelineDialog() {
-    const dialogRef = this.dialog.open(ExportPipelineWizardComponent, {
+  protected openCreateExportPipelineDialog(): void {
+    const dialogRef = this.dialog.open<ExportPipelineWizardComponent, void, ExportPipeline | null>(ExportPipelineWizardComponent, {
       width: '800px',
       maxWidth: '90vw'
     });
 
-    dialogRef.afterClosed().subscribe((response: { name: string, success: boolean, error: string } | null) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response) => {
       if (!response) {
         return; // dialog dismissed without submitting
       }
-      if (response.success) {
-        this.notify.success(`The export pipeline "${response.name}" was successfully created. You can track its progress in the Export section.`);
-      } else {
-        console.error(`Create Pipeline Fails : ${response.error}`);
-        this.notify.error(`Failed to create the export pipeline "${response.name}". Please try again, or contact support if the issue persists.`);
-      }
+      this.notify.success(EXPORT_CONFIRMATION_MESSAGES.created(response.name));
     });
   }
 }
