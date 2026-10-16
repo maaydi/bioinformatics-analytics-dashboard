@@ -359,10 +359,10 @@
       - [x] Toggle: "All Fields" / "Custom Fields"
       - [x] If Custom: `<app-field-picker>` dual-list component
       - [x] If All: all fields pre-selected, picker hidden
-  - [ ] **Step 3 — Format Selection:**
-      - [ ] Radio group: CSV, TSV, JSON, Excel
-      - [ ] Each option shows icon + brief description + estimated file size hint
-      - [ ] Default: CSV
+  - [x] **Step 3 — Format Selection:**
+      - [x] Radio group: CSV, TSV, JSON, Excel
+      - [x] Each option shows icon + brief description + estimated file size hint
+      - [x] Default: CSV
     - [ ] **Step 4 — Summary & Confirm:**
         - [ ] Name input (default: `Export_${date}`)
         - [ ] Description textarea (optional)

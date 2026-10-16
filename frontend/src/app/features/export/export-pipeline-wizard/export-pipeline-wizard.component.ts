@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, viewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  LOCALE_ID,
+  signal,
+  viewChild
+} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {MatDialog, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
@@ -12,11 +21,12 @@ import {buildFiltersChips} from '@shared/utils/filter-chips-builder';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {passwordMatchValidator} from '@shared/components/account-settings/account-settings.component';
 import {ExportFieldsPickerComponent} from '@features/export/export-fields-picker/export-fields-picker.component';
-import {ExportFieldSchema} from '@core/models/export-pipeline.model';
+import {ExportFieldSchema, ExportFormat} from '@core/models/export-pipeline.model';
 import {ExportPipelineService} from '@features/export/export-pipeline.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {catchError, EMPTY, finalize, of, switchMap, tap} from 'rxjs';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {catchError, EMPTY, finalize, of, startWith, switchMap, tap} from 'rxjs';
 import {EXPORT_FIELD_SELECTION_MESSAGES} from '@features/export/export-field-selection.messages';
+import {estimateExportBytes, formatExportBytes} from '@features/export/export-size-estimator';
 import {SavedFilter} from '@core/models/saved-filter.model';
 import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/save-filters-dialog.component';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
@@ -56,6 +66,10 @@ export class ExportPipelineWizardComponent {
         nonNullable: true,
         validators: [Validators.required],
       }),
+      format: new FormControl<ExportFormat>('CSV', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       name: new FormControl<string>('', {
         nonNullable: true,
         validators: [
@@ -68,6 +82,21 @@ export class ExportPipelineWizardComponent {
     },
     {validators: passwordMatchValidator},
   );
+  protected readonly selectedFormat = toSignal(this.form.controls.format.valueChanges.pipe(
+    startWith(this.form.controls.format.value),
+  ), {requireSync: true});
+  private readonly locale = inject(LOCALE_ID);
+  private readonly selectedFields = toSignal(this.form.controls.fieldSchema.valueChanges.pipe(
+    startWith(this.form.controls.fieldSchema.value),
+  ), {requireSync: true});
+  protected readonly estimatedSizes = computed<Readonly<Record<ExportFormat, string>>>(() => {
+    const fields = this.selectedFields();
+    const rows = this.estimatedRows();
+    const estimate = (format: ExportFormat): string =>
+      formatExportBytes(estimateExportBytes(fields, rows, format), this.locale);
+
+    return {CSV: estimate('CSV'), TSV: estimate('TSV'), JSON: estimate('JSON'), EXCEL: estimate('EXCEL')};
+  });
   protected readonly fieldSelectionMessages = EXPORT_FIELD_SELECTION_MESSAGES;
   protected readonly fieldMode = signal<FieldSelectionMode>('ALL');
   protected readonly fieldsLoadFailed = signal(false);

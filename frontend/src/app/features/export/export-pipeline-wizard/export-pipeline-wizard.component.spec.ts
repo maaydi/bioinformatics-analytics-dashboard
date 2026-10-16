@@ -6,9 +6,10 @@ import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatStepper} from '@angular/material/stepper';
 import {Router} from '@angular/router';
+import {Validators} from '@angular/forms';
 import {of, Subject} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {ExportFieldSchema} from '@core/models/export-pipeline.model';
+import {ExportFieldSchema, ExportFormat} from '@core/models/export-pipeline.model';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {ExportPipelineService} from '@features/export/export-pipeline.service';
 import {GeneSearchRequest, SavedFilter} from '@core/models/saved-filter.model';
@@ -54,6 +55,25 @@ describe('ExportPipelineWizardComponent', () => {
       throw new Error(`Expected element: ${selector}`);
     }
     return result;
+  }
+
+  async function showStep(index: number): Promise<void> {
+    await fixture.whenStable();
+    fixture.debugElement.query(By.directive(MatStepper)).injector.get(MatStepper).selectedIndex = index;
+    await fixture.whenStable();
+  }
+
+  function expectCardSizes(expected: Readonly<Record<ExportFormat, string>>): void {
+    for (const format of ['CSV', 'TSV', 'JSON', 'EXCEL'] as const) {
+      expect(element<HTMLElement>(`input[value="${format}"] + .format-card .format-size`).textContent?.trim())
+        .toBe(`~ ${expected[format]}`);
+    }
+  }
+
+  function summaryValue(label: string): string | undefined {
+    const rows = element<HTMLElement>('.summary-card').querySelectorAll('.summary-row');
+    return Array.from(rows).find((row) => row.querySelector('dt')?.textContent === label)
+      ?.querySelector('dd')?.textContent?.trim();
   }
 
   async function selectMode(mode: 'ALL' | 'CUSTOM'): Promise<void> {
@@ -123,6 +143,136 @@ describe('ExportPipelineWizardComponent', () => {
     expect(component.form.controls.fieldSchema.value).toEqual([]);
   });
 
+  it('defaults to a required non-nullable CSV control and zero size hints before fields arrive', async () => {
+    await showStep(2);
+    expect(component.form.controls.format.value).toBe('CSV');
+    expect(component.form.controls.format.defaultValue).toBe('CSV');
+    expect(component.form.controls.format.hasValidator(Validators.required)).toBe(true);
+    expect(element<HTMLInputElement>('input[name="format"][value="CSV"]').checked).toBe(true);
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+
+    component.form.controls.format.setValue('JSON');
+    component.form.controls.format.reset();
+    await fixture.whenStable();
+    expect(component.form.controls.format.value).toBe('CSV');
+    expect(element<HTMLInputElement>('input[name="format"][value="CSV"]').checked).toBe(true);
+  });
+
+  it.each([
+    ['CSV', '24 KB'], ['TSV', '20 KB'], ['JSON', '40 KB'], ['EXCEL', '32 KB'],
+  ] as const)('selecting the %s radio updates the form and selected summary', async (format, size) => {
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
+    availableFields$.next(fields);
+    await showStep(2);
+    // Start away from the default to also exercise selecting CSV rather than only its initial state.
+    component.form.controls.format.setValue(format === 'JSON' ? 'TSV' : 'JSON');
+    await fixture.whenStable();
+    element<HTMLInputElement>(`input[name="format"][value="${format}"]`).click();
+    await fixture.whenStable();
+
+    expect(component.form.controls.format.value).toBe(format);
+    for (const candidate of ['CSV', 'TSV', 'JSON', 'EXCEL'] as const) {
+      expect(element<HTMLInputElement>(`input[name="format"][value="${candidate}"]`).checked).toBe(candidate === format);
+    }
+    expectCardSizes({CSV: '24 KB', TSV: '20 KB', JSON: '40 KB', EXCEL: '32 KB'});
+    await showStep(3);
+    expect(summaryValue('Format')).toBe(format);
+    expect(summaryValue('Estimated size')).toBe(`~ ${size}`);
+    expect(getAvailableFields).toHaveBeenCalledOnce();
+  });
+
+  it('recalculates every card and the selected summary when fields, row count and format change', async () => {
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
+    await showStep(2);
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+    availableFields$.next(fields);
+    await fixture.whenStable();
+    expectCardSizes({CSV: '24 KB', TSV: '20 KB', JSON: '40 KB', EXCEL: '32 KB'});
+
+    component.form.controls.fieldSchema.setValue(['geneNamePrimary']);
+    await fixture.whenStable();
+    expectCardSizes({CSV: '15 KB', TSV: '12.5 KB', JSON: '25 KB', EXCEL: '20 KB'});
+
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 2000, totalPages: 40});
+    await fixture.whenStable();
+    expectCardSizes({CSV: '30 KB', TSV: '25 KB', JSON: '50 KB', EXCEL: '40 KB'});
+    await showStep(3);
+    expect(summaryValue('Format')).toBe('CSV');
+    expect(summaryValue('Estimated size')).toBe('~ 30 KB');
+
+    component.form.controls.format.setValue('JSON');
+    await fixture.whenStable();
+    expect(summaryValue('Format')).toBe('JSON');
+    expect(summaryValue('Estimated size')).toBe('~ 50 KB');
+    await showStep(2);
+    expect(element<HTMLInputElement>('input[name="format"][value="JSON"]').checked).toBe(true);
+    expectCardSizes({CSV: '30 KB', TSV: '25 KB', JSON: '50 KB', EXCEL: '40 KB'});
+
+    await showStep(3);
+    component.form.controls.fieldSchema.setValue(['accession', 'length']);
+    await fixture.whenStable();
+    expect(summaryValue('Estimated size')).toBe('~ 80 KB');
+    searchResult.set(null);
+    await fixture.whenStable();
+    expect(summaryValue('Estimated size')).toBe('~ 0 B');
+    await showStep(2);
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
+    component.form.controls.fieldSchema.setValue([]);
+    await fixture.whenStable();
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+    await showStep(3);
+    expect(summaryValue('Estimated size')).toBe('~ 0 B');
+    expect(getAvailableFields).toHaveBeenCalledOnce();
+  });
+
+  it('keeps estimates aligned with picker edits and restored ALL/CUSTOM selections', async () => {
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
+    availableFields$.next(fields);
+    await selectMode('CUSTOM');
+    element<HTMLInputElement>('app-export-fields-picker input[type="checkbox"]').click();
+    await showStep(2);
+    expectCardSizes({CSV: '9 KB', TSV: '7.5 KB', JSON: '15 KB', EXCEL: '12 KB'});
+
+    await showStep(1);
+    await selectMode('ALL');
+    await showStep(2);
+    expectCardSizes({CSV: '24 KB', TSV: '20 KB', JSON: '40 KB', EXCEL: '32 KB'});
+    await showStep(1);
+    await selectMode('CUSTOM');
+    await showStep(2);
+    expectCardSizes({CSV: '9 KB', TSV: '7.5 KB', JSON: '15 KB', EXCEL: '12 KB'});
+
+    await showStep(1);
+    element<HTMLButtonElement>('app-export-fields-picker button:last-child').click();
+    await selectMode('ALL');
+    await selectMode('CUSTOM');
+    await showStep(2);
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+    await showStep(3);
+    expect(summaryValue('Estimated size')).toBe('~ 0 B');
+  });
+
+  it('cancels without submitting and starts a new wizard with CSV rather than the prior format', async () => {
+    await showStep(2);
+    element<HTMLInputElement>('input[name="format"][value="EXCEL"]').click();
+    await fixture.whenStable();
+    expect(component.form.controls.format.value).toBe('EXCEL');
+    element<HTMLButtonElement>('.wizard-nav > button').click();
+    expect(closeWizard).toHaveBeenCalledExactlyOnceWith(null);
+    expect(createSavedFilter).not.toHaveBeenCalled();
+    fixture.destroy();
+    expect(availableFields$.observed).toBe(false);
+
+    fixture = TestBed.createComponent(ExportPipelineWizardComponent);
+    component = fixture.componentInstance;
+    await showStep(2);
+    expect(component.form.controls.format.value).toBe('CSV');
+    expect(element<HTMLInputElement>('input[name="format"][value="CSV"]').checked).toBe(true);
+    expectCardSizes({CSV: '0 B', TSV: '0 B', JSON: '0 B', EXCEL: '0 B'});
+  });
+
   it('synchronizes ALL with asynchronously loaded fields even when the control already has a subset', async () => {
     component.form.controls.fieldSchema.setValue(['accession']);
     availableFields$.next(fields);
@@ -143,12 +293,15 @@ describe('ExportPipelineWizardComponent', () => {
 
   it('initializes ALL for a synchronous field response too', async () => {
     fixture.destroy();
+    searchResult.set({content: [], page: 0, size: 50, totalElements: 1000, totalPages: 20});
     getAvailableFields.mockReturnValue(of(fields));
     fixture = TestBed.createComponent(ExportPipelineWizardComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
 
     expect(component.form.controls.fieldSchema.value).toEqual(['accession', 'length']);
+    await showStep(2);
+    expectCardSizes({CSV: '24 KB', TSV: '20 KB', JSON: '40 KB', EXCEL: '32 KB'});
   });
 
   it('shows an editable picker in CUSTOM and restores the custom subset after ALL', async () => {

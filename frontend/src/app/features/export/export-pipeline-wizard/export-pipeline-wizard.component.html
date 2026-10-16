@@ -83,42 +83,42 @@
 
         <div class="format-grid">
           <label class="format-option">
-            <input checked class="format-input" name="format" type="radio" value="CSV"/>
+            <input class="format-input" formControlName="format" name="format" type="radio" value="CSV"/>
             <span class="format-card">
               <span aria-hidden="true" class="format-icon">CSV</span>
               <span class="format-name">CSV</span>
               <span class="format-desc">Comma-separated values, compatible with most tools.</span>
-              <span class="format-size">~ 2 MB</span>
+              <span class="format-size">~ {{ estimatedSizes().CSV }}</span>
             </span>
           </label>
 
           <label class="format-option">
-            <input class="format-input" name="format" type="radio" value="TSV"/>
+            <input class="format-input" formControlName="format" name="format" type="radio" value="TSV"/>
             <span class="format-card">
               <span aria-hidden="true" class="format-icon">TSV</span>
               <span class="format-name">TSV</span>
               <span class="format-desc">Tab-separated values, ideal for bioinformatics pipelines.</span>
-              <span class="format-size">~ 2 MB</span>
+              <span class="format-size">~ {{ estimatedSizes().TSV }}</span>
             </span>
           </label>
 
           <label class="format-option">
-            <input class="format-input" name="format" type="radio" value="JSON"/>
+            <input class="format-input" formControlName="format" name="format" type="radio" value="JSON"/>
             <span class="format-card">
               <span aria-hidden="true" class="format-icon">JSON</span>
               <span class="format-name">JSON</span>
               <span class="format-desc">Structured data preserving nested collections.</span>
-              <span class="format-size">~ 5 MB</span>
+              <span class="format-size">~ {{ estimatedSizes().JSON }}</span>
             </span>
           </label>
 
           <label class="format-option">
-            <input class="format-input" name="format" type="radio" value="EXCEL"/>
+            <input class="format-input" formControlName="format" name="format" type="radio" value="EXCEL"/>
             <span class="format-card">
               <span aria-hidden="true" class="format-icon">XLSX</span>
               <span class="format-name">Excel</span>
               <span class="format-desc">Spreadsheet with formatted headers (max 500K rows).</span>
-              <span class="format-size">~ 4 MB</span>
+              <span class="format-size">~ {{ estimatedSizes().EXCEL }}</span>
             </span>
           </label>
         </div>
@@ -151,7 +151,7 @@
           </div>
           <div class="summary-row">
             <dt>Format</dt>
-            <dd>CSV</dd>
+            <dd>{{ selectedFormat() }}</dd>
           </div>
           <div class="summary-row">
             <dt>Fields</dt>
@@ -163,7 +163,7 @@
           </div>
           <div class="summary-row">
             <dt>Estimated size</dt>
-            <dd>~ 2 MB</dd>
+            <dd>~ {{ estimatedSizes()[selectedFormat()] }}</dd>
           </div>
         </dl>
 
