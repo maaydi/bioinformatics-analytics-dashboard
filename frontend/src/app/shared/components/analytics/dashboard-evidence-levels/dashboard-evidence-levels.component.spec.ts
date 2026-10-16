@@ -58,6 +58,29 @@ describe('DashboardEvidenceLevelsComponent', () => {
     expect(fixture.nativeElement.querySelector('app-loading-spinner')).toBeTruthy();
   });
 
+  it('renders the heading, hint, and accessible export action while loading', async () => {
+    setup(new Subject<EvidenceLevelItem[]>().asObservable());
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(element.querySelector('h2')?.textContent).toBe('Evidence Levels');
+    expect(element.querySelector('.header-main p')?.textContent).toBe('Distribution by UniProt evidence category');
+    expect(element.querySelector('button')?.getAttribute('aria-label')).toBe('Export chart as image');
+    expect(element.querySelector('button')?.getAttribute('title')).toBe('Export as Image');
+  });
+
+  it('renders parameterized evidence labels and accessible filter actions', async () => {
+    setup(of(mockEvidence));
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(element.querySelector('[role="list"]')?.getAttribute('aria-label')).toBe('Evidence levels');
+    expect(Array.from(element.querySelectorAll('.row-action'), row => row.getAttribute('aria-label')))
+      .toEqual(['Filter by evidence level 1, Protein level', 'Filter by evidence level 2, Transcript level']);
+    expect(element.querySelector('.row-label')?.textContent).toBe('L1 - Protein level');
+    expect(element.querySelector('.count')?.textContent).toBe('400,000');
+  });
+
   it('should render evidence levels from API data', () => {
     setup(of(mockEvidence));
 
@@ -95,6 +118,8 @@ describe('DashboardEvidenceLevelsComponent', () => {
   it('should render error state when API fails', () => {
     setup(throwError(() => new HttpErrorResponse({status: 500, statusText: 'Server Error'})));
     expect(fixture.nativeElement.textContent as string).toContain('Unable to load evidence level distribution.');
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[role="alert"] button')?.textContent).toBe('Retry');
   });
 
   it('should retry loading evidence levels when retry is clicked', () => {

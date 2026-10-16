@@ -19,6 +19,7 @@ import {
 import {
   DashboardKeywordFrequencyHistogramComponent
 } from '@shared/components/analytics/dashboard-keyword-frequency-histogram/dashboard-keyword-frequency-histogram.component';
+import {DASHBOARD_MESSAGES} from './dashboard.messages';
 
 /**
  * Dashboard layout container for DASH-001.
@@ -45,6 +46,7 @@ import {
 })
 
 export class DashboardComponent {
+  protected readonly messages = DASHBOARD_MESSAGES;
 
   protected dashboardKpiCardLoading = signal<boolean>(true);
 }
