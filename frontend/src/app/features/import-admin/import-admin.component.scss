@@ -234,6 +234,12 @@ mat-card {
 // HISTORY TABLE
 // ─────────────────────────────────────────────────────────────────────────────
 
+.history-loading {
+  @include ds.text-body-sm;
+  padding-bottom: ds.$spacing-sm;
+  color: ds.$color-on-surface-variant;
+}
+
 .history-table-wrapper {
   overflow-x: auto;
   border: 1px solid ds.$color-border-light;
@@ -242,6 +248,10 @@ mat-card {
 
   scrollbar-width: thin;
   scrollbar-color: ds.$color-border-medium ds.$color-surface-subtle;
+
+  &[aria-busy='true'] .history-empty-row {
+    display: none;
+  }
 
   &::-webkit-scrollbar {
     height: 6px;

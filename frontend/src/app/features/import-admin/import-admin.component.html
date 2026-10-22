@@ -124,7 +124,11 @@
       <mat-card-title>{{ messages.history }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="history-table-wrapper">
+      @if (historyLoading()) {
+        <div aria-live="polite" class="history-loading" role="status">{{ messages.historyLoading }}</div>
+        <mat-progress-bar [attr.aria-label]="messages.historyLoading" mode="indeterminate" />
+      }
+      <div [attr.aria-busy]="historyLoading()" class="history-table-wrapper">
         <table [dataSource]="jobHistory()" class="mat-elevation-z1 history-table" mat-table>
           <caption class="sr-only">{{ messages.historyCaption }}</caption>
           <ng-container matColumnDef="jobId">
@@ -163,7 +167,7 @@
           <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
           <tr *matRowDef="let _; columns: displayedColumns" mat-row></tr>
 
-          <tr *matNoDataRow mat-row>
+          <tr *matNoDataRow class="mat-mdc-row history-empty-row">
             <td [colSpan]="displayedColumns.length" class="mat-cell empty-cell">
               {{ messages.noHistory }}
             </td>
