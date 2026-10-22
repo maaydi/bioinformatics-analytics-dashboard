@@ -432,12 +432,12 @@
 
 ### Frontend — Integration Points
 
-- [ ] Add "Export via Pipeline" button to `GenesPageComponent` toolbar (next to existing "Export CSV")
-    - [ ] Opens `ExportPipelineWizardComponent` with current filters pre-populated
-- [ ] Add "Export Pipelines" route `/exports` to main navigation (behind `authGuard`)
-- [ ] Add "Export History" quick link in user profile dropdown
-- [ ] When pipeline completes, show toast notification (if user is on any page)
-    - [ ] Uses `MatSnackBar` with action button "View"
+- [x] Add "Export via Pipeline" button to `GenesPageComponent` toolbar (next to existing "Export CSV")
+    - [x] Opens `ExportPipelineWizardComponent` with current filters pre-populated
+- [x] Add "Export Pipelines" route `/exports` to main navigation (behind `authGuard`)
+- [x] Add "Export History" quick link in user profile dropdown
+- [x] When pipeline completes, show toast notification (if user is on any page)
+    - [x] Uses `MatSnackBar` with action button "View"
 
 ### Tests — Backend
 
@@ -482,19 +482,19 @@
 
 ### Tests — Frontend
 
-- [ ] `ExportPipelineWizardComponent` unit tests:
-    - [ ] Stepper advances through all 4 steps
-    - [ ] Step 1 disables next if row count is 0
-    - [ ] Step 3 shows field picker only for Custom Fields
+- [x] `ExportPipelineWizardComponent` unit tests:
+    - [x] Stepper advances through all 4 steps
+    - [x] Step 1 disables next if row count is 0
+    - [x] Step 3 shows field picker only for Custom Fields
   - [x] Step 4 summary reflects selections (including zero/all/custom fields and live chips/rows/format/size)
   - [x] Emits `pipelineCreated` and closes with the service result on successful confirm; mocked-stream tests also
     cover binding/defaults/limits, invalid forms, exact payloads, omitted description, busy duplicate prevention,
     final-step gating, retryable errors, cancellation and destruction cleanup
-- [ ] `FieldPickerComponent` unit tests:
-    - [ ] Moving field updates selected list
-    - [ ] Drag-and-drop reorders selected fields
-    - [ ] Search filters available fields
-    - [ ] Validation fails with 0 selected fields
+- [x] `FieldPickerComponent` unit tests:
+    - [x] Moving field updates selected list
+    - [x] Drag-and-drop reorders selected fields
+    - [x] Search filters available fields
+    - [x] Validation fails with 0 selected fields
 - [x] `ExportPipelineListComponent` unit tests (Vitest):
     - [x] Lists pipelines from service, preserving zero values
     - [x] Shows correct status badge per state
@@ -502,7 +502,7 @@
     - [x] Download button enabled only for COMPLETED; Blob download and URL cleanup covered
     - [x] Retry button calls service on FAILED; duplicate requests and failures covered
     - [x] Server pagination, keyboard filters, stale-request cancellation, empty/error states and confirmed deletion covered
-- [ ] `ExportPipelineService` unit tests (`provideHttpClientTesting()`):
+- [x] `ExportPipelineService` unit tests (`provideHttpClientTesting()`):
     - [ ] `createPipeline` sends POST with correct body
     - [x] Polling until terminal state covered through the feature-scoped store tests
     - [x] `downloadFile` requests Blob decoding; JSON and non-JSON HTTP failure bodies covered

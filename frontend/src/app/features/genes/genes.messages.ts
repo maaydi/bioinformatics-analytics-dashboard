@@ -81,7 +81,7 @@ export const GLOBAL_SEARCH_MESSAGES = {
 
 export const ACTIVE_FILTERS_MESSAGES = {
   title: 'Active Filters',
-  export: 'Export Data',
+  export: 'Export Via Pipeline',
 } as const;
 
 export const RESULT_HEADER_MESSAGES = {

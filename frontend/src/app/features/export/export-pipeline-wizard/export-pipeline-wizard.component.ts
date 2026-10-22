@@ -251,6 +251,7 @@ export class ExportPipelineWizardComponent {
     defer(() => this.exportPipelineService.createPipeline(request)).pipe(
       take(1),
       tap((pipeline) => {
+        sessionStorage.setItem('exportPipelineId', String(pipeline.id));
         this.created = true;
         this.pipelineCreated.emit(pipeline);
         this.dialogRef.close(pipeline);

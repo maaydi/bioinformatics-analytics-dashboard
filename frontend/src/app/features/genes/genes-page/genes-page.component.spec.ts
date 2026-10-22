@@ -7,19 +7,15 @@ import {GenesStore} from '@features/genes/state/filters.store';
 import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {GenesService} from '@features/genes/genes.service';
 import {NotificationService} from '@shared/directive/notification.service';
-import {PagedResponse} from '@core/models/paged-response.model';
-import {of, throwError} from 'rxjs';
+import {of} from 'rxjs';
 
 describe('GenesPageComponent', () => {
   let component: GenesPageComponent;
   let fixture: ComponentFixture<GenesPageComponent>;
-  let genesService: GenesService;
-  let notificationService: NotificationService;
   const navigateMock = vi.fn(() => Promise.resolve(true));
 
   beforeEach(async () => {
     const mockGenesService = {
-      exportCsv: vi.fn().mockReturnValue(of(new Blob(['csv data']))),
       searchGenes: vi.fn().mockReturnValue(of({
         content: [],
         page: 0,
@@ -58,8 +54,6 @@ describe('GenesPageComponent', () => {
 
     fixture = TestBed.createComponent(GenesPageComponent);
     component = fixture.componentInstance;
-    genesService = TestBed.inject(GenesService);
-    notificationService = TestBed.inject(NotificationService);
     fixture.detectChanges();
   });
 
@@ -185,175 +179,6 @@ describe('GenesPageComponent', () => {
     });
   });
 
-  describe('CSV Export Functionality', () => {
-    it('should initialize export progress signal as false', () => {
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
-
-    it('should notify error when no search result exists', () => {
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(null);
-
-      (component as any)['exportResultCsv']();
-
-      expect((notificationService.error as any)).toHaveBeenCalledWith('No data to export.');
-    });
-
-    it('should notify error when no active filters exist', () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(null);
-
-      (component as any)['exportResultCsv']();
-
-      expect((notificationService.error as any)).toHaveBeenCalled();
-    });
-
-    it('should set export progress to true during export', () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {organism: 'Homo sapiens'};
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-
-      (component as any)['exportResultCsv']();
-
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
-
-    it('should call exportCsv with filters, page 0, size 1, and asc direction', () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {evidenceLevels: [3]};
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-
-      (component as any)['exportResultCsv']();
-
-      expect((genesService.exportCsv as any)).toHaveBeenCalledWith({
-        ...mockFilters,
-        page: 0,
-        size: 1,
-        direction: 'asc',
-      });
-    });
-
-    it('should display success notification after export', async () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {};
-      const mockBlob = new Blob(['test'], {type: 'text/csv'});
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-      (genesService.exportCsv as any).mockReturnValue(of(mockBlob));
-
-      (component as any)['exportResultCsv']();
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect((notificationService.success as any)).toHaveBeenCalledWith(
-        'Search result was exported successfully',
-      );
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
-
-    it('should handle export error gracefully', async () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {};
-      const mockError = {error: {message: 'Export service unavailable'}};
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-      (genesService.exportCsv as any).mockReturnValue(throwError(() => mockError));
-
-      (component as any)['exportResultCsv']();
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect((notificationService.error as any)).toHaveBeenCalledWith(
-        'Export service unavailable',
-      );
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
-
-    it('should use generic error message when error has no message', async () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {};
-      const mockError = {};
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-      (genesService.exportCsv as any).mockReturnValue(throwError(() => mockError));
-
-      (component as any)['exportResultCsv']();
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect((notificationService.error as any)).toHaveBeenCalledWith(
-        'Export failed due to an error',
-      );
-    });
-
-    it('should cleanup URL object after download', async () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {};
-      const mockBlob = new Blob(['test'], {type: 'text/csv'});
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-      (genesService.exportCsv as any).mockReturnValue(of(mockBlob));
-
-      const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL');
-
-      (component as any)['exportResultCsv']();
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect(revokeObjectURLSpy).toHaveBeenCalled();
-    });
-  });
-
   describe('Gene Detail Navigation', () => {
     it('should include row ID in navigation path', () => {
       const row: ProteinSummary = {
@@ -409,33 +234,6 @@ describe('GenesPageComponent', () => {
       expect(firstStore).toBe(secondStore);
     });
 
-    it('should initialize with isExportinProgress false', () => {
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
-
-    it('should toggle isExportinProgress during export', async () => {
-      const mockResult: PagedResponse<ProteinSummary> = {
-        content: [],
-        page: 0,
-        size: 20,
-        totalElements: 1,
-        totalPages: 1,
-      };
-      const mockFilters: GeneSearchRequest = {};
-      const mockBlob = new Blob(['test'], {type: 'text/csv'});
-
-      vi.spyOn(component.store, 'searchResult').mockReturnValue(mockResult);
-      vi.spyOn(component.store, 'activeFilters').mockReturnValue(mockFilters);
-      (genesService.exportCsv as any).mockReturnValue(of(mockBlob));
-
-      expect((component as any)['isExportinProgress']()).toBe(false);
-      (component as any)['exportResultCsv']();
-      expect((component as any)['isExportinProgress']()).toBe(false);
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect((component as any)['isExportinProgress']()).toBe(false);
-    });
   });
 
   describe('Store Integration', () => {

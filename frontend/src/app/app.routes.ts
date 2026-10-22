@@ -15,7 +15,7 @@ import {authGuard} from '@core/guards/auth.guard';
  *   /analytics          → AnalyticsComponent           (authenticated)
  *   /saved-filters      → SavedFiltersComponent        (authenticated)
  *   /admin/import       → ImportAdminComponent         (ADMIN only)
- *   /export             → ExportPipelineListComponent  (authenticated)
+ *   /exports            → ExportPipelineListComponent  (authenticated)
  */
 export const routes: Routes = [
   {
@@ -68,7 +68,7 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'export',
+        path: 'exports',
         loadComponent: () =>
           import('./features/export/export-pipeline-list/export-pipeline-list.component').then(
             (m) => m.ExportPipelineListComponent,
