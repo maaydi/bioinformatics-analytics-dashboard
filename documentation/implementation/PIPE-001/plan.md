@@ -46,7 +46,7 @@
 - [ ] Frontend service implemented
 - [ ] ExportPipelineWizardComponent implemented
 - [ ] FieldPickerComponent implemented
-- [ ] ExportPipelineListComponent implemented
+- [x] ExportPipelineListComponent implemented
 - [x] Backend unit tests written
 - [ ] Frontend unit tests written
 - [x] Integration tests written
@@ -341,8 +341,8 @@
 - [x] `retryPipeline(id: number): Observable<ExportPipeline>`
 - [x] `deletePipeline(id: number): Observable<void>`
 - [x] `getAvailableFields(): Observable<ExportFieldSchema[]>`
-- [ ] `pollStatus(id: number, intervalMs = 3000): Observable<ExportJobStatus>` — wraps `getStatus` with `interval()` +
-  `takeWhile(status !== 'COMPLETED' && status !== 'FAILED')` --> ToBeDone in component
+- [x] Status polling is owned by the component-scoped `ExportPipelineListStore`, using `getStatus()` every 3 seconds
+  for visible QUEUED/RUNNING jobs; all terminal states stop polling. No shared service subscription is retained.
 
 ### Frontend — `ExportPipelineWizardComponent` (`features/export/export-pipeline-wizard/`)
 
@@ -368,17 +368,17 @@
         - [x] Description textarea (optional)
         - [x] Summary card: filter count, format, field count, estimated rows, estimated size
         - [x] "Create & Run" button (primary) + "Cancel" button
-- [ ] Outputs:
-    - [ ] `pipelineCreated = output<ExportPipeline>()`
+- [x] Outputs:
+    - [x] `pipelineCreated = output<ExportPipeline>()`
 
 ### Frontend — `FieldPickerComponent` (`shared/components/field-picker/`)
 
-- [ ] `field-picker.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone, reusable
-- [ ] `field-picker.component.html` — external template
-- [ ] Inputs:
-    - [ ] `availableFields: ExportFieldSchema[]`
-    - [ ] `selectedFields: string[]` (two-way binding via `selectedFieldsChange`)
-- [ ] Layout:
+- [x] `field-picker.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone, reusable
+- [x] `field-picker.component.html` — external template
+- [x] Inputs:
+    - [x] `availableFields: ExportFieldSchema[]`
+    - [x] `selectedFields: string[]` (two-way binding via `selectedFieldsChange`)
+- [x] Layout:
   ```
   ┌─ Available Fields ──────┬─ Selected Fields ───────┐
   │ [🔍 Search...]          │ [🔍 Search...]          │
@@ -391,43 +391,44 @@
   │ [► Add Selected]        │ [◄ Remove Selected]     │
   └─────────────────────────┴─────────────────────────┘
   ```
-- [ ] Features:
-    - [ ] Checkbox multi-select in Available list
-    - [ ] Drag-and-drop reordering in Selected list (Angular CDK `drag-drop`)
-    - [ ] Search filters both lists
-    - [ ] "Add All" / "Remove All" buttons
-    - [ ] Selected count badge: "23 fields selected"
-    - [ ] Validation: minimum 1 field selected
-- [ ] Accessibility:
-    - [ ] `aria-label` on each list
-    - [ ] Keyboard: arrow keys navigate, Space toggles selection, Enter moves item
+- [x] Features:
+    - [x] Checkbox multi-select in Available list
+    - [x] Drag-and-drop reordering in Selected list (Angular CDK `drag-drop`)
+    - [x] Search filters both lists
+    - [x] "Add All" / "Remove All" buttons
+    - [x] Selected count badge: "23 fields selected"
+    - [x] Validation: minimum 1 field selected
+- [x] Accessibility:
+    - [x] `aria-label` on each list
+    - [x] Keyboard: arrow keys navigate, Space toggles selection, Enter moves item
 
 ### Frontend — `ExportPipelineListComponent` (`features/export/export-pipeline-list/`)
 
-- [ ] `export-pipeline-list.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
-- [ ] `export-pipeline-list.component.html` — external template
-- [ ] `export-pipeline-list.component.scss` — design system tokens
-- [ ] Layout:
-    - [ ] Page header: "Export Pipelines" + "New Export" button
-    - [ ] Filter bar: status chips (All / Queued / Running / Completed / Failed)
-    - [ ] Table columns: Name | Format | Rows | Size | Status | Created | Actions
-    - [ ] Status column: colored badge with icon
-        - [ ] QUEUED → `hourglass_empty` icon, gray
-        - [ ] RUNNING → `sync` animated icon, blue
-        - [ ] COMPLETED → `check_circle` icon, green
-        - [ ] FAILED → `error` icon, red
-        - [ ] CANCELLED → `cancel` icon, orange
-    - [ ] Actions column:
-        - [ ] COMPLETED → Download button (primary icon)
-        - [ ] FAILED → Retry button (warn icon) + error tooltip
-        - [ ] All → Delete button (trash icon, confirmation dialog)
-    - [ ] Progress bar for RUNNING pipelines (indeterminate or determinate)
-- [ ] Polling:
-    - [ ] `effect()` subscribes to `pollStatus()` for all RUNNING pipelines
-    - [ ] Updates signals when status changes
-    - [ ] Auto-stops polling when no RUNNING pipelines remain
-- [ ] Empty state: "No export pipelines yet. Create your first export from the Gene Explorer."
-- [ ] Error state: toast on failed retry or delete
+- [x] `export-pipeline-list.component.ts` — `ChangeDetectionStrategy.OnPush`, standalone
+- [x] `export-pipeline-list.component.html` — external template with typed, immutable row view models
+- [x] `export-pipeline-list.component.scss` — import history card/table styling and design system tokens
+- [x] Layout:
+    - [x] Page header: "Export Pipelines" + "New Export" link to Gene Explorer (the wizard requires its search context)
+    - [x] Filter bar: keyboard-accessible status chips (All / Queued / Running / Completed / Failed / Cancelled)
+    - [x] Table columns: Name | Format | Rows | Size | Status | Created | Actions
+    - [x] Status column: colored badge with icon
+        - [x] QUEUED → `hourglass_empty` icon, gray
+        - [x] RUNNING → `sync` animated icon, blue (respects reduced-motion preference)
+        - [x] COMPLETED → `check_circle` icon, green
+        - [x] FAILED → `error` icon, red
+        - [x] CANCELLED → `cancel` icon, orange
+    - [x] Actions column:
+        - [x] COMPLETED → authenticated Blob download with server-provided filename and object URL cleanup
+        - [x] FAILED → Retry button (warn icon) + error tooltip
+        - [x] All → Delete button (trash icon, shared confirmation dialog)
+    - [x] Progress bar for RUNNING pipelines (indeterminate or determinate)
+    - [x] Server pagination, filter/page request cancellation, duplicate-action protection and last-page correction
+- [x] Polling in feature-scoped `ExportPipelineListStore`:
+    - [x] `effect()` polls all visible QUEUED/RUNNING pipelines every 3 seconds without overlapping requests
+    - [x] Updates signals; refreshes terminal metadata and filtered lists when jobs change status
+    - [x] Auto-stops on terminal states, page/filter changes and destruction; failed polls retry with deduplicated toasts
+- [x] Empty state: "No export pipelines yet. Create your first export from the Gene Explorer."
+- [x] Error state: inline retry for list failures; toast on failed retry, delete or download
 
 ### Frontend — Integration Points
 
@@ -494,16 +495,20 @@
     - [ ] Drag-and-drop reorders selected fields
     - [ ] Search filters available fields
     - [ ] Validation fails with 0 selected fields
-- [ ] `ExportPipelineListComponent` unit tests:
-    - [ ] Lists pipelines from service
-    - [ ] Shows correct status badge per state
-    - [ ] Polls status for running pipelines
-    - [ ] Download button enabled only for COMPLETED
-    - [ ] Retry button calls service on FAILED
-- [ ] `ExportPipelineService` unit tests (HttpClientTestingModule):
+- [x] `ExportPipelineListComponent` unit tests (Vitest):
+    - [x] Lists pipelines from service, preserving zero values
+    - [x] Shows correct status badge per state
+    - [x] Polls queued/running jobs, updates progress, refreshes terminal metadata and tears down requests
+    - [x] Download button enabled only for COMPLETED; Blob download and URL cleanup covered
+    - [x] Retry button calls service on FAILED; duplicate requests and failures covered
+    - [x] Server pagination, keyboard filters, stale-request cancellation, empty/error states and confirmed deletion covered
+- [ ] `ExportPipelineService` unit tests (`provideHttpClientTesting()`):
     - [ ] `createPipeline` sends POST with correct body
-    - [ ] `pollStatus` emits at interval until terminal state
-    - [ ] `downloadFile` calls correct endpoint and returns Blob
+    - [x] Polling until terminal state covered through the feature-scoped store tests
+    - [x] `downloadFile` requests Blob decoding; JSON and non-JSON HTTP failure bodies covered
+    - [x] `listPipelines` sends status and pagination query parameters
+
+Validation: `npm test -- --include='src/app/features/export/**/*.spec.ts'` — 148 tests passed.
 
 ### General
 

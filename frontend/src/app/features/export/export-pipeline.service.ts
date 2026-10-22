@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {environment} from '@env/environment';
 import {
   DownloadUrl,
@@ -50,23 +50,25 @@ export class ExportPipelineService {
   }
 
   downloadFile(id: number): Observable<Blob> {
-    return this.http.get<Blob>(`${this.baseUrl}/pipelines/${id}/download-file`)
-      .pipe(catchError((err) => {
-          if (err.error instanceof Blob) {
-            return from(err.error.text()).pipe(
-              switchMap((errorText) => {
-                try {
-                  err.error = JSON.parse(errorText as string);
-                } catch (e) {
-                  err.error = {message: 'An unexpected error occurred during export.'};
-                }
-                return throwError(() => err);
-              })
-            );
-          }
-          return throwError(() => err);
+    return this.http.get(`${this.baseUrl}/pipelines/${id}/download-file`, {responseType: 'blob'}).pipe(
+      catchError((error: unknown) => {
+        if (!(error instanceof HttpErrorResponse) || !(error.error instanceof Blob)) {
+          return throwError(() => error);
         }
-      ));
+        return from(error.error.text()).pipe(switchMap(text => {
+          let body: unknown;
+          try {
+            body = JSON.parse(text) as unknown;
+          } catch {
+            return throwError(() => error);
+          }
+          return throwError(() => new HttpErrorResponse({
+            error: body, headers: error.headers, status: error.status,
+            statusText: '', url: error.url ?? undefined,
+          }));
+        }));
+      }),
+    );
   }
 
   retryPipeline(id: number): Observable<ExportPipeline> {
