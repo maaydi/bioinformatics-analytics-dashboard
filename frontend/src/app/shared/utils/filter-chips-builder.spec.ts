@@ -39,7 +39,7 @@ describe('filter-chips-builder', () => {
       {key: 'organism', label: 'Organism', value: 'Human'},
       {key: 'lengthMin', label: 'Length Min', value: '10'},
       {key: 'lengthMax', label: 'Length Max', value: '100'},
-      {key: 'evidenceLevels', label: 'Evidence', value: '1, 2'}
+      {key: 'evidenceLevels', label: 'Evidence', value: 'Protein level, Transcript level'}
     ]);
   });
 

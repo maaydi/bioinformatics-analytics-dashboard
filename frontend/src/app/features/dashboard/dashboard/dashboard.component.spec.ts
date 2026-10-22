@@ -168,7 +168,7 @@ describe('DashboardComponent', () => {
       const description = compiled.query(By.css('.dashboard-header p'));
       expect(description).toBeTruthy();
       expect(description.nativeElement.textContent).toBe(
-        'Overview metrics and analytics visualizations.'
+        'Overview metrics and analytics visualizations for datasets queried from your local database.'
       );
     });
   });
@@ -254,7 +254,7 @@ describe('DashboardComponent', () => {
 
       expect(element.querySelector('h1')?.textContent).toBe('Dashboard');
       expect(element.querySelector('.dashboard-header p')?.textContent).toBe(
-        'Overview metrics and analytics visualizations.',
+        'Overview metrics and analytics visualizations for datasets queried from your local database.',
       );
       expect(Array.from(element.querySelectorAll('section'), section => section.getAttribute('aria-label')))
         .toEqual(['Dashboard overview', 'KPI cards', 'Distribution charts', 'Evidence levels', 'Top organisms']);

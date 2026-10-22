@@ -55,7 +55,10 @@ export class GenesTableComponent {
   readonly hasRows = computed(() => this.rows().length > 0);
   readonly hasError = computed(() => Boolean(this.errorMessage()));
   readonly isDataLoaded = computed(() => this.data() !== null);
-  readonly isEmpty = computed(() => this.isDataLoaded() && !this.loading() && !this.hasError() && !this.hasRows());
+  readonly isEmpty = computed(() => this.isDataLoaded()
+    && !this.loading()
+    && !this.hasError()
+    && !this.hasRows());
   readonly columnDefs: ColDef<ProteinSummary>[] = [
     {
       field: 'accession',
