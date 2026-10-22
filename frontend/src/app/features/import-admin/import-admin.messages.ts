@@ -17,6 +17,7 @@ export const IMPORT_ADMIN_MESSAGES = {
   submit: 'Submit Import',
   history: 'Import Job History',
   historyCaption: 'Import jobs history',
+  historyLoading: 'Loading import history…',
   jobId: 'Job ID',
   source: 'Source',
   status: 'Status',

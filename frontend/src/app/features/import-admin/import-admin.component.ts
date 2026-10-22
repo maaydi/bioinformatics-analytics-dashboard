@@ -1,15 +1,5 @@
 import {CommonModule, DecimalPipe} from '@angular/common';
-import {HttpErrorResponse} from '@angular/common/http';
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, viewChild,} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {
   MatCard,
@@ -23,31 +13,9 @@ import {MatIcon} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatTableModule} from '@angular/material/table';
-import {ImportJobSummary} from '@core/models/import.model';
-import {SavedFilter} from '@core/models/saved-filter.model';
-import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
-import {catchError, EMPTY, interval, Subscription, switchMap, takeWhile} from 'rxjs';
-import {ImportAdminService} from './import-admin.service';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {IMPORT_ADMIN_MESSAGES} from './import-admin.messages';
-
-/**
- * Import Admin page — Epic 1 (US-1, US-2, US-3). ADMIN only.
- *
- * Features:
- * - File upload form (.dat / .tsv, max 2 GB)
- * - Local/remote source switch
- * - Saved-filter selection for remote imports
- * - Submit → POST /api/admin/import/uniprot → 202 Accepted
- * - Progress bar (polls GET /api/admin/import/status/{jobId} every 5 s)
- * - Import job history table (GET /api/admin/import/status)
- *
- * Error handling:
- * - 409 Conflict: "An import is already running"
- * - 413 Payload Too Large: file > 2 GB
- * - 422: unsupported file type
- *
- */
+import {ImportAdminStore} from './import-admin.store';
 
 @Component({
   selector: 'app-import-admin',
@@ -70,343 +38,61 @@ import {IMPORT_ADMIN_MESSAGES} from './import-admin.messages';
   templateUrl: './import-admin.component.html',
   styleUrl: './import-admin.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ImportAdminStore],
 })
-export class ImportAdminComponent implements OnDestroy {
+export class ImportAdminComponent {
+  readonly displayedColumns: readonly string[] = ['jobId', 'jobSource', 'status', 'progress', 'startTime', 'endTime'];
+
   protected readonly messages = IMPORT_ADMIN_MESSAGES;
-  private readonly importService = inject(ImportAdminService);
-  isRemoteMode = signal<boolean>(false);
-  private readonly MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
-  private readonly ALLOWED_EXTENSIONS = ['.dat', '.tsv'];
-  selectedFilterId = signal<number | null>(null);
-  selectedFile = signal<File | null>(null);
-  savedFilters = signal<SavedFilter[]>([]);
-  savedFiltersLoading = signal<boolean>(false);
-  savedFiltersError = signal<string | null>(null);
-  displayedColumns: string[] = ['jobId', 'jobSource', 'status', 'progress', 'startTime', 'endTime'];
-  isUploading = signal<boolean>(false);
-  currentProgress = signal<number>(0);
-  errorMessage = signal<string | null>(null);
-  jobHistory = signal<ImportJobSummary[]>([]);
-  totalJobs = signal<number>(0);
-  pageSize = signal<number>(5);
-  pageIndex = signal<number>(0);
-  forceLoadHistory = signal<boolean>(false);
-  activeJobId = signal<string | null>(null);
-  private readonly savedFiltersService = inject(SavedFiltersService);
+  private readonly fileInputElement = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  private pollingSubscription?: Subscription;
-  private historySubscription?: Subscription;
-  private savedFiltersSubscription?: Subscription;
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  constructor() {
-    afterNextRender(() => {
-      this.loadJobHistory();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.stopPolling();
-    this.stopLoadHistory();
-    this.stopLoadSavedFilters();
-  }
+  private readonly store = inject(ImportAdminStore);
+  readonly isRemoteMode = this.store.isRemoteMode;
+  readonly selectedFilterId = this.store.selectedFilterId;
+  readonly selectedFile = this.store.selectedFile;
+  readonly savedFilters = this.store.savedFilters;
+  readonly savedFiltersLoading = this.store.savedFiltersLoading;
+  readonly savedFiltersError = this.store.savedFiltersError;
+  readonly isUploading = this.store.isUploading;
+  readonly currentProgress = this.store.currentProgress;
+  readonly errorMessage = this.store.errorMessage;
+  readonly jobHistory = this.store.jobHistory;
+  readonly historyLoading = this.store.historyLoading;
+  readonly totalJobs = this.store.totalJobs;
+  readonly pageSize = this.store.pageSize;
+  readonly pageIndex = this.store.pageIndex;
 
   onSourceModeChange(isRemote: boolean): void {
-    if (this.isUploading()) {
-      return;
-    }
-
-    this.isRemoteMode.set(isRemote);
-    this.errorMessage.set(null);
-    this.selectedFilterId.set(null);
-    this.clearSelectedFile();
-
-    if (!isRemote) {
-      this.stopLoadSavedFilters();
-      this.savedFiltersLoading.set(false);
-      this.savedFilters.set([]);
-      return;
-    }
-
-    if (this.savedFilters().length === 0 && !this.savedFiltersLoading()) {
-      this.loadSavedFilters();
-    }
+    if (this.isUploading()) return;
+    const input = this.fileInputElement()?.nativeElement;
+    if (input) input.value = '';
+    this.store.selectSource(isRemote);
   }
 
   onFilterSelect(event: Event): void {
-    if (this.isUploading()) {
-      return;
-    }
-
-    const filterId = Number((event.target as HTMLSelectElement).value);
-    const matchedFilter = Number.isInteger(filterId)
-      ? this.savedFilters().find((filter) => filter.id === filterId)
-      : undefined;
-    const selectedFilterId = matchedFilter?.id ?? null;
-    this.selectedFilterId.set(selectedFilterId);
-
-    if (selectedFilterId !== null && this.isRemoteMode()) {
-      this.submitRemoteImport();
-    }
+    const select = event.target;
+    if (select instanceof HTMLSelectElement) this.store.selectFilter(select.value);
   }
 
   triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
+    if (!this.isUploading()) this.fileInputElement()?.nativeElement.click();
   }
 
   onFileSelected(event: Event): void {
-    if (this.isUploading()) {
-      return;
-    }
-
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.errorMessage.set(null);
-
-      if (file.size > this.MAX_FILE_SIZE) {
-        this.errorMessage.set(this.messages.fileTooLarge);
-        this.selectedFile.set(null);
-        input.value = '';
-        return;
-      }
-      const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-      if (!this.ALLOWED_EXTENSIONS.includes(fileExt)) {
-        this.errorMessage.set(
-          this.messages.unsupportedFile(this.ALLOWED_EXTENSIONS),
-        );
-        this.selectedFile.set(null);
-        input.value = '';
-        return;
-      }
-      this.selectedFile.set(file);
-    }
+    if (this.isUploading()) return;
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) return;
+    const file = input.files?.item(0);
+    if (!file) return;
+    this.store.selectFile(file);
+    input.value = '';
   }
 
   submitImport(): void {
-    if (this.isUploading()) {
-      return;
-    }
-
-    if (this.isRemoteMode()) {
-      this.submitRemoteImport();
-      return;
-    }
-
-    const file = this.selectedFile();
-    if (!file) return;
-
-    this.isUploading.set(true);
-    this.errorMessage.set(null);
-    this.currentProgress.set(0);
-
-    this.importService.triggerImport(file).subscribe({
-      next: (job) => {
-        if (job?.id) {
-          this.activeJobId.set(job.id);
-          this.startPolling(job.id);
-          return;
-        }
-
-        this.isUploading.set(false);
-        this.errorMessage.set(this.messages.missingJobId);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.handleError(err);
-        this.isUploading.set(false);
-      },
-    });
-  }
-
-  submitRemoteImport(): void {
-    const filterId = this.selectedFilterId();
-    if (filterId === null || this.isUploading()) return;
-
-    this.isUploading.set(true);
-    this.errorMessage.set(null);
-    this.currentProgress.set(0);
-
-    this.importService.triggerRemoteImport(filterId).subscribe({
-      next: (job) => {
-        if (job?.id) {
-          this.activeJobId.set(job.id);
-          this.startPolling(job.id);
-          return;
-        }
-
-        this.isUploading.set(false);
-        this.errorMessage.set(this.messages.missingJobId);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.handleError(err);
-        this.isUploading.set(false);
-      },
-    });
+    this.store.submitImport();
   }
 
   onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
-    this.forceLoadHistory.set(true);
-    this.loadJobHistory();
-  }
-
-  private handleError(error: HttpErrorResponse): void {
-    let msg: string | null = null;
-    switch (error.status) {
-      case 409:
-        msg = this.messages.conflict;
-        break;
-      case 413:
-        msg = this.messages.payloadTooLarge;
-        break;
-      case 422:
-        msg = this.messages.unsupportedType;
-        break;
-      default:
-        msg = this.messages.unexpectedError;
-        break;
-    }
-    this.errorMessage.set(msg);
-  }
-
-  private startPolling(jobId: string): void {
-    this.stopPolling();
-    this.pollingSubscription = interval(3000)
-      .pipe(
-        switchMap(() => this.importService.getJobProgress(jobId)),
-        takeWhile(
-          (jobProgress) => jobProgress.status !== 'COMPLETED' && jobProgress.status !== 'FAILED',
-          true,
-        ),
-      )
-      .subscribe({
-        next: (jobProgress) => {
-          const newProgress = jobProgress.progressPercent || 0;
-          this.currentProgress.set(newProgress);
-          this.jobHistory.update(history =>
-            history.map(job => job.id === jobId ? {
-              ...job,
-              progressPercent: newProgress,
-              status: jobProgress.status
-            } : job)
-          );
-          if (jobProgress.status === 'COMPLETED' || jobProgress.status === 'FAILED') {
-            this.isUploading.set(false);
-            this.selectedFile.set(null);
-            this.activeJobId.set(null);
-            this.loadJobHistory();
-            if (jobProgress.status === 'FAILED') {
-              this.errorMessage.set(this.messages.jobFailed(jobId));
-            }
-          }
-        },
-        error: () => {
-          this.errorMessage.set(this.messages.statusConnectionLost);
-          this.isUploading.set(false);
-          this.activeJobId.set(null);
-          this.stopPolling();
-        },
-      });
-  }
-
-  private stopPolling(): void {
-    if (this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-      this.pollingSubscription = undefined;
-    }
-  }
-
-  private loadJobHistory(): void {
-    this.stopLoadHistory();
-    this.historySubscription = interval(3000)
-      .pipe(
-        switchMap(() => {
-          const hasRunning = this.jobHistory().some((job) => job.status === 'RUNNING');
-          const hasHistory = this.jobHistory().length > 0;
-
-          if (!this.isUploading() && !hasRunning && hasHistory && !this.forceLoadHistory()) {
-            return EMPTY;
-          }
-
-          return this.importService.listImportJobs(this.pageIndex(), this.pageSize()).pipe(
-            catchError(() => {
-              this.errorMessage.set(this.messages.historyLoadFailed);
-              return EMPTY;
-            }),
-          );
-        }),
-      )
-      .subscribe({
-        next: (history) => {
-          this.jobHistory.set(history.content);
-          this.totalJobs.set(history.totalElements);
-          this.forceLoadHistory.set(false);
-          const activeId = this.activeJobId();
-          if (activeId) {
-            const activeRow = history.content.find(j => j.id === activeId);
-            if (activeRow) {
-              this.currentProgress.set(activeRow.progressPercent || 0);
-            }
-          }
-        },
-        error: () => {
-          this.errorMessage.set(this.messages.historyConnectionLost);
-          this.stopLoadHistory();
-        },
-      });
-  }
-
-  private stopLoadHistory(): void {
-    if (this.historySubscription) {
-      this.historySubscription.unsubscribe();
-      this.historySubscription = undefined;
-    }
-  }
-
-  private loadSavedFilters(page = 0, accumulatedFilters: SavedFilter[] = []): void {
-    if (page === 0) {
-      this.stopLoadSavedFilters();
-      this.savedFiltersLoading.set(true);
-      this.savedFiltersError.set(null);
-    }
-
-    const requestSubscription = this.savedFiltersService.listSavedFilters(page, 200).subscribe({
-      next: (response) => {
-        const allFilters = [...accumulatedFilters, ...response.content];
-        if (response.totalPages <= page + 1) {
-          this.savedFilters.set(allFilters);
-          this.savedFiltersLoading.set(false);
-          return;
-        }
-
-        this.loadSavedFilters(page + 1, allFilters);
-      },
-      error: () => {
-        this.savedFiltersLoading.set(false);
-        this.savedFiltersError.set(this.messages.filtersLoadFailed);
-      },
-    });
-
-    if (!this.savedFiltersSubscription) {
-      this.savedFiltersSubscription = new Subscription();
-    }
-    this.savedFiltersSubscription.add(requestSubscription);
-  }
-
-  private stopLoadSavedFilters(): void {
-    if (this.savedFiltersSubscription) {
-      this.savedFiltersSubscription.unsubscribe();
-      this.savedFiltersSubscription = undefined;
-    }
-  }
-
-  private clearSelectedFile(): void {
-    this.selectedFile.set(null);
-    if (this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.value = '';
-    }
+    this.store.changePage(event.pageIndex, event.pageSize);
   }
 }
