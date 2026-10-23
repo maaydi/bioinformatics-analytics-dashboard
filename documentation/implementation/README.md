@@ -55,7 +55,7 @@ documentation/implementation/
 | `REMOTE-001`    | User can fetch data from UniProtKB Remote Provider (GeneService over REST)   | `done`        |
 | `STRUCT-001`    | Structural Context Module (3D Protein Viewer)                                | `not-started` |
 | `NLQ-001`       | Natural Language Query & AI Summarization Engine                             | `not-started` |
-| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `in-progress` |
+| `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                 | `done`        |
 | `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                         | `not-started` | 
 | `ARCH-002`      | Protein Catalog Ownership & Database-per-Service Enforcement                 | `not-started` | 
 | `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                       | `in-progress` | 
@@ -85,7 +85,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 17    | `REMOTE-001`    | `done`        | User can fetch data from UniProtKB Remote Provider (GeneService over REST) | Users can switch between local UniProt data and live UniProtKB data when exploring proteins                                             |
 | 18    | `STRUCT-001`    | `not-started` | Structural Context Module (3D Protein Viewer)                              | Users can interactively explore a protein's 3D structure directly from its Gene Detail page                                             |
 | 19    | `NLQ-001`       | `not-started` | Natural Language Query & AI Summarization Engine                           | Users can ask questions about proteins in plain English and receive relevant results with AI-generated summaries                        |
-| 20    | `PIPE-001`      | `in-progress` | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
+| 20    | `PIPE-001`      | `done`        | Visual Export Pipeline & Batch Export Engine                               | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
 | 21    | `ARCH-001`      | `done` (*)    | Microservices Architecture Migration (Strangler Fig)                       | No changes for Users                                                                                                                    |
 | 22    | `ARCH-002`      | `not-started` | Protein Catalog Ownership & Database-per-Service Enforcement               | No changes for Users                                                                                                                    |
 | 23    | `OPS-002`       | `in-progress` | Migration from Docker Compose to Kubernetes (Minikube)                     | No changes for Users                                                                                                                    |
