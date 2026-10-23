@@ -152,7 +152,7 @@ export class GenesTableComponent {
     },
   ];
 
-  readonly getRowId = (params: GetRowIdParams<ProteinSummary>) => String(params.data.id);
+  readonly getRowId = (params: GetRowIdParams<ProteinSummary>) => String(params.data.accession);
 
   readonly defaultColDef: ColDef<ProteinSummary> = {
     resizable: true,

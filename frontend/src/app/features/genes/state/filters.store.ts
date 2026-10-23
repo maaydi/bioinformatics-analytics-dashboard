@@ -50,9 +50,9 @@ export const GenesStore = signalStore(
     },
 
     /** Update pagination / sorting parameters and trigger a reload */
-    updatePaginationAndSort(params: GeneFilterPageSort): void {
+    updatePaginationAndSort(params: GeneFilterPageSort, filters: GeneSearchRequest | null = null): void {
       patchState(store, {...params});
-      const currentFilters = store.activeFilters();
+      const currentFilters = {...store.activeFilters(), ...filters};
       if (currentFilters) {
         this.searchGene(currentFilters);
       }
