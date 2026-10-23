@@ -65,7 +65,6 @@ export class GenesTableComponent {
       headerName: this.messages.accession,
       sortable: true,
       minWidth: 80,
-      sort: 'asc',
       sortIndex: 0,
       tooltipField: 'accession',
       cellRenderer: ({value}: { value: string }) => {
@@ -99,7 +98,7 @@ export class GenesTableComponent {
       field: 'length',
       headerName: this.messages.length,
       sortable: true,
-      minWidth: 80,
+      minWidth: 104,
       type: 'numericColumn',
       cellClass: 'numeric-cell',
     },
@@ -107,7 +106,8 @@ export class GenesTableComponent {
       field: 'reviewed',
       headerName: this.messages.reviewed,
       sortable: true,
-      minWidth: 80,
+      minWidth: 120,
+      cellClass: 'badge-cell',
 
       cellRenderer: ({value}: { value: boolean }) => this.createCell(
         `review-badge ${value ? 'is-reviewed' : 'not-reviewed'}`,
@@ -119,8 +119,9 @@ export class GenesTableComponent {
       field: 'evidenceLevel',
       headerName: this.messages.evidenceLevel,
       sortable: true,
-      minWidth: 100,
+      minWidth: 152,
       type: 'numericColumn',
+      cellClass: ['badge-cell'],
 
       cellRenderer: ({value}: { value: number }) =>
         this.createCell(`evidence-badge level-${value}`, String(value ?? this.messages.missingValue)),
@@ -158,6 +159,8 @@ export class GenesTableComponent {
     unSortIcon: true,
     suppressMovable: true,
     cellClass: 'text-truncate',
+    wrapText: false,
+    wrapHeaderText: false,
   };
 
   readonly rowSelection = {

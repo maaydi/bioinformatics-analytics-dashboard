@@ -16,12 +16,12 @@
 
 .layout-content {
   flex: 1;
-  padding: ds.$spacing-lg;
+  padding: ds.$spacing-sm;
   overflow: auto;
 }
 
 .layout-content-inner {
-  width: min(100%, 1600px);
+  width: min(100%, 1920px);
   margin-inline: auto;
 }
 

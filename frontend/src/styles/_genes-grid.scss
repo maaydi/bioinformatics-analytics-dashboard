@@ -1,0 +1,210 @@
+@use "design-system" as ds;
+@use "gene-shared" as gs;
+
+app-genes-table .gene-grid {
+  .ag-header-cell,
+  .ag-cell {
+    padding-block: 0;
+    padding-inline: var(--ag-cell-horizontal-padding);
+    justify-content: center;
+  }
+
+  .ag-header-cell,
+  .ag-header-cell-comp-wrapper,
+  .ag-cell-label-container,
+  .ag-header-cell-label {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .ag-header-cell-comp-wrapper {
+    height: 100%;
+  }
+
+  .ag-cell-label-container {
+    padding: 0;
+    gap: ds.$spacing-sm;
+  }
+
+  .ag-header-cell-label {
+    justify-content: center;
+    flex-direction: row !important;
+    gap: ds.$spacing-xs;
+  }
+
+  .ag-header-cell-text {
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface;
+    font-weight: ds.$font-weight-semibold;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ag-sort-indicator-container {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .ag-header-icon,
+  .ag-sort-indicator-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-inline: 0;
+    line-height: 1;
+  }
+
+  .ag-right-aligned-header .ag-header-cell-label {
+    flex-direction: row-reverse;
+  }
+
+  .ag-cell {
+    @include ds.text-body-sm;
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: ds.$color-on-surface;
+    background-color: ds.$color-surface;
+    transition: background-color 0.15s ease-out;
+
+    &:hover {
+      background-color: ds.$color-surface-hover;
+    }
+  }
+
+  .ag-cell-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: inherit;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .ag-cell-wrapper > .ag-cell-value {
+    min-width: 0;
+  }
+
+  .text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mono-cell {
+    @include ds.text-mono;
+    color: ds.$color-on-surface;
+  }
+
+  .accession-col {
+    @include ds.text-body-sm;
+    font-weight: ds.$font-weight-bold;
+    color: var(--mat-sys-primary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.2s ease;
+
+    &:hover {
+      color: var(--mat-sys-primary-container);
+      text-decoration-color: var(--mat-sys-primary);
+    }
+
+    &:focus-visible {
+      @include ds.focus-ring();
+    }
+  }
+
+  .numeric-cell {
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .badge-cell .ag-cell-value {
+    display: flex;
+    align-items: center;
+    justify-content: inherit;
+  }
+
+  .review-badge {
+    @include gs.review-badge;
+    flex: 0 0 auto;
+  }
+
+  .evidence-badge {
+    @include gs.evidence-badge;
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    line-height: 1;
+  }
+
+  .keywords-cell {
+    display: flex;
+    align-items: center;
+    gap: ds.$spacing-xs;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 0;
+  }
+
+  .keyword-chip {
+    @include ds.chip-base;
+    background-color: ds.$color-accent-bg;
+    color: ds.$color-accent-text;
+    max-width: 120px;
+    border-radius: ds.$border-radius-full;
+    flex-shrink: 0;
+    border: 1px solid var(--chip-indigo-border);
+
+    &:hover {
+      background-color: var(--chip-indigo-hover-bg);
+      border-color: var(--mat-sys-primary);
+    }
+  }
+
+  .more-counter-chip {
+    @include ds.chip-base;
+    background-color: ds.$color-muted-bg;
+    color: ds.$color-muted-text;
+    font-weight: ds.$font-weight-bold;
+    max-width: none;
+    border: 1px solid var(--chip-neutral-border);
+  }
+
+  .empty-value {
+    @include ds.text-body-sm;
+    color: ds.$color-on-surface-disabled;
+    font-style: italic;
+  }
+
+  @include ds.respond-to('xl') {
+    .keyword-chip {
+      max-width: 140px;
+    }
+  }
+
+  @include ds.respond-up-to('md') {
+    .keyword-chip {
+      max-width: 100px;
+      font-size: 10px;
+      padding: 0.15rem 0.4rem;
+    }
+
+    .evidence-badge {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}

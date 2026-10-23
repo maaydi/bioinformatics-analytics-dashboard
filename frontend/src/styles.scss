@@ -1,6 +1,7 @@
 @use '@angular/material' as mat;
 @use "design-system" as ds;
 @use "theme-variables";
+@use "genes-grid";
 
 // 1. Include core styles
 @include mat.core();
