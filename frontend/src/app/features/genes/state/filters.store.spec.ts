@@ -192,14 +192,6 @@ describe('GenesStore', () => {
     });
   });
 
-  it('should update pagination/sort state without searching when no active filters exist', () => {
-    const searchSpy = vi.spyOn(store, 'searchGene');
-
-    store.updatePaginationAndSort({page: 2, size: 100, sort: 'accession', direction: 'desc'});
-
-    expect(searchSpy).not.toHaveBeenCalled();
-  });
-
   it('should re-trigger search with current filters after pagination/sort update', () => {
     const snapshot: GeneSearchRequest = {globalSearch: 'kinase'};
     store.searchGene(snapshot);

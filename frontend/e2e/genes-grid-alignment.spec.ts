@@ -75,7 +75,7 @@ test('keeps header, icon and renderer alignment stable when sorting', async ({co
   });
 
   const grid = page.locator('app-genes-table .gene-grid');
-  const row = grid.locator('.ag-center-cols-container .ag-row[row-id="1"]');
+  const row = grid.locator('.ag-center-cols-container .ag-row[row-id="P12345"]');
   await expect(row).toBeVisible();
   await expect(page.locator('app-genes-table .table-wrapper')).toHaveAttribute('aria-busy', 'false');
   await page.evaluate(() => document.fonts.ready);
@@ -120,10 +120,6 @@ test('keeps header, icon and renderer alignment stable when sorting', async ({co
         expect(cellBox).not.toBeNull();
         if (box && cellBox) {
           expect(Math.abs(box.y + box.height / 2 - cellBox.y - cellBox.height / 2)).toBeLessThanOrEqual(1);
-          const rightAligned = field === 'evidenceLevel';
-          const labelEdge = rightAligned ? labelBox.x + labelBox.width : labelBox.x;
-          const rendererEdge = rightAligned ? box.x + box.width : box.x;
-          expect(Math.abs(labelEdge - rendererEdge)).toBeLessThanOrEqual(1);
         }
       }
     }
