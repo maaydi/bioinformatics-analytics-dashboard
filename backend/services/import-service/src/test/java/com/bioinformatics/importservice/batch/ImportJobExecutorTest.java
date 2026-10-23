@@ -1,6 +1,7 @@
 package com.bioinformatics.importservice.batch;
 
 import com.bioinformatics.common.exception.ExecuteJobException;
+import com.bioinformatics.common.providers.DataProvider;
 import com.bioinformatics.importservice.dto.Constants;
 import com.bioinformatics.importservice.uniprot.ImportJobExecutor;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class ImportJobExecutorTest {
         // Arrange
         JobParameters parameters = new JobParametersBuilder()
                 .addString("jobId", "123")
-                .addString(Constants.DATA_PROVIDER.getKey(), Constants.FILE.getKey())
+                .addString(Constants.DATA_PROVIDER.getKey(), DataProvider.FILE.getKey())
                 .toJobParameters();
 
         JobExecution mockExecution = mock(JobExecution.class);
@@ -53,7 +54,7 @@ class ImportJobExecutorTest {
         // Arrange
         JobParameters parameters = new JobParametersBuilder()
                 .addString("jobId", "123")
-                .addString(Constants.DATA_PROVIDER.getKey(), Constants.FILE.getKey())
+                .addString(Constants.DATA_PROVIDER.getKey(), DataProvider.FILE.getKey())
                 .toJobParameters();
 
         when(jobOperator.start(any(Job.class), any(JobParameters.class)))

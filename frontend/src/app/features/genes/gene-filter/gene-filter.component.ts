@@ -10,7 +10,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import {GeneFilterFormControls, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterFormControls, GeneSearchRequest} from '@core/models/saved-filter.model';
 import {MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
@@ -20,7 +20,6 @@ import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-to
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {
-  EVIDENCE_LEVEL_LABELS,
   EVIDENCE_LEVELS,
   EvidenceLevel,
   MAX_ACCESSION_LENGTH,
@@ -35,6 +34,8 @@ import {SaveFiltersDialogComponent} from '@features/genes/save-filters-dialog/sa
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 import {getDefaultFormValue, toForm, toSnapshot,} from '@features/genes/gene-filter/gene-filter.utils';
 import {GenericAutocompleteComponent} from '@shared/components/generic-autocomplete/generic-autocomplete.component';
+import {GENE_FILTER_MESSAGES} from '@features/genes/genes.messages';
+import {EVIDENCE_LEVEL_MESSAGES} from '@shared/messages/protein.messages';
 
 const taxidPositiveIntegerValidator: ValidatorFn = (
   control: AbstractControl<number | null>,
@@ -89,7 +90,7 @@ export type DisplayMode = 'sidebar' | 'grid';
  * - Prevents emission while the form is invalid.
  *
  * Outputs:
- * - `filterChange`: emits a normalized `GeneFilterSnapshot`.
+ * - `filterChange`: emits a normalized `GeneSearchRequest`.
  * - `filterClear`: emits after form reset.
  */
 @Component({
@@ -119,9 +120,10 @@ export type DisplayMode = 'sidebar' | 'grid';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneFilterComponent {
+  protected readonly messages = GENE_FILTER_MESSAGES;
   displayMode = input<DisplayMode>('sidebar');
   /** Title shown in the header. Parent may override it */
-  title = input<string>('Filters');
+  title = input<string>(GENE_FILTER_MESSAGES.title);
 
   readonly showSubmitButton = input<Boolean>(true);
 
@@ -168,9 +170,9 @@ export class GeneFilterComponent {
     featureType: new FormControl('', {nonNullable: false}),
     crossRefSource: new FormControl('', {nonNullable: false}),
   });
-  readonly value = input<GeneFilterSnapshot | null>(null);
+  readonly value = input<GeneSearchRequest | null>(null);
 
-  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterChange = output<GeneSearchRequest>();
   readonly filterClear = output<void>();
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly dialog = inject(MatDialog);
@@ -250,7 +252,7 @@ export class GeneFilterComponent {
           .createSavedFilter({name: response.name, filterJson: filters})
           .subscribe({
             next: (_saved) => {
-              this.snackBar.open(`Saved filter "${response.name}"`, 'Close', {
+              this.snackBar.open(this.messages.saved(response.name), this.messages.close, {
                 duration: 4000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
@@ -258,7 +260,7 @@ export class GeneFilterComponent {
               });
             },
             error: (_err) => {
-              this.snackBar.open(`Failed to save filter "${response?.name}"`, 'Retry', {
+              this.snackBar.open(this.messages.saveFailed(response.name), this.messages.retry, {
                 duration: 6000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
@@ -276,11 +278,11 @@ export class GeneFilterComponent {
 
   /** Returns the display label for one evidence option. */
   protected getEvidenceLevel(level: EvidenceLevel): string {
-    return `${level} - ${EVIDENCE_LEVEL_LABELS[level]}`;
+    return this.messages.evidenceOption(level, EVIDENCE_LEVEL_MESSAGES[level]);
   }
 
   /** Maps form raw values to the API-compatible filter snapshot. */
-  private toSnapshot(): GeneFilterSnapshot {
+  private toSnapshot(): GeneSearchRequest {
     const rawValue = this.form.getRawValue();
     return toSnapshot(rawValue);
   }

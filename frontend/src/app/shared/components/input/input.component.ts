@@ -4,6 +4,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
+import {INPUT_MESSAGES} from '@shared/messages/ui.messages';
 
 @Component({
   selector: 'app-input',
@@ -29,9 +30,9 @@ import {MatTooltip} from '@angular/material/tooltip';
  * - `hintLabel`: optional helper text.
  */
 export class InputComponent implements ControlValueAccessor {
-  title = input<string>('Your Title');
+  title = input<string>(INPUT_MESSAGES.title);
   isSearch = input<boolean>(false);
-  placeholder = input<string>('Type here...');
+  placeholder = input<string>(INPUT_MESSAGES.placeholder);
   hintLabel = input<string>('');
 
   internalControl = new FormControl<string | null>('');

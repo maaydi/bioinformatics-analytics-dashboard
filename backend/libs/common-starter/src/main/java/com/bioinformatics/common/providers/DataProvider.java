@@ -2,8 +2,7 @@ package com.bioinformatics.common.providers;
 
 import lombok.Getter;
 
-import static com.bioinformatics.shared.models.security.Constants.API_DATA_PROVIDER;
-import static com.bioinformatics.shared.models.security.Constants.POSTGRES_DATA_PROVIDER;
+import static com.bioinformatics.shared.models.security.Constants.*;
 
 /**
  * Shared provider identifiers used by the platform to route data access toward a concrete backend.
@@ -11,7 +10,8 @@ import static com.bioinformatics.shared.models.security.Constants.POSTGRES_DATA_
 @Getter
 public enum DataProvider {
     API(API_DATA_PROVIDER),
-    POSTGRES(POSTGRES_DATA_PROVIDER);
+    POSTGRES(POSTGRES_DATA_PROVIDER),
+    FILE(FILE_DATA_PROVIDER);
 
     private final String key;
 

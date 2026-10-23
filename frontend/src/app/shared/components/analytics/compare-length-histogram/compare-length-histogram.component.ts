@@ -14,6 +14,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {LengthHistogramBucket} from '@core/models/analytics.model';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {COMPARE_LENGTH_HISTOGRAM_MESSAGES} from './compare-length-histogram.messages';
 
 /**
  * Merged histogram bucket with counts from both compare sets.
@@ -43,13 +44,14 @@ interface HistogramXAxisTick {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareLengthHistogramComponent {
+  public readonly labelA = input<string>(COMPARE_LENGTH_HISTOGRAM_MESSAGES.labelA);
   @ViewChild('chartCard', {read: ElementRef})
   chartCard!: ElementRef<HTMLElement>;
 
   public readonly bucketsA = input.required<ReadonlyArray<LengthHistogramBucket>>();
   public readonly bucketsB = input.required<ReadonlyArray<LengthHistogramBucket>>();
-  public readonly labelA = input<string>('Set A');
-  public readonly labelB = input<string>('Set B');
+  public readonly labelB = input<string>(COMPARE_LENGTH_HISTOGRAM_MESSAGES.labelB);
+  protected readonly messages = COMPARE_LENGTH_HISTOGRAM_MESSAGES;
 
   public readonly rangeSelected = output<{ min: number; max: number }>();
 

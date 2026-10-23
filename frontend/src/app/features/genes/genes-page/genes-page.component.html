@@ -1,9 +1,9 @@
 <div class="page-container">
-  <mat-card appearance="outlined" aria-label="Gene search filters" class="filter-card">
+  <mat-card appearance="outlined" [attr.aria-label]="messages.filtersLabel" class="filter-card">
     <app-gene-filter (filterChange)="applyFilters($event)" (filterClear)="clearFilters()"
                      [value]="store.activeFilters()"></app-gene-filter>
   </mat-card>
-  <mat-card aria-label="Gene search results" class="result-card">
+  <mat-card [attr.aria-label]="messages.resultsLabel" class="result-card">
     <div class="result-card__search">
       <app-global-search
         (filterChange)="applyFilters($event)"
@@ -16,8 +16,7 @@
         (filterRemoved)="store.removeFilter($event)"
         (setChipsCount)="store.updateChipsCount($event)"
         [filters]="store.activeFilters()"
-        (exportCsv)="exportResultCsv()"
-        [isExportinProgress]="isExportinProgress()"
+        [readOnlyChips]="false"
       ></app-active-filters>
     </div>
     <div class="result-card__search">

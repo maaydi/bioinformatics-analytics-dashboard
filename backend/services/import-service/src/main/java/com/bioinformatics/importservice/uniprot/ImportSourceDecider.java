@@ -1,5 +1,6 @@
 package com.bioinformatics.importservice.uniprot;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
@@ -33,6 +34,7 @@ import static com.bioinformatics.importservice.dto.Constants.DATA_PROVIDER;
  *   <li>Source selection is data-driven
  * </ul>
  */
+@Slf4j
 public class ImportSourceDecider implements JobExecutionDecider {
 
     /**
@@ -47,7 +49,7 @@ public class ImportSourceDecider implements JobExecutionDecider {
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, @Nullable StepExecution stepExecution) {
         var source = jobExecution.getJobParameters().getString(DATA_PROVIDER.getKey());
-        var decision = source != null ? source.toUpperCase() : "UNKNOWN";
-        return new FlowExecutionStatus(decision);
+        log.info("[IMPORT] [DECIDER] Source={} jobExecution={}", source, jobExecution.getId());
+        return new FlowExecutionStatus(source != null ? source : "UNKNOWN");
     }
 }

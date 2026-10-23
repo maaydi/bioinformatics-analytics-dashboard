@@ -1,13 +1,14 @@
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
+import {EVIDENCE_LEVEL_LABELS, EvidenceLevel} from '@core/models/protein.model';
 
-export type FilterChip = { key: keyof GeneFilterSnapshot, label: string, value: string };
+export type FilterChip = { key: keyof GeneSearchRequest, label: string, value: string };
 
 /** Converts non-empty filter fields into display chips. */
-export const buildFiltersChips = (filters: GeneFilterSnapshot | null): FilterChip[] => {
+export const buildFiltersChips = (filters: GeneSearchRequest | null): FilterChip[] => {
   if (!filters) {
     return [];
   }
-  const config: Array<{ key: keyof GeneFilterSnapshot; label: string }> = [
+  const config: Array<{ key: keyof GeneSearchRequest; label: string }> = [
     {key: 'globalSearch', label: 'Search'},
     {key: 'accession', label: 'Accession'},
     {key: 'entryName', label: 'Entry'},
@@ -37,6 +38,14 @@ export const buildFiltersChips = (filters: GeneFilterSnapshot | null): FilterChi
     }
     if (Array.isArray(rawValue)) {
       if (rawValue.length === 0) {
+        continue;
+      }
+      if (item.key === 'evidenceLevels') {
+        chips.push({
+          key: item.key,
+          label: item.label,
+          value: rawValue.map(l => EVIDENCE_LEVEL_LABELS[l as EvidenceLevel]).join(', ')
+        });
         continue;
       }
       chips.push({key: item.key, label: item.label, value: rawValue.join(', ')});

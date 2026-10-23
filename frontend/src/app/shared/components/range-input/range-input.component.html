@@ -18,9 +18,9 @@
     <mat-form-field appearance="outline">
       <input
         (blur)="onTouch()"
-        [attr.aria-label]="(label() || 'Range') + ' minimum'"
+        [attr.aria-label]="messages.minLabel(label())"
         [placeholder]="minPlaceholder()"
-        [title]="label() + ' Minimum'"
+        [title]="messages.minTitle(label())"
         formControlName="min"
         matInput
         type="number"
@@ -30,9 +30,9 @@
     <mat-form-field appearance="outline">
       <input
         (blur)="onTouch()"
-        [attr.aria-label]="(label() || 'Range') + ' maximum'"
+        [attr.aria-label]="messages.maxLabel(label())"
         [placeholder]="maxPlaceholder()"
-        [title]="label() + ' Maximum'"
+        [title]="messages.maxTitle(label())"
         formControlName="max"
         matInput
         type="number"
@@ -40,6 +40,6 @@
     </mat-form-field>
   </div>
   @if (isMinGreaterThanMax()) {
-    <mat-error class="error-message">Min cannot be greater than Max</mat-error>
+    <mat-error class="error-message">{{ messages.invalid }}</mat-error>
   }
 </section>

@@ -1,22 +1,22 @@
 <div class="table-header-actions">
   <div class="header-container">
     <div class="label-container">
-      <label class="section-label">Global Search</label>
+      <label class="section-label">{{ messages.title }}</label>
       <mat-icon
         class="help-icon"
-        matTooltip="Search across all indexed fields"
+        [matTooltip]="messages.hint"
         matTooltipPosition="above">
         help_outline
       </mat-icon>
     </div>
     <button (click)="toggleProvider()"
-            [attr.aria-label]="dataProviderService.getProvider() === 'postgres' ? 'Switch to UniprotKB remote provider' : 'Switch to local DB provider'"
+            [attr.aria-label]="dataProviderService.getProvider() === 'postgres' ? messages.switchToRemote : messages.switchToLocal"
             class="theme-toggle-btn"
             mat-button>
       @if (dataProviderService.getProvider() === 'postgres') {
-        <span class="icon"><mat-icon>signal_wifi_off</mat-icon>Local</span>
+        <span class="icon"><mat-icon>signal_wifi_off</mat-icon>{{ messages.local }}</span>
       } @else {
-        <span class="icon"><mat-icon>signal_wifi_4_bar</mat-icon>Remote</span>
+        <span class="icon"><mat-icon>signal_wifi_4_bar</mat-icon>{{ messages.remote }}</span>
 
       }
     </button>
@@ -25,7 +25,7 @@
     <input (input)="onSearchInput($event)"
            [value]="globalSearchValue()"
            matInput
-           placeholder="Search proteins, genes, organisms..."
+           [placeholder]="messages.placeholder"
     >
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>

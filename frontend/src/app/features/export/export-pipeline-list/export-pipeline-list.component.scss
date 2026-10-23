@@ -1,0 +1,180 @@
+@use "design-system" as ds;
+
+:host {
+  display: block;
+  font-family: ds.$font-family-base;
+  color: ds.$color-on-surface;
+}
+
+.export-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: ds.$spacing-lg;
+}
+
+mat-card {
+  border: 1px solid ds.$color-border-light;
+  border-radius: ds.$border-radius-lg;
+  background: ds.$color-surface;
+  box-shadow: ds.$shadow-xs;
+  overflow: hidden;
+}
+
+mat-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ds.$spacing-md;
+  border-bottom: 1px solid ds.$color-border-light;
+  padding: ds.$spacing-lg ds.$spacing-lg ds.$spacing-md;
+}
+
+.heading { flex: 1; }
+
+h1 {
+  @include ds.text-title-md;
+  margin: 0 0 ds.$spacing-xs;
+  color: ds.$color-on-surface;
+}
+
+mat-card-subtitle {
+  @include ds.text-body-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+mat-card-content { padding: ds.$spacing-lg; }
+
+.header-actions,
+.row-actions {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.header-actions { gap: ds.$spacing-sm; }
+.status-filters { display: block; margin-bottom: ds.$spacing-lg; }
+
+.history-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid ds.$color-border-light;
+  border-radius: ds.$border-radius-md;
+  background: ds.$color-surface;
+  scrollbar-width: thin;
+  scrollbar-color: ds.$color-border-medium ds.$color-surface-subtle;
+
+  &:focus-visible {
+	outline: 2px solid var(--mat-sys-primary);
+	outline-offset: 2px;
+  }
+}
+
+.history-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  text-align: start;
+
+  thead th {
+	@include ds.text-title-sm;
+	background: ds.$color-surface-subtle;
+	white-space: nowrap;
+  }
+
+  th, td {
+	@include ds.text-body-sm;
+	padding: ds.$spacing-md ds.$spacing-lg;
+	border-bottom: 1px solid ds.$color-border-light;
+	color: ds.$color-on-surface;
+  }
+
+  tbody tr:hover { background: ds.$color-surface-hover; }
+
+  .empty-cell {
+	padding: ds.$spacing-2xl;
+	text-align: center;
+	color: ds.$color-on-surface-variant;
+	font-style: italic;
+  }
+}
+
+.name-cell {
+  min-width: 160px;
+  overflow-wrap: anywhere;
+
+  span { font-weight: ds.$font-weight-semibold; }
+  small { display: block; color: ds.$color-on-surface-variant; }
+}
+
+.numeric-cell, .date-cell { white-space: nowrap; }
+.status-cell { min-width: 135px; }
+.status-cell mat-progress-bar { margin-top: ds.$spacing-sm; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ds.$spacing-xs;
+  padding: ds.$spacing-xs ds.$spacing-sm;
+  border-radius: ds.$border-radius-full;
+  border: 1px solid ds.$color-border-medium;
+  @include ds.text-label-sm;
+  font-weight: ds.$font-weight-bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  mat-icon { width: 16px; height: 16px; font-size: 16px; }
+
+  &.queued {
+	background: ds.$color-surface-subtle;
+	color: ds.$color-on-surface-variant;
+  }
+
+  @each $status, $color in (running: blue, completed: green, failed: red, cancelled: orange) {
+	&.#{$status} {
+	  background: var(--status-#{$color}-bg);
+	  color: var(--status-#{$color}-text);
+	  border-color: var(--status-#{$color}-border);
+	}
+  }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ds.$spacing-sm;
+  margin-bottom: ds.$spacing-lg;
+  padding: ds.$spacing-md ds.$spacing-lg;
+  border: 1px solid var(--banner-error-border);
+  border-left: 4px solid var(--mat-sys-error);
+  border-radius: ds.$border-radius-md;
+  background: var(--banner-error-bg);
+  color: var(--mat-sys-error);
+  @include ds.text-body-sm;
+
+  span { flex: 1; }
+}
+
+.loading-state {
+  @include ds.text-body-sm;
+  padding-bottom: ds.$spacing-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+.sr-only { @include ds.visually-hidden; }
+.spinning { animation: export-spin 1.5s linear infinite; }
+@keyframes export-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinning { animation: none; } }
+
+@include ds.respond-to('xl') {
+  .export-container { padding: ds.$spacing-xl; }
+}
+
+@include ds.respond-up-to('md') {
+  .export-container, mat-card-content { padding: ds.$spacing-md; }
+  mat-card-header { padding: ds.$spacing-md; }
+  .heading { flex-basis: 100%; }
+}
+

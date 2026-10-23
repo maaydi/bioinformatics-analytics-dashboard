@@ -19,12 +19,13 @@ import {ReviewedRatioItem} from '@core/models/analytics.model';
 import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
 import {isPlatformBrowser} from '@angular/common';
+import {DASHBOARD_REVIEWED_RATIO_MESSAGES} from './dashboard-reviewed-ratio.messages';
 
 @Component({
   selector: 'app-dashboard-reviewed-ratio',
@@ -34,7 +35,8 @@ import {isPlatformBrowser} from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardReviewedRatioComponent {
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  protected readonly messages = DASHBOARD_REVIEWED_RATIO_MESSAGES;
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private reviewedSub?: Subscription;
 
   protected readonly loading = signal<boolean>(true);
@@ -90,7 +92,7 @@ export class DashboardReviewedRatioComponent {
   }
 
   protected selectReviewedStatus(reviewed: boolean): void {
-    const snapshot: GeneFilterSnapshot = {reviewed};
+    const snapshot: GeneSearchRequest = {reviewed};
     this.genesStore.setActiveFilters(snapshot);
     void this.router.navigate(['/genes']);
   }
@@ -109,7 +111,7 @@ export class DashboardReviewedRatioComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.data.set([]);
-          this.error.set('Unable to load reviewed ratio data.');
+          this.error.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });

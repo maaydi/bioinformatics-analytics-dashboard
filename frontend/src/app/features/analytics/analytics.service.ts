@@ -14,7 +14,7 @@ import {
 } from '@core/models/analytics.model';
 import {environment} from '@env/environment';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 
 /**
  * Service for analytics chart data.
@@ -28,35 +28,35 @@ export class AnalyticsService extends AnalyticsProvider {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/analytics/filters`;
 
-  getDashboardKpis(filter: GeneFilterSnapshot): Observable<DashboardKpis> {
+  getDashboardKpis(filter: GeneSearchRequest): Observable<DashboardKpis> {
     return this.http.post<DashboardKpis>(`${this.baseUrl}/dashboard-kpis`, filter);
   }
 
-  getLengthHistogram(filter: GeneFilterSnapshot): Observable<LengthHistogramBucket[]> {
+  getLengthHistogram(filter: GeneSearchRequest): Observable<LengthHistogramBucket[]> {
     return this.http.post<LengthHistogramBucket[]>(`${this.baseUrl}/length-histogram`, filter);
   }
 
-  getByOrganism(limit = 50, filter: GeneFilterSnapshot): Observable<OrganismCount[]> {
+  getByOrganism(limit = 50, filter: GeneSearchRequest): Observable<OrganismCount[]> {
     return this.http.post<OrganismCount[]>(`${this.baseUrl}/by-organism`, filter, {
       params: {limit},
     });
   }
 
-  getReviewedRatio(filter: GeneFilterSnapshot): Observable<ReviewedRatioItem[]> {
+  getReviewedRatio(filter: GeneSearchRequest): Observable<ReviewedRatioItem[]> {
     return this.http.post<ReviewedRatioItem[]>(`${this.baseUrl}/reviewed-ratio`, filter);
   }
 
-  getEvidenceLevels(filter: GeneFilterSnapshot): Observable<EvidenceLevelItem[]> {
+  getEvidenceLevels(filter: GeneSearchRequest): Observable<EvidenceLevelItem[]> {
     return this.http.post<EvidenceLevelItem[]>(`${this.baseUrl}/evidence-levels`, filter);
   }
 
-  getKeywordFrequency(limit = 100, filter: GeneFilterSnapshot): Observable<KeywordFrequencyItem[]> {
+  getKeywordFrequency(limit = 100, filter: GeneSearchRequest): Observable<KeywordFrequencyItem[]> {
     return this.http.post<KeywordFrequencyItem[]>(`${this.baseUrl}/keyword-frequency`, filter, {
       params: {limit},
     });
   }
 
-  getProteinLengthWeightCount(filter?: GeneFilterSnapshot): Observable<ProteinLengthWeightCount[]> {
+  getProteinLengthWeightCount(filter?: GeneSearchRequest): Observable<ProteinLengthWeightCount[]> {
     return this.http.post<ProteinLengthWeightCount[]>(`${this.baseUrl}/length-weight`, filter);
   }
 

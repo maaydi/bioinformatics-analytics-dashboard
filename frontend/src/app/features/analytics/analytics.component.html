@@ -1,4 +1,4 @@
-<section aria-label="Analytics workspace" class="analytics-page">
+<section [attr.aria-label]="messages.workspaceLabel" class="analytics-page">
   <header class="analytics-header">
     <div>
       <h1>{{ title() }}</h1>
@@ -12,32 +12,32 @@
     }
 
 
-    <div aria-label="Analytics description and filter selector" class="analytics-description" role="region">
+    <div [attr.aria-label]="messages.descriptionLabel" class="analytics-description" role="region">
       @if (isCompareMode()) {
         <div aria-hidden="false" class="actions">
           <button (click)="compareComp().triggerCompare()" [disabled]="!compareComp().isValid" class="export-btn"
                   color="accent"
                   mat-raised-button>
             <mat-icon aria-hidden="true">compare</mat-icon>
-            <span>Compare</span>
+            <span>{{ messages.compare }}</span>
           </button>
         </div>
         <div aria-hidden="false" class="actions">
           <button (click)="compareComp().reset()" class="export-btn" color="primary"
                   mat-raised-button>
             <mat-icon aria-hidden="true">settings_backup_restore</mat-icon>
-            <span>Reset</span>
+            <span>{{ messages.reset }}</span>
           </button>
         </div>
       } @else if (!loading() && !errors() && filters().length > 0) {
         <!-- Filter Selection Row: Only active in Analytics Dashboard Mode -->
         <div class="select-wrapper">
           <mat-icon class="icon-filter">filter_list</mat-icon>
-          <select (change)="onFilterSelect($event)" aria-label="Analytics filter selector"
+        <select (change)="onFilterSelect($event)" [attr.aria-label]="messages.filterSelectorLabel"
                   class="filter-select"
                   id="analytics-filter-select">
             @if (!selectedFilter()) {
-              <option [selected]="!selectedFilter()" value="">-- Select a filter --</option>
+              <option [selected]="!selectedFilter()" value="">{{ messages.selectFilter }}</option>
             }
             @for (filter of filters(); track filter.id) {
               <option [value]="filter.id">{{ filter.name }}</option>
@@ -49,7 +49,7 @@
           <button (click)="exportDashboardAsImage()" [disabled]="!selectedFilter()" class="export-btn" color="primary"
                   mat-raised-button>
             <mat-icon aria-hidden="true">image</mat-icon>
-            <span>Export as Image</span>
+            <span>{{ messages.exportImage }}</span>
           </button>
         </div>
 
@@ -57,7 +57,7 @@
       <div aria-hidden="false" class="actions">
         <button (click)="switchMode()" class="export-btn" color="primary" mat-raised-button>
           <mat-icon aria-hidden="true">compare_arrows</mat-icon>
-          <span>{{ isCompareMode() ? 'Analytics Mode' : 'Compare Mode' }}</span>
+          <span>{{ isCompareMode() ? messages.analyticsMode : messages.compareMode }}</span>
         </button>
       </div>
     </div>
@@ -67,7 +67,7 @@
   @if (isCompareMode()) {
     <!-- Compare Mode Content Layout -->
     <div class="placeholder-notice">
-      <p>Compare two filter sets to analyse and contrast gene subsets side by side.</p>
+    <p>{{ messages.compareHint }}</p>
     </div>
     <app-compare #compareComp/>
   } @else {
@@ -80,36 +80,37 @@
 
       @if (filters().length === 0) {
         <div class="empty-state">
-          <p>You should save filters to view visualization.</p>
+          <p>{{ messages.noFilters }}</p>
         </div>
       } @else {
 
         @if (!selectedFilter()) {
           <div class="placeholder-notice">
-            <p>Please select a saved filter from the dropdown to load the dashboard visualizations.</p>
+            <p>{{ messages.selectFilterHint }}</p>
           </div>
         } @else {
           <div #captureArea class="analytics-page">
-            <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+            <section [attr.aria-busy]="dashboardKpiCardLoading()" [attr.aria-label]="messages.kpiLabel"
+                     class="kpi-grid">
               <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"
                                            [filter]="selectedFilter()!.filterJson"/>
             </section>
 
-            <section aria-label="Distribution charts" class="dual-chart-grid">
+            <section [attr.aria-label]="messages.distributionLabel" class="dual-chart-grid">
               <app-dashboard-length-histogram [filter]="selectedFilter()!.filterJson"/>
               <app-dashboard-reviewed-ratio [filter]="selectedFilter()!.filterJson"/>
             </section>
 
-            <section aria-label="Top organisms" class="full-width-row">
+            <section [attr.aria-label]="messages.organismsLabel" class="full-width-row">
               <app-dashboard-keyword-frequency-histogram [filter]="selectedFilter()!.filterJson"/>
             </section>
 
-            <section aria-label="Evidence levels" class="dual-chart-grid">
+            <section [attr.aria-label]="messages.evidenceLabel" class="dual-chart-grid">
               <app-dashboard-scatter-length-weight [filter]="selectedFilter()!.filterJson"/>
               <app-dashboard-evidence-levels-pie-chart [filter]="selectedFilter()!.filterJson"/>
             </section>
 
-            <section aria-label="Top organisms" class="full-width-row">
+            <section [attr.aria-label]="messages.organismsLabel" class="full-width-row">
               <app-dashboard-top-organisms [filter]="selectedFilter()!.filterJson"/>
             </section>
           </div>

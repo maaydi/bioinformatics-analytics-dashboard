@@ -22,10 +22,11 @@ import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
 import {AnalyticsProvider} from '@shared/components/analytics/analytics-provider';
 import {LimitSelectorComponent} from '@shared/components/limit-selector/limit-selector.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {Subscription} from 'rxjs';
 import {MatIcon} from '@angular/material/icon';
 import {ImageExportService} from '@shared/directive/image-export-service';
+import {DASHBOARD_TOP_ORGANISMS_MESSAGES} from './dashboard-top-organisms.messages';
 
 interface OrganismView {
   readonly name: string;
@@ -41,7 +42,8 @@ interface OrganismView {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardTopOrganismsComponent {
-  public readonly filter = input<GeneFilterSnapshot | undefined>(undefined);
+  protected readonly messages = DASHBOARD_TOP_ORGANISMS_MESSAGES;
+  public readonly filter = input<GeneSearchRequest | undefined>(undefined);
   private topOrgSub?: Subscription;
 
   protected readonly loading = signal<boolean>(true);
@@ -111,7 +113,7 @@ export class DashboardTopOrganismsComponent {
         },
         error: (_error: HttpErrorResponse) => {
           this.organismsResponse.set([]);
-          this.error.set('Unable to load top organisms.');
+          this.error.set(this.messages.loadFailed);
           this.loading.set(false);
         }
       });

@@ -1,7 +1,7 @@
 <mat-card #chartCard appearance="outlined" class="chart-card">
   <header class="chart-header-export-png" role="group">
     <div class="header-main">
-    <h2>Top {{ limit() }} Organisms by Protein Count</h2>
+      <h2>{{ messages.title(limit()) }}</h2>
     </div>
     <div aria-hidden="false" class="header-actions">
       <app-limit-selector
@@ -12,10 +12,10 @@
       />
       <button
         (click)="exportAsImage()"
-        aria-label="Export chart as image"
+        [attr.aria-label]="messages.exportImageLabel"
         class="no-export"
         mat-icon-button
-        title="Export as Image"
+        [title]="messages.exportImage"
         type="button"
       >
         <mat-icon>download</mat-icon>
@@ -30,12 +30,12 @@
   } @else if (error()) {
     <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
       <p>{{ error() }}</p>
-      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+      <button (click)="retry()" mat-stroked-button type="button">{{ messages.retry }}</button>
     </div>
   } @else if (!hasData()) {
-    <p aria-live="polite" class="chart-state">No organism distribution data available.</p>
+    <p aria-live="polite" class="chart-state">{{ messages.empty }}</p>
   } @else {
-    <ol [aria-label]="'Top '+ limit() +' organisms by protein count'" class="organism-list">
+    <ol [attr.aria-label]="messages.chartLabel(limit())" class="organism-list">
       @for (item of organisms(); track item.name) {
         <li>
           <button (click)="selectOrganism(item.name)" class="organism-row" type="button">

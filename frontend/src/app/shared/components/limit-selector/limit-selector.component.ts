@@ -1,9 +1,10 @@
-import {Component, computed, DestroyRef, inject, input, OnInit, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, output} from '@angular/core';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {debounceTime, filter} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatError, MatFormField, MatInput} from '@angular/material/input';
 import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from '@angular/material/autocomplete';
+import {LIMIT_SELECTOR_MESSAGES} from '@shared/messages/ui.messages';
 
 @Component({
   selector: 'app-limit-selector',
@@ -18,8 +19,10 @@ import {MatAutocomplete, MatAutocompleteTrigger, MatOption} from '@angular/mater
   ],
   templateUrl: './limit-selector.component.html',
   styleUrl: './limit-selector.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LimitSelectorComponent implements OnInit {
+  protected readonly messages = LIMIT_SELECTOR_MESSAGES;
   readonly min = input.required<number>();
   readonly max = input.required<number>();
   readonly defaultValue = input.required<number>();

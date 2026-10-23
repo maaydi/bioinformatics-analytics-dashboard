@@ -2,6 +2,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
 import {ImportAdminComponent} from './import-admin.component';
 import {ImportAdminService} from './import-admin.service';
+import {ImportAdminStore} from './import-admin.store';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatTableModule} from '@angular/material/table';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
@@ -11,17 +12,18 @@ import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {ImportJobCreated, ImportJobSummary} from '@core/models/import.model';
+import {ImportJobCreated, ImportJobProgress, ImportJobSummary} from '@core/models/import.model';
 import {SavedFilter} from '@core/models/saved-filter.model';
+import {PagedResponse} from '@core/models/paged-response.model';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
 import {vi} from 'vitest';
 import {HttpErrorResponse, provideHttpClient} from '@angular/common/http';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 
 function createFileSelectionEvent(file: File): Event {
   const input = document.createElement('input');
   Object.defineProperty(input, 'files', {
-    value: [file] as unknown as FileList,
+    value: {item: () => file, length: 1},
     configurable: true,
   });
   Object.defineProperty(input, 'value', {
@@ -35,11 +37,33 @@ function createFileSelectionEvent(file: File): Event {
   return event;
 }
 
+function createFilterSelectionEvent(value: string): Event {
+  const select = document.createElement('select');
+  select.add(new Option(value, value));
+  select.value = value;
+  const event = new Event('change');
+  Object.defineProperty(event, 'target', {value: select});
+  return event;
+}
+
 describe('ImportAdminComponent', () => {
   let component: ImportAdminComponent;
   let fixture: ComponentFixture<ImportAdminComponent>;
   let importService: ImportAdminService;
   let savedFiltersService: SavedFiltersService;
+  let store: ImportAdminStore;
+
+  const savedFilter: SavedFilter = {
+    id: 42, name: 'Reviewed proteins', filterJson: {}, createdAt: '2026-01-01T00:00:00Z',
+  };
+
+  async function loadFilters(filters: SavedFilter[] = [savedFilter]): Promise<void> {
+    vi.spyOn(savedFiltersService, 'listSavedFilters').mockReturnValue(
+      of({content: filters, page: 0, size: 200, totalElements: filters.length, totalPages: 1}),
+    );
+    component.onSourceModeChange(true);
+    await fixture.whenStable();
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -61,15 +85,20 @@ describe('ImportAdminComponent', () => {
 
     importService = TestBed.inject(ImportAdminService);
     savedFiltersService = TestBed.inject(SavedFiltersService);
+    vi.spyOn(importService, 'listImportJobs').mockReturnValue(
+      of({content: [], page: 0, size: 5, totalElements: 0, totalPages: 0}),
+    );
+    vi.spyOn(savedFiltersService, 'listSavedFilters').mockReturnValue(
+      of({content: [], page: 0, size: 200, totalElements: 0, totalPages: 0}),
+    );
     fixture = TestBed.createComponent(ImportAdminComponent);
     component = fixture.componentInstance;
+    store = fixture.debugElement.injector.get(ImportAdminStore);
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
-
-  // OnPush strategy is implicit in Angular 21+ standalone; skipping explicit test
 
   it('should initialize signals with default values', () => {
     expect(component.isRemoteMode()).toBe(false);
@@ -87,26 +116,23 @@ describe('ImportAdminComponent', () => {
     expect(component.pageIndex()).toBe(0);
   });
 
-  it('should cleanup subscriptions on destroy', () => {
-    const stopPollingSpy = vi.spyOn(component as any, 'stopPolling');
-    const stopLoadHistorySpy = vi.spyOn(component as any, 'stopLoadHistory');
-    const stopLoadSavedFiltersSpy = vi.spyOn(component as any, 'stopLoadSavedFilters');
+  it('cancels an in-flight submission on destruction', () => {
+    const response = new Subject<ImportJobCreated>();
+    vi.spyOn(importService, 'triggerImport').mockReturnValue(response);
+    store.selectFile(new File(['content'], 'proteins.dat'));
+    component.submitImport();
+    expect(response.observed).toBe(true);
 
-    component.ngOnDestroy();
+    fixture.destroy();
 
-    expect(stopPollingSpy).toHaveBeenCalled();
-    expect(stopLoadHistorySpy).toHaveBeenCalled();
-    expect(stopLoadSavedFiltersSpy).toHaveBeenCalled();
+    expect(response.observed).toBe(false);
+    expect(component.isUploading()).toBe(false);
   });
 
   describe('File Selection', () => {
     it('should accept valid .dat file', () => {
       const file = new File(['content'], 'test.dat', {type: 'text/plain'});
-      const event = {
-        target: {
-          files: [file],
-        } as any,
-      } as Event;
+      const event = createFileSelectionEvent(file);
 
       component.onFileSelected(event);
 
@@ -116,11 +142,7 @@ describe('ImportAdminComponent', () => {
 
     it('should accept valid .tsv file', () => {
       const file = new File(['content'], 'test.tsv', {type: 'text/tab-separated-values'});
-      const event = {
-        target: {
-          files: [file],
-        } as any,
-      } as Event;
+      const event = createFileSelectionEvent(file);
 
       component.onFileSelected(event);
 
@@ -156,7 +178,6 @@ describe('ImportAdminComponent', () => {
   describe('Import Submission', () => {
     it('should not submit if no file selected', () => {
       const triggerSpy = vi.spyOn(importService, 'triggerImport');
-      component.selectedFile.set(null);
 
       component.submitImport();
 
@@ -165,10 +186,6 @@ describe('ImportAdminComponent', () => {
 
     it('should start polling when import creation succeeds', () => {
       const file = new File(['content'], 'proteins.dat', {type: 'text/plain'});
-      const startPollingSpy = vi.spyOn(
-        component as unknown as { startPolling: (jobId: string) => void },
-        'startPolling',
-      );
       vi.spyOn(importService, 'triggerImport').mockReturnValue(
         of({
           id: 'job-123',
@@ -176,14 +193,14 @@ describe('ImportAdminComponent', () => {
           createdAt: new Date().toISOString(),
         }),
       );
-      component.selectedFile.set(file);
+      store.selectFile(file);
 
       component.submitImport();
 
       expect(component.isUploading()).toBe(true);
       expect(component.currentProgress()).toBe(0);
       expect(component.errorMessage()).toBeNull();
-      expect(startPollingSpy).toHaveBeenCalledWith('job-123');
+      expect(store.activeJobId()).toBe('job-123');
     });
 
     it('should set conflict message and stop uploading on 409 error', () => {
@@ -191,7 +208,7 @@ describe('ImportAdminComponent', () => {
       vi.spyOn(importService, 'triggerImport').mockReturnValue(
         throwError(() => new HttpErrorResponse({status: 409})),
       );
-      component.selectedFile.set(file);
+      store.selectFile(file);
 
       component.submitImport();
 
@@ -208,7 +225,7 @@ describe('ImportAdminComponent', () => {
       vi.spyOn(importService, 'triggerImport').mockReturnValue(
         throwError(() => new HttpErrorResponse({status})),
       );
-      component.selectedFile.set(file);
+      store.selectFile(file);
 
       component.submitImport();
 
@@ -220,7 +237,7 @@ describe('ImportAdminComponent', () => {
       vi.spyOn(importService, 'triggerImport').mockReturnValue(
         of(undefined as unknown as ImportJobCreated),
       );
-      component.selectedFile.set(new File(['content'], 'proteins.dat'));
+      store.selectFile(new File(['content'], 'proteins.dat'));
 
       component.submitImport();
 
@@ -231,14 +248,14 @@ describe('ImportAdminComponent', () => {
     it('should not submit a remote import without a selected filter', () => {
       const triggerSpy = vi.spyOn(importService, 'triggerRemoteImport');
 
-      component.isRemoteMode.set(true);
+      component.onSourceModeChange(true);
       component.submitImport();
 
       expect(triggerSpy).not.toHaveBeenCalled();
       expect(component.isUploading()).toBe(false);
     });
 
-    it('should load saved filters when switching to remote mode', () => {
+    it('should load saved filters when switching to remote mode', async () => {
       const filters: SavedFilter[] = [
         {id: 42, name: 'Reviewed proteins', filterJson: {}, createdAt: new Date().toISOString()},
       ];
@@ -247,6 +264,7 @@ describe('ImportAdminComponent', () => {
       );
 
       component.onSourceModeChange(true);
+      await fixture.whenStable();
 
       expect(component.isRemoteMode()).toBe(true);
       expect(component.savedFilters()).toEqual(filters);
@@ -254,14 +272,8 @@ describe('ImportAdminComponent', () => {
       expect(component.savedFiltersError()).toBeNull();
     });
 
-    it('should start polling when a remote filter is selected', () => {
-      component.savedFilters.set([
-        {id: 42, name: 'Reviewed proteins', filterJson: {}, createdAt: new Date().toISOString()},
-      ]);
-      const startPollingSpy = vi.spyOn(
-        component as unknown as { startPolling: (jobId: string) => void },
-        'startPolling',
-      );
+    it('should start polling when a remote filter is selected', async () => {
+      await loadFilters();
       vi.spyOn(importService, 'triggerRemoteImport').mockReturnValue(
         of({
           id: 'remote-job-123',
@@ -270,24 +282,19 @@ describe('ImportAdminComponent', () => {
         }),
       );
 
-      component.isRemoteMode.set(true);
-      component.onFilterSelect({
-        target: {value: '42'},
-      } as unknown as Event);
+      component.onFilterSelect(createFilterSelectionEvent('42'));
 
       expect(importService.triggerRemoteImport).toHaveBeenCalledWith(42);
       expect(component.isUploading()).toBe(true);
-      expect(startPollingSpy).toHaveBeenCalledWith('remote-job-123');
+      expect(store.activeJobId()).toBe('remote-job-123');
     });
 
-    it('should stop uploading when remote import creation has no job id', () => {
+    it('should stop uploading when remote import creation has no job id', async () => {
       vi.spyOn(importService, 'triggerRemoteImport').mockReturnValue(
         of(undefined as unknown as ImportJobCreated),
       );
-      component.isRemoteMode.set(true);
-      component.selectedFilterId.set(42);
-
-      component.submitRemoteImport();
+      await loadFilters();
+      component.onFilterSelect(createFilterSelectionEvent('42'));
 
       expect(component.isUploading()).toBe(false);
       expect(component.errorMessage()).toContain('job identifier');
@@ -296,32 +303,30 @@ describe('ImportAdminComponent', () => {
     it('should not trigger a remote import for the placeholder option', () => {
       const triggerSpy = vi.spyOn(importService, 'triggerRemoteImport');
 
-      component.isRemoteMode.set(true);
-      component.onFilterSelect({target: {value: ''}} as unknown as Event);
+      component.onSourceModeChange(true);
+      component.onFilterSelect(createFilterSelectionEvent(''));
 
       expect(component.selectedFilterId()).toBeNull();
       expect(triggerSpy).not.toHaveBeenCalled();
     });
 
-    it('should ignore filter ids that are not in the loaded saved filters', () => {
+    it('should ignore filter ids that are not in the loaded saved filters', async () => {
       const triggerSpy = vi.spyOn(importService, 'triggerRemoteImport');
-      component.savedFilters.set([
-        {id: 42, name: 'Reviewed proteins', filterJson: {}, createdAt: new Date().toISOString()},
-      ]);
-      component.isRemoteMode.set(true);
+      await loadFilters();
 
-      component.onFilterSelect({target: {value: '99'}} as unknown as Event);
+      component.onFilterSelect(createFilterSelectionEvent('99'));
 
       expect(component.selectedFilterId()).toBeNull();
       expect(triggerSpy).not.toHaveBeenCalled();
     });
 
-    it('should expose an error when saved filters cannot be loaded', () => {
+    it('should expose an error when saved filters cannot be loaded', async () => {
       vi.spyOn(savedFiltersService, 'listSavedFilters').mockReturnValue(
         throwError(() => new HttpErrorResponse({status: 500})),
       );
 
       component.onSourceModeChange(true);
+      await fixture.whenStable();
 
       expect(component.savedFiltersLoading()).toBe(false);
       expect(component.savedFiltersError()).toBe('Failed to load saved filters.');
@@ -336,21 +341,16 @@ describe('ImportAdminComponent', () => {
         length: 50,
       };
 
-      const loadHistorySpy = vi.spyOn(component as any, 'loadJobHistory');
-
       component.onPageChange(pageEvent);
 
       expect(component.pageIndex()).toBe(1);
       expect(component.pageSize()).toBe(10);
-      expect(component.forceLoadHistory()).toBe(true);
-      expect(loadHistorySpy).toHaveBeenCalled();
     });
   });
 
   describe('Source mode and rendering states', () => {
     it('should clear local and remote selections when changing source', () => {
-      component.selectedFile.set(new File(['content'], 'proteins.dat'));
-      component.selectedFilterId.set(42);
+      store.selectFile(new File(['content'], 'proteins.dat'));
 
       component.onSourceModeChange(true);
 
@@ -360,8 +360,8 @@ describe('ImportAdminComponent', () => {
     });
 
     it('should render remote loading state', () => {
-      component.isRemoteMode.set(true);
-      component.savedFiltersLoading.set(true);
+      vi.spyOn(savedFiltersService, 'listSavedFilters').mockReturnValue(new Subject());
+      component.onSourceModeChange(true);
 
       fixture.detectChanges();
 
@@ -369,40 +369,134 @@ describe('ImportAdminComponent', () => {
     });
 
     it('should render remote error state', () => {
-      component.isRemoteMode.set(true);
-      component.savedFiltersError.set('Unable to load filters');
+      vi.spyOn(savedFiltersService, 'listSavedFilters').mockReturnValue(throwError(() => new Error('Unavailable')));
+      component.onSourceModeChange(true);
 
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain('Unable to load filters');
+      expect(fixture.nativeElement.textContent).toContain('Failed to load saved filters.');
       expect(fixture.nativeElement.textContent).toContain('Retry');
     });
 
     it('should render an empty remote filter state', () => {
-      component.isRemoteMode.set(true);
+      component.onSourceModeChange(true);
 
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain('No saved filters found.');
     });
 
-    it('should render remote filter options and progress', () => {
-      component.isRemoteMode.set(true);
-      component.savedFilters.set([
-        {id: 42, name: 'Reviewed proteins', filterJson: {}, createdAt: new Date().toISOString()},
-      ]);
-      component.isUploading.set(true);
-      component.currentProgress.set(37);
+    it('should render remote filter options and progress', async () => {
+      vi.useFakeTimers({toFake: ['setInterval', 'clearInterval']});
+      try {
+        await loadFilters();
+        vi.spyOn(importService, 'triggerRemoteImport').mockReturnValue(of({
+          id: 'remote-job', status: 'RUNNING', createdAt: '2026-01-01T00:00:00Z',
+        }));
+        vi.spyOn(importService, 'getJobProgress').mockReturnValue(of<ImportJobProgress>({
+          id: 'remote-job', status: 'RUNNING', fileName: null, recordsProcessed: 37,
+          totalEstimated: 100, progressPercent: 37, elapsedMs: 3000, errorMessage: null,
+        }));
+        component.onFilterSelect(createFilterSelectionEvent('42'));
+        await vi.advanceTimersByTimeAsync(3000);
 
-      fixture.detectChanges();
+        fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain('Reviewed proteins');
-      expect(fixture.nativeElement.textContent).toContain('37%');
+        expect(fixture.nativeElement.textContent).toContain('Reviewed proteins');
+        expect(fixture.nativeElement.textContent).toContain('37%');
+      } finally {
+        fixture.destroy();
+        vi.useRealTimers();
+      }
     });
   });
 
   describe('Job History', () => {
-    it('should display job history in table', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({toFake: ['setInterval', 'clearInterval']});
+    });
+
+    afterEach(() => {
+      fixture.destroy();
+      vi.useRealTimers();
+    });
+
+    it('shows an accessible indeterminate bar until history finishes loading', async () => {
+      const response = new Subject<PagedResponse<ImportJobSummary>>();
+      vi.spyOn(importService, 'listImportJobs').mockReturnValue(response);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const root = fixture.nativeElement as HTMLElement;
+      const progressBar = root.querySelector('mat-progress-bar');
+      expect(progressBar?.getAttribute('aria-label')).toBe('Loading import history…');
+      expect(progressBar?.getAttribute('aria-valuenow')).toBeNull();
+      expect(root.querySelector('.history-table-wrapper')?.getAttribute('aria-busy')).toBe('true');
+      const emptyRow = root.querySelector<HTMLElement>('.history-empty-row');
+      if (!emptyRow) throw new Error('Expected the empty-history row');
+      expect(getComputedStyle(emptyRow).display).toBe('none');
+
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(importService.listImportJobs).toHaveBeenCalledWith(0, 5);
+      response.next({content: [], totalElements: 0, totalPages: 0, page: 0, size: 5});
+      response.complete();
+      await fixture.whenStable();
+
+      expect(root.querySelector('mat-progress-bar')).toBeNull();
+      expect(root.querySelector('.history-table-wrapper')?.getAttribute('aria-busy')).toBe('false');
+      expect(root.textContent).toContain('No import history found.');
+      expect(getComputedStyle(emptyRow).display).not.toBe('none');
+    });
+
+    it('clears history loading when a request fails', async () => {
+      vi.spyOn(importService, 'listImportJobs').mockReturnValue(
+        throwError(() => new HttpErrorResponse({status: 500})),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await vi.advanceTimersByTimeAsync(3000);
+      await fixture.whenStable();
+
+      expect(component.historyLoading()).toBe(false);
+      expect((fixture.nativeElement as HTMLElement).querySelector('mat-progress-bar')).toBeNull();
+      expect(component.errorMessage()).toBe('Failed to load import job history.');
+    });
+
+    it('shows loading again when the history page changes', async () => {
+      vi.spyOn(importService, 'listImportJobs').mockReturnValue(
+        of({content: [], totalElements: 0, totalPages: 0, page: 0, size: 5}),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await vi.advanceTimersByTimeAsync(3000);
+      await fixture.whenStable();
+      expect(component.historyLoading()).toBe(false);
+
+      component.onPageChange({pageIndex: 1, pageSize: 10, length: 20});
+      await fixture.whenStable();
+
+      expect(component.historyLoading()).toBe(true);
+      expect((fixture.nativeElement as HTMLElement).querySelector('mat-progress-bar')).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(importService.listImportJobs).toHaveBeenLastCalledWith(1, 10);
+      expect(component.historyLoading()).toBe(false);
+    });
+
+    it('cancels an in-flight history request and clears loading on destruction', async () => {
+      const response = new Subject<PagedResponse<ImportJobSummary>>();
+      vi.spyOn(importService, 'listImportJobs').mockReturnValue(response);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(response.observed).toBe(true);
+
+      fixture.destroy();
+
+      expect(response.observed).toBe(false);
+      expect(component.historyLoading()).toBe(false);
+    });
+
+    it('should display job history in table', async () => {
       const mockJobs: ImportJobSummary[] = [
         {
           id: 'job-1',
@@ -417,21 +511,27 @@ describe('ImportAdminComponent', () => {
         },
       ];
 
-      component.jobHistory.set(mockJobs);
-      component.totalJobs.set(1);
+      vi.spyOn(importService, 'listImportJobs').mockReturnValue(of({
+        content: mockJobs, totalElements: 1, totalPages: 1, page: 0, size: 5,
+      }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await vi.advanceTimersByTimeAsync(3000);
+      await fixture.whenStable();
 
       expect(component.jobHistory().length).toBe(1);
       expect(component.totalJobs()).toBe(1);
+      expect((fixture.nativeElement as HTMLElement).querySelector('.history-table')?.textContent)
+        .toContain('proteins.dat');
     });
   });
 
   describe('File Input Trigger', () => {
     it('should trigger file input click', () => {
-      const mockFileInput = document.createElement('input');
-      mockFileInput.type = 'file';
-      const clickSpy = vi.spyOn(mockFileInput, 'click');
-
-      component.fileInput = {nativeElement: mockFileInput} as any;
+      fixture.detectChanges();
+      const input = (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('input[type="file"]');
+      if (!input) throw new Error('Expected the file input');
+      const clickSpy = vi.spyOn(input, 'click');
 
       component.triggerFileInput();
 

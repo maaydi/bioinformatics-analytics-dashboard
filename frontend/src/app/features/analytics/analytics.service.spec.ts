@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {AnalyticsService} from './analytics.service';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {provideHttpClient} from '@angular/common/http';
 import {CompareRequest, CompareResponse} from '@core/models/analytics.model';
 
@@ -28,7 +28,7 @@ describe('AnalyticsService', () => {
   });
 
   it('should POST dashboard kpis with provided filter', () => {
-    const filter = {} as GeneFilterSnapshot;
+    const filter = {} as GeneSearchRequest;
     const mockResponse = {totalProteins: 10} as any;
 
     service.getDashboardKpis(filter).subscribe(res => {
@@ -43,7 +43,7 @@ describe('AnalyticsService', () => {
   });
 
   it('should POST by-organism with limit param', () => {
-    const filter = {} as GeneFilterSnapshot;
+    const filter = {} as GeneSearchRequest;
     const mockResponse = [{organism: 'Homo sapiens', total: 42}];
 
     service.getByOrganism(25, filter).subscribe(res => {
@@ -58,8 +58,8 @@ describe('AnalyticsService', () => {
   });
 
   it('should POST compare with CompareRequest containing setA and setB', () => {
-    const filterA = {globalSearch: 'kinase'} as GeneFilterSnapshot;
-    const filterB = {globalSearch: 'phosphatase'} as GeneFilterSnapshot;
+    const filterA = {globalSearch: 'kinase'} as GeneSearchRequest;
+    const filterB = {globalSearch: 'phosphatase'} as GeneSearchRequest;
     const compareRequest: CompareRequest = {
       setA: filterA,
       setB: filterB,
@@ -100,8 +100,8 @@ describe('AnalyticsService', () => {
 
   it('should return Observable of CompareResponse from compare()', () => {
     const compareRequest = {
-      setA: {} as GeneFilterSnapshot,
-      setB: {} as GeneFilterSnapshot,
+      setA: {} as GeneSearchRequest,
+      setB: {} as GeneSearchRequest,
     };
     const mockResponse = {
       subsetA: {

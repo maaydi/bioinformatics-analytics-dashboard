@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -6,6 +6,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {Router} from '@angular/router';
 import {AuthService} from '@core/services/auth.service';
+import {LOGIN_MESSAGES} from './login.messages';
 
 @Component({
   selector: 'app-login',
@@ -18,8 +19,10 @@ import {AuthService} from '@core/services/auth.service';
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
+  protected readonly messages = LOGIN_MESSAGES;
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -43,7 +46,7 @@ export class LoginComponent {
       next: () => this.router.navigate(['/']),
       error: () => {
         this.loading.set(false);
-        this.errorMessage.set('Invalid credentials. Please try again.');
+        this.errorMessage.set(this.messages.invalidCredentials);
       },
     });
   }

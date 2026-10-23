@@ -14,6 +14,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {RANGE_INPUT_MESSAGES} from '@shared/messages/ui.messages';
 
 export interface RangeValue {
   min: number | null;
@@ -55,10 +56,11 @@ export interface RangeValue {
  * - `maxPlaceholder`: placeholder for maximum value.
  */
 export class RangeInputComponent implements ControlValueAccessor, Validator {
+  protected readonly messages = RANGE_INPUT_MESSAGES;
   label = input<string>('');
   hintLabel = input<string>('');
-  minPlaceholder = input<string>('Min');
-  maxPlaceholder = input<string>('Max');
+  minPlaceholder = input<string>(RANGE_INPUT_MESSAGES.min);
+  maxPlaceholder = input<string>(RANGE_INPUT_MESSAGES.max);
 
   rangeForm = new FormGroup({
     min: new FormControl<number | null>(null),

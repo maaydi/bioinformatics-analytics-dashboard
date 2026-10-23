@@ -3,6 +3,7 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinSummary} from '@core/models/protein.model';
 import {GeneFilterPageSort} from '@core/models/saved-filter.model';
+import {RESULT_HEADER_MESSAGES} from '@features/genes/genes.messages';
 
 @Component({
   selector: 'app-result-header',
@@ -14,6 +15,7 @@ import {GeneFilterPageSort} from '@core/models/saved-filter.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResultHeaderComponent {
+  protected readonly messages = RESULT_HEADER_MESSAGES;
   readonly data = input<PagedResponse<ProteinSummary> | null>(null);
   readonly updatePage = output<GeneFilterPageSort>();
 

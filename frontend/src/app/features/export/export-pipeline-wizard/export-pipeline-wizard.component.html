@@ -1,0 +1,229 @@
+<h2 mat-dialog-title>Create Export Pipeline</h2>
+<mat-divider/>
+<form (ngSubmit)="onSubmit()" [formGroup]="form" class="wizard-form">
+  <mat-stepper (selectedIndexChange)="selectedStep.set($event)">
+    <!-- Step 1 — Filter Review -->
+    <mat-step [editable]="!submitting()" [label]="filterReviewMessages.stepLabel">
+      <section aria-describedby="step-filter-hint" aria-labelledby="step-filter-title"
+               class="step-content filter-review">
+        <header class="filter-review-heading">
+          <h3 class="step-title" id="step-filter-title">{{ filterReviewMessages.title }}</h3>
+          <p class="step-hint" id="step-filter-hint">{{ filterReviewMessages.hint }}</p>
+        </header>
+
+        <div [attr.aria-label]="filterReviewMessages.filtersLabel" class="filter-review-chips" role="region"
+             tabindex="0">
+          @if (filtersChips().length > 0) {
+            <app-chip-list
+              [ariaLabel]="filterReviewMessages.filtersLabel"
+              [chips]="filtersChips()"
+              [readOnly]="true"></app-chip-list>
+          } @else {
+            <p class="step-hint">{{ filterReviewMessages.noFilters }}</p>
+          }
+        </div>
+
+        <div class="filter-review-footer">
+          <div aria-atomic="true" aria-live="polite" class="row-count-card" role="status">
+            <span class="row-count-label">{{ filterReviewMessages.estimatedRows }}</span>
+            <strong class="row-count-value">{{ estimatedRows() | number }}</strong>
+          </div>
+          <button (click)="saveFilter()" [disabled]="filters() === null || savingFilter()"
+                  aria-haspopup="dialog" class="save-filter-action" matButton="outlined" type="button">
+            <mat-icon aria-hidden="true">save</mat-icon>
+            {{ filterReviewMessages.saveFilter }}
+          </button>
+        </div>
+
+        @if (estimatedRows() === 0) {
+          <p class="warning-message filter-review-warning" role="alert">
+            {{ filterReviewMessages.noResults }}
+          </p>
+        }
+      </section>
+    </mat-step>
+
+    <!-- Step 2 — Field Selection -->
+    <mat-step [editable]="!submitting()" label="Field Selection">
+      <section aria-labelledby="step-fields-title" class="step-content">
+        <h3 class="step-title" id="step-fields-title">Select fields to export</h3>
+
+        <div [attr.aria-label]="fieldSelectionMessages.modeLabel" class="toggle-group" role="radiogroup">
+          <label class="toggle-option">
+            <input (change)="setFieldMode('ALL')" [checked]="fieldMode() === 'ALL'"
+                   name="fieldMode" type="radio" value="ALL"/>
+            <span>{{ fieldSelectionMessages.allFields }}</span>
+          </label>
+          <label class="toggle-option">
+            <input (change)="setFieldMode('CUSTOM')" [checked]="fieldMode() === 'CUSTOM'"
+                   name="fieldMode" type="radio" value="CUSTOM"/>
+            <span>{{ fieldSelectionMessages.customFields }}</span>
+          </label>
+        </div>
+
+        @if (fieldsLoadFailed()) {
+          <p class="warning-message" role="alert">{{ fieldSelectionMessages.loadError }}</p>
+        }
+
+        @if (fieldMode() === 'ALL') {
+          <p class="step-hint">{{ fieldSelectionMessages.allFieldsHint }}</p>
+        } @else {
+          <app-export-fields-picker
+            [fields]="availableFields()"
+            formControlName="fieldSchema"
+          ></app-export-fields-picker>
+        }
+      </section>
+    </mat-step>
+
+    <!-- Step 3 — Format Selection -->
+    <mat-step [editable]="!submitting()" label="Format Selection">
+      <fieldset class="step-content format-fieldset">
+        <legend class="step-title">Choose a file format</legend>
+
+        <div class="format-grid">
+          <label class="format-option">
+            <input class="format-input" formControlName="format" name="format" type="radio" value="CSV"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">CSV</span>
+              <span class="format-name">CSV</span>
+              <span class="format-desc">Comma-separated values, compatible with most tools.</span>
+              <span class="format-size">~ {{ estimatedSizes().CSV }}</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" formControlName="format" name="format" type="radio" value="TSV"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">TSV</span>
+              <span class="format-name">TSV</span>
+              <span class="format-desc">Tab-separated values, ideal for bioinformatics pipelines.</span>
+              <span class="format-size">~ {{ estimatedSizes().TSV }}</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" formControlName="format" name="format" type="radio" value="JSON"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">JSON</span>
+              <span class="format-name">JSON</span>
+              <span class="format-desc">Structured data preserving nested collections.</span>
+              <span class="format-size">~ {{ estimatedSizes().JSON }}</span>
+            </span>
+          </label>
+
+          <label class="format-option">
+            <input class="format-input" formControlName="format" name="format" type="radio" value="EXCEL"/>
+            <span class="format-card">
+              <span aria-hidden="true" class="format-icon">XLSX</span>
+              <span class="format-name">Excel</span>
+              <span class="format-desc">Spreadsheet with formatted headers (max 500K rows).</span>
+              <span class="format-size">~ {{ estimatedSizes().EXCEL }}</span>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+    </mat-step>
+
+
+    <!-- Step 4 — Summary & Confirm -->
+    <mat-step [editable]="!submitting()" [label]="confirmationMessages.stepLabel">
+      <section [attr.aria-busy]="submitting()" aria-describedby="step-summary-hint"
+               aria-labelledby="step-summary-title" class="step-content summary-layout">
+        <header class="summary-heading">
+          <h3 class="step-title" id="step-summary-title">{{ confirmationMessages.title }}</h3>
+          <p class="step-hint" id="step-summary-hint">{{ confirmationMessages.hint }}</p>
+        </header>
+
+        <div class="confirmation-grid">
+          <div class="form-fields">
+            <div class="field">
+              <label class="field-label" for="export-name">{{ confirmationMessages.name }}</label>
+              <input [attr.aria-invalid]="showError(form.controls.name)" [readOnly]="submitting()"
+                     aria-describedby="export-name-hint export-name-error" class="field-input"
+                     formControlName="name" id="export-name" maxlength="200" name="name" required type="text"/>
+              <span class="field-hint" id="export-name-hint">{{ confirmationMessages.nameHint }}</span>
+              <span aria-live="polite" class="field-error" id="export-name-error">
+                @if (showError(form.controls.name)) {
+                  {{ form.controls.name.hasError('maxlength') ? confirmationMessages.nameTooLong : confirmationMessages.nameRequired }}
+                }
+              </span>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="export-description">{{ confirmationMessages.description }}</label>
+              <textarea [attr.aria-invalid]="showError(form.controls.description)" [readOnly]="submitting()"
+                        aria-describedby="export-description-hint export-description-error" class="field-input"
+                        formControlName="description" id="export-description" maxlength="500" name="description"
+                        rows="3"></textarea>
+              <span class="field-hint" id="export-description-hint">{{ confirmationMessages.descriptionHint }}</span>
+              <span aria-live="polite" class="field-error" id="export-description-error">
+                @if (showError(form.controls.description)) {
+                  {{ confirmationMessages.descriptionTooLong }}
+                }
+              </span>
+            </div>
+          </div>
+
+          <div aria-atomic="true" aria-live="polite" class="summary-details">
+            <dl class="summary-card">
+              <div class="summary-row">
+                <dt>{{ confirmationMessages.filters }}</dt>
+                <dd>{{ activeFilterCount() | number }} {{ confirmationMessages.active }}</dd>
+              </div>
+              <div class="summary-row">
+                <dt>{{ confirmationMessages.format }}</dt>
+                <dd>{{ selectedFormat() }}</dd>
+              </div>
+              <div class="summary-row">
+                <dt>{{ confirmationMessages.fields }}</dt>
+                <dd>{{ selectedFields().length | number }}</dd>
+              </div>
+              <div class="summary-row">
+                <dt>{{ confirmationMessages.estimatedRows }}</dt>
+                <dd>{{ estimatedRows() | number }}</dd>
+              </div>
+              <div class="summary-row">
+                <dt>{{ confirmationMessages.estimatedSize }}</dt>
+                <dd>~ {{ estimatedSizes()[selectedFormat()] }}</dd>
+              </div>
+            </dl>
+            <p class="field-hint">{{ confirmationMessages.filterCountHint }}</p>
+            <p class="field-hint">{{ confirmationMessages.estimateHint }}</p>
+          </div>
+        </div>
+
+        @if (showError(form.controls.fieldSchema)) {
+          <p class="confirmation-error" role="alert">{{ confirmationMessages.fieldsRequired }}</p>
+        }
+        @if (showError(form.controls.format)) {
+          <p class="confirmation-error" role="alert">{{ confirmationMessages.formatRequired }}</p>
+        }
+        @if (submissionBlockedMessage(); as message) {
+          <p class="confirmation-notice" role="status">{{ message }}</p>
+        }
+        @if (submitError(); as message) {
+          <p class="confirmation-error submit-error" role="alert">{{ message }}</p>
+        }
+        @if (submitting()) {
+          <p class="confirmation-notice" role="status">{{ confirmationMessages.busy }}</p>
+        }
+
+        <div class="step-actions">
+          <button [disabled]="submitDisabled()" class="create-pipeline-action" matButton="filled" type="submit">
+            <mat-icon aria-hidden="true">{{ submitting() ? 'hourglass_top' : 'play_arrow' }}</mat-icon>
+            {{ submitting() ? confirmationMessages.creating : submitError() ? confirmationMessages.retry : confirmationMessages.create }}
+          </button>
+        </div>
+      </section>
+    </mat-step>
+  </mat-stepper>
+  <mat-divider/>
+  <div class="wizard-nav">
+    <button (click)="cancel()" [disabled]="submitting()" matButton type="button">Cancel</button>
+    <div class="wizard-nav-steps">
+      <button (click)="previous()" [disabled]="submitting()" matButton type="button">Previous</button>
+      <button (click)="next()" [disabled]="submitting() || selectedStep() === 3" matButton type="button">Next</button>
+    </div>
+  </div>
+</form>

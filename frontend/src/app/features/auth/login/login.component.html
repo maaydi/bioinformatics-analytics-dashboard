@@ -1,17 +1,17 @@
 <div class="login-wrapper">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title>Bioinformatics Dashboard</mat-card-title>
-      <mat-card-subtitle>Sign in to continue</mat-card-subtitle>
+      <mat-card-title>{{ messages.title }}</mat-card-title>
+      <mat-card-subtitle>{{ messages.subtitle }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <form (ngSubmit)="onSubmit()" [formGroup]="form" aria-label="Sign in form">
+      <form (ngSubmit)="onSubmit()" [attr.aria-label]="messages.formLabel" [formGroup]="form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Username</mat-label>
+          <mat-label>{{ messages.username }}</mat-label>
           <input autocomplete="username" formControlName="username" matInput required/>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
+          <mat-label>{{ messages.password }}</mat-label>
           <input
             matInput
             type="password"
@@ -32,7 +32,7 @@
           class="full-width"
           [disabled]="form.invalid || loading()"
         >
-          {{ loading() ? 'Signing in…' : 'Sign In' }}
+          {{ loading() ? messages.signingIn : messages.signIn }}
         </button>
       </form>
     </mat-card-content>

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {getDefaultFormValue, isEqual, toForm, toSnapshot} from './gene-filter.utils';
-import {GeneFilterFormValue, GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneFilterFormValue, GeneSearchRequest} from '@core/models/saved-filter.model';
 
 describe('gene-filter.utils', () => {
   describe('toSnapshot', () => {
@@ -52,7 +52,7 @@ describe('gene-filter.utils', () => {
 
   describe('toForm', () => {
     it('should convert snapshot to form partial', () => {
-      const snapshot: GeneFilterSnapshot = {
+      const snapshot: GeneSearchRequest = {
         globalSearch: null,
         accession: 'P12345',
         entryName: null,
