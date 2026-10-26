@@ -1,0 +1,20 @@
+# config-server does NOT use bio-common-config: SPRING_CONFIG_IMPORT would make it import from itself.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-server-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: config-server
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: configuration
+data:
+  SERVER_PORT: "8888"
+  SPRING_APPLICATION_NAME: "config-server"
+  SPRING_CLOUD_CONFIG_SERVER_GIT_URI: "http://gitea-server:3000/bioinformatics/config-repo.git"
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://discovery-server:8761/eureka/"
+  EUREKA_CLIENT_SHOULD_UNREGISTER_ON_SHUTDOWN: "true"
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  LOG_PATH: "/app/logs"
+

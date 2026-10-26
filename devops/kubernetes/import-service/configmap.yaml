@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: import-service-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: import-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+data:
+  SERVER_PORT: "8083"
+  SPRING_APPLICATION_NAME: "import-service"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/bioinformatics_db"
+  SPRING_BATCH_JOB_ENABLED: "false"
+  SPRING_BATCH_JOB_NAME: "NONE"
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "2GB"
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "2GB"
+  COMMON_KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+  APP_BATCH_CHUNK_SIZE: "250"
+  APP_IMPORT_CONFIG_TEMP_DIR: "/app/bio-import"
+

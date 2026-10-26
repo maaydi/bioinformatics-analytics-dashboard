@@ -1,0 +1,85 @@
+# Database credentials are read from `gitea-db-secret` (owned by gitea-db) — no duplication.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea-server
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: gitea-server
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: config-repository
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gitea-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gitea-server
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: config-repository
+    spec:
+      # Mandatory: service links would inject GITEA_SERVER_PORT=tcp://… which Gitea may read as config.
+      enableServiceLinks: false
+      containers:
+        - name: gitea-server
+          # Pinned minor tag instead of `latest` for reproducible deployments.
+          image: gitea/gitea:1.22
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+            - name: ssh
+              containerPort: 22
+          envFrom:
+            - configMapRef:
+                name: gitea-server-config
+          env:
+            - name: GITEA__database__USER
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-db-secret
+                  key: POSTGRES_USER
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-db-secret
+                  key: POSTGRES_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gitea-data
+

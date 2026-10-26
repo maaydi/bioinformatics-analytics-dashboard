@@ -1,0 +1,45 @@
+# Shared, non-sensitive Spring configuration.
+# Kubernetes equivalent of the `x-common-spring-env` anchor in docker-compose.yml.
+# Injected with `envFrom` in every Spring Boot workload (except discovery-server / config-server bootstrap values).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bio-common-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: shared-config
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+
+  # Eureka
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://discovery-server:8761/eureka/"
+  EUREKA_CLIENT_SHOULD_UNREGISTER_ON_SHUTDOWN: "true"
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+
+  # Redis (password comes from redis-secret via secretKeyRef)
+  SPRING_DATA_REDIS_HOST: "redis"
+  SPRING_DATA_REDIS_PORT: "6379"
+
+  # Kafka / Zookeeper
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+  SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING: "zookeeper:2181"
+  SPRING_CLOUD_ZOOKEEPER_DISCOVERY_ENABLED: "true"
+  SPRING_CLOUD_ZOOKEEPER_DISCOVERY_ROOT: "/services"
+  SPRING_CLOUD_ZOOKEEPER_DISCOVERY_REGISTER: "true"
+
+  # Tracing
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+  COMMON_TRACING_ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+
+  # Kubernetes probes (/actuator/health/liveness & /actuator/health/readiness)
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+
+  # Logging (WORKDIR is /app in every backend image)
+  LOG_PATH: "/app/logs"
+
+  # JWT lifetimes (secret itself is in bio-common-secret)
+  APP_JWT_ACCESS_TOKEN_EXPIRY_SECONDS: "3600"
+  APP_JWT_REFRESH_TOKEN_EXPIRY_SECONDS: "604800"
+

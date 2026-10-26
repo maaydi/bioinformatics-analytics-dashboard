@@ -1,0 +1,107 @@
+# Replication credentials are NOT duplicated here: they are read from `postgres-secret`
+# (owned by the primary) so that a password rotation happens in a single place.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-replica
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: postgres-replica
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-replica
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-replica
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: database
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: postgres-replica
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh", "/scripts/start-replica.sh" ]
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-replica-config
+                  key: POSTGRES_DB
+            - name: PGDATA
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-replica-config
+                  key: PGDATA
+            - name: PRIMARY_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-replica-config
+                  key: PRIMARY_HOST
+            - name: PRIMARY_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-replica-config
+                  key: PRIMARY_PORT
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          startupProbe:
+            exec:
+              command: [ "sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"" ]
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 60 # up to 10 min for the initial pg_basebackup
+          readinessProbe:
+            exec:
+              command: [ "sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"" ]
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command: [ "sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"" ]
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-replica-data
+        - name: scripts
+          configMap:
+            name: postgres-replica-config
+            items:
+              - key: start-replica.sh
+                path: start-replica.sh
+

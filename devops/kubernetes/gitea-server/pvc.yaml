@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitea-data
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: gitea-server
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: config-repository
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: cache
+data:
+  # Password is appended at runtime from redis-secret (never stored in the ConfigMap).
+  redis.conf: |
+    bind 0.0.0.0
+    port 6379
+    dir /data
+    appendonly no
+

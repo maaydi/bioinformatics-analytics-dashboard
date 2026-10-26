@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: messaging
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: messaging
+    spec:
+      # Mandatory: a Service named `kafka` injects KAFKA_PORT=tcp://… which makes cp-kafka abort on startup.
+      enableServiceLinks: false
+      containers:
+        - name: kafka
+          image: confluentinc/cp-kafka:7.6.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: internal
+              containerPort: 29092
+            - name: host
+              containerPort: 9092
+          envFrom:
+            - configMapRef:
+                name: kafka-config
+          startupProbe:
+            tcpSocket:
+              port: internal
+            periodSeconds: 5
+            failureThreshold: 36 # 3 min
+          readinessProbe:
+            exec:
+              command: [ "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            tcpSocket:
+              port: internal
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+

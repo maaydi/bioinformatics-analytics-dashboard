@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: export-service
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: export-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO export volume
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: export-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: export-service
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: business-service
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: export-service
+          image: bio-dashboard/export-service:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8085
+          envFrom:
+            - configMapRef:
+                name: bio-common-config
+            - secretRef:
+                name: bio-common-secret
+            - configMapRef:
+                name: export-service-config
+            - secretRef:
+                name: export-service-secret
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: exports
+              mountPath: /app/bio-export
+            - name: logs
+              mountPath: /app/logs
+      volumes:
+        - name: exports
+          persistentVolumeClaim:
+            claimName: export-data
+        - name: logs
+          emptyDir: { }
+

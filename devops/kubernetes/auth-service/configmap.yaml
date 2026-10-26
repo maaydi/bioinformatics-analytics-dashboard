@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: business-service
+data:
+  SERVER_PORT: "8081"
+  SPRING_APPLICATION_NAME: "auth-service"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/bioinformatics_db"
+  COMMON_DATASOURCE_PRIMARY_URL: "jdbc:postgresql://postgres:5432/bioinformatics_db"
+  COMMON_DATASOURCE_REPLICA_URL: "jdbc:postgresql://postgres-replica:5432/bioinformatics_db"
+  APP_TOKEN_MAX_ACTIVE_SESSIONS_PER_USER: "5"
+

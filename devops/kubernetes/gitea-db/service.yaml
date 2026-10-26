@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitea-db
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: gitea-db
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: config-repository-database
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: gitea-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+

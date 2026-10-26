@@ -1,0 +1,55 @@
+# One-shot, idempotent topic provisioning (docker-compose `kafka-init-topics`).
+# Jobs are immutable: the deploy script deletes the previous run before re-applying.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-init-topics
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/name: kafka-init-topics
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: messaging
+spec:
+  backoffLimit: 6
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka-init-topics
+        app.kubernetes.io/part-of: bio-dashboard
+        app.kubernetes.io/component: messaging
+    spec:
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-init-topics
+          image: confluentinc/cp-kafka:7.6.0
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh", "/config/create-topics.sh" ]
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-init-topics-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: kafka-init-topics-config
+            items:
+              - key: topics.txt
+                path: topics.txt
+              - key: create-topics.sh
+                path: create-topics.sh
