@@ -1455,8 +1455,8 @@
 #### [KUBERNETES / CLOUD-NATIVE] `OPS-002` — Kubernetes (Minikube) Cloud-Native Migration Specification
 
 - **Dates Active:** [2026-09-30 to 2026-10-04]
-- **Commits:** 5 commits (`a7571ab..b40457f`)
-- **Merged PR:** #28, #29
+- **Commits:** 9 commits (`a7571ab..79901d5`)
+- **Merged PR:** #28, #29, #32
 - **Overview:** Authored complete Kubernetes deployment specifications and Minikube local orchestration blueprints.
 
 **DevOps & Infrastructure:**
@@ -1465,15 +1465,19 @@
 - Minikube operational setup guides, resource allocation limits, and persistence volume claims.
 
 <details>
-<summary><strong>Commit History (5 commits)</strong></summary>
+<summary><strong>Commit History (9 commits)</strong></summary>
 
-|   Hash    |    Date    | Commit Message                                                                 |
-|:---------:|:----------:|:-------------------------------------------------------------------------------|
-| `a7571ab` | 2026-09-30 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) - Specification |
-| `59bf94b` | 2026-09-30 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) - Specification |
-| `d1d8cdf` | 2026-09-30 | Merge pull request #28 from maaydi/documentation/kubernetes                    |
-| `f8ee1fc` | 2026-10-04 | Documentation : remove agents and skills                                       |
-| `b40457f` | 2026-10-04 | Merge pull request #29 from maaydi/documentation/update-design-and-agents      |
+|   Hash    |    Date    | Commit Message                                                                                                |
+|:---------:|:----------:|:--------------------------------------------------------------------------------------------------------------|
+| `79901d5` | 2026-10-26 | OPS-002 - Documentation                                                                                       |
+| `93b2596` | 2026-10-26 | OPS-002 - frontend                                                                                            |
+| `f4bd1d3` | 2026-10-02 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) Step 7 — Business services                     |
+| `626cc86` | 2026-10-02 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) Step 6 — Platform services                     |
+| `57d46cc` | 2026-10-02 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) Step 5 — Messaging & observability             |
+| `9808ff7` | 2026-10-02 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) Step 4 — Data stores                           |
+| `0772fe2` | 2026-09-30 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) Namespace + shared common configmap and secret |
+| `59bf94b` | 2026-09-30 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) - Specification                                |
+| `a7571ab` | 2026-09-30 | OPS-002 Migration from Docker Compose to Kubernetes (Minikube) - Specification                                |
 
 </details>
 
@@ -1482,6 +1486,7 @@
 ### Epoch IV: Visual Export Pipeline, Batch Engine & Modern Store Architecture (September – October 2026)
 
 #### [ADVANCED PIPELINE / HEAD]
+
 `PIPE-001` — Visual Export Pipeline, Batch Export Engine & Modern Signal Store Refactoring
 
 - **Dates Active:** [2026-08-12 to 2026-10-23]

@@ -58,7 +58,7 @@ documentation/implementation/
 | `PIPE-001`      | Visual Export Pipeline & Batch Export Engine                                                   | `done` |
 | `ARCH-001`      | Microservices Architecture Migration (Strangler Fig)                                           | `not-started` | 
 | `ARCH-002`      | Protein Catalog Ownership & Database-per-Service Enforcement                                   | `not-started` | 
-| `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                                         | `in-progress` | 
+| `OPS-002`       | Migration from Docker Compose to Kubernetes (Minikube)                                         | `done` | 
 | `AUTH-002`      | Keycloak confidential OIDC client in auth-service BFF; opaque server-side sessions for Angular | `not-started` |
 
 ## Chronological Implementation Order (Recommended)
@@ -89,7 +89,7 @@ Implement tickets in this order so dependencies are respected and each increment
 | 20    | `PIPE-001`      | `done` | Visual Export Pipeline & Batch Export Engine                                                   | Users can start large data or visual exports without waiting on the page, then track their progress and download the results when ready |
 | 21    | `ARCH-001`      | `done` (*)    | Microservices Architecture Migration (Strangler Fig)                                           | No changes for Users                                                                                                                    |
 | 22    | `ARCH-002`      | `not-started` | Protein Catalog Ownership & Database-per-Service Enforcement                                   | No changes for Users                                                                                                                    |
-| 23    | `OPS-002`       | `in-progress` | Migration from Docker Compose to Kubernetes (Minikube)                                         | No changes for Users                                                                                                                    |
+| 23    | `OPS-002`       | `done` | Migration from Docker Compose to Kubernetes (Minikube)                                         | No changes for Users                                                                                                                    |
 | 24    | `AUTH-002`      | `not-started` | Keycloak confidential OIDC client in auth-service BFF; opaque server-side sessions for Angular | UI to connect to Keycloak provider                                                                                                      |
 
 (*) `ARCH-001` continues with `PIPE-001`, `NLQ-001` and `REMOTE-001`.

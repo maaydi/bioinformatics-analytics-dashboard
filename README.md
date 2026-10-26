@@ -1,6 +1,6 @@
 # Bioinformatics Analytics Dashboard
 
-> **v2.1** — Explore, visualize, and analyze **UniProt protein/gene data** from both **remote UniProt.org API** (150M+
+> **v2.2** — Explore, visualize, and analyze **UniProt protein/gene data** from both **remote UniProt.org API** (150M+
 > entries)
 > and **local database** (570K+ entries). Filter, import, visualize, and export — all in one unified platform.
 > Built with **Angular 21**, **Spring Boot 4**, and **PostgreSQL 16**.
@@ -12,7 +12,7 @@
 |------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | 🌐 **Remote Explore** 150+ million UniProt proteins directly from UniProt.org API              | 📊 **Visualize** protein distributions via histograms, bar charts, pie charts, and KPI cards |
 | 🔬 **Local Explore** 570K+ imported UniProt entries with advanced multi-field search & filters | 📥 **Import** remote data into local PostgreSQL with live progress tracking                  |
-| 💾 **Export** filtered datasets through asynchronous pipelines as CSV, TSV, JSON, or Excel    | 🔖 **Save** and reload filter combinations across sessions                                   |
+| 💾 **Export** filtered datasets through asynchronous pipelines as CSV, TSV, JSON, or Excel     | 🔖 **Save** and reload filter combinations across sessions                                   |
 | 🌙 **Dark Mode** Full dark theme support for comfortable extended exploration                  | 🔐 **Update Password** Secure user profile management with password reset                    |
 | 📋 **Inspect** full protein detail: sequence, GO terms, features, cross-references             | ⚡ **Filter Remote Data** Apply 15+ filter dimensions to 150M UniProt entries in real-time   |
 
@@ -69,8 +69,112 @@
 ![Account Screen](documentation/implementation/AUTH-001/account-settings.png)
 
 ---
+## 🏗️ Architecture
+
+The platform provides two complementary data-access modes through a unified interface:
+
+```text
+                              Angular 21
+                                  │
+                                  ▼
+                         Unified Application API
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+              🌐 Remote Mode              💾 Local Mode
+                    │                           │
+                    ▼                           ▼
+              UniProt.org                 PostgreSQL
+                    │                           │
+              150M+ entries                 570K+ entries
+                    │                           │
+                    └─────────────┬─────────────┘
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+              🔎 Explore & Filter          📥 Import
+              📤 Export                     │
+                                            ▼
+                                      📊 Analytics
+                                      📈 Visualization
+                                      │
+                              ┌────────┴────────┐
+                              │                 │
+                         Histograms         Bar / Pie /
+                         KPI metrics        Other plots
+                              │                 │
+                              └────────┬────────┘
+                                       ▼
+                                📤 Export Visualization
+```
+
+### Remote Mode — UniProt.org
+
+The remote mode provides direct, read-only access to the live UniProt dataset without requiring local storage.
+
+- **150M+ protein entries** available through the UniProt.org API
+- **Advanced filtering** across accession, organism, length, GO terms, reviewed status, and other dimensions
+- **Pagination and sorting** for large result sets
+- **Export** filtered remote results without importing the complete dataset
+- **Redis caching** to optimize repeated remote queries
+
+### Local Mode — PostgreSQL
+
+The local mode provides persistent access to data imported from UniProt (API or Files).
+
+- **Selective import** of filtered remote results/ Files
+- **> 570K+ locally stored entries** for intensive exploration and analysis
+- **Full-text and multi-field search**
+- **Materialized views** for pre-aggregated metrics and dashboard KPIs
+- **Spring Batch** processing for large-scale imports
+
+### Analytics & Visualization
+
+Analytics that require aggregation across the dataset are performed on **locally imported PostgreSQL data**.
+
+Imported data can be transformed into:
+
+- **Histograms** — protein length and other numerical distributions
+- **Bar charts** — organism, evidence level, keywords, and other categorical distributions
+- **Pie charts** — reviewed/unreviewed and other proportional distributions
+- **KPI cards** — totals, averages, minimum/maximum values, and other aggregate metrics
+
+The resulting visualizations provide an interactive way to explore the characteristics of the imported dataset, while the underlying aggregated data can also be **exported for further analysis**.
+
+### Remote-to-Local Workflow
+
+Remote exploration and local analytics work together as a single workflow:
+
+```text
+UniProt.org
+     │
+     │  Search / Filter
+     ▼
+Remote Results
+     │
+     │  Select & Import
+     ▼
+PostgreSQL
+     │
+     ├── Explore / Filter
+     │
+     ├── Analytics
+     │      ├── Histograms
+     │      ├── Bar charts
+     │      ├── Pie charts
+     │      └── KPI metrics
+     │
+     └── Export
+            ├── CSV
+            ├── TSV
+            ├── JSON
+            └── Excel
+```
+
+This separation allows the application to combine **live access to the global UniProt dataset** with the **performance and analytical capabilities of a local database**.
 
 ## 🚀 Quick Start
+
 ```bash
 # Clone and configure
 git clone <repo-url>
@@ -83,6 +187,7 @@ docker compose up --build
 ```
 
 **Local development** (without Docker):
+
 ```bash
 # Start PostgreSQL, then:
 cd backend/dashboard  && ./mvnw spring-boot:run          # http://localhost:8080
@@ -124,7 +229,8 @@ cd frontend && npm install && npm start        # http://localhost:4200
 | Database | PostgreSQL 16 — materialized views, GIN indexes, full-text search        |
 | APIs     | UniProt REST API integration for live 150M+ protein dataset              |
 | Auth     | Spring Security + JWT (HS256), password management                       |
-| Infra    | Docker Compose, Flyway migrations, nginx, Redis caching                  |
+| Infra    | Docker Compose, Flyway migrations, nginx, Redis caching, Kubernetes      |
+
 ---
 
 ## 📁 Project Structure
@@ -134,7 +240,7 @@ backend/dashboard       → Spring Boot (controller → service → repository �
 backend/services/export-service/ → Export microservice: pipelines, batch jobs, CSV/TSV/JSON/Excel writers
 frontend/               → Angular features: dashboard, genes, analytics, import-admin, auth
 documentation/          → Specs: api-contract, domain-model, validation-rules, overview
-devops/                 → Dockerfiles, nginx config, shell scripts
+devops/                 → Dockerfiles, Kubernetes files, nginx config, shell scripts
 ```
 
 Full details in [`documentation/`](documentation).
@@ -154,7 +260,20 @@ Full details in [`documentation/`](documentation).
 
 ---
 
-## 🎯 v2.1 Key Features
+## 🎯 v2.2 Key Features
+
+### Deployment on Kubernetes
+
+- **Dual deployment support** — run the application seamlessly in both **Docker Compose** for local development and
+  **Kubernetes** for containerized, scalable deployments
+- **Kubernetes-ready architecture** — deploy application services, PostgreSQL, Redis, and supporting infrastructure as
+  Kubernetes workloads
+- **Containerized services** — package all microservices and frontend components as independent Docker containers for
+  consistent deployments across environments
+- **Scalable deployment** — leverage Kubernetes to scale application services independently based on workload
+  requirements
+- **Environment-based configuration** — manage service configuration, secrets, and deployment settings through
+  Kubernetes resources
 
 ### Remote Data Access
 
