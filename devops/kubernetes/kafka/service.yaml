@@ -9,6 +9,9 @@ metadata:
     app.kubernetes.io/component: messaging
 spec:
   type: ClusterIP
+  # The broker/controller connects to its advertised Service during startup.
+  # Withholding unready endpoints would prevent it from ever becoming ready.
+  publishNotReadyAddresses: true
   selector:
     app.kubernetes.io/name: kafka
   ports:

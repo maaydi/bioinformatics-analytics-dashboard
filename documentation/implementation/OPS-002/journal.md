@@ -12,15 +12,15 @@
   to make sure each variable previously injected through compose `env_file: .env` is provided by a ConfigMap or a
   Secret in Kubernetes (e.g. `SPRING_DATASOURCE_*` for import/export services, `APP_JWT_SECRET`, `LOG_PATH`).
 - Findings:
-    - Hostnames in config-repo (`postgres`, `postgres-replica`, `redis`, `kafka`, `zipkin`, `discovery-server`,
-      `gitea-server`) → Kubernetes Service names must be identical.
-    - `eureka.instance.prefer-ip-address: true` is already set everywhere → pods register with their IP (required in
-      K8s).
-    - All Spring services permit `/actuator/health/**` and enable health probe groups → usable for K8s probes.
-    - Compose `postgres` patches `pg_hba.conf` in a background sub-shell; replaced by a cleaner
-      `/docker-entrypoint-initdb.d` init script.
-    - Dockerfiles run as non-root `bioapp`; images have no tag → must be tagged explicitly (`:local`) for Minikube.
-    - The `backend` compose service is `dashboard` for Spring/Eureka → renamed `dashboard` in Kubernetes.
+  - Hostnames in config-repo (`postgres`, `postgres-replica`, `redis`, `kafka`, `zipkin`, `discovery-server`,
+    `gitea-server`) → Kubernetes Service names must be identical.
+  - `eureka.instance.prefer-ip-address: true` is already set everywhere → pods register with their IP (required in
+    K8s).
+  - All Spring services permit `/actuator/health/**` and enable health probe groups → usable for K8s probes.
+  - Compose `postgres` patches `pg_hba.conf` in a background sub-shell; replaced by a cleaner
+    `/docker-entrypoint-initdb.d` init script.
+  - Dockerfiles run as non-root `bioapp`; images have no tag → must be tagged explicitly (`:local`) for Minikube.
+  - The `backend` compose service is `dashboard` for Spring/Eureka → renamed `dashboard` in Kubernetes.
 - No ambiguity blocking the work → no `analyse.md` required. Assumptions recorded in `overview.md` / `plan.md`.
 
 ### Step 2 — Ticket documentation
@@ -87,3 +87,89 @@
   (`export-data`, 5Gi → `/app/bio-export`); both Deployments use `Recreate` (RWO volumes).
 - Variables previously inherited implicitly through compose `env_file: .env` are now explicit (`APP_BATCH_CHUNK_SIZE`,
   `UNIPROT_API_BASE_URL`, `APP_IMPORT_CONFIG_TEMP_DIR`, `APP_EXPORT_TEMP_DIR`, multipart sizes).
+
+## 2026-10-26
+
+### Business-service verification
+
+- Reviewed all five business-service manifest sets against Compose, Dockerfiles, Spring configuration, and the
+  OPS-002 checklist. No business-manifest changes were needed.
+- Verified common and service-owned ConfigMap/Secret injection, both Redis password variables referencing
+  `redis-secret`, matching Service selectors/ports, local image tags/pull policies, resource bounds,
+  `enableServiceLinks: false`, actuator probes, and `/app/logs` backed by `emptyDir`.
+- Confirmed import/export PVC references, mount paths, `ReadWriteOnce` access, and `Recreate` rollout strategy.
+- Reconciled the plan's stale task statuses with the existing manifest implementation. Completion here means
+  manifests are implemented and statically checked, not that the applications have run successfully on Kubernetes.
+
+### Step 8 — Frontend manifests
+
+- Added `frontend/deployment.yaml`: one nginx container using `bio-dashboard/frontend:local` with
+  `imagePullPolicy: IfNotPresent`, port 80 named `http`, and `enableServiceLinks: false`.
+- HTTP startup/readiness/liveness probes use `/`; CPU/memory requests are `50m`/`64Mi`, limits `250m`/`128Mi`.
+- Added `frontend/service.yaml`: NodePort `30000` → port 80 → named container port `http`.
+- Reused the image's nginx configuration without changes: `/api/` proxies to `api-gateway:8080/api/`.
+  Deploy after the gateway Service exists and the gateway is ready; nginx resolves its upstream at startup.
+- The frontend Dockerfile is runtime-only: run `npm ci` and `npm run build:prod` in `frontend/` first,
+  then build image `bio-dashboard/frontend:local` with `devops/docker/frontend/Dockerfile` from the repository-root
+  context. The image must be available in Minikube before rollout. No frontend ConfigMap, Secret, or PVC is needed.
+
+### Validation performed
+
+- PyYAML parsed all **74 Kubernetes YAML files / 75 unique resources** successfully.
+- Programmatic assertions passed for all five business services and frontend: selectors, named ports, image
+  conventions, probes, resources, referenced ConfigMaps/Secrets and their keys, and referenced PVCs.
+- Business-service assertions additionally checked `envFrom` order, Redis credential sources, log volumes, and
+  import/export storage. Frontend checks confirmed NodePort `30000`, gateway upstream port 8080, and uniqueness
+  of all seven configured NodePorts.
+- IDE diagnostics reported no errors in the new frontend manifests.
+- At this initial static-review stage, Kubernetes schema validation, frontend/image builds, deployment, and live
+  smoke tests had **not** been performed. The subsequent live rollout is recorded below.
+
+### Live Minikube rollout
+
+- Reused the existing Docker-driver `minikube` profile and explicitly targeted Kubernetes context `minikube`,
+  namespace `bio-dashboard`; no unrelated Kubernetes context or workload was changed.
+- Increased the running Minikube Docker container's actual allocation from 2 CPUs / approximately 10 GiB to
+  6 CPUs / 12 GiB without stopping Kubernetes. This was a runtime Docker update, not a persisted Minikube profile
+  resize. The backing filesystem had sufficient free space for the seven PVCs (43 GiB requested in total).
+- Rebuilt the backend reactor with Maven (`clean package -DskipTests`); test execution was skipped.
+  Installed locked frontend dependencies and built the Angular production bundle. Retried the frontend build
+  with `CI=true` and `NG_CLI_ANALYTICS=false` for noninteractive operation.
+- Built all nine runtime application images as `bio-dashboard/<service>:local` and loaded them into Minikube's
+  containerd image store with `minikube image load`.
+- Generated runtime DB, Redis, JWT, Git, and encryption credentials directly in Kubernetes, keeping application
+  DB credentials consistent with PostgreSQL. No generated secret values were written to repository files or
+  printed. Checked-in `secret.yaml` files remain placeholders and must not be reapplied over runtime Secrets.
+- All 75 resources passed `kubectl apply --dry-run=server` validation before deployment.
+- Initialized Gitea noninteractively using runtime ConfigMap overrides (`INSTALL_LOCK=true`, registration
+  disabled), created a bootstrap administrator using the CLI, and seeded a private
+  `bioinformatics/config-repo` repository on branch `main` with all 18 source YAML configuration files.
+  Config Server authenticated with credentials from `config-server-secret`.
+- Resolved two observed startup dependencies:
+  - Kafka's controller could not reach its advertised `kafka:29092` address because the Service withheld unready
+    endpoints. Added `publishNotReadyAddresses: true` to `kafka/service.yaml`; Kafka then became ready.
+  - Auth initially failed shared JPA validation with missing `public.cross_reference`. Starting dashboard applied
+    its public-schema migrations and allowed auth to recover on restart. Dashboard must precede both auth and
+    analytics on a fresh database.
+- The initial topic Job exceeded its deadline. Recreated only that idempotent Job after the broker was healthy;
+  the retry completed successfully and retained the existing topics.
+- All **18 Deployments** reached **1/1 ready/available**; `kafka-init-topics` completed **1/1**.
+- Windows refused the initial localhost port-forward binding on 30000. Left a localhost-only forward running on
+  **http://localhost:18080** → `svc/frontend:80`; the Service's NodePort remains 30000.
+  Restart access if needed with
+  `kubectl --context minikube -n bio-dashboard port-forward --address=127.0.0.1 svc/frontend 18080:80`.
+
+### Live smoke-test results
+
+- Frontend `/`, SPA deep-link `/genes`, and a production JavaScript asset returned HTTP **200**.
+- A single deliberately nonexistent username produced the expected JSON HTTP **401** (`Invalid credentials`)
+  through **nginx → gateway → auth → database**. An unauthenticated protected gene API request also returned **401**.
+- Verified all five Flyway histories were successful and current on **both primary and replica**:
+  `public=21`, `auth=1`, `analytics=2`, `import_batch=1`, `export_data=2`.
+- Confirmed `pg_is_in_recovery()` was **false** on primary and **true** on replica.
+- Import and export containers each created and removed a temporary file on their own PVC successfully.
+- Smoke-test evidence is in the local temporary log `bio-minikube-smoke-18080.log`; rollout/build logs are also
+  temporary local files, not repository artifacts.
+- No Compose dataset was migrated. Authenticated business workflows, real imports/exports, UI browser tests,
+  and load testing were not performed. Deployment/teardown scripts and the Kubernetes README remain pending;
+  this run used PowerShell/Python terminal orchestration rather than the planned Bash deployment script.

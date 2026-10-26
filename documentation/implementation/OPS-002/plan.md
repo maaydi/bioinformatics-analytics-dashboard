@@ -12,6 +12,9 @@
 - **DNS parity with compose**: Service names = compose service names → zero change in `gitea/config-repo` / nginx.
 - **Health-gated ordered rollout**: the script applies a folder, then `kubectl rollout status` (Deployments) or
   `kubectl wait --for=condition=complete` (Jobs) before moving on.
+- **Fresh-database order**: after infrastructure, configuration, and the gateway are ready, deploy `dashboard`
+  before `auth-service` and `analytics-service`. Dashboard owns the public tables validated by auth's shared JPA
+  entities and referenced by analytics migrations.
 - `enableServiceLinks: false` on every pod: prevents Kubernetes from injecting `KAFKA_PORT`, `REDIS_PORT`,
   `POSTGRES_PORT`… environment variables that break Confluent images and may override Spring properties.
 
@@ -21,29 +24,44 @@
 |----|---------------------------------------------------------------------------------------------------------|-----------------------------------------------|
 | 1  | Analyse `docker-compose.yml`, Dockerfiles, `.env.example`, config-repo env references                   | done                                          |
 | 2  | Write `overview.md`, `plan.md`, `journal.md`                                                            | done                                          |
-| 3  | Namespace + shared `common` ConfigMap / Secret                                                          | not-started                                   |
-| 4  | Data stores: `postgres`, `postgres-replica`, `redis`                                                    | not-started                                   |
-| 5  | Observability & messaging: `zipkin`, `zookeeper`, `kafka`, `kafka-init-topics`, `kafka-ui`              | not-started                                   |
-| 6  | Platform: `discovery-server`, `gitea-db`, `gitea-server`, `config-server`, `api-gateway`                | not-started                                   |
-| 7  | Business services: `auth-service`, `analytics-service`, `dashboard`, `import-service`, `export-service` | not-started                                   |
-| 8  | Frontend: `frontend` (nginx)                                                                            | not-started                                   |
+| 3  | Namespace + shared `common` ConfigMap / Secret                                                          | done                                          |
+| 4  | Data stores: `postgres`, `postgres-replica`, `redis`                                                    | done                                          |
+| 5  | Observability & messaging: `zipkin`, `zookeeper`, `kafka`, `kafka-init-topics`, `kafka-ui`              | done                                          |
+| 6  | Platform: `discovery-server`, `gitea-db`, `gitea-server`, `config-server`, `api-gateway`                | done                                          |
+| 7  | Business services: `auth-service`, `analytics-service`, `dashboard`, `import-service`, `export-service` | done (live rollout verified)                   |
+| 8  | Frontend: `frontend` (nginx)                                                                            | done (live smoke tests passed)                 |
 | 9  | `devops/scripts/deploy-minikube.sh` — ordered, health-gated deployment (+ `--build`)                    | not-started                                   |
 | 10 | `devops/scripts/undeploy-minikube.sh` — reverse-order teardown (`--purge` for PVCs)                     | not-started                                   |
 | 11 | `devops/kubernetes/README.md` — prerequisites, usage, access URLs, troubleshooting                      | not-started                                   |
 | 12 | Update `documentation/implementation/README.md` ticket catalog                                          | not-started                                   |
-| 13 | Static validation (`bash -n`, YAML parse)                                                               | not-started                                   |
-| 14 | Live validation on Minikube (`minikube start` → `deploy-minikube.sh --build`)                           | not-started (blocked: Minikube not installed) |
+| 13 | Static validation (`bash -n`, YAML parse)                                                               | in-progress (YAML passed; scripts pending)     |
+| 14 | Live validation on Minikube (build/load images → ordered apply → smoke tests)                          | done (PowerShell orchestration; script pending) |
 
 ## Status
 
 - [x] Requirements analysed
 - [x] Ticket documentation created
-- [ ] Kubernetes manifests written for every compose service
+- [x] Kubernetes manifests written for every compose service
 - [ ] Ordered deployment script written
 - [ ] Teardown script written
 - [ ] README / catalog updated
 - [ ] Static validation (shell syntax + YAML parsing)
-- [ ] Deployed and smoke-tested on Minikube — **blocked** (Minikube not installed, explicitly out of scope for now)
+- [x] Deployed and smoke-tested on Minikube — all 18 Deployments ready; topic Job completed
+
+Business services and frontend passed static configuration/reference checks on 2026-10-26.
+All 74 Kubernetes YAML files (75 resources) parsed successfully and passed server-side dry-run validation.
+The backend and Angular production bundle were rebuilt; all nine local application images were built and loaded
+into the existing Minikube cluster. Live HTTP, database migration/replication, and PVC write smoke tests passed.
+Authenticated business workflows, real data imports/exports, and load testing remain untested.
+
+Frontend access on Windows: `http://localhost:18080` through the running localhost-only port-forward to
+`svc/frontend` port 80. Restart that forward with
+`kubectl --context minikube -n bio-dashboard port-forward --address=127.0.0.1 svc/frontend 18080:80` if needed.
+NodePort remains 30000; the Windows host refused the initial binding on that port.
+
+Runtime Secrets were generated directly in Kubernetes; checked-in Secret manifests still contain placeholders.
+Do **not** reapply those placeholder manifests over the running credentials. Deployment/teardown scripts and the
+Kubernetes README are still pending; this rollout used terminal orchestration rather than the planned script.
 
 ---
 
@@ -66,7 +84,8 @@
 
 - [x] `zipkin` — NodePort 30941
 - [x] `zookeeper` — tcp probe 2181
-- [x] `kafka` — listeners `PLAINTEXT://kafka:29092`, `PLAINTEXT_HOST://localhost:9092`
+- [x] `kafka` — listeners `PLAINTEXT://kafka:29092`, `PLAINTEXT_HOST://localhost:9092`;
+  Service uses `publishNotReadyAddresses: true` to allow broker/controller self-connectivity during startup
 - [x] `kafka-init-topics` — Job, topic list in ConfigMap, idempotent (`--if-not-exists`), `backoffLimit`
 - [x] `kafka-ui` — NodePort 30090
 
@@ -89,7 +108,10 @@
 
 ### Frontend
 
-- [ ] `frontend` — nginx image, NodePort 30000, upstream `api-gateway:8080` unchanged
+- [x] `frontend` — nginx image `bio-dashboard/frontend:local`, NodePort 30000, upstream `api-gateway:8080` unchanged
+  - [x] HTTP startup / readiness / liveness probes on `/`, resource requests/limits, `enableServiceLinks: false`
+  - Build the Angular production bundle first, then build with `devops/docker/frontend/Dockerfile` using the
+    repository root as context; load/build the image in Minikube before rollout. Deploy after the API gateway.
 
 ### Scripts
 
@@ -100,8 +122,8 @@
 
 | Risk                                                                                       | Mitigation                                                                                                |
 |--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| Minikube default resources (2 CPU / 4 GiB) too small for ~18 pods incl. 7 JVMs             | README recommends `minikube start --cpus=6 --memory=12g --disk-size=40g`                                  |
-| Images tagged `:latest` would force `imagePullPolicy: Always` and fail (no registry)       | Images tagged `:local`, `imagePullPolicy: IfNotPresent`, built inside Minikube's Docker daemon            |
+| Minikube default resources (2 CPU / 4 GiB) too small for 18 Deployments incl. 8 JVMs       | Allocate 6 CPUs / 12 GiB; allow at least 80 GiB disk for 43 GiB of declared PVC capacity plus images/logs |
+| Images tagged `:latest` would force `imagePullPolicy: Always` and fail (no registry)       | Images tagged `:local`, `imagePullPolicy: IfNotPresent`, built locally and loaded with `minikube image load` |
 | Gitea `config-repo` is empty on a fresh cluster → config-server & all Spring services fail | Deploy script pauses after Gitea with setup instructions (`--yes` to skip)                                |
 | Non-root `bioapp` user writing to PVCs (`/app/bio-import`, `/app/bio-export`)              | Minikube hostPath provisioner creates `0777` directories; revisit with `fsGroup` for real clusters        |
 | Kubernetes service-link env vars (`KAFKA_PORT=tcp://…`) break Confluent images             | `enableServiceLinks: false` on every pod                                                                  |
@@ -109,4 +131,6 @@
 | Eureka registering un-resolvable pod hostnames                                             | `prefer-ip-address: true` already set in config-repo; also forced via `EUREKA_INSTANCE_PREFER_IP_ADDRESS` |
 | Placeholder secrets deployed as-is                                                         | Documented; secrets must be edited locally (never committed) or created with `kubectl create secret`      |
 | Fresh Minikube PostgreSQL is empty (compose volume data is not migrated)                   | Flyway recreates schemas; data import must be re-run (documented)                                         |
+| Auth validates shared public entities; analytics migrations query dashboard-owned tables | Deploy dashboard and await its migrations/readiness before auth and analytics                           |
+| Kafka cannot reach its own advertised Service while no endpoints are ready               | Set `publishNotReadyAddresses: true` on the Kafka Service                                                |
 
