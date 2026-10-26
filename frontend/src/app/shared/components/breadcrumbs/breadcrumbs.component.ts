@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
+import {BREADCRUMB_MESSAGES} from '@shared/messages/ui.messages';
 
 /**
  * Breadcrumb navigation component compliant with application design system.
@@ -39,6 +40,7 @@ export interface BreadcrumbItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BreadcrumbsComponent {
+  protected readonly messages = BREADCRUMB_MESSAGES;
   /**
    * Breadcrumb items to display.
    * Signal-based input for reactive updates.

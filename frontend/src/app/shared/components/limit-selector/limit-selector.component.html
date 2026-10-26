@@ -4,7 +4,7 @@
     [matAutocomplete]="auto"
     [max]="max()"
     [min]="min()"
-    aria-label="Number of items to display"
+    [attr.aria-label]="messages.label"
     matInput
     type="number"
   />
@@ -15,6 +15,6 @@
   </mat-autocomplete>
 
   @if (limitControl.hasError('min') || limitControl.hasError('max')) {
-    <mat-error>Enter a value between {{ min() }} and {{ max() }}</mat-error>
+    <mat-error>{{ messages.invalid(min(), max()) }}</mat-error>
   }
 </mat-form-field>

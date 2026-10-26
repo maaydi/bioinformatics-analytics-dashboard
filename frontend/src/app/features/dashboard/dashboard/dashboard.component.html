@@ -1,24 +1,24 @@
-<section aria-label="Dashboard overview" class="dashboard-page">
+<section [attr.aria-label]="messages.overviewLabel" class="dashboard-page">
   <header class="dashboard-header">
-    <h1>Dashboard</h1>
-    <p>Overview metrics and analytics visualizations.</p>
+    <h1>{{ messages.title }}</h1>
+    <p>{{ messages.description }}</p>
   </header>
 
-  <section [attr.aria-busy]="dashboardKpiCardLoading()" aria-label="KPI cards" class="kpi-grid">
+  <section [attr.aria-busy]="dashboardKpiCardLoading()" [attr.aria-label]="messages.kpiLabel" class="kpi-grid">
     <app-dashboard-kpi-card-list [(kpiLoading)]="dashboardKpiCardLoading"/>
   </section>
 
-  <section aria-label="Distribution charts" class="dual-chart-grid">
+  <section [attr.aria-label]="messages.distributionLabel" class="dual-chart-grid">
     <app-dashboard-length-histogram/>
     <app-dashboard-reviewed-ratio/>
   </section>
 
-  <section aria-label="Evidence levels" class="dual-chart-grid">
+  <section [attr.aria-label]="messages.evidenceLabel" class="dual-chart-grid">
     <app-dashboard-keyword-frequency-histogram/>
     <app-dashboard-evidence-levels/>
   </section>
 
-  <section aria-label="Top organisms" class="full-width-row">
+  <section [attr.aria-label]="messages.organismsLabel" class="full-width-row">
     <app-dashboard-top-organisms/>
   </section>
 </section>

@@ -39,6 +39,7 @@ import {
 import {MatButton} from '@angular/material/button';
 import html2canvas from 'html2canvas';
 import {CompareComponent} from '@features/analytics/compare/compare.component';
+import {ANALYTICS_MESSAGES} from './analytics.messages';
 
 @Component({
   selector: 'app-analytics',
@@ -62,6 +63,7 @@ import {CompareComponent} from '@features/analytics/compare/compare.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnalyticsComponent {
+  protected readonly messages = ANALYTICS_MESSAGES;
 
   readonly captureArea = viewChild.required(ElementRef);
 
@@ -86,7 +88,7 @@ export class AnalyticsComponent {
   protected isCompareMode = signal<boolean>(false);
 
   /** Automatically derives page title dynamically based on layout state */
-  protected title = computed(() => this.isCompareMode() ? 'Compare Filter Sets' : 'Analytics');
+  protected title = computed(() => this.isCompareMode() ? this.messages.compareTitle : this.messages.title);
 
   /**
    * Load saved filters on component init.
@@ -156,7 +158,7 @@ export class AnalyticsComponent {
         }
       },
       error: (_) => {
-        this.errors.set('Failed to load saved filters');
+        this.errors.set(this.messages.loadFailed);
         this.loading.set(false);
       }
     });

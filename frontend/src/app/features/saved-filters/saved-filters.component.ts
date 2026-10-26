@@ -1,13 +1,15 @@
-import {afterNextRender, ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, signal} from '@angular/core';
+import {DatePipe} from '@angular/common';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {catchError, EMPTY, finalize} from 'rxjs';
 import {SavedFilter} from '@core/models/saved-filter.model';
 import {SavedFiltersService} from '@features/saved-filters/saved-filters.service';
-import {LoadingSpinnerComponent} from '@shared/components/loading-spinner/loading-spinner.component';
-import {MatCard} from '@angular/material/card';
-import {MatError} from '@angular/material/input';
+import {MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
+import {MatProgressBar} from '@angular/material/progress-bar';
+import {MatTooltip} from '@angular/material/tooltip';
 import {buildFiltersChips} from '@shared/utils/filter-chips-builder';
 import {MatChip, MatChipSet} from '@angular/material/chips';
 import {MatIcon} from '@angular/material/icon';
-import {formatDate} from '@shared/utils/date-formatter';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {Router} from '@angular/router';
 import {GenesStore} from '@features/genes/state/filters.store';
@@ -15,6 +17,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '@shared/components/confirm-dialog/confirm-dialog.component';
 import {NotificationService} from '@shared/directive/notification.service';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
+import {SAVED_FILTERS_MESSAGES} from './saved-filters.messages';
 
 /**
  * SavedFiltersComponent — Manage persisted gene filter snapshots.
@@ -38,9 +41,14 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
 @Component({
   selector: 'app-saved-filters',
   imports: [
-    LoadingSpinnerComponent,
+    DatePipe,
     MatCard,
-    MatError,
+    MatCardContent,
+    MatCardHeader,
+    MatCardSubtitle,
+    MatCardTitle,
+    MatProgressBar,
+    MatTooltip,
     MatChip,
     MatChipSet,
     MatIcon,
@@ -53,21 +61,23 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SavedFiltersComponent {
+  protected readonly messages = SAVED_FILTERS_MESSAGES;
   /** True while loading saved filters from API. */
-  loading = signal<boolean>(true);
+  readonly loading = signal<boolean>(true);
 
   /** Array of user's saved filter sets. */
-  filters = signal<SavedFilter[]>([]);
+  readonly filters = signal<readonly SavedFilter[]>([]);
 
   /** User-facing error message, or null if no error. */
-  errors = signal<string | null>(null);
+  readonly errors = signal<string | null>(null);
 
-  totalFilters = signal<number>(0);
-  pageSize = signal<number>(5);
-  pageIndex = signal<number>(0);
+  readonly totalFilters = signal<number>(0);
+  readonly pageSize = signal<number>(5);
+  readonly pageIndex = signal<number>(0);
 
   protected readonly buildFiltersChips = buildFiltersChips;
-  protected readonly formatDate = formatDate;
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
   private readonly service = inject(SavedFiltersService);
   private readonly router = inject(Router);
   private readonly genesStore = inject(GenesStore);
@@ -76,7 +86,7 @@ export class SavedFiltersComponent {
   /**
    * Load saved filters on component init.
    */
-  constructor(private dialog: MatDialog) {
+  constructor() {
     afterNextRender(() => {
       this.loadFilters();
     });
@@ -91,10 +101,10 @@ export class SavedFiltersComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '350px',
       data: {
-        title: 'Confirm Deletion',
-        message: 'Are you sure you want to delete this filter ?',
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel'
+        title: this.messages.confirmTitle,
+        message: this.messages.confirmMessage,
+        confirmLabel: this.messages.confirmDelete,
+        cancelLabel: this.messages.cancel
       }
     });
 
@@ -115,25 +125,26 @@ export class SavedFiltersComponent {
     void this.router.navigate(['/genes']);
   }
 
-  onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
     this.loadFilters();
 
   }
 
-  private loadFilters() {
-    this.service.listSavedFilters(this.pageIndex(), this.pageSize()).subscribe({
-      next: sf => {
-        this.filters.set(sf.content);
-        this.totalFilters.set(sf.totalElements);
-        this.errors.set(null);
-        this.loading.set(false);
-      },
-      error: _ => {
-        this.errors.set('Failed to load saved filters');
-        this.loading.set(false);
-      }
+  protected loadFilters(): void {
+    this.loading.set(true);
+    this.errors.set(null);
+    this.service.listSavedFilters(this.pageIndex(), this.pageSize()).pipe(
+      catchError(() => {
+        this.errors.set(this.messages.loadFailed);
+        return EMPTY;
+      }),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading.set(false)),
+    ).subscribe(sf => {
+      this.filters.set(sf.content);
+      this.totalFilters.set(sf.totalElements);
     });
   }
 
@@ -147,11 +158,11 @@ export class SavedFiltersComponent {
         this.filters.update((currentFilters) =>
           currentFilters.filter(f => f.id !== filter.id)
         );
-        this.notify.success(`Deleted filter "${filter.name}"`, 'Close');
+        this.notify.success(this.messages.deleted(filter.name), this.messages.close);
       },
       error: _ => {
-        this.errors.set('Failed to delete Filter ' + filter.name);
-        this.notify.error(`Failed to delete filter "${filter.name}"`, 'Close');
+        this.errors.set(this.messages.deleteError(filter.name));
+        this.notify.error(this.messages.deleteFailed(filter.name), this.messages.close);
       }
     });
   }

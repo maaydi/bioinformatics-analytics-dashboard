@@ -1,16 +1,16 @@
 <mat-card #chartCard appearance="outlined" class="chart-card">
   <header class="chart-header-export-png" role="group">
     <div class="header-main">
-    <h2>Reviewed vs Unreviewed Proteins</h2>
+      <h2>{{ messages.title }}</h2>
     </div>
 
     <div aria-hidden="false" class="header-actions">
       <button
         (click)="exportAsImage()"
-        aria-label="Export chart as image"
+        [attr.aria-label]="messages.exportImageLabel"
         class="no-export"
         mat-icon-button
-        title="Export as Image"
+        [title]="messages.exportImage"
         type="button"
       >
         <mat-icon>download</mat-icon>
@@ -25,10 +25,10 @@
   } @else if (error()) {
     <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
       <p>{{ error() }}</p>
-      <button (click)="retry()" mat-stroked-button type="button">Retry</button>
+      <button (click)="retry()" mat-stroked-button type="button">{{ messages.retry }}</button>
     </div>
   } @else if (!hasData()) {
-    <p aria-live="polite" class="chart-state">No reviewed ratio data available.</p>
+    <p aria-live="polite" class="chart-state">{{ messages.empty }}</p>
   } @else {
     <div class="ratio-layout">
       <svg class="donut-svg" height="180" viewBox="0 -4 36 44" width="180">
@@ -53,11 +53,11 @@
       <div class="legend-list">
         <button (click)="selectReviewedStatus(true)" class="legend-item reviewed legend-button" type="button">
           <span aria-hidden="true" class="legend-dot"></span>
-          Reviewed: {{ formatCount(reviewedCount()) }} ({{ reviewedPercent() }}%)
+          {{ messages.reviewed(formatCount(reviewedCount()), reviewedPercent()) }}
         </button>
         <button (click)="selectReviewedStatus(false)" class="legend-item unreviewed legend-button" type="button">
           <span aria-hidden="true" class="legend-dot"></span>
-          Unreviewed: {{ formatCount(unreviewedCount()) }} ({{ unreviewedPercent() }}%)
+          {{ messages.unreviewed(formatCount(unreviewedCount()), unreviewedPercent()) }}
         </button>
       </div>
     </div>

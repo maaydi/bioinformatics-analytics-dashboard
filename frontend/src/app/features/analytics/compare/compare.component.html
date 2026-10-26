@@ -7,7 +7,7 @@
         (filterChange)="applyFilterA($event)"
         (filterClear)="clearFilterA()"
         [displayMode]="'grid'"
-        [title]="'Filters A'"
+        [title]="messages.filterA"
         [showSubmitButton]="false"
         [value]="filterA()"
       >
@@ -20,7 +20,7 @@
         (filterChange)="applyFilterB($event)"
         (filterClear)="clearFilterB()"
         [displayMode]="'grid'"
-        [title]="'Filters B'"
+        [title]="messages.filterB"
         [showSubmitButton]="false"
         [value]="filterB()"
       >
@@ -31,29 +31,29 @@
   <div class="kpi-cards-row">
     <div class="kpi-section">
       <div class="kpi-header">
-        <h4>📊 Results A</h4>
+        <h4>{{ messages.resultsA }}</h4>
       </div>
 
       <div class="kpi-content">
         @if (loadingA()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
-            <p>Loading...</p>
+            <p>{{ messages.loading }}</p>
           </div>
         }
 
         @if (errorA()) {
           <div class="error-state">
-            <p class="error-message">⚠️ {{ errorA() }}</p>
+            <p class="error-message">{{ messages.error(errorA()) }}</p>
             <button (click)="clearFilterA()" color="accent" mat-raised-button>
-              Clear Filter
+              {{ messages.clearFilter }}
             </button>
           </div>
         }
 
         @if (!loadingA() && !errorA() && !resultsA()) {
           <div class="empty-state">
-            <p>Apply Filter A to see results</p>
+            <p>{{ messages.emptyA }}</p>
           </div>
         }
 
@@ -74,29 +74,29 @@
 
     <div class="kpi-section">
       <div class="kpi-header">
-        <h4>📊 Results B</h4>
+        <h4>{{ messages.resultsB }}</h4>
       </div>
 
       <div class="kpi-content">
         @if (loadingB()) {
           <div class="loading-state">
             <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
-            <p>Loading...</p>
+            <p>{{ messages.loading }}</p>
           </div>
         }
 
         @if (errorB()) {
           <div class="error-state">
-            <p class="error-message">⚠️ {{ errorB() }}</p>
+            <p class="error-message">{{ messages.error(errorB()) }}</p>
             <button (click)="clearFilterB()" color="accent" mat-raised-button>
-              Clear Filter
+              {{ messages.clearFilter }}
             </button>
           </div>
         }
 
         @if (!loadingB() && !errorB() && !resultsB()) {
           <div class="empty-state">
-            <p>Apply Filter B to see results</p>
+            <p>{{ messages.emptyB }}</p>
           </div>
         }
 
@@ -123,8 +123,8 @@
         <app-compare-length-histogram
           [bucketsA]="resultsA()!.lengthDistribution"
           [bucketsB]="resultsB()!.lengthDistribution"
-          labelA="Set A"
-          labelB="Set B"
+          [labelA]="messages.setA"
+          [labelB]="messages.setB"
         >
         </app-compare-length-histogram>
       </div>
@@ -132,8 +132,8 @@
         <app-compare-evidence-level
           [primaryData]="resultsA()!.evidenceDistribution"
           [secondaryData]="resultsB()!.evidenceDistribution"
-          primaryLabel="Set A"
-          secondaryLabel="Set B"
+          [primaryLabel]="messages.setA"
+          [secondaryLabel]="messages.setB"
         >
         </app-compare-evidence-level>
       </div>

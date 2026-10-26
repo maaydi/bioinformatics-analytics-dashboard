@@ -1,17 +1,17 @@
 <mat-card #chartCard appearance="outlined" class="chart-card">
   <header aria-labelledby="scatter-title" class="chart-header-export-png" role="group">
     <div class="header-main">
-      <h2 id="scatter-title">Molecular Weight vs. Sequence Length</h2>
-      <p>Click a point for detailed analysis in Gene Explorer</p>
+      <h2 id="scatter-title">{{ messages.title }}</h2>
+      <p>{{ messages.hint }}</p>
     </div>
 
     <div aria-hidden="false" class="header-actions">
       <button
         (click)="exportAsImage()"
-        aria-label="Export chart as image"
+        [attr.aria-label]="messages.exportImageLabel"
         class="no-export"
         mat-icon-button
-        title="Export as Image"
+        [title]="messages.exportImage"
         type="button"
       >
         <mat-icon>download</mat-icon>
@@ -21,14 +21,14 @@
 
   <mat-card-content>
     @if (rawLoading()) {
-      <p aria-live="polite" class="state-message">Loading scatter plot...</p>
+      <p aria-live="polite" class="state-message">{{ messages.loading }}</p>
     } @else if (chartError()) {
       <div aria-live="assertive" class="chart-state chart-state-error" role="alert">
         <p>{{ chartError() }}</p>
-        <button (click)="retryChart()" mat-stroked-button type="button">Retry</button>
+        <button (click)="retryChart()" mat-stroked-button type="button">{{ messages.retry }}</button>
       </div>
     } @else if (!scatterData().length) {
-      <p aria-live="polite" class="state-message">No molecular data available for plotting.</p>
+      <p aria-live="polite" class="state-message">{{ messages.empty }}</p>
     } @else {
       <div class="plot-wrapper">
         <div

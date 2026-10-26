@@ -1,0 +1,117 @@
+<section [attr.aria-label]="messages.title" class="export-container">
+  <mat-card>
+	<mat-card-header>
+	  <div class="heading">
+		<mat-card-title><h1>{{ messages.title }}</h1></mat-card-title>
+		<mat-card-subtitle>{{ messages.subtitle }}</mat-card-subtitle>
+	  </div>
+	  <div class="header-actions">
+		<button (click)="store.refresh()" [disabled]="store.loading()" [attr.aria-label]="messages.refresh"
+				[matTooltip]="messages.refresh" mat-icon-button type="button">
+		  <mat-icon aria-hidden="true">refresh</mat-icon>
+		</button>
+		<a color="primary" mat-raised-button routerLink="/genes">
+		  <mat-icon aria-hidden="true">add</mat-icon>{{ messages.newExport }}
+		</a>
+	  </div>
+	</mat-card-header>
+	<mat-card-content>
+	  <mat-chip-listbox [attr.aria-label]="messages.filters" class="status-filters">
+		@for (filter of filters; track filter.value) {
+		  <mat-chip-option (selectionChange)="selectFilter($event, filter.value)"
+						   [selected]="store.status() === filter.value">
+			{{ filter.label }}
+		  </mat-chip-option>
+		}
+	  </mat-chip-listbox>
+
+	  @if (store.error(); as error) {
+		<div class="error-banner" role="alert">
+		  <mat-icon aria-hidden="true">error_outline</mat-icon>
+		  <span>{{ error }}</span>
+		  <button (click)="store.refresh()" mat-stroked-button type="button">{{ messages.retry }}</button>
+		</div>
+	  }
+	  @if (store.loading()) {
+		<div aria-live="polite" class="loading-state" role="status">{{ messages.loading }}</div>
+		<mat-progress-bar [attr.aria-label]="messages.loading" mode="indeterminate" />
+	  }
+
+	  <div [attr.aria-busy]="store.loading()" class="history-table-wrapper" tabindex="0"
+		   role="region" [attr.aria-label]="messages.caption">
+		<table class="mat-elevation-z1 history-table">
+		  <caption class="sr-only">{{ messages.caption }}</caption>
+		  <thead>
+			<tr>
+			  <th scope="col">{{ messages.name }}</th>
+			  <th scope="col">{{ messages.format }}</th>
+			  <th scope="col">{{ messages.rows }}</th>
+			  <th scope="col">{{ messages.size }}</th>
+			  <th scope="col">{{ messages.status }}</th>
+			  <th scope="col">{{ messages.created }}</th>
+			  <th scope="col">{{ messages.actions }}</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			@for (row of store.rows(); track row.id) {
+			  <tr>
+				<th class="name-cell" scope="row">
+				  <span>{{ row.name }}</span>
+				  @if (row.description) { <small>{{ row.description }}</small> }
+				</th>
+				<td>{{ row.format }}</td>
+				<td class="numeric-cell">{{ row.rows == null ? messages.missing : (row.rows | number) }}</td>
+				<td class="numeric-cell">{{ row.size }}</td>
+				<td class="status-cell">
+				  <span [class]="'status-badge ' + row.statusClass" [matTooltip]="row.errorMessage ?? ''">
+					<mat-icon [class.spinning]="row.status === 'RUNNING'" aria-hidden="true">{{ row.statusIcon }}</mat-icon>
+					{{ row.statusLabel }}
+				  </span>
+				  @if (row.status === 'RUNNING') {
+					<mat-progress-bar [attr.aria-label]="messages.progress(row.name)"
+									  [mode]="row.progress === null ? 'indeterminate' : 'determinate'"
+									  [value]="row.progress ?? 0" />
+				  }
+				</td>
+				<td class="date-cell">{{ row.createdAt | date: 'medium' }}</td>
+				<td>
+				  <div class="row-actions">
+					@if (row.status === 'COMPLETED') {
+					  <button (click)="store.download(row)" [disabled]="row.busy" color="primary"
+							  [attr.aria-label]="messages.download(row.name)" [matTooltip]="messages.download(row.name)"
+							  mat-icon-button type="button">
+						<mat-icon aria-hidden="true">download</mat-icon>
+					  </button>
+					}
+					@if (row.status === 'FAILED') {
+					  <button (click)="store.retry(row)" [disabled]="row.busy" color="warn"
+							  [attr.aria-label]="messages.retryAction(row.name)"
+							  [matTooltip]="row.errorMessage || messages.retryAction(row.name)" mat-icon-button type="button">
+						<mat-icon aria-hidden="true">replay</mat-icon>
+					  </button>
+					}
+					<button (click)="confirmDelete(row)" [disabled]="row.busy"
+							[attr.aria-label]="messages.deleteAction(row.name)" [matTooltip]="messages.deleteAction(row.name)"
+							mat-icon-button type="button">
+					  <mat-icon aria-hidden="true">delete_outline</mat-icon>
+					</button>
+				  </div>
+				</td>
+			  </tr>
+			} @empty {
+			  @if (!store.loading() && !store.error()) {
+				<tr><td class="empty-cell" colspan="7" role="status">
+				  {{ store.status() ? messages.filteredEmpty : messages.empty }}
+				</td></tr>
+			  }
+			}
+		  </tbody>
+		</table>
+	  </div>
+	  <mat-paginator (page)="store.changePage($event.pageIndex, $event.pageSize)"
+					 [attr.aria-label]="messages.pagination" [disabled]="store.loading()"
+					 [length]="store.total()" [pageIndex]="store.page()"
+					 [pageSize]="store.size()" [pageSizeOptions]="[5, 10, 20]" />
+	</mat-card-content>
+  </mat-card>
+</section>

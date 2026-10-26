@@ -528,3 +528,166 @@ Result: **BUILD SUCCESS** — 23 tests run, 0 failures, 0 errors, 0 skipped.
 **Documentation update:** `documentation/implementation/PIPE-001/plan.md` was reconciled to mark the completed backend
 test checklist items as done, while leaving the still-unimplemented frontend and audit tasks unchanged.
 
+
+## 2026-09-29 — PIPE-001 backend consolidation and configuration alignment
+
+**Action:** Continued the post-backend-completion cleanup recorded in the `PIPE-001` branch history and reconciled
+the implementation with the planned service workflow.
+
+**Outcome:**
+
+- Normalized import/export directory configuration so the export service follows the same application directory
+  conventions as the other batch services (`9ee3fb1`).
+- Corrected an export format configuration quoting issue (`2354b29`).
+- Refactored pipeline-list retrieval to keep user ownership, optional status filtering, pagination, and soft-delete
+  handling in the service/controller path (`4a803a5`).
+- Removed a brittle expiration test that asserted an exact time-boundary result (`dedac00`), avoiding a
+  non-deterministic test rather than changing expiry behavior.
+- Consolidated the backend implementation and fixes into the completed asynchronous pipeline path
+  (`15ac774`). The backend now covers pipeline persistence, provider-aware batch routing, lifecycle/status tracking,
+  secure download handling, retry, soft deletion, and scheduled physical cleanup.
+
+**Plan alignment:** The backend items through integration testing are implemented. OPS-001 audit events remain open;
+the existing lifecycle logging and cleanup job must not be treated as a replacement for an
+`ExportPipelineAuditListener` writing `EXPORT_PIPELINE_CREATED`, `EXPORT_PIPELINE_COMPLETED`, and
+`EXPORT_PIPELINE_FAILED` events.
+
+
+## 2026-09-30 — PIPE-001 service build and restart workflow
+
+**Action:** Added a development helper for rebuilding and restarting an individual backend service in Docker Compose
+(`45c074c`).
+
+**Outcome:** The module workflow now supports targeted service iteration through
+`devops/scripts/build-module.sh`, reducing the feedback cycle when validating export-service changes without
+rebuilding every application image.
+
+
+## 2026-10-06 — PIPE-001 frontend API foundation
+
+**Action:** Implemented the frontend contract and HTTP service described by the frontend model/service sections of
+`plan.md`.
+
+**Outcome:**
+
+- Added `frontend/src/app/core/models/export-pipeline.model.ts` with typed pipeline, create-request, status,
+  field-schema, download metadata, format, and lifecycle-status models (`4d2db21`).
+- Added `frontend/src/app/features/export/export-pipeline.service.ts` with methods for create, list, detail, status,
+  download metadata, file download, retry, delete, and available-field lookup (`792dde7`).
+- The service uses the versioned `/api/v1/exports` contract and preserves authenticated binary downloads as `Blob`
+  responses. Its error handling also decodes JSON and non-JSON error bodies returned for failed downloads.
+
+**Plan alignment:** The frontend models and service are now implemented in the source tree, despite the stale
+unchecked entries in the plan's high-level status summary. The detailed frontend checklist is the more accurate
+record for these two deliverables.
+
+
+## 2026-10-08 — PIPE-001 filter-review and export-entry preparation
+
+**Action:** Prepared the Gene Explorer export entry point and filter-review state for the pipeline wizard
+(`18e4127`, `a137c3c`, `308dfc8`).
+
+**Outcome:**
+
+- Refactored the existing export affordance toward pipeline-based export while retaining the current search context.
+- Made active-filter chips read-only in the review flow, preventing accidental mutation of the filters being exported.
+- Established the filter snapshot used later by `ExportPipelineWizardComponent` and its Step 1 review UI.
+
+
+## 2026-10-09 — PIPE-001 wizard foundation and export-list preparation
+
+**Action:** Added the initial wizard implementation and refined the export-history presentation
+(`6a257a6`, `b78be72`).
+
+**Outcome:**
+
+- Created standalone, `OnPush` `ExportPipelineWizardComponent` with a four-step Angular Material flow for filter
+  review, field selection, format selection, and summary/confirmation.
+- Added the initial form state, selected-field handling, format selection, row-count/field-loading gates, and
+  submission path for creating a pipeline.
+- Improved table loading behavior and removed deprecated grid styling in the export/list UI.
+
+**Plan alignment:** This supplied the wizard structure listed in the plan; subsequent commits completed the individual
+steps and saved-filter behavior.
+
+
+## 2026-10-16 — PIPE-001 wizard completion and frontend integration refinements
+
+**Action:** Completed the wizard steps and added provider/message integration work recorded by the branch history.
+
+**Outcome:**
+
+- **Step 1 — Filter Review** (`90ccc6c`): reads the current `GenesStore` filter state, renders review chips, handles
+  the unfiltered-search state, estimates rows, and reuses `SaveFiltersDialogComponent` with
+  `SavedFiltersService.createSavedFilter({ name, filterJson })` without changing the reviewed snapshot on cancel.
+- **Step 2 — Field Selection** (`1c3c974`): supports All Fields and Custom Fields modes and integrates the reusable
+  field-picker flow while preserving caller-selected field order.
+- **Step 3 — Format Selection** (`3fab588`): provides CSV, TSV, JSON, and Excel choices with format descriptions
+  and estimated-size feedback.
+- **Step 4 — Summary & Confirm** (`7ae820c`): summarizes filter, row, field, format, and size selections; validates
+  the final name/description form; exposes `pipelineCreated`; and prevents duplicate submissions while the request
+  is in flight.
+- Propagated the selected provider through the frontend export request path (`dac4e01`) so the backend estimate and
+  export job use the same data source.
+- Centralized user-facing messages across the affected frontend features for future i18n work
+  (`d0e83fd`, `6061361`, `82688f9`, `94f67fc`, `eb6493d`, `c404ce9`, `27b523d`, `e766463`).
+
+**Plan alignment:** The wizard and field-selection work described in the detailed plan is implemented. The remaining
+frontend work is feature integration from Gene Explorer/navigation and the unfinished unit-test/accessibility and
+coverage targets listed below.
+
+
+## 2026-10-22 — PIPE-001 export history, provider pagination, and branch reconciliation
+
+**Action:** Reviewed all reachable commits on `implementation/PIPE-001` whose subject starts with `PIPE-001`, through
+the branch tip `22b69b2`, and reconciled the resulting implementation state against `plan.md`.
+
+**Backend follow-up:**
+
+- Refined `UniProtPostgresItemReader` page handling and added regression coverage (`4ce53ab`), improving provider
+  pagination for export jobs.
+- Corrected a shared import decider while validating the batch/provider flow (`c94238f`). This is supporting batch
+  infrastructure rather than a new export endpoint.
+- The provider-aware export flow remains `validateAndEstimateStep` → `ExportSourceDecider` → API/Postgres export step
+  → `assembleAndFinalizeStep`, with `ExportItemWriter` retaining restart-safe segment allocation through
+  `ExecutionContext`.
+
+**Frontend export history:**
+
+- Added `ExportPipelineListComponent` and its feature-scoped `ExportPipelineListStore`
+  (`e97e2a4`, `e1827c2`).
+- Added status chips, server pagination, progress display, empty/error states, and actions for authenticated Blob
+  download, retry, and confirmed deletion.
+- The store polls visible QUEUED/RUNNING pipelines every three seconds, uses `exhaustMap` to avoid overlapping status
+  requests, stops polling on terminal states or feature destruction, refreshes terminal metadata, cancels stale
+  list/filter requests, deduplicates actions, and releases object URLs after downloads.
+- The list component uses `OnPush` change detection and preserves zero-valued row/size/progress data in its typed view
+  models.
+
+**Supporting UI/configuration commits:** The branch also contains ticket-labelled dashboard wording, import-admin
+history-store/style, saved-filter styling, and dashboard image/configuration cleanup (`f05bf69`, `d73ffdb`, `610fc70`,
+`22b69b2`, plus the earlier Docker/configuration commits). These changes support the surrounding development/UI
+workflow but do not add new PIPE-001 export API behavior.
+
+**Verification recorded in the branch documentation:**
+
+- The focused backend regression bundle recorded in the previous entry completed successfully with 23 tests and no
+  failures or errors.
+- The frontend export test run recorded in `plan.md` reports 148 passing tests, including list/store behavior,
+  wizard binding/submission cases, Blob error decoding, and export-related regression coverage.
+- The branch history includes tests for `ExportPipelineService`, `ExportPipelineControllerIntegrationTest`,
+  `ExportItemWriter`, segment assemblers, writer factory/source decider behavior, the export wizard, export field
+  picker, export list/store, and the provider reader.
+
+**Current implementation interpretation:** PIPE-001 now has a materially complete provider-aware backend and a
+functional frontend wizard plus export-history workflow. The following remain open or require explicit reconciliation
+before the feature can be called fully complete:
+
+- wire the OPS-001 export audit listener/events;
+- add the Gene Explorer “Export via Pipeline” toolbar action, settle the navigation route (`export` in the current
+  application routes versus `/exports` in older plan text), and add the profile history link;
+- add a global completion/failure notification with a “View” action;
+- complete any still-unchecked wizard, field-picker, and service unit-test cases plus accessibility and coverage gates;
+- update stale documentation references: `/api/exports` versus the current `/api/v1/exports`, `JsonNode` versus the
+  current `GeneSearchRequest` entity filter, old storage/filename conventions, and the plan's cron/default-retention
+  description versus the configurable `ExportCleanupJob` schedule.

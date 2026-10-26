@@ -1,11 +1,12 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, input, linkedSignal, output} from '@angular/core';
 import {MatFormField, MatInput, MatSuffix} from '@angular/material/input';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MAX_GLOBAL_SEARCH_LENGTH} from '@core/models/protein.model';
 import {MatButton} from '@angular/material/button';
 import {DataProviderService} from '@core/provider/data-provider.service';
+import {GLOBAL_SEARCH_MESSAGES} from '@features/genes/genes.messages';
 
 @Component({
   selector: 'app-global-search',
@@ -22,10 +23,11 @@ import {DataProviderService} from '@core/provider/data-provider.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlobalSearchComponent {
+  protected readonly messages = GLOBAL_SEARCH_MESSAGES;
   protected readonly MAX_GLOBAL_SEARCH_LEN: number = MAX_GLOBAL_SEARCH_LENGTH;
-  readonly filters = input<GeneFilterSnapshot | null>(null);
+  readonly filters = input<GeneSearchRequest | null>(null);
 
-  readonly filterChange = output<GeneFilterSnapshot>();
+  readonly filterChange = output<GeneSearchRequest>();
 
   readonly globalSearchValue = linkedSignal(() => this.filters()?.globalSearch ?? '');
   private readonly destroyRef = inject(DestroyRef);
@@ -60,8 +62,7 @@ export class GlobalSearchComponent {
   }
 
   errorMessage(): string {
-    return `Your search cannot be longer than ${(this.MAX_GLOBAL_SEARCH_LEN)} characters.
-      Please shorten your text and try again.`;
+    return this.messages.tooLong(this.MAX_GLOBAL_SEARCH_LEN);
   }
 
   private emitDebouncedFilterChange(globalSearch: string): void {

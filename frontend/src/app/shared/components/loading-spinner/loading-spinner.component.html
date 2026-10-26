@@ -1,4 +1,4 @@
-<div aria-label="Loading" aria-live="polite" class="spinner-wrapper" role="status">
+<div [attr.aria-label]="messages.label" aria-live="polite" class="spinner-wrapper" role="status">
   <mat-spinner diameter="48" />
-  <span class="sr-only">Loading content</span>
+  <span class="sr-only">{{ messages.content }}</span>
 </div>

@@ -1,6 +1,6 @@
 # Bioinformatics Analytics Dashboard
 
-> **v2.0** — Explore, visualize, and analyze **UniProt protein/gene data** from both **remote UniProt.org API** (150M+
+> **v2.1** — Explore, visualize, and analyze **UniProt protein/gene data** from both **remote UniProt.org API** (150M+
 > entries)
 > and **local database** (570K+ entries). Filter, import, visualize, and export — all in one unified platform.
 > Built with **Angular 21**, **Spring Boot 4**, and **PostgreSQL 16**.
@@ -12,7 +12,7 @@
 |------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | 🌐 **Remote Explore** 150+ million UniProt proteins directly from UniProt.org API              | 📊 **Visualize** protein distributions via histograms, bar charts, pie charts, and KPI cards |
 | 🔬 **Local Explore** 570K+ imported UniProt entries with advanced multi-field search & filters | 📥 **Import** remote data into local PostgreSQL with live progress tracking                  |
-| 💾 **Export** filtered results (local or remote) as RFC 4180 CSV                               | 🔖 **Save** and reload filter combinations across sessions                                   |
+| 💾 **Export** filtered datasets through asynchronous pipelines as CSV, TSV, JSON, or Excel    | 🔖 **Save** and reload filter combinations across sessions                                   |
 | 🌙 **Dark Mode** Full dark theme support for comfortable extended exploration                  | 🔐 **Update Password** Secure user profile management with password reset                    |
 | 📋 **Inspect** full protein detail: sequence, GO terms, features, cross-references             | ⚡ **Filter Remote Data** Apply 15+ filter dimensions to 150M UniProt entries in real-time   |
 
@@ -23,6 +23,11 @@
 ### Login
 
 ![Login Screen](documentation/implementation/AUTH-001/login-screen.png)
+
+### Dashboard
+
+![Dashboard-01](documentation/implementation/DASH-001/dashboard-screen-01.png)
+![Dashboard-02](documentation/implementation/DASH-001/dashboard-screen-02.png)
 
 ### Gene Explorer — Search & Browse
 
@@ -36,15 +41,6 @@
 
 ![Protein Detail](documentation/implementation/DETAIL-001/gene-detail-summary.png)
 
-### Import Admin — Progress Monitoring
-
-![Import Admin](documentation/implementation/IMPORT-001/import-admin-screen.png)
-
-### Dashboard
-
-![Dashboard-01](documentation/implementation/DASH-001/dashboard-screen-01.png)
-![Dashboard-02](documentation/implementation/DASH-001/dashboard-screen-02.png)
-
 ### Analytics
 
 ![Analytics-01](documentation/implementation/ANALYTICS-001/analytics-1.png)
@@ -54,6 +50,23 @@
 
 ![Compare-01](documentation/implementation/COMPARE-001/compare-01.png)
 ![Compare-02](documentation/implementation/COMPARE-001/compare-02.png)
+
+### Saved Filters
+
+![Saved-Filters](documentation/implementation/FILTER-001/saved-filters.png)
+
+### Export Data Via Pipeline
+
+![Export-01](documentation/implementation/PIPE-001/export-steps.jpg)
+![Export-02](documentation/implementation/PIPE-001/export-table.png)
+
+### Import Admin — Progress Monitoring
+
+![Import Admin](documentation/implementation/IMPORT-001/import-admin-screen.png)
+
+### Account Settings
+
+![Account Screen](documentation/implementation/AUTH-001/account-settings.png)
 
 ---
 
@@ -118,12 +131,13 @@ cd frontend && npm install && npm start        # http://localhost:4200
 
 ```
 backend/dashboard       → Spring Boot (controller → service → repository → dto)
+backend/services/export-service/ → Export microservice: pipelines, batch jobs, CSV/TSV/JSON/Excel writers
 frontend/               → Angular features: dashboard, genes, analytics, import-admin, auth
 documentation/          → Specs: api-contract, domain-model, validation-rules, overview
 devops/                 → Dockerfiles, nginx config, shell scripts
 ```
 
-Full details in [`documentation/`](documentation/).
+Full details in [`documentation/`](documentation).
 ---
 
 ## ⚡ Performance Targets
@@ -140,7 +154,7 @@ Full details in [`documentation/`](documentation/).
 
 ---
 
-## 🎯 v2.0 Key Features
+## 🎯 v2.1 Key Features
 
 ### Remote Data Access
 
@@ -156,11 +170,27 @@ Full details in [`documentation/`](documentation/).
 - **Real-time progress** — live import tracking with cancel support
 - **Materialized views** — pre-aggregated analytics for instant dashboard KPIs
 
+### Export Data Microservice
+
+The dedicated **Export Service** (`backend/services/export-service`) manages
+asynchronous data exports through configurable pipelines, powered by Spring Batch.
+
+- **Multiple formats** — export datasets as CSV, TSV, JSON, or Excel.
+- **Configurable pipelines** — define dataset filters and select fields to include.
+- **Background processing** — generate export files without blocking interactive requests.
+- **Progress monitoring** — track job status, completion percentage, and batch progress.
+- **Pipeline management** — browse export history, inspect details, retry failed or
+  cancelled exports, and delete pipelines.
+- **Authenticated downloads** — download completed files through endpoints requiring
+  a User or Admin role.
+
+**API base path:** `/api/v1/exports`
+
 ### User Experience
 
 - **🌙 Dark Mode** — full UI theme toggle for comfortable nighttime browsing
 - **🔐 Password Management** — secure profile updates and password reset workflows
-- **💾 CSV Export** — download filtered datasets (up to 100K rows) in RFC 4180 CSV format
+- **💾 Data Export Via Pipeline** — download filtered datasets in multiple formats : CSV, TSV, JSON & Excel
 - **📌 Saved Filters** — persist and reload custom filter combinations for repeated queries
 - **Responsive design** — works seamlessly on desktop, tablet, and mobile devices
 

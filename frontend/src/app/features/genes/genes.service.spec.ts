@@ -3,7 +3,7 @@ import {HttpTestingController, provideHttpClientTesting} from '@angular/common/h
 import {provideHttpClient} from '@angular/common/http';
 import {environment} from '@env/environment';
 import {GenesService} from './genes.service';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {PagedResponse} from '@core/models/paged-response.model';
 import {ProteinDetail, ProteinSummary} from '@core/models/protein.model';
 
@@ -108,7 +108,7 @@ describe('GenesService', () => {
   });
 
   it('searchGenes should call POST /genes/search with filter payload', () => {
-    const filter: GeneFilterSnapshot & { page: number; size: number; sort: string; direction: 'asc' | 'desc' } = {
+    const filter: GeneSearchRequest & { page: number; size: number; sort: string; direction: 'asc' | 'desc' } = {
       globalSearch: 'kinase',
       taxid: 9606,
       keywords: ['Kinase'],
@@ -147,7 +147,7 @@ describe('GenesService', () => {
   });
 
   it('exportCsv should call POST /genes/export-csv and request blob response type', () => {
-    const filter: GeneFilterSnapshot = {
+    const filter: GeneSearchRequest = {
       globalSearch: 'membrane'
     };
     const blob = new Blob(['id,accession\n1,P12345'], {type: 'text/csv'});

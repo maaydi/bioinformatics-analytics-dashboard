@@ -78,7 +78,7 @@ public class UniProtEntryMapper {
                 .molecularWeight(src.sequence() != null ? src.sequence().molWeight() : null)
                 .sequenceChecksum(src.sequence() != null ? src.sequence().md5() : null)
                 .sequence(src.sequence() != null ? src.sequence().value() : null)
-                .evidenceLevel((short) src.annotationScore())
+                .evidenceLevel(toEvidenceLevel(src.proteinExistence()))
                 .build();
     }
 
@@ -254,6 +254,22 @@ public class UniProtEntryMapper {
                 .title(cit != null ? cit.title() : null)
                 .journal(cit != null ? cit.journal() : null)
                 .build();
+    }
+
+    /**
+     * Extract evidence level from 'proteinExistence' value
+     * Format : Number:StringValue where Number Between 1 - 5
+     * Example  "proteinExistence": "1: Evidence at protein level"
+     *
+     */
+    public static short toEvidenceLevel(String proteinExistence) {
+        if (proteinExistence == null || proteinExistence.trim().isBlank())
+            throw new IllegalStateException("Evidence Level is not defined in UniprotKb");
+        var values = proteinExistence.split(":");
+        if (values.length != 2) {
+            throw new IllegalStateException("Unknown Evidence Level : " + proteinExistence);
+        }
+        return Short.parseShort(values[0]);
     }
 
 

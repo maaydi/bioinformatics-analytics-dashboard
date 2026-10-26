@@ -5,7 +5,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatButtonModule} from '@angular/material/button';
 import {GeneFilterComponent} from '@features/genes/gene-filter/gene-filter.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {AnalyticsService} from '@features/analytics/analytics.service';
 import {AnalyticsSubset} from '@core/models/analytics.model';
 import {
@@ -20,6 +20,7 @@ import {
 } from '@shared/components/analytics/compare-evidence-level/compare-evidence-level.component';
 import {NotificationService} from '@shared/directive/notification.service';
 import {isEqual} from '@features/genes/gene-filter/gene-filter.utils';
+import {COMPARE_MESSAGES} from './compare.messages';
 
 /**
  * Compare Component
@@ -54,13 +55,14 @@ import {isEqual} from '@features/genes/gene-filter/gene-filter.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareComponent {
+  protected readonly messages = COMPARE_MESSAGES;
 
   readonly filterAComp = viewChild.required<GeneFilterComponent>('filterAComp');
   readonly filterBComp = viewChild.required<GeneFilterComponent>('filterBComp');
 
   // Filter state: Current filter snapshots for A and B
-  readonly filterA = signal<GeneFilterSnapshot | null>(null);
-  readonly filterB = signal<GeneFilterSnapshot | null>(null);
+  readonly filterA = signal<GeneSearchRequest | null>(null);
+  readonly filterB = signal<GeneSearchRequest | null>(null);
 
   // Results state: Paginated protein search results
   readonly resultsA = signal<AnalyticsSubset | null>(null);
@@ -96,7 +98,7 @@ export class CompareComponent {
     const filterA = this.filterA()!;
     const filterB = this.filterB()!;
     if (isEqual(filterA, filterB)) {
-      this.notify.error('Filters are identical');
+      this.notify.error(this.messages.identicalFilters);
     } else {
       this.search(this.filterA()!, this.filterB()!);
     }
@@ -114,14 +116,14 @@ export class CompareComponent {
   /**
    * Applies Filter A: updates filterA signal and triggers search.
    */
-  applyFilterA(snapshot: GeneFilterSnapshot): void {
+  applyFilterA(snapshot: GeneSearchRequest): void {
     this.filterA.set(snapshot);
   }
 
   /**
    * Applies Filter B: updates filterB signal and triggers search.
    */
-  applyFilterB(snapshot: GeneFilterSnapshot): void {
+  applyFilterB(snapshot: GeneSearchRequest): void {
     this.filterB.set(snapshot);
   }
 
@@ -152,7 +154,7 @@ export class CompareComponent {
    * @param filterA first filter snapshot
    * @param filterB second filter snapshot
    */
-  private search(filterA: GeneFilterSnapshot, filterB: GeneFilterSnapshot): void {
+  private search(filterA: GeneSearchRequest, filterB: GeneSearchRequest): void {
     this.loadingA.set(true);
     this.loadingB.set(true);
     this.errorA.set(null);
@@ -179,8 +181,8 @@ export class CompareComponent {
         this.loadingB.set(false);
       },
       error: (_) => {
-        this.errorA.set('Failed to load results for Filter A');
-        this.errorB.set('Failed to load results for Filter B');
+        this.errorA.set(this.messages.loadFailedA);
+        this.errorB.set(this.messages.loadFailedB);
         this.loadingA.set(false);
         this.loadingB.set(false);
       }
@@ -195,15 +197,13 @@ export class CompareComponent {
    */
   private toKpiCards(result: AnalyticsSubset): ReadonlyArray<DashboardKpiViewModel> {
     return [
-      {title: 'Total', label: 'Total proteins', value: this.numberFormatter.format(result.count)},
+      {...this.messages.total, value: this.numberFormatter.format(result.count)},
       {
-        title: 'Avg Len',
-        label: 'Average Length',
+        ...this.messages.averageLength,
         value: this.numberFormatter.format(Math.round(result.avgLength)),
-        unit: 'AA'
       },
-      {title: 'Reviewed', label: 'Reviewed count', value: this.numberFormatter.format(result.reviewedCount)},
-      {title: 'Ratio', label: 'Reviewed Ratio', value: this.numberFormatter.format(result.reviewedRatio)},
+      {...this.messages.reviewed, value: this.numberFormatter.format(result.reviewedCount)},
+      {...this.messages.ratio, value: this.numberFormatter.format(result.reviewedRatio)},
     ];
   }
 

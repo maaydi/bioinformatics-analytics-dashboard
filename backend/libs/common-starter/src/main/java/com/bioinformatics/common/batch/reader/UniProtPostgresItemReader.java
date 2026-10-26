@@ -38,7 +38,7 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
     /**
      * Current page index used for the next database call.
      */
-    private int activePage = -1;
+    private int activePage = 0;
 
     /**
      * Number of pages fetched so far (for logging / metrics only).
@@ -61,11 +61,15 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
      */
     @Override
     public void open(ExecutionContext executionContext) {
+        buffer.clear();
+        exhausted = false;
         if (executionContext.containsKey(PAGE_NUMBER)) {
             activePage = executionContext.getInt(PAGE_NUMBER);
             pageCount = executionContext.getInt(PAGE_COUNT_KEY, 0);
             log.info("UniProtPostgresItemReader restarting from page={} (pageCount={})", activePage, pageCount);
         } else {
+            activePage = 0;
+            pageCount = 0;
             log.info("UniProtPostgresItemReader starting from the first page");
         }
     }
@@ -75,9 +79,7 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
      */
     @Override
     public void update(@NonNull ExecutionContext executionContext) {
-        if (activePage != -1) {
-            executionContext.putInt(PAGE_NUMBER, activePage);
-        }
+        executionContext.putInt(PAGE_NUMBER, activePage);
         executionContext.putInt(PAGE_COUNT_KEY, pageCount);
         log.debug("UniProtPostgresItemReader checkpointed page={} pageCount={}", activePage, pageCount);
     }
@@ -114,6 +116,6 @@ public class UniProtPostgresItemReader implements ItemStreamReader<ProteinEntry>
         exhausted = !genes.hasNext();
         activePage++;
         pageCount++;
-        log.info("Fetched page {} — {} entries, hasMore={}", activePage, entries.size(), !exhausted);
+        log.info("Fetched page {} — {} entries, hasMore={}", page.getPageNumber(), entries.size(), !exhausted);
     }
 }

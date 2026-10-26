@@ -1,73 +1,100 @@
-<section aria-label="Saved filters" class="saved-filters-page">
-  <h1>Saved Filters</h1>
-  @if (loading()) {
-    <mat-card appearance="outlined" class="loading-spinner">
-      <app-loading-spinner/>
-    </mat-card>
-  } @else if (errors()) {
-    <mat-card appearance="outlined" class="error-message">
-      <mat-error>{{ errors() }}</mat-error>
-    </mat-card>
-  } @else if (filters().length > 0) {
-    <div aria-label="Saved Filters" class="filters-table-wrapper" role="region">
-      <table aria-label="Saved Filters Table" class="filters-table">
-        <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Filter Summary</th>
-          <th scope="col">Created At</th>
-          <th scope="col">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (filter of filters(); track filter.id) {
-            <tr class="filters-table-row">
-              <td>
-                        <span [attr.aria-label]="'Filter Name: ' + filter.name"
-                              class="filter-name">
-                          {{ filter.name }}
-                        </span>
-              </td>
-              <td class="filter-summary">
-                @if (buildFiltersChips(filter.filterJson); as chips) {
-                  @if (chips.length > 0) {
-                    <mat-chip-set aria-label="Saved Filter criteria" class="criteria-chip-set">
-                      @for (chip of chips; track chip.label + chip.value) {
-                        <mat-chip>{{ chip.label }}: {{ chip.value }}</mat-chip>
-                      }
-                    </mat-chip-set>
-                  } @else {
-                    <span class="filter-empty-value">–</span>
-                  }
-                }
-              </td>
-              <td class="filter-date"><span class="summary-value mono">{{ formatDate(filter.createdAt) }}</span></td>
-              <td class="filter-actions">
-                <div class="action-container">
-                  <button (click)="onApply(filter)" color="primary" mat-flat-button>
-                    <mat-icon>play_arrow</mat-icon>
-                    Apply
-                  </button>
+<section [attr.aria-label]="messages.pageLabel" class="saved-filters-page">
+  <mat-card>
+    <mat-card-header>
+      <div class="heading">
+        <mat-card-title><h1>{{ messages.title }}</h1></mat-card-title>
+        <mat-card-subtitle>{{ messages.subtitle }}</mat-card-subtitle>
+      </div>
+      <div class="header-actions">
+        <button (click)="loadFilters()" [disabled]="loading()" [attr.aria-label]="messages.refresh"
+                [matTooltip]="messages.refresh" mat-icon-button type="button">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      @if (errors(); as error) {
+        <div class="error-banner" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>{{ error }}</span>
+          <button (click)="loadFilters()" [disabled]="loading()" mat-stroked-button type="button">
+            {{ messages.retry }}
+          </button>
+        </div>
+      }
+      @if (loading()) {
+        <div aria-live="polite" class="loading-state" role="status">{{ messages.loading }}</div>
+        <mat-progress-bar [attr.aria-label]="messages.loading" mode="indeterminate" />
+      }
 
-                  <button (click)="promptDelete(filter)" aria-label="Delete filter" color="warn" mat-icon-button>
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </td>
+      <div [attr.aria-label]="messages.regionLabel" [attr.aria-busy]="loading()"
+           class="filters-table-wrapper" role="region" tabindex="0">
+        <table class="mat-elevation-z1 filters-table">
+          <caption class="sr-only">{{ messages.tableLabel }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ messages.name }}</th>
+              <th scope="col">{{ messages.summary }}</th>
+              <th scope="col">{{ messages.createdAt }}</th>
+              <th scope="col">{{ messages.actions }}</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (filter of filters(); track filter.id) {
+              <tr class="filters-table-row">
+                <th class="name-cell" scope="row">
+                  <span [attr.aria-label]="messages.nameLabel(filter.name)" class="filter-name">
+                    {{ filter.name }}
+                  </span>
+                </th>
+                <td class="filter-summary">
+                  @if (buildFiltersChips(filter.filterJson); as chips) {
+                    @if (chips.length > 0) {
+                      <mat-chip-set [attr.aria-label]="messages.criteriaLabel" class="criteria-chip-set">
+                        @for (chip of chips; track chip.label + chip.value) {
+                          <mat-chip>{{ chip.label }}: {{ chip.value }}</mat-chip>
+                        }
+                      </mat-chip-set>
+                    } @else {
+                      <span class="filter-empty-value">{{ messages.missingValue }}</span>
+                    }
+                  }
+                </td>
+                <td class="filter-date">{{ filter.createdAt | date: 'medium' }}</td>
+                <td class="filter-actions">
+                  <div class="action-container">
+                    <button (click)="onApply(filter)" [disabled]="loading()" color="primary"
+                            [attr.aria-label]="messages.applyAction(filter.name)" [matTooltip]="messages.applyAction(filter.name)"
+                            mat-icon-button type="button">
+                      <mat-icon aria-hidden="true">play_arrow</mat-icon>
+                    </button>
+
+                    <button (click)="promptDelete(filter)" [disabled]="loading()" color="warn"
+                            [attr.aria-label]="messages.deleteAction(filter.name)" [matTooltip]="messages.deleteAction(filter.name)"
+                            mat-icon-button type="button">
+                      <mat-icon aria-hidden="true">delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              @if (!loading() && !errors()) {
+                <tr>
+                  <td class="empty-cell saved-empty-state" colspan="4" role="status">{{ messages.empty }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
       <mat-paginator
         (page)="onPageChange($event)"
+        [attr.aria-label]="messages.pagination"
+        [disabled]="loading()"
         [length]="totalFilters()"
+        [pageIndex]="pageIndex()"
         [pageSizeOptions]="[5, 10, 20]"
-        [pageSize]="pageSize()">
-      </mat-paginator>
-    </div>
-  } @else {
-    <div aria-live="polite" class="saved-empty-state" role="status">
-      <span>No saved filters yet. Create and save filter snapshots from the Genes Explorer to see them listed here.</span>
-    </div>
-  }
+        [pageSize]="pageSize()" />
+    </mat-card-content>
+  </mat-card>
 </section>

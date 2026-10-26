@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.bioinformatics.common.uniprot.UniprotMapperUtils.*;
+import static com.bioinformatics.common.uniprot.mapper.UniProtEntryMapper.toEvidenceLevel;
 
 /**
  * Maps a {@link UniProtEntry} (UniProtKB REST response DTO) to a {@link ProteinSummaryDto} and {@link ProteinDetailDto}.
@@ -40,7 +41,7 @@ public class UniProtProteinDtoMapper {
                 .reviewed(SWISSPROT_ENTRY_TYPE.equals(src.entryType()))
                 .length(src.sequence() != null ? src.sequence().length() : 0)
                 .molecularWeight(src.sequence() != null ? src.sequence().molWeight() : null)
-                .evidenceLevel((short) src.annotationScore())
+                .evidenceLevel(toEvidenceLevel(src.proteinExistence()))
                 .keywords(keywordsToNames(mapKeywords(src.keywords())))
                 .build();
     }
@@ -68,7 +69,7 @@ public class UniProtProteinDtoMapper {
                 .molecularWeight(src.sequence() != null ? src.sequence().molWeight() : null)
                 .sequenceChecksum(src.sequence() != null ? src.sequence().md5() : null)
                 .sequence(src.sequence() != null ? src.sequence().value() : null)
-                .evidenceLevel((short) src.annotationScore())
+                .evidenceLevel(toEvidenceLevel(src.proteinExistence()))
                 .keywords(keywordsToNames(mapKeywords(src.keywords())))
                 .features(mapFeatures(src.features()))
                 .goTerms(mapGoTerms(src.uniProtKBCrossReferences()))

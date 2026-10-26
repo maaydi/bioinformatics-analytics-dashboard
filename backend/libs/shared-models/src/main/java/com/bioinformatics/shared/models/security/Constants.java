@@ -8,6 +8,7 @@ public class Constants {
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String USER_ROLE = "USER";
     public static final String POSTGRES_DATA_PROVIDER = "postgres";
+    public static final String FILE_DATA_PROVIDER = "file";
     public static final String API_DATA_PROVIDER = "uniprotKb";
     public static final String ROLE_PREFIX = "ROLE_";
 }

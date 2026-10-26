@@ -1,19 +1,19 @@
-<h2 mat-dialog-title>Save Filters</h2>
-<form (ngSubmit)="onSubmit()" [formGroup]="form" aria-label="Save filters form">
+<h2 mat-dialog-title>{{ messages.title }}</h2>
+<form (ngSubmit)="onSubmit()" [formGroup]="form" [attr.aria-label]="messages.formLabel">
   <mat-dialog-content>
     <mat-form-field appearance="outline" style="width:100%">
-      <mat-label>Name</mat-label>
-      <input formControlName="name" matInput placeholder="Enter a name (max 100 chars)" title="Name"/>
+      <mat-label>{{ messages.name }}</mat-label>
+      <input formControlName="name" matInput [placeholder]="messages.placeholder" [title]="messages.name"/>
       @if (form.controls.name.touched && form.controls.name.hasError('required')) {
-        <mat-error>Name is required.</mat-error>
+        <mat-error>{{ messages.required }}</mat-error>
       } @else if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
-        <mat-error>Name cannot exceed 100 characters.</mat-error>
+        <mat-error>{{ messages.tooLong }}</mat-error>
       }
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
-    <button (click)="onCancel()" mat-button type="button">Cancel</button>
-    <button [disabled]="form.invalid" color="primary" mat-flat-button type="submit">Save</button>
+    <button (click)="onCancel()" mat-button type="button">{{ messages.cancel }}</button>
+    <button [disabled]="form.invalid" color="primary" mat-flat-button type="submit">{{ messages.save }}</button>
   </mat-dialog-actions>
 </form>
 

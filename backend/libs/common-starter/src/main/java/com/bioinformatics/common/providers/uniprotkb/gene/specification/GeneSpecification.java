@@ -32,6 +32,9 @@ import java.util.stream.Stream;
  * <p><b>Limitation:</b> {@code goAspect} is intentionally not mapped. The UniProtKB
  * search API exposes no dedicated aspect filter; GO aspect (P/F/C) is encoded in the
  * GO term identifier itself and cannot be queried as a standalone field.
+ *
+ * TODO Sort field need to be checked example evidenceLevel (GeneSearchRequest) -> existence (UniprotKbApi)
+ * TODO sort field need to be filtered by supported or not ( evidenceLevel is not sortable in UniprotKb )
  */
 @Component
 @RequiredArgsConstructor

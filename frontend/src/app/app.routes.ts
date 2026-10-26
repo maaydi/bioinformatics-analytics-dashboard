@@ -8,13 +8,14 @@ import {authGuard} from '@core/guards/auth.guard';
  * UI module layout: documentation/overview.md §4
  *
  * Route → Feature component mapping:
- *   /login              → AuthLoginComponent        (public)
- *   /                   → DashboardComponent        (authenticated)
- *   /genes              → GenesPageComponent        (authenticated)
- *   /genes/:id          → GeneDetailComponent       (authenticated)
- *   /analytics          → AnalyticsComponent        (authenticated)
- *   /saved-filters      → SavedFiltersComponent     (authenticated)
- *   /admin/import       → ImportAdminComponent      (ADMIN only)
+ *   /login              → AuthLoginComponent           (public)
+ *   /                   → DashboardComponent           (authenticated)
+ *   /genes              → GenesPageComponent           (authenticated)
+ *   /genes/:id          → GeneDetailComponent          (authenticated)
+ *   /analytics          → AnalyticsComponent           (authenticated)
+ *   /saved-filters      → SavedFiltersComponent        (authenticated)
+ *   /admin/import       → ImportAdminComponent         (ADMIN only)
+ *   /exports            → ExportPipelineListComponent  (authenticated)
  */
 export const routes: Routes = [
   {
@@ -66,7 +67,14 @@ export const routes: Routes = [
             (m) => m.ImportAdminComponent,
           ),
       },
+      {
+        path: 'exports',
+        loadComponent: () =>
+          import('./features/export/export-pipeline-list/export-pipeline-list.component').then(
+            (m) => m.ExportPipelineListComponent,
+          ),
+      },
     ],
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'login' },
 ];

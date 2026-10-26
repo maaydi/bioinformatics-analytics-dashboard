@@ -168,7 +168,7 @@ describe('DashboardComponent', () => {
       const description = compiled.query(By.css('.dashboard-header p'));
       expect(description).toBeTruthy();
       expect(description.nativeElement.textContent).toBe(
-        'Overview metrics and analytics visualizations.'
+        'Overview metrics and analytics visualizations for datasets queried from your local database.'
       );
     });
   });
@@ -245,6 +245,22 @@ describe('DashboardComponent', () => {
     });
   });
   describe('Two-Way Binding with KPI Card Component', () => {
+    it('preserves page copy and accessible section labels when KPI loading completes', async () => {
+      const kpiCard = compiled.query(By.directive(DashboardKpiCardListStubComponent))
+        .injector.get(DashboardKpiCardListStubComponent);
+      kpiCard.kpiLoadingChange.emit(false);
+      await fixture.whenStable();
+      const element: HTMLElement = fixture.nativeElement;
+
+      expect(element.querySelector('h1')?.textContent).toBe('Dashboard');
+      expect(element.querySelector('.dashboard-header p')?.textContent).toBe(
+        'Overview metrics and analytics visualizations for datasets queried from your local database.',
+      );
+      expect(Array.from(element.querySelectorAll('section'), section => section.getAttribute('aria-label')))
+        .toEqual(['Dashboard overview', 'KPI cards', 'Distribution charts', 'Evidence levels', 'Top organisms']);
+      expect(element.querySelector('.kpi-grid')?.getAttribute('aria-busy')).toBe('false');
+    });
+
     it('should transmit initial loading state to KPI card component', () => {
       const kpiCardStub = compiled.query(
         By.directive(DashboardKpiCardListStubComponent)

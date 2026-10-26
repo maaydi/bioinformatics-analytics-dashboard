@@ -1,78 +1,115 @@
 @use "design-system" as ds;
-@use "gene-shared" as gs;
 
 :host {
   display: block;
+  font-family: ds.$font-family-base;
+  color: ds.$color-on-surface;
 }
 
-.saved-filters-page h1 {
-  margin: 0;
+.saved-filters-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: ds.$spacing-lg;
 }
 
-.saved-filters-description {
-  margin-top: 0.5rem;
-  color: var(--mat-sys-on-surface-variant);
+mat-card {
+  border: ds.$border-width-thin solid ds.$color-border-light;
+  border-radius: ds.$border-radius-lg;
+  background: ds.$color-surface;
+  box-shadow: ds.$shadow-xs;
+  overflow: hidden;
 }
 
-// ============================================================================
-// Table styles — align with global application / features tab table
-// ============================================================================
+mat-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ds.$spacing-md;
+  border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+  padding: ds.$spacing-lg ds.$spacing-lg ds.$spacing-md;
+}
+
+.heading {
+  flex: 1;
+}
+
+h1 {
+  @include ds.text-title-md;
+  margin: 0 0 ds.$spacing-xs;
+  color: ds.$color-on-surface;
+}
+
+mat-card-subtitle {
+  @include ds.text-body-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+mat-card-content {
+  padding: ds.$spacing-lg;
+}
+
+.header-actions,
+.action-container {
+  display: flex;
+  align-items: center;
+  gap: ds.$spacing-sm;
+  white-space: nowrap;
+}
 
 .filters-table-wrapper {
   overflow-x: auto;
   border: ds.$border-width-thin solid ds.$color-border-light;
   border-radius: ds.$border-radius-md;
-  background-color: ds.$color-surface;
+  background: ds.$color-surface;
+  scrollbar-width: thin;
+  scrollbar-color: ds.$color-border-medium ds.$color-surface-subtle;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
 }
 
 .filters-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
+  text-align: start;
 
-  thead {
-    background-color: ds.$color-surface-subtle;
-
-    th {
-      @include ds.text-label-md;
-      color: ds.$color-on-surface-variant;
-      text-align: left;
-      padding: ds.$spacing-md ds.$spacing-lg;
-      border-bottom: ds.$border-width-thin solid ds.$color-border-light;
-      white-space: nowrap;
-      font-weight: ds.$font-weight-semibold;
-    }
+  th, td {
+    @include ds.text-body-sm;
+    padding: ds.$spacing-md ds.$spacing-lg;
+    border-bottom: ds.$border-width-thin solid ds.$color-border-light;
+    color: ds.$color-on-surface;
+    vertical-align: middle;
   }
 
-  tbody {
-    .filters-table-row {
-      transition: background-color 0.15s ease;
+  thead th {
+    @include ds.text-title-sm;
+    background: ds.$color-surface-subtle;
+    white-space: nowrap;
+  }
 
-      &:not(:last-child) td {
-        border-bottom: ds.$border-width-thin solid ds.$color-border-light;
-      }
+  tbody tr:hover {
+    background: ds.$color-surface-hover;
+  }
 
-      &:hover {
-        background-color: ds.$color-surface-hover;
-      }
-
-      td {
-        @include ds.text-body-sm;
-        color: ds.$color-on-surface;
-        padding: ds.$spacing-md ds.$spacing-lg;
-        vertical-align: middle;
-      }
-    }
+  .empty-cell {
+    padding: ds.$spacing-2xl;
+    text-align: center;
+    color: ds.$color-on-surface-variant;
+    font-style: italic;
   }
 }
 
+.name-cell {
+  min-width: 160px;
+  overflow-wrap: anywhere;
+}
+
 .filter-name {
-  @include ds.text-body-md;
-  color: ds.$color-on-surface;
-  display: inline-block;
-  max-width: 320px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: ds.$font-weight-semibold;
 }
 
 .filter-summary {
@@ -91,35 +128,55 @@
   opacity: 0.7;
 }
 
-.filter-date .summary-value {
-  @include ds.text-mono;
-  color: ds.$color-on-surface-variant;
+.filter-date {
+  white-space: nowrap;
 }
 
-.filter-actions .action-container {
+.error-banner {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: ds.$spacing-sm;
-  align-items: center;
-}
-
-.loading-spinner {
-  padding: ds.$spacing-xl;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.error-message {
-  padding: ds.$spacing-lg;
-}
-
-.saved-empty-state {
-  padding: ds.$spacing-xl;
-  text-align: center;
-  color: ds.$color-on-surface-variant;
-  background-color: ds.$color-surface-subtle;
-  border: ds.$border-width-thin dashed ds.$color-border-light;
+  margin-bottom: ds.$spacing-lg;
+  padding: ds.$spacing-md ds.$spacing-lg;
+  border: ds.$border-width-thin solid var(--banner-error-border);
+  border-left: 4px solid var(--mat-sys-error);
   border-radius: ds.$border-radius-md;
-  @include ds.text-body-md;
+  background: var(--banner-error-bg);
+  color: var(--mat-sys-error);
+  @include ds.text-body-sm;
+
+  span {
+    flex: 1;
+  }
 }
 
+.loading-state {
+  @include ds.text-body-sm;
+  padding-bottom: ds.$spacing-sm;
+  color: ds.$color-on-surface-variant;
+}
+
+.sr-only {
+  @include ds.visually-hidden;
+}
+
+@include ds.respond-to('xl') {
+  .saved-filters-page {
+    padding: ds.$spacing-xl;
+  }
+}
+
+@include ds.respond-up-to('md') {
+  .saved-filters-page, mat-card-content {
+    padding: ds.$spacing-md;
+  }
+
+  mat-card-header {
+    padding: ds.$spacing-md;
+  }
+
+  .heading {
+    flex-basis: 100%;
+  }
+}

@@ -16,9 +16,11 @@ class MockAgGridAngularComponent {
   @Input() defaultColDef: unknown;
   @Input() rowData: unknown;
   @Input() rowSelection: unknown;
+  @Input() getRowId: unknown;
   @Input() animateRows: unknown;
   @Input() suppressCellFocus: unknown;
   @Input() suppressRowClickSelection: unknown;
+  @Input() suppressNoRowsOverlay: unknown;
   @Output() readonly rowClicked = new EventEmitter<unknown>();
   @Output() readonly sortChanged = new EventEmitter<unknown>();
   @Output() readonly gridReady = new EventEmitter<unknown>();
@@ -76,7 +78,7 @@ describe('GenesTableComponent', () => {
   it('should create with expected defaults', () => {
     expect(component).toBeTruthy();
     expect(component.data()).toBeNull();
-    expect(component.loading()).toBe(false);
+    expect(component.loading()).toBe(true);
     expect(component.errorMessage()).toBeNull();
     expect(component.rows()).toEqual([]);
   });

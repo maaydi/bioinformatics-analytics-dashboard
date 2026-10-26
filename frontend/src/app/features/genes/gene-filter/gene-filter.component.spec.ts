@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {GeneFilterComponent} from './gene-filter.component';
-import {GeneFilterSnapshot} from '@core/models/saved-filter.model';
+import {GeneSearchRequest} from '@core/models/saved-filter.model';
 import {EVIDENCE_LEVELS} from '@core/models/protein.model';
 
 describe('GeneFilterComponent', () => {
@@ -40,7 +40,7 @@ describe('GeneFilterComponent', () => {
   });
 
   it('should emit filterChange with ranges mapped to min/max fields', async () => {
-    let emitted: GeneFilterSnapshot | undefined;
+    let emitted: GeneSearchRequest | undefined;
     component.filterChange.subscribe((snapshot) => {
       emitted = snapshot;
     });
@@ -67,10 +67,10 @@ describe('GeneFilterComponent', () => {
     fixture.componentRef.setInput('value', {
       globalSearch: 'kinase',
       accession: 'P12345'
-    } satisfies GeneFilterSnapshot);
+    } satisfies GeneSearchRequest);
     fixture.detectChanges();
 
-    let emitted: GeneFilterSnapshot | undefined;
+    let emitted: GeneSearchRequest | undefined;
     component.filterChange.subscribe((snapshot) => {
       emitted = snapshot;
     });
@@ -103,7 +103,7 @@ describe('GeneFilterComponent', () => {
   });
 
   it('should toggle evidence levels and emit updated snapshot', async () => {
-    let emitted: GeneFilterSnapshot | undefined;
+    let emitted: GeneSearchRequest | undefined;
     component.filterChange.subscribe((snapshot) => {
       emitted = snapshot;
     });
