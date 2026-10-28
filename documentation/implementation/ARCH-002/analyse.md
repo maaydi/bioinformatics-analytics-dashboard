@@ -1,8 +1,8 @@
 # ARCH-002 — Ambiguity Analysis & Architecture Decisions
 
-> **Status:** decisions D1–D11 are **Proposed**, and questions Q1–Q7 are **awaiting confirmation**.
-> Per the ticket workflow, implementation (code) must not start until the questions marked 🔴 are answered.
-> The questions marked 🟡 have safe defaults and can be confirmed during implementation.
+> **Status:** Q1–Q8 have answers recorded below. D1–D11 are the existing design proposals; D12–D15 capture the
+> confirmed trust, freshness, refactor and audit ownership decisions. Remaining operational choices are listed as
+> implementation gates rather than unresolved ownership questions.
 
 ---
 
@@ -148,14 +148,16 @@ dataset), so we need explicit control over batch sizes and cleanup.
 | **A — Logical (mandatory in ARCH-002)** | Same PostgreSQL cluster; one schema and one login role per service; `REVOKE ALL … FROM PUBLIC`; per-service credentials | Low; reversible                              |
 | B — Physical (optional, see Q2)         | Dedicated `catalog-db` (+ replica) for dashboard; `platform-db` for auth, analytics and import                          | Medium: more containers, backups, monitoring |
 
-### D7 — Schema rename `public` → `dashboard`
+### D7 — Catalog schema `gene_data`; audit schema separately owned
 
-- `ALTER TABLE public.<t> SET SCHEMA dashboard` is metadata-only (instant, no data rewrite). Indexes, constraints and
+- `ALTER TABLE public.<t> SET SCHEMA gene_data` is metadata-only (instant, no data rewrite). Indexes, constraints and
   owned sequences move with the table. Functions (the FTS function from V3) and standalone sequences must be moved
   explicitly.
 - Reasons: least-privilege grants on a dedicated schema, no accidental unqualified access, symmetry with `auth`,
   `analytics` and `import_batch`.
-- Remaining dashboard-owned tables in `public` (`saved_filter`, `audit_log`) move as well.
+- The gene-service catalog move includes `saved_filter` but excludes `audit_log` and its sequence. Audit records live
+  in the separate `audit_log` schema owned only by audit-service; the database/cluster placement and existing-history
+  handoff must be approved and rehearsed before cutover.
 - This step runs **after** analytics stops reading the catalog tables (Phase 5), otherwise the MVs would break.
 
 ### D8 — Shape of `common-starter`
@@ -167,6 +169,10 @@ dataset), so we need explicit control over batch sizes and cleanup.
 
 Cleanup items: remove `spring-cloud-starter-gateway-server-webmvc` (a gateway concern) and the unused
 `spring-boot-starter-oauth2-client`; choose **one** web stack per service (servlet vs reactive).
+
+The audit instrumentation is a deliberate cross-cutting exception to “business code removed”: common-starter may
+provide the `@Auditable` annotation, AOP aspect, event construction and Kafka publisher, but no audit entity,
+repository, datasource, schema migration, search API or retention implementation.
 
 ### D9 — Service-to-service authentication on `/internal/**`
 
@@ -191,14 +197,39 @@ Cleanup items: remove `spring-cloud-starter-gateway-server-webmvc` (a gateway co
 
 ### D11 — Re-import (upsert) semantics
 
-- Default proposal: **replace** — an existing accession is fully replaced (scalar columns updated; child collections
-  deleted and re-inserted in the same transaction). `entry_version` or `updated_at` drives `CREATED` vs `UPDATED`
-  events.
-- Retries of the same chunk are therefore **idempotent**.
+- Confirmed in Q3/Q4: merge present scalar values, preserve absent values, add/merge child collections without deleting,
+  and treat a lower UniProt `entry_version` as stale. Technical `revision` drives catalog event ordering.
+- Reapplying the same chunk is **idempotent**; see the normative merge matrix in ARCH-002 plan §3.2.
+
+### D12 — Header trust model
+
+- Confirmed in Q6: gateway strips inbound identity/internal headers, exact public route matching is used, services
+  authenticate from validated JWT claims, and service-to-service calls use scoped service tokens. See ARCH-002 plan §3.5.
+
+### D13 — Configurable analytics freshness
+
+- Confirmed in Q5: projection refresh uses configurable quiet period and maximum staleness, defaulting to 60 seconds.
+
+### D14 — gene-service module refactor
+
+- Confirmed in Q1: move `backend/dashboard` to `backend/services/gene-service`, with artifact/runtime identity
+  `gene-service` and root package `com.bioinformatics.geneservice`; keep public `/api/**` and internal `/internal/v1/**`
+  contracts stable.
+
+### D15 — Audit event producer and audit-service ownership
+
+- Common-starter supplies producer-side `@Auditable` AOP instrumentation and publishes events asynchronously to the
+  existing Kafka topic `audit.events.log`. It has no audit database connection or persistence responsibilities.
+- The new audit-service consumes that topic and exclusively owns the `audit_log` schema, migrations, persistence,
+  authorized search APIs and retention policies. Producer services require Kafka access only, not audit DB credentials.
+- Audit events preserve actor, source-service and correlation ID as distinct fields. Delivery/retry, duplicate handling,
+  API authorization and event payload allow-listing are specified and tested as part of the service implementation.
+- Historical records and dashboard Flyway V13–V17 require an explicit transfer/baseline or archive/purge decision and
+  rehearsed cutover; they are not moved into `gene_data` or blindly replayed.
 
 ---
 
-## 3. Open Questions
+## 3. Confirmed Questions and Implementation Gates
 
 | ID | Priority | Question                                                                                                                                        | Proposed default                                                                                       | Response                                                                                                                                                                          |
 |----|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -209,6 +240,7 @@ Cleanup items: remove `spring-cloud-starter-gateway-server-webmvc` (a gateway co
 | Q5 | 🔴       | Acceptable analytics staleness after an import completes (SLA)?                                                                                 | ≤ 60 s after `ingestion.completed` (quiet period 15 s + refresh time)                                  | ir depends on data size and hardware resource so make it configurable and default to 60s.                                                                                         |
 | Q6 | 🟡       | Is hardening the gateway header trust model (`X-User-*`) in scope?                                                                              | Out of scope; `/internal/**` gets service JWT (D9), `/api/**` unchanged                                | yes as other services are using this header to get user info so it should be hardened. and for traçability                                                                        |
 | Q7 | 🟡       | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until the Phase 5 exit criteria are met                                                           | the refresh view is done at the end of import so it should be kept in parallel until parity is proven.                                                                            |
+| Q8 | ✅       | Where should audit instrumentation, transport and persistence live?                                                                        | Common producer instrumentation publishes events; audit-service persistence ownership to be confirmed | Common-starter emits audit events; existing Kafka topic `audit.events.log` transports them; new audit-service owns schema, persistence, search and retention. Historical-data/Flyway handoff is a P−1 gate. |
 
 ---
 
@@ -221,4 +253,6 @@ Cleanup items: remove `spring-cloud-starter-gateway-server-webmvc` (a gateway co
 3. The `postgres-replica` is physical streaming replication, so roles, grants and schemas replicate automatically.
 4. The PERF-001 import throughput is the baseline. The Feign write path must stay within **+30 %** total import time (to
    be measured in Phase 4).
+5. Kafka is already provisioned with the `audit.events.log` topic. Audit producers and audit-service use that existing
+   transport; no parallel synchronous persistence path is introduced.
 

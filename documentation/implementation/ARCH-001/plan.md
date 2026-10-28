@@ -565,12 +565,12 @@ consumes gene data via Feign or Kafka and produces files asynchronously.
 #### 5.1 Service Setup
 
 - [x] `ExportServiceApplication` — port `8085`
-- [ ] Dependencies: `common-starter`, `spring-boot-starter-batch`, `apache-poi`, `apache-commons-csv`, `spring-kafka`
-- [ ] `bootstrap.yml`
+- [x] Dependencies: `common-starter`, `spring-boot-starter-batch`, `apache-poi`, `apache-commons-csv`, `spring-kafka`
+- [x] `bootstrap.yml`
 
 #### 5.2 Database & Schema
 
-- [ ] Flyway `V1__export_schema.sql`:
+- [x] Flyway `V1__export_schema.sql`:
     ```sql
     CREATE SCHEMA IF NOT EXISTS export_pipe;
     CREATE TABLE export_pipe.export_pipeline (
@@ -594,45 +594,45 @@ consumes gene data via Feign or Kafka and produces files asynchronously.
         duration_ms BIGINT
     );
     ```
-- [ ] `ExportPipeline` entity
-- [ ] `ExportPipelineRepository`
-- [ ] **Routing DataSource:**
-    - [ ] Reads (pipeline list, status) → REPLICA
-    - [ ] Writes (create, update status) → PRIMARY
+- [x] `ExportPipeline` entity
+- [x] `ExportPipelineRepository`
+- [x] **Routing DataSource:**
+    - [x] Reads (pipeline list, status) → REPLICA
+    - [x] Writes (create, update status) → PRIMARY
 
 #### 5.3 Batch Job Configuration
 
-- [ ] `ExportJobConfig` — Spring Batch job:
-    - [ ] Step 1: `validateAndEstimateStep` (Tasklet)
-    - [ ] Step 2: `exportChunkStep` (chunk = 500)
-    - [ ] Step 3: `assembleAndFinalizeStep` (Tasklet)
-- [ ] `ExportItemReader` — `JpaPagingItemReader<ProteinSummaryDto>` or Feign client to `gene-service`
-    - [ ] For local provider: direct DB read from gene schema (REPLICA)
-    - [ ] For UniProt provider: `UniProtApiExportItemReader` (cursor-based REST pagination)
-- [ ] `ExportItemProcessor` — `ProteinSummaryDto` → `Map<String, Object>`
-- [ ] `ExportItemWriter` — delegates to format-specific writer per chunk
-- [ ] `ExportFileStorageService` — `${APP_DIR}/exports/{userId}/{pipelineId}/`
+- [x] `ExportJobConfig` — Spring Batch job:
+    - [x] Step 1: `validateAndEstimateStep` (Tasklet)
+    - [x] Step 2: `exportChunkStep` (chunk = 500)
+    - [x] Step 3: `assembleAndFinalizeStep` (Tasklet)
+- [x] `ExportItemReader` — `JpaPagingItemReader<ProteinSummaryDto>` or Feign client to `gene-service`
+    - [x] For local provider: direct DB read from gene schema (REPLICA)
+    - [x] For UniProt provider: `UniProtApiExportItemReader` (cursor-based REST pagination)
+- [x] `ExportItemProcessor` — `ProteinSummaryDto` → `Map<String, Object>`
+- [x] `ExportItemWriter` — delegates to format-specific writer per chunk
+- [x] `ExportFileStorageService` — `${APP_DIR}/exports/{userId}/{pipelineId}/`
 
 #### 5.4 Format Writers
 
-- [ ] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
-- [ ] `TsvExportWriter` — tab-delimited
-- [ ] `JsonExportWriter` — Jackson `SequenceWriter`
-- [ ] `ExcelExportWriter` — Apache POI SXSSF, streaming, auto-size
-- [ ] `ExportWriterFactory` — `getWriter(ExportFormat)`
+- [x] `CsvExportWriter` — Apache Commons CSV, RFC 4180, UTF-8 BOM
+- [x] `TsvExportWriter` — tab-delimited
+- [x] `JsonExportWriter` — Jackson `SequenceWriter`
+- [x] `ExcelExportWriter` — Apache POI SXSSF, streaming, auto-size
+- [x] `ExportWriterFactory` — `getWriter(ExportFormat)`
 
 #### 5.5 API Implementation
 
-- [ ] `ExportPipelineController`:
-    - [ ] `POST /api/v1/exports/pipelines` — create & queue
-    - [ ] `GET /api/v1/exports/pipelines` — list (paginated)
-    - [ ] `GET /api/v1/exports/pipelines/{id}` — detail
-    - [ ] `GET /api/v1/exports/pipelines/{id}/status` — polling endpoint
-    - [ ] `GET /api/v1/exports/pipelines/{id}/download` — download URL
-    - [ ] `GET /api/v1/exports/pipelines/{id}/download-file` — stream file
-    - [ ] `POST /api/v1/exports/pipelines/{id}/retry` — re-run
-    - [ ] `DELETE /api/v1/exports/pipelines/{id}` — soft delete
-    - [ ] `GET /api/v1/exports/fields` — available field schema
+- [x] `ExportPipelineController`:
+    - [x] `POST /api/v1/exports/pipelines` — create & queue
+    - [x] `GET /api/v1/exports/pipelines` — list (paginated)
+    - [x] `GET /api/v1/exports/pipelines/{id}` — detail
+    - [x] `GET /api/v1/exports/pipelines/{id}/status` — polling endpoint
+    - [x] `GET /api/v1/exports/pipelines/{id}/download` — download URL
+    - [x] `GET /api/v1/exports/pipelines/{id}/download-file` — stream file
+    - [x] `POST /api/v1/exports/pipelines/{id}/retry` — re-run
+    - [x] `DELETE /api/v1/exports/pipelines/{id}` — soft delete
+    - [x] `GET /api/v1/exports/fields` — available field schema
 
 #### 5.6 Event Publishing
 
@@ -650,16 +650,16 @@ consumes gene data via Feign or Kafka and produces files asynchronously.
 
 #### 5.7 Monolith Adaptation
 
-- [ ] Monolith `CsvExportService` and `GeneController.exportCsv()` deprecated
-- [ ] Redirect to `/api/v1/exports/pipelines`
+- [x] Monolith `CsvExportService` and `GeneController.exportCsv()` deprecated
+- [x] Redirect to `/api/v1/exports/pipelines`
 
 #### Phase 5 — Tests
 
-- [ ] `ExportPipelineServiceTest` — unit
-- [ ] `ExportJobIntegrationTest` — Testcontainers + `@EmbeddedKafka`
-- [ ] `ExportFileStorageServiceTest` — temp directory assertions
-- [ ] `ExcelExportWriterTest` — valid XLSX generation
-- [ ] `ExportControllerIntegrationTest` — full pipeline CRUD + download
+- [x] `ExportPipelineServiceTest` — unit
+- [x] `ExportJobIntegrationTest` — Testcontainers + `@EmbeddedKafka`
+- [x] `ExportFileStorageServiceTest` — temp directory assertions
+- [x] `ExcelExportWriterTest` — valid XLSX generation
+- [x] `ExportControllerIntegrationTest` — full pipeline CRUD + download
 
 ---
 
@@ -819,14 +819,22 @@ benefits from independent scaling.
 #### 8.2 Audit Service (`services/audit-service/`) — Port 8089
 
 - [ ] `AuditServiceApplication`
-- [ ] `@KafkaListener` for `audit.events.log`:
-    - [ ] Batches inserts into `audit_log` table (primary DB, write-optimized)
-- [ ] Schema:
+- [ ] Consume the existing `audit.events.log` topic; producer services publish asynchronously through the
+  producer-only audit aspect/event publisher in `common-starter` and never call audit persistence synchronously.
+- [ ] Idempotent Kafka consumer keyed by event ID; bounded retries, dead-letter/poison-event handling, consumer-lag
+  and persistence-failure metrics.
+- [ ] Own audit schema, Flyway migrations, persistence, search APIs and configurable retention. This service alone
+  receives audit-schema credentials; it has no catalog `gene_data` access.
+- [ ] Schema (initial target; migration baseline and existing-row handoff must be planned before cutover):
     ```sql
     CREATE SCHEMA IF NOT EXISTS audit_log;
     CREATE TABLE audit_log.audit_event (
         id BIGSERIAL PRIMARY KEY,
-        actor_user_id BIGINT,
+        event_id UUID NOT NULL UNIQUE,
+        actor_identity VARCHAR(255),
+        actor_type VARCHAR(30),
+        source_service VARCHAR(100) NOT NULL,
+        correlation_id VARCHAR(100),
         action VARCHAR(50) NOT NULL,
         target_type VARCHAR(50),
         target_id VARCHAR(100),
@@ -836,8 +844,10 @@ benefits from independent scaling.
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ```
-- [ ] API: `GET /api/v1/audit` (ADMIN only, paginated, filterable)
-- [ ] High-throughput: batch Kafka consumer (100 messages per batch insert)
+- [ ] API: `GET /api/v1/audit` (ADMIN only, paginated, filterable); the audit-service is the only audit search API owner.
+- [ ] Retention: configurable policy and scheduled cleanup/archive, with metrics and an operator runbook.
+- [ ] High-throughput: batch Kafka consumer (100 messages per batch insert), preserving event ID, actor, source service
+  and correlation ID.
 
 #### Phase 8 — Tests
 

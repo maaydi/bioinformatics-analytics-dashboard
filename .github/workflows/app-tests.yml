@@ -20,7 +20,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: bio_test
           POSTGRES_USER: bio_user

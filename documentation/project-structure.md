@@ -230,7 +230,7 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     environment:
       POSTGRES_DB: uniprot
       POSTGRES_USER: postgres

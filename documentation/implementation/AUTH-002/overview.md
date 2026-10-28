@@ -179,7 +179,7 @@ authorized egress (e.g., SMTP), with deployment network policy.
 ```yaml
 services:
   keycloak-db:
-    image: postgres:16.15-alpine
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: keycloak
