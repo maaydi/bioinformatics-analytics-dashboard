@@ -6,8 +6,8 @@ FROM nginx:1.25-alpine AS runtime
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
-COPY frontend/dist/bioinformatics-dashboard-frontend/browser /usr/share/nginx/html
-COPY devops/docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY build/bioinformatics-dashboard-frontend/browser /usr/share/nginx/html
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

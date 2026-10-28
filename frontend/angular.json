@@ -44,7 +44,8 @@
             },
             "ssr": {
               "entry": "src/server.ts"
-            }
+            },
+            "outputPath": "devops/build/bioinformatics-dashboard-frontend"
           },
           "configurations": {
             "production": {

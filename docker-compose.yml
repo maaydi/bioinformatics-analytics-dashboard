@@ -544,8 +544,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: ./devops/docker/frontend/Dockerfile
+      context: ./frontend/devops
+      dockerfile: ./../../devops/docker/frontend/Dockerfile
     container_name: bio_frontend
     restart: unless-stopped
     environment:
