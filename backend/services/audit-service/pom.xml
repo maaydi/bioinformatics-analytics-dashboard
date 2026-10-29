@@ -77,6 +77,11 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>common-starter</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

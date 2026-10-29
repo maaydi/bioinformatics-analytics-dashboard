@@ -823,9 +823,9 @@ benefits from independent scaling.
   producer-only audit aspect/event publisher in `common-starter` and never call audit persistence synchronously.
 - [ ] Idempotent Kafka consumer keyed by event ID; bounded retries, dead-letter/poison-event handling, consumer-lag
   and persistence-failure metrics.
-- [ ] Own audit schema, Flyway migrations, persistence, search APIs and configurable retention. This service alone
+- [x] Own audit schema, Flyway migrations, persistence, search APIs and configurable retention. This service alone
   receives audit-schema credentials; it has no catalog `gene_data` access.
-- [ ] Schema (initial target; migration baseline and existing-row handoff must be planned before cutover):
+- [x] Schema (initial target; migration baseline and existing-row handoff must be planned before cutover):
     ```sql
     CREATE SCHEMA IF NOT EXISTS audit_log;
     CREATE TABLE audit_log.audit_event (
