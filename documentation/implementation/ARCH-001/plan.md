@@ -818,7 +818,7 @@ benefits from independent scaling.
 
 #### 8.2 Audit Service (`services/audit-service/`) — Port 8089
 
-- [ ] `AuditServiceApplication`
+- [x] `AuditServiceApplication`
 - [ ] Consume the existing `audit.events.log` topic; producer services publish asynchronously through the
   producer-only audit aspect/event publisher in `common-starter` and never call audit persistence synchronously.
 - [ ] Idempotent Kafka consumer keyed by event ID; bounded retries, dead-letter/poison-event handling, consumer-lag

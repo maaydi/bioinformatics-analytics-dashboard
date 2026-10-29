@@ -398,6 +398,42 @@ services:
       retries: 3
       start_period: 30s
 
+  audit-service:
+    build:
+      context: ./backend/services/audit-service
+      dockerfile: ../../../devops/docker/backend/services/audit-service/Dockerfile
+    container_name: audit_service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      <<: *common-spring-env
+      SERVER_PORT: ${SERVER_PORT_AUDIT_SERVICE:-8089}
+      SPRING_APPLICATION_NAME: audit-service
+      COMMON_DATASOURCE_REPLICA_URL: ${COMMON_DATASOURCE_REPLICA_URL}
+      COMMON_DATASOURCE_REPLICA_USERNAME: ${COMMON_DATASOURCE_REPLICA_USERNAME}
+      COMMON_DATASOURCE_REPLICA_PASSWORD: ${COMMON_DATASOURCE_REPLICA_PASSWORD}
+      COMMON_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      COMMON_KAFKA_CONSUMER_ACK_MODE: manual
+    depends_on:
+      config-server:
+        condition: service_healthy
+      kafka-init-topics:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8089/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   analytics-service:
     build:
       context: ./backend/services/analytics-service
