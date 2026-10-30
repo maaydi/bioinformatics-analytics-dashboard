@@ -1,0 +1,41 @@
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: audit_log
+        hbm2ddl.create_namespaces: true
+    open-in-view: false
+  data:
+    redis:
+      password: ""
+eureka:
+  client:
+    enabled: false
+
+common:
+  enabled: false
+
+management:
+  tracing:
+    export:
+      zipkin:
+        enabled: false
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    kafka: WARN
+    org.springframework.security: WARN

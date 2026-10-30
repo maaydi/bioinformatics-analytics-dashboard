@@ -321,3 +321,14 @@ asynchronous data exports through configurable pipelines, powered by Spring Batc
 2. Check [`documentation/api-contract.md`](documentation/api-contract.md) before touching any endpoint.
 3. Every PR needs passing tests (`./mvnw test` + `npm test`).
 4. Database changes go in a new Flyway migration — never edit existing scripts.
+
+Run the audit-service tests from the repository root with JDK 25, Maven, and Docker available:
+
+```bash
+mvn -f ./backend/pom.xml -pl services/audit-service -am test \
+  -Dtest='com.bioinformatics.auditservice.**' -Dsurefire.failIfNoSpecifiedTests=false
+```
+
+The suite includes unit tests, an embedded Kafka publisher/consumer contract test, and integration tests backed by
+automatically managed PostgreSQL 16 and Redis 7 containers. No running application stack or config server is needed.
+Persistence tests generate an isolated schema from the JPA mappings; they do not validate Flyway migrations.

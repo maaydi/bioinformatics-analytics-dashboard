@@ -112,6 +112,7 @@ public record AuditSearchRequest(
     }
 
     private String metadataToString() {
+        if (metadata == null) return "";
         return metadata.entrySet().stream()
                 .map(e -> fieldToString(e.getKey(), e.getValue()))
                 .collect(Collectors.joining(""));
