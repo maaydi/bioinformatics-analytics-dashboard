@@ -1,13 +1,13 @@
 package com.bioinformatics.dashboard.gene.controller;
 
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
+import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -114,7 +114,6 @@ public class GeneController {
      * @return number of matching records
      */
     @PostMapping(value = "/count")
-    @Auditable(action = AuditAction.DATA_EXPORT_CSV)
     @RateLimited(key = "export")
     public long countRequestRows(
             @RequestBody @Valid GeneSearchRequest request) {

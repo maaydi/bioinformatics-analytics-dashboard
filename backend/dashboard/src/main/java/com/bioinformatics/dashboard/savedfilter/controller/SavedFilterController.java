@@ -1,13 +1,13 @@
 package com.bioinformatics.dashboard.savedfilter.controller;
 
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.filter.SavedFilterDto;
-import com.bioinformatics.dashboard.audit.annotation.Auditable;
 import com.bioinformatics.dashboard.audit.annotation.RateLimited;
-import com.bioinformatics.dashboard.audit.dto.AuditAction;
 import com.bioinformatics.dashboard.savedfilter.dto.SavedFilterCreateRequest;
 import com.bioinformatics.dashboard.savedfilter.service.SavedFilterService;
+import com.bioinformatics.shared.models.audit.AuditAction;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -47,7 +47,6 @@ public class SavedFilterController {
      * @return paginated saved filter list for the current user
      */
     @GetMapping
-    @Auditable(action = AuditAction.FILTER_SAVE)
     @RateLimited
     public PagedResponse<SavedFilterDto> listSavedFilters(
             @RequestParam(defaultValue = "0") int page,
@@ -67,7 +66,7 @@ public class SavedFilterController {
      * @return persisted saved filter DTO with HTTP 201 Created
      */
     @PostMapping
-    @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result.id")
+    @Auditable(action = AuditAction.FILTER_SAVE, targetId = "#result?.id")
     @RateLimited
     public ResponseEntity<SavedFilterDto> createSavedFilter(@Valid @RequestBody SavedFilterCreateRequest request, @CurrentUser UserPrincipal user) {
         log.info("[DASHBOARD][FILTER] Creating saved filter name={} user={}", request.name(), user.id());

@@ -15,17 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AppProperties {
-    private ThreadPoolSettings auditPool = new ThreadPoolSettings();
     private RateLimiter rateLimiter = new RateLimiter();
-
-    @Getter
-    @Setter
-    public static class ThreadPoolSettings {
-        private int coreSize;
-        private int maxSize;
-        private int queueCapacity;
-        private String threadNamePrefix;
-    }
 
     @Getter
     @Setter
