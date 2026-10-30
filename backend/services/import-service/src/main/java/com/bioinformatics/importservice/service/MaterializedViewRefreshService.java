@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.UUID;
 
-import static com.bioinformatics.shared.models.kafka.KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED;
+import static com.bioinformatics.shared.models.kafka.KafkaTopics.PROTEIN_EVENTS_IMPORTED;
 
 @Service
 @Slf4j
@@ -29,7 +29,7 @@ public class MaterializedViewRefreshService {
 
         log.info("Publishing view refresh request for job <{}> from {}", jobId, source);
 
-        kafkaTemplate.send(ANALYTICS_VIEW_REFRESH_REQUESTED, jobId, event)
+        kafkaTemplate.send(PROTEIN_EVENTS_IMPORTED, jobId, event)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("Failed to publish refresh event for job {}", jobId, ex);

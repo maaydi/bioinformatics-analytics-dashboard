@@ -9,7 +9,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import static com.bioinformatics.shared.models.kafka.KafkaGroupId.ANALYTICS_VIEW_REFRESHERS;
-import static com.bioinformatics.shared.models.kafka.KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED;
+import static com.bioinformatics.shared.models.kafka.KafkaTopics.PROTEIN_EVENTS_IMPORTED;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class ViewRefreshConsumer {
     private final RefreshIdempotencyService idempotencyService;
 
     @KafkaListener(
-            topics = ANALYTICS_VIEW_REFRESH_REQUESTED,
+            topics = PROTEIN_EVENTS_IMPORTED,
             groupId = ANALYTICS_VIEW_REFRESHERS,
             containerFactory = "kafkaListenerContainerFactory"
     )

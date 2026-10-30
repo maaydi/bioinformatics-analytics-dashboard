@@ -11,7 +11,7 @@ import org.springframework.kafka.support.SendResult;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.bioinformatics.shared.models.kafka.KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED;
+import static com.bioinformatics.shared.models.kafka.KafkaTopics.PROTEIN_EVENTS_IMPORTED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -29,12 +29,12 @@ class MaterializedViewRefreshServiceTest {
     @Test
     void refreshAllDashboardViewsPublishesKafkaEvent() {
         var future = new CompletableFuture<SendResult<String, Object>>();
-        when(kafkaTemplate.send(eq(ANALYTICS_VIEW_REFRESH_REQUESTED), eq("job-42"), any(ViewRefreshRequestedEvent.class)))
+        when(kafkaTemplate.send(eq(PROTEIN_EVENTS_IMPORTED), eq("job-42"), any(ViewRefreshRequestedEvent.class)))
                 .thenReturn(future);
 
         service.refreshAllDashboardViews("job-42", "import");
 
-        verify(kafkaTemplate).send(eq(ANALYTICS_VIEW_REFRESH_REQUESTED), eq("job-42"), any(ViewRefreshRequestedEvent.class));
+        verify(kafkaTemplate).send(eq(PROTEIN_EVENTS_IMPORTED), eq("job-42"), any(ViewRefreshRequestedEvent.class));
     }
 }
 
