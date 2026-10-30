@@ -111,6 +111,70 @@ the corresponding setting for all six business services. Compose deliberately
 uses the `prod` Spring profile for container network settings; the example's
 `SPRING_PROFILES_ACTIVE=dev` is for locally run applications.
 
+### Kubernetes wiring for shared infrastructure
+
+All six business Deployments import
+`devops/kubernetes/common/application-configmap.yaml`
+(`bio-common-application-config`) in addition to `bio-common-config`.
+It supplies `COMMON_KAFKA_BOOTSTRAP_SERVERS=kafka:29092` for the shared audit
+publisher/consumer and `APP_RATE_LIMITER_ENABLED=true` for servlet throttling.
+Spring Kafka and the topic Job use the same in-cluster listener; do not use
+`kafka:9092`, whose broker metadata advertises `localhost:9092`.
+Infrastructure workloads, including the reactive gateway, do not import the
+business-service ConfigMap.
+
+Each service ConfigMap sets its own `SPRING_APPLICATION_NAME`, which becomes the
+audit event's source service. Audit pool settings and the complete named
+rate-limit policies remain in the Config Server files above. Kubernetes does not
+load the root `.env`: add `APP_RATE_LIMITER_*` or `APP_AUDIT_POOL_*` overrides to a
+service's ConfigMap (or the shared application ConfigMap for a cross-service
+override). Keep service-specific rate-limit endpoint lists in Config Server
+rather than duplicating them in Kubernetes.
+
+`devops/kubernetes/audit-service/` provides the Deployment, ClusterIP Service on
+`8089`, ConfigMap and placeholder database Secret. It uses PostgreSQL
+primary/replica routing, the `audit-logger` consumer group, manual acknowledgements,
+Redis credentials from `redis-secret`, shared JWT configuration, health probes,
+resource requests/limits and ephemeral logs, consistent with the other services.
+Replace placeholder Secrets locally before deployment; never commit live values.
+Publish the audit service configuration to Gitea before starting the pod.
+
+Build the JAR and local image from the repository root, then load it into Minikube:
+
+```bash
+mvn -f ./backend/pom.xml -pl services/audit-service -am package -DskipTests
+docker build -t bio-dashboard/audit-service:local \
+  -f devops/docker/backend/services/audit-service/Dockerfile backend/services/audit-service
+minikube image load bio-dashboard/audit-service:local
+```
+
+Kubernetes does not implement Compose's `depends_on`. With the existing namespace,
+PostgreSQL primary/replica, Redis, Kafka, discovery and Config Server ready, provision
+topics before rolling out any business service:
+
+```bash
+kubectl apply -f devops/kubernetes/common/
+# On later runs, delete the immutable Job before re-applying it.
+kubectl -n bio-dashboard delete job kafka-init-topics --ignore-not-found
+kubectl apply -f devops/kubernetes/kafka-init-topics/
+kubectl -n bio-dashboard wait --for=condition=complete job/kafka-init-topics --timeout=600s
+kubectl apply -f devops/kubernetes/audit-service/
+kubectl -n bio-dashboard rollout status deployment/audit-service --timeout=300s
+```
+
+Apply the updated manifests for auth, analytics, dashboard, import and export as
+well. Updating an environment-backed ConfigMap does not restart existing pods:
+after applying changes, explicitly roll out the six business Deployments to pick
+them up. Check that the topic Job completed and `audit.events.log` exists with six
+partitions before sending audited requests. Publication remains asynchronous and
+best-effort, not a durable-delivery guarantee.
+
+The existing servlet budgets remain per pod and use the immediate peer's IP;
+requests behind the gateway/proxy can share that peer's budget unless trusted-proxy
+handling is deliberately configured. Scaling replicas does not create a shared
+servlet budget. The gateway's separate Redis-backed route limits retain their
+existing Redis Secret wiring and behavior.
+
 ### `.env` additions
 
 Add these to your existing `.env` file:

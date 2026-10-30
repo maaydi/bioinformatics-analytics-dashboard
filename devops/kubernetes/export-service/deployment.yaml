@@ -32,6 +32,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: bio-common-config
+            - configMapRef:
+                name: bio-common-application-config
             - secretRef:
                 name: bio-common-secret
             - configMapRef:
@@ -87,4 +89,3 @@ spec:
             claimName: export-data
         - name: logs
           emptyDir: { }
-

@@ -12,6 +12,4 @@ data:
   SPRING_APPLICATION_NAME: "analytics-service"
   COMMON_DATASOURCE_PRIMARY_URL: "jdbc:postgresql://postgres:5432/bioinformatics_db"
   COMMON_DATASOURCE_REPLICA_URL: "jdbc:postgresql://postgres-replica:5432/bioinformatics_db"
-  COMMON_KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
   COMMON_KAFKA_CONSUMER_ACK_MODE: "manual"
-

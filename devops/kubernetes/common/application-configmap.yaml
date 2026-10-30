@@ -1,0 +1,13 @@
+# Shared common-starter settings for business services, not infrastructure.
+# Kubernetes equivalent of `x-common-application-env` in docker-compose.yml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bio-common-application-config
+  namespace: bio-dashboard
+  labels:
+    app.kubernetes.io/part-of: bio-dashboard
+    app.kubernetes.io/component: shared-config
+data:
+  COMMON_KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+  APP_RATE_LIMITER_ENABLED: "true"
