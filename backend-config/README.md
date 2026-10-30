@@ -38,6 +38,13 @@ rate limiter and `auditServiceCircuitBreaker`; requests still require authentica
 and the audit controller's `ADMIN` role. Publish the updated `api-gateway.yml`
 to the config repository and restart the gateway to activate the route.
 
+The audit service uses the same stateless gateway-header authentication filter as
+import-service. Its local security chain permits `/actuator/health` and child
+probe paths, requires `ADMIN` for `/api/v1/admin/audit/**`, and requires
+authentication for every other request. Method security also enforces the audit
+controller's role check. Gateway identity headers are trusted, so keep the service
+reachable only by trusted internal callers.
+
 ### Servlet API rate limits
 
 Publish the updated `application.yml` and all six service base files (dashboard,
