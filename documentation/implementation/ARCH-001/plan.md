@@ -61,7 +61,7 @@ decommissioned.
 - [ ] Phase 5 — export-service extracted
 - [ ] Phase 6 — structure-service extracted
 - [ ] Phase 7 — nlq-service extracted
-- [ ] Phase 8 — notification + audit services extracted
+- [ ] Phase 8 — notification + audit services extracted (audit producer/consumer foundation implemented; qualification and notification work remain)
 - [ ] Phase 9 — Frontend adapted, monolith drained
 - [ ] Phase 10 — Database-per-service
 - [ ] Integration tests written
@@ -70,6 +70,14 @@ decommissioned.
 - [ ] Documentation updated
 - [ ] Code reviewed
 - [ ] Coverage ≥ 80%
+
+**Current update — 2026-10-30:** Audit publishing has moved from dashboard into
+`common-starter`; dashboard no longer persists audit records. Audit-service has
+its own schema migration, consumer, persistence/search implementation, and three
+Config Server files. Targeted producer and embedded-Kafka consumer checks passed
+during implementation. This does not close Phase 8: retention, batch ingestion,
+consumer failure handling/metrics, API qualification, historical-data handoff and
+exclusive database credentials remain outstanding. See the dated journal entry.
 
 ---
 
@@ -821,10 +829,23 @@ benefits from independent scaling.
 - [x] `AuditServiceApplication`
 - [x] Consume the existing `audit.events.log` topic; producer services publish asynchronously through the
   producer-only audit aspect/event publisher in `common-starter` and never call audit persistence synchronously.
-- [x] Idempotent Kafka consumer keyed by event ID; bounded retries, dead-letter/poison-event handling, consumer-lag
-  and persistence-failure metrics.
-- [x] Own audit schema, Flyway migrations, persistence, search APIs and configurable retention. This service alone
-  receives audit-schema credentials; it has no catalog `gene_data` access.
+  - Shared producer: `com.bioinformatics.common.audit`, using `shared-models` audit enums and `AuditLogEvent`.
+    Dashboard annotations now publish through this starter; local audit persistence has been removed.
+    Enable with `spring.application.name` and `common.kafka.bootstrap-servers`; tune the bounded executor
+    with `app.audit-pool.*`. Delivery is best-effort with logged queue/send failures, not a durable outbox.
+    Legacy audit migrations/rows are preserved pending an explicit historical-data handoff.
+- [x] Single-event Kafka consumer with manual acknowledgements, Redis event-ID deduplication (24-hour TTL),
+  and a database uniqueness constraint on `event_id`.
+- [ ] Qualify duplicate/replay behavior across Redis expiry, restart, concurrent delivery and persistence failure;
+  configure bounded consumer retries, dead-letter/poison-event handling, consumer-lag and persistence-failure metrics.
+- [x] Audit-owned entity/repository, Flyway schema migration and paginated/filterable search implementation.
+- [x] Config Server files: `audit-service.yml`, `audit-service-dev.yml`, `audit-service-prod.yml`.
+  Base configuration uses `audit_log`, `classpath:migration`, the `audit-logger` consumer group and manual
+  acknowledgements; dev uses a random port and prod uses port `8089`.
+- [ ] Provision and verify exclusive audit-schema credentials and denial of catalog `gene_data` access.
+  The local datasource still accepts shared environment-backed credentials; isolation is not yet demonstrated.
+- [ ] Approve and rehearse the historical audit-row/Flyway-history handoff. Legacy dashboard migrations and rows
+  remain intact; removing producer-side persistence does not migrate historical data.
 - [x] Schema (initial target; migration baseline and existing-row handoff must be planned before cutover):
     ```sql
     CREATE SCHEMA IF NOT EXISTS audit_log;
@@ -844,13 +865,25 @@ benefits from independent scaling.
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ```
-- [x] API: `GET /api/v1/admin/audit` (ADMIN only, paginated, filterable); the audit-service is the only audit search API owner.
+- [x] Audit-service owns the search controller, implemented as `POST /api/v1/admin/audit` with a validated search body
+  and class-level `hasRole('ADMIN')` authorization.
+- [ ] Reconcile the planned `GET /api/v1/admin/audit` contract with the implemented POST endpoint and gateway routing;
+  verify authorization and pagination/filtering through integration tests before rollout.
 - [ ] Retention: configurable policy and scheduled cleanup/archive, with metrics and an operator runbook.
 - [ ] High-throughput: batch Kafka consumer (100 messages per batch insert), preserving event ID, actor, source service
   and correlation ID.
 
 #### Phase 8 — Tests
 
+- [x] `AuditAspectTest` — actual AOP success/failure, skip/failure-only behavior, argument/result SpEL,
+  explicit/default targets, and preservation of business outcomes on publisher failure.
+- [x] `AuditEventPublisherTest` — caller-context snapshot before async execution, event fields/metadata,
+  actor classification, and logged queue/immediate/asynchronous send failures.
+- [x] `AuditContextFilterTest` and `AuditPublisherConfigTest` — context cleanup on success/failure,
+  Kafka-property activation, servlet-only filter and existing `app.audit-pool.*` bindings.
+- [x] `AuditPublisherConsumerTest` — embedded Kafka using the real shared producer/consumer configuration and
+  `AuditConsumer`; persistence and Redis idempotency services are mocked. Confirms transport compatibility,
+  event fields/metadata and post-save deduplication marking, not real database persistence or Redis behavior.
 - [ ] `NotificationServiceTest` — `@EmbeddedKafka`, verify email sending
 - [ ] `AuditServiceTest` — `@EmbeddedKafka`, verify batch insert
 - [ ] `AuditControllerIntegrationTest` — authz checks

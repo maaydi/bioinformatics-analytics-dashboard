@@ -5,7 +5,9 @@ import com.bioinformatics.analyticsservice.interfaces.FilteredAnalyticsService;
 import com.bioinformatics.analyticsservice.models.*;
 import com.bioinformatics.analyticsservice.models.compare.CompareRequestDto;
 import com.bioinformatics.analyticsservice.models.compare.CompareResponseDto;
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -170,6 +172,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with comparison results
      */
     @PostMapping("/compare")
+    @Auditable(action = AuditAction.COMPARE_ANALYTICS)
     public ResponseEntity<CompareResponseDto> compare(@RequestBody @Valid CompareRequestDto request) {
         var result = service.compare(request);
         return ResponseEntity.ok(result);

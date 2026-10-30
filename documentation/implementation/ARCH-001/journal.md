@@ -687,7 +687,7 @@ microservice using read replica routing for performance validation.
 
 | Component            | Coverage Target | Current | Status         |
 |----------------------|-----------------|---------|----------------|
-| common-starter       | ≥ 80%           | TBD     | ✅ Implemented |
+| common-starter       | ≥ 80%           | TBD     | Shared audit producer implemented; targeted checks passed; coverage not remeasured |
 | discovery-server     | Config-based    | N/A     | ✅ Implemented |
 | config-server        | Config-based    | N/A     | ✅ Implemented |
 | api-gateway          | ≥ 75%           | TBD     | ✅ Implemented |
@@ -699,7 +699,7 @@ microservice using read replica routing for performance validation.
 | structure-service    | ≥ 80%           | 0%      | ⏳ Not started |
 | nlq-service          | ≥ 80%           | 0%      | ⏳ Not started |
 | notification-service | ≥ 75%           | 0%      | ⏳ Not started |
-| audit-service        | ≥ 75%           | 0%      | ⏳ Not started |
+| audit-service        | ≥ 75%           | TBD     | Consumer/persistence/search foundation implemented; production qualification pending |
 
 
 ---
@@ -752,12 +752,76 @@ microservice using read replica routing for performance validation.
 
 ---
 
-**Last Updated:** 2026-09-05
+### 2026-10-30 — Audit-service configuration and shared producer migration
+
+**Action:** Added `backend-config/audit-service.yml`, `audit-service-dev.yml` and
+`audit-service-prod.yml` using the existing Config Server profile convention.
+The base file configures the `audit_log` schema, `classpath:migration`, Kafka group
+`audit-logger` and manual acknowledgements. Development uses a random port;
+production uses port `8089` and environment-backed Redis/Eureka settings.
+Publishing these files to the Config Server Git backend and deployment verification
+are operational steps, not established by the local file changes.
+
+Moved dashboard's `@Auditable`, aspect, request context and filter into
+`com.bioinformatics.common.audit` in `common-starter`. Added `AuditEventPublisher`
+and Kafka-property-conditioned configuration using `spring.application.name`,
+`common.kafka.bootstrap-servers` and independently bound `app.audit-pool.*`.
+The shared event contract and audit enums remain in `shared-models`.
+
+The publisher snapshots actor, source service, correlation ID and HTTP metadata
+before handing work to a bounded executor, then sends `AuditLogEvent` to
+`audit.events.log`, keyed by event UUID. Correlation uses incoming
+`X-Correlation-ID`, then MDC `traceId`, then a generated UUID. Queue rejection and
+immediate/asynchronous Kafka errors are logged without replacing business results
+or exceptions. Delivery is best-effort; no durable audit outbox was added.
+
+Updated dashboard gene/saved-filter annotations and enabled the shared Kafka
+producer in dashboard Config Server settings. Removed dashboard-local audit
+entity, repository, mapper, persistence/search service, duplicated audit enums,
+executor and obsolete tests. Rate limiting remains local. Legacy Flyway
+migrations and historical rows were not changed or transferred.
+
+**Verification during implementation:** The 21 checks in `AuditAspectTest` (8),
+`AuditEventPublisherTest` (7), `AuditContextFilterTest` (2),
+`AuditPublisherConfigTest` (3) and `AuditPublisherConsumerTest` (1) passed.
+The final targeted Maven invocation also selected the existing mapper and
+saved-filter controller regressions:
+
+```bash
+mvn -q -f ./backend/pom.xml -pl libs/common-starter,services/audit-service,dashboard -am test \
+  -Dtest=AuditAspectTest,AuditEventPublisherTest,AuditContextFilterTest,AuditPublisherConfigTest,AuditPublisherConsumerTest,AuditLogMapperDecoratorTest,SavedFilterControllerTest \
+  -Dsurefire.failIfNoSpecifiedTests=false
+```
+
+A clean targeted reactor run and the subsequent IDE project build also passed.
+The embedded-Kafka check uses the real shared Kafka configuration and
+`AuditConsumer`, but mocks persistence and Redis idempotency services. It is not
+a real-storage, batch-insert, authorization, load or deployment test. These are
+results from the implementation session, not a fresh documentation-update run;
+module test reports have since been removed. No current JaCoCo percentage or
+full-suite success is claimed.
+
+**Remaining:** Notification service; audit retention/cleanup; batch consumption;
+qualified replay/deduplication behavior and explicit retry/DLT/metrics policy;
+exclusive audit DB credentials and catalog access-denial checks; historical
+row/history handoff; Config Server deployment; authorization and route checks.
+The search controller currently implements `POST /api/v1/admin/audit`, while the
+plan targets GET; reconcile that contract before rollout.
+
+**Outcome:** Shared producer and audit-service transport integration are
+implemented. Phase 8 remains open; this work also partially advances ARCH-002 P1
+without completing its module rename, infrastructure decoupling or rollout gates.
+
+---
+
+**Last Updated:** 2026-10-30
 
 **Phase Status Summary:**
 
 - ✅ Phase 0 (Infrastructure): 100% complete (common-starter, Eureka, Config, Gateway)
 - ✅ Phase 1 (Auth Service): 100% complete (API, DB, tests, monolith adaptation)
 - ✅ Phase 2 (Analytics Service): 100% complete (7 of 8 items; 1 deferred to Phase 3 previously — now in active progress)
-- ▶️ Phase 3 (Import Service): In progress — core extraction, event publishing and view-refresh orchestration largely implemented; tests and E2E verification pending
-- ⏳ Phase 4–10: Ready for subsequent phases after Phase 3 stabilization
+- Phase 3 (Import Service): Extraction marked complete in `plan.md`; the earlier event/E2E qualification follow-ups were not requalified by this audit work.
+- Phases 4–7: Not closed in `plan.md`; no new completion claim from this update.
+- Phase 8 (Cross-cutting services): Audit producer/consumer foundation implemented; notification, retention, resilience, ownership and rollout qualification remain open.
+- Phases 9–10: Frontend/monolith drainage and database-per-service gates remain open.

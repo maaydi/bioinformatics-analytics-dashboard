@@ -2,7 +2,9 @@ package com.bioinformatics.authservice.controller;
 
 import com.bioinformatics.authservice.dto.*;
 import com.bioinformatics.authservice.service.AuthService;
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
+import com.bioinformatics.shared.models.audit.AuditAction;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +51,7 @@ public class AuthController {
      * @return OK (200) with access and refresh tokens
      */
     @PostMapping("/login")
+    @Auditable(action = AuditAction.LOGIN, targetId = "#request.username")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
@@ -63,6 +66,7 @@ public class AuthController {
      * @return OK (200) with new access and refresh tokens
      */
     @PostMapping("/refresh")
+    @Auditable(action = AuditAction.TOKEN_REFRESH, auditOnlyOnFailure = true)
     public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
     }
@@ -77,6 +81,7 @@ public class AuthController {
      * @return NO_CONTENT (204)
      */
     @PostMapping("/logout")
+    @Auditable(action = AuditAction.LOGOUT, targetId = "#user?.id")
     public ResponseEntity<Void> logout(@CurrentUser UserPrincipal user) {
         authService.logout(user.id());
         return ResponseEntity.noContent().build();
@@ -100,6 +105,7 @@ public class AuthController {
      */
     @PostMapping("/service-token")
     @PreAuthorize("hasRole('ADMIN')")
+    @Auditable(action = AuditAction.SERVICE_TOKEN_ISSUE, targetId = "#user?.id")
     public ResponseEntity<TokenResponse> issueServiceToken(@CurrentUser UserPrincipal user) {
         return ResponseEntity.ok(authService.issueServiceToken(user.id()));
     }
@@ -116,6 +122,7 @@ public class AuthController {
      * @throws BadCredentialsException if current password is incorrect
      */
     @PutMapping("/password")
+    @Auditable(action = AuditAction.PASSWORD_CHANGE, targetId = "#user?.id")
     public ResponseEntity<ChangePasswordResponse> updatePassword(
             @Valid @RequestBody ChangePasswordRequest request,
             @CurrentUser UserPrincipal user

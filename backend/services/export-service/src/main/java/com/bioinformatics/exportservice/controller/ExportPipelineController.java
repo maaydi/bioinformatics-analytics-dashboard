@@ -1,9 +1,12 @@
 package com.bioinformatics.exportservice.controller;
 
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.exportservice.dto.*;
 import com.bioinformatics.exportservice.service.ExportPipelineService;
+import com.bioinformatics.shared.models.audit.AuditAction;
+import com.bioinformatics.shared.models.audit.AuditTarget;
 import com.bioinformatics.shared.models.gene.ExportFieldSchema;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -60,6 +63,7 @@ public class ExportPipelineController {
      * @return CREATED (201) with pipeline DTO
      */
     @PostMapping("/pipelines")
+    @Auditable(action = AuditAction.EXPORT_CREATE, targetId = "#result?.id")
     public ResponseEntity<ExportPipelineResponse> createPipeline(@Valid @RequestBody ExportPipelineCreateRequest request,
                                                                  @CurrentUser UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(exportPipelineService.createPipeline(request, user));
@@ -94,6 +98,8 @@ public class ExportPipelineController {
      * @return OK (200) with pipeline DTO
      */
     @GetMapping("/pipelines/{id}")
+    @Auditable(action = AuditAction.DETAIL_VIEW, target = AuditTarget.EXPORT_PIPELINE,
+            targetId = "#id", auditOnlyOnFailure = true)
     public ResponseEntity<ExportPipelineResponse> getPipeline(
             @PathVariable("id") long id,
             @CurrentUser UserPrincipal user) {
@@ -132,6 +138,7 @@ public class ExportPipelineController {
      * @return OK (200) with download URL and file metadata
      */
     @GetMapping("/pipelines/{id}/download")
+    @Auditable(action = AuditAction.EXPORT_DOWNLOAD_REQUEST, targetId = "#id")
     public ResponseEntity<DownloadUrlDto> getPipelineDownloadUrl(
             @PathVariable("id") long id,
             @CurrentUser UserPrincipal user) throws IOException {
@@ -149,6 +156,7 @@ public class ExportPipelineController {
      * @throws IOException if file cannot be read
      */
     @GetMapping("/pipelines/{id}/download-file")
+    @Auditable(action = AuditAction.EXPORT_DOWNLOAD, targetId = "#id")
     public ResponseEntity<Resource> downloadFile(@PathVariable("id") long id, @CurrentUser UserPrincipal user) throws IOException {
         var fileStream = exportPipelineService.getExportFileStream(id, user);
         var formatWriter = fileStream.formatWriter();
@@ -177,6 +185,7 @@ public class ExportPipelineController {
      * @return ACCEPTED (202) with new pipeline DTO
      */
     @PostMapping("/pipelines/{id}/retry")
+    @Auditable(action = AuditAction.EXPORT_RETRY, targetId = "#id")
     public ResponseEntity<ExportPipelineResponse> retry(@PathVariable("id") long id, @CurrentUser UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(exportPipelineService.retryPipeline(id, user));
     }
@@ -192,6 +201,7 @@ public class ExportPipelineController {
      * @return NO_CONTENT (204)
      */
     @DeleteMapping("/pipelines/{id}")
+    @Auditable(action = AuditAction.EXPORT_DELETE, targetId = "#id")
     public ResponseEntity<Void> deletePipeline(@PathVariable("id") long id, @CurrentUser UserPrincipal user) {
         exportPipelineService.deletePipeline(id, user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

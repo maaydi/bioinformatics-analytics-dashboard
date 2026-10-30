@@ -34,6 +34,8 @@ common:
   enabled: true
   cache:
     enabled: true
+  kafka:
+    bootstrap-servers: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
 app:
   rate-limiter:

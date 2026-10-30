@@ -1,4 +1,4 @@
-# ARCH-002 — Implementation Plan (rev. 4)
+# ARCH-002 — Implementation Plan (rev. 5)
 
 > **Revision history**
 >
@@ -8,6 +8,7 @@
 > | 2   | 2026-09-29 | Review against the Q1–Q7 answers and the codebase: schema `gene_data`, merge semantics, header-trust hardening in scope, phase re-ordering, 15 review findings (§1)     |
 > | 3   | 2026-10-28 | Add pre-start dashboard → gene-service refactor and move audit package under common, preserving gene_data persistence ownership and migration history                  |
 > | 4   | 2026-10-28 | Separate producer-side common audit instrumentation, existing Kafka transport, and audit-service-owned persistence/API/retention; exclude audit data from `gene_data` |
+> | 5   | 2026-10-30 | Record completed shared audit producer migration and targeted Kafka verification; keep module rename, explicit auto-configuration, ownership/history and rollout gates open |
 
 ---
 
@@ -242,7 +243,7 @@ P9  Qualification, rollout & handover
 
 - [ ] P-1 — Pre-start refactor plan
 - [ ] P0 — Baseline & documentation alignment
-- [ ] P1 — Platform groundwork
+- [ ] P1 — Platform groundwork (producer-side audit migration complete; remaining platform/refactor gates open)
 - [ ] P2 — `dashboard-client` v1
 - [ ] P3 — Trust-model hardening & S2S security
 - [ ] P4 — Catalog ownership in gene-service
@@ -252,6 +253,16 @@ P9  Qualification, rollout & handover
 - [ ] P8 — Legacy removal & enforcement
 - [ ] P9 — Qualification & rollout
 - [ ] Coverage ≥ 80 % (JaCoCo) recorded in `journal.md`
+
+**Current update — 2026-10-30:** Item 1.8 is implemented against the existing
+`backend/dashboard` module, ahead of the full planned P-1/P0/P1 sequence.
+`common-starter` now produces audit events and dashboard no longer persists them;
+audit-service Config Server profiles and an embedded-Kafka publisher-to-consumer
+check are present. This is partial AC-13/AC-14 evidence, not phase acceptance.
+The gene-service module/runtime rename has not occurred. Explicit feature
+auto-configuration/opt-in, credential isolation, retention, historical-data
+handoff and deployment qualification remain open. See `journal.md` for evidence
+and limits; the rollout order below remains the required acceptance gate.
 
 ---
 
@@ -272,6 +283,9 @@ P9  Qualification, rollout & handover
   `common-starter`; inventory annotations, callers and tests. Do not move `AuditLog`, repositories, search services,
   persistence configuration or retention code into common. Define common-owned validated producer settings independent
   of gene-service `AppProperties`.
+  Implementation status: the producer split and caller/test migration are complete (1.8); settings now bind in
+  `AuditPublisherProperties` independently of dashboard `AppProperties`. The complete pre-start inventory,
+  settings-validation matrix and approval gate are not closed.
 - [ ] -1.4 Specify the existing `audit.events.log` topic contract, producer identity/context, delivery/retry and
   duplicate handling, audit-service consumer behavior, authorization for search APIs, retention rules, and audit
   database/schema placement. Audit-service alone runs audit migrations and connects to audit storage; producers and
@@ -337,18 +351,29 @@ P9  Qualification, rollout & handover
   route, Compose/build scripts, Kubernetes resource/service selectors, probes, config/secret references and docs as
   one change. Preserve `/api/**`, `/internal/v1/**`, database/schema names, migration locations/history and Kafka
   contracts; retain a compatibility alias only when required by the P-1 inventory.
-- [ ] 1.8 Move only producer-side audit instrumentation to `com.bioinformatics.common.audit` in `common-starter`:
+- [x] 1.8 Move only producer-side audit instrumentation to `com.bioinformatics.common.audit` in `common-starter`:
   annotation, aspect, event creation/context and Kafka publishing. Do not include an audit persistence service, entity,
   repository, search API, audit database config or retention job. Keep rate-limit code separate unless independently
   approved as common; do not bundle it into the audit ownership migration.
+  Implemented 2026-10-30: annotation/aspect, context/filter, bounded async publisher/configuration, dashboard caller
+  migration and removal of local audit persistence/executor. `AuditLogEvent` and audit enums are reused from
+  `shared-models`; legacy migrations/rows are preserved and rate limiting stays local.
 - [ ] 1.9 Configure producer-side auto-configuration explicitly and opt-in for services that emit audit events; ensure
   it only requires Kafka and has no audit-persistence/JPA or audit-service runtime dependency. Verify AOP pointcuts, async
   publishing, actor/correlation/source-service propagation, and fail/retry policy. Run common-starter and gene-service
   tests, reactor tests, gateway route checks, Compose validation and Kubernetes manifest checks. Confirm producer
   services have no audit DB credentials and public API golden files remain unchanged.
+  Partial evidence: producer activation/pool bindings, actual AOP behavior, caller-context snapshot and failure
+  logging are covered by targeted tests; embedded Kafka reaches the real `AuditConsumer` with storage mocked.
+  Configuration still enters through the existing common component scan and activates on the Kafka bootstrap
+  property, not a dedicated audit opt-in or explicit auto-configuration import. Shared infrastructure still has JPA
+  dependencies. No full reactor-test, gateway/Compose/Kubernetes, credential-isolation or golden-file gate is closed.
 - [ ] 1.10 Update audit-service creation/integration in the ARCH-001 implementation plan: consume existing
   `audit.events.log`, persist to its own schema, provide authorized paginated/search APIs, and enforce configurable
   retention. Align its schema/migration baseline with the approved P−1 history and data handoff decision.
+  Partial evidence: ARCH-001 Phase 8 now records the consumer, persistence/search implementation, migration,
+  three Config Server files and targeted tests. Retention and historical handoff remain open; the implemented search
+  endpoint is POST, not the planned GET, and authorization/route qualification is pending.
 
 **Exit:** gene-service builds and starts under its new identity; producer instrumentation publishes audit events without
 database access; audit-service ownership and integration are defined; all services start with unchanged public behavior
@@ -620,4 +645,3 @@ and golden files still match (AC-13, AC-14).
 - [ ] No service authenticates users from `X-User-*` headers.
 - [ ] JaCoCo ≥ 80 % on new / changed backend code.
 - [ ] Stage B remains deferred to ARCH-001 Phase 10.
-

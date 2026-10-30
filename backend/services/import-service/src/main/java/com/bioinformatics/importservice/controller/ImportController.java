@@ -1,11 +1,13 @@
 package com.bioinformatics.importservice.controller;
 
+import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
 import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.service.ImportService;
 import com.bioinformatics.importservice.validator.ValidFileType;
+import com.bioinformatics.shared.models.audit.AuditAction;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -55,6 +57,7 @@ public class ImportController {
      * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot")
+    @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#result?.id")
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType MultipartFile file,
             @RequestParam("strategy") String strategy) {
@@ -73,6 +76,7 @@ public class ImportController {
      * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot/remote")
+    @Auditable(action = AuditAction.IMPORT_REMOTE_TRIGGER, targetId = "#result?.id")
     public ResponseEntity<ImportJobSummary> triggerRemoteImport(
             @RequestParam("filterId") long filterId,
             @CurrentUser UserPrincipal currentUser) {
