@@ -9,7 +9,6 @@ import com.bioinformatics.common.gene.specification.GeneSpecification;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.postgres.AbstractPostgresProvider;
-import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,6 @@ public class PostgresGeneService extends AbstractPostgresProvider implements Gen
 
     private final ProteinEntryService proteinService;
     private final GeneMapper mapper;
-    private final AppProperties appProperties;
 
     /**
      * Returns a paginated, optionally sorted list of all proteins.

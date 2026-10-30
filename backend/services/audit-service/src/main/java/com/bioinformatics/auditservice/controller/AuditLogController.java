@@ -5,6 +5,7 @@ import com.bioinformatics.auditservice.dto.AuditSearchRequest;
 import com.bioinformatics.auditservice.service.AuditService;
 import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.models.PagedResponse;
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class AuditLogController {
     private final AuditService auditService;
 
     @PostMapping
+    @RateLimited(key = "search")
     @Auditable(action = AuditAction.AUDIT_SEARCH)
     public PagedResponse<AuditLogDto> listAuditLogs(@RequestBody @Valid AuditSearchRequest request){
 

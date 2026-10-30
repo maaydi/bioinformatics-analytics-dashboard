@@ -46,12 +46,19 @@ common:
 
 app:
   rate-limiter:
-    enabled: true
-    global:
-      name: global
-      capacity: 200
-      tokens: 200
-      seconds: 60
+    endpoints:
+      - name: analytics
+        capacity: ${APP_RATE_LIMITER_ANALYTICS_CAPACITY:120}
+        tokens: ${APP_RATE_LIMITER_ANALYTICS_TOKENS:120}
+        seconds: ${APP_RATE_LIMITER_ANALYTICS_SECONDS:60}
+      - name: analysis
+        capacity: ${APP_RATE_LIMITER_ANALYSIS_CAPACITY:60}
+        tokens: ${APP_RATE_LIMITER_ANALYSIS_TOKENS:60}
+        seconds: ${APP_RATE_LIMITER_ANALYSIS_SECONDS:60}
+      - name: compare
+        capacity: ${APP_RATE_LIMITER_COMPARE_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_COMPARE_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_COMPARE_SECONDS:60}
 
   audit-pool:
     core-size: 1

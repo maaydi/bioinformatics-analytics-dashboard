@@ -8,7 +8,6 @@ import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
-import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.providers.postgres.gene.service.PostgresGeneService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,14 +37,11 @@ class PostgresGeneServiceTest {
     @Mock
     GeneMapper mapper;
 
-    AppProperties appProperties;
-
     PostgresGeneService service;
 
     @BeforeEach
     void setUp() {
-        appProperties = new AppProperties();
-        service = new PostgresGeneService(proteinEntryService, mapper, appProperties);
+        service = new PostgresGeneService(proteinEntryService, mapper);
     }
 
     private GeneSearchRequest buildRequest(
@@ -194,5 +190,4 @@ class PostgresGeneServiceTest {
         assertThrows(IllegalArgumentException.class, () -> request.getRequestPage(allowed, "id"));
     }
 }
-
 

@@ -1,5 +1,19 @@
 # Example per-service configuration (place in Config Server or local bootstrap)
 
+app:
+  rate-limiter:
+    enabled: true
+    global:
+      name: global
+      capacity: 100
+      tokens: 100
+      seconds: 60
+    endpoints:
+      - name: search
+        capacity: 30
+        tokens: 30
+        seconds: 60
+
 spring:
   application:
     name: gene-service

@@ -3,6 +3,7 @@ package com.bioinformatics.importservice.controller;
 import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.PagedResponse;
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.importservice.dto.ImportJobProgress;
 import com.bioinformatics.importservice.dto.ImportJobSummary;
 import com.bioinformatics.importservice.service.ImportService;
@@ -57,6 +58,7 @@ public class ImportController {
      * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot")
+    @RateLimited(key = "import")
     @Auditable(action = AuditAction.IMPORT_UPLOAD, targetId = "#result?.id")
     public ResponseEntity<ImportJobSummary> triggerImport(
             @RequestParam("file") @ValidFileType MultipartFile file,
@@ -76,6 +78,7 @@ public class ImportController {
      * @return ACCEPTED (202) with job summary
      */
     @PostMapping("/uniprot/remote")
+    @RateLimited(key = "import")
     @Auditable(action = AuditAction.IMPORT_REMOTE_TRIGGER, targetId = "#result?.id")
     public ResponseEntity<ImportJobSummary> triggerRemoteImport(
             @RequestParam("filterId") long filterId,
@@ -92,6 +95,7 @@ public class ImportController {
      * @return paginated list of import job summaries
      */
     @GetMapping("/status")
+    @RateLimited
     public PagedResponse<ImportJobSummary> listImportJobs(
             @RequestParam(defaultValue = "0") int page,
             @Min(value = 1, message = "Page size should be greater than 0")
@@ -116,6 +120,7 @@ public class ImportController {
      * @return job progress with metrics
      */
     @GetMapping("/status/{jobId}")
+    @RateLimited(key = "status")
     public ImportJobProgress getImportJobStatus(@PathVariable String jobId) {
         return service.getImportJobStatus(jobId);
     }

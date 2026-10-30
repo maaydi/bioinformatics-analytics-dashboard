@@ -3,13 +3,12 @@ package com.bioinformatics.authservice.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.util.List;
-
 /**
  * Auth-service configuration properties bound from Spring configuration files.
  *
  * <p>These values are used for JWT generation, password policy enforcement,
- * rate limiting, and audit-thread sizing. This record intentionally keeps secret
+ * and audit-thread sizing. Rate limiting is bound by the common starter.
+ * This record intentionally keeps secret
  * configuration values outside application code logs and avoids embedding secrets
  * in source control.
  */
@@ -19,7 +18,6 @@ public record ApplicationProperties(
         @DefaultValue Jwt jwt,
         @DefaultValue Token token,
         @DefaultValue Password password,
-        @DefaultValue RateLimiter rateLimiter,
         @DefaultValue AuditPoolSettings auditPool
 ) {
 
@@ -62,36 +60,6 @@ public record ApplicationProperties(
             boolean requireDigit,
             boolean requireSpecialChar,
             int bcryptStrength
-    ) {
-    }
-
-    /**
-     * Rate-limiter configuration for login and other high-risk endpoints.
-     *
-     * @param enabled global switch for rate limiting
-     * @param global global rate-limit settings
-     * @param endpoints endpoint-specific rate-limit overrides
-     */
-    public record RateLimiter(
-            boolean enabled,
-            RateLimiterSettings global,
-            List<RateLimiterSettings> endpoints
-    ) {
-    }
-
-    /**
-     * Per-endpoint or global rate-limit settings.
-     *
-     * @param name logical name of the limiter
-     * @param capacity maximum tokens in bucket
-     * @param tokens initial tokens in the bucket
-     * @param seconds time window in seconds
-     */
-    public record RateLimiterSettings(
-            String name,
-            int capacity,
-            int tokens,
-            int seconds
     ) {
     }
 

@@ -79,6 +79,16 @@ during implementation. This does not close Phase 8: retention, batch ingestion,
 consumer failure handling/metrics, API qualification, historical-data handoff and
 exclusive database credentials remain outstanding. See the dated journal entry.
 
+**Rate-limiting update — 2026-10-30:** `@RateLimited`, its Bucket4j aspect and the
+independent `app.rate-limiter` binding now live in `common-starter`. Dashboard,
+auth, analytics, import, export and audit controllers use explicit cost-sensitive
+policies; polling, autocomplete and chart fan-out have separate budgets from job
+starts and credential checks. Shared defaults and service policy lists live in
+`backend-config`; see its README for the complete policy/value matrix. These are
+per-policy/per-IP, per-instance limits, not distributed quotas or an additional
+global ceiling. Config Server publication, rollout and trusted-proxy validation
+are still required; Gateway Redis rate limits are unchanged.
+
 ---
 
 ## Detailed Checklist
@@ -95,6 +105,14 @@ exclusive database credentials remain outstanding. See the dated journal entry.
   - [x] `CommonAutoConfiguration` — `@AutoConfiguration` with `@ConditionalOnProperty`
   - [x] `JwtDecoderConfig` — validates JWT using shared secret (from Config Server)
   - [x] `Resilience4jConfig` — default circuit breaker, retry, rate limiter beans
+  - [x] Shared `@RateLimited`, `RateLimitAspect` and `RateLimitConfig` — servlet-only
+    Bucket4j enforcement, independent `app.rate-limiter` properties, explicit
+    configuration errors and the existing standard HTTP 429 response
+  - [x] Apply shared policies to dashboard/auth/analytics/import/export/audit APIs;
+    centralize enabled/global defaults and configure service-owned endpoint lists
+    with environment-backed capacity/refill/period overrides in `backend-config`
+  - [ ] Publish updated Config Server files and deploy/restart affected services;
+    qualify proxy-derived client addresses and multi-replica rate-limit behavior
   - [x] `RoutingDataSourceConfig` — `AbstractRoutingDataSource` with PRIMARY/REPLICA keys
   - [x] `KafkaProducerConfig` — `KafkaTemplate` with JSON serializer for domain events
   - [x] `KafkaConsumerConfig` — `ConcurrentKafkaListenerContainerFactory` with JSON deserializer
@@ -260,6 +278,9 @@ exclusive database credentials remain outstanding. See the dated journal entry.
 - [ ] `GatewayRoutingTest` — routes `/api/v1/genes/**` to mock downstream
 - [ ] `GatewayJwtFilterTest` — validates token, rejects invalid, forwards claims
 - [ ] `GatewayRateLimitTest` — exceeds limit → 429
+- [x] `RateLimitConfigTest` / `RateLimitAspectTest` — shared servlet limiter binding,
+  disabled/non-servlet activation, invalid configuration, exact capacity, refill,
+  concurrency, policy/IP isolation, shared method budgets and standard HTTP 429
 - [ ] `GatewayCircuitBreakerTest` — downstream down → 503 fallback
 - [ ] `KafkaTopicCreationTest` — all topics exist with correct partitions
 - [ ] `PostgresReplicationTest` — write to primary → readable on replica within 5s

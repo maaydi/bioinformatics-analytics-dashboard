@@ -45,33 +45,27 @@ app:
     bcrypt-strength: 12
 
   rate-limiter:
-    enabled: true
-    global:
-      name: global
-      capacity: 200
-      tokens: 200
-      seconds: 60
     endpoints:
       - name: login
-        capacity: 10
-        tokens: 10
-        seconds: 60
-      - name: register
-        capacity: 5
-        tokens: 5
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_LOGIN_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_LOGIN_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_LOGIN_SECONDS:60}
       - name: refresh
-        capacity: 20
-        tokens: 20
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_REFRESH_CAPACITY:20}
+        tokens: ${APP_RATE_LIMITER_REFRESH_TOKENS:20}
+        seconds: ${APP_RATE_LIMITER_REFRESH_SECONDS:60}
       - name: logout
-        capacity: 30
-        tokens: 30
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_LOGOUT_CAPACITY:30}
+        tokens: ${APP_RATE_LIMITER_LOGOUT_TOKENS:30}
+        seconds: ${APP_RATE_LIMITER_LOGOUT_SECONDS:60}
       - name: change-password
-        capacity: 5
-        tokens: 5
-        seconds: 60
+        capacity: ${APP_RATE_LIMITER_CHANGE_PASSWORD_CAPACITY:5}
+        tokens: ${APP_RATE_LIMITER_CHANGE_PASSWORD_TOKENS:5}
+        seconds: ${APP_RATE_LIMITER_CHANGE_PASSWORD_SECONDS:60}
+      - name: service-token
+        capacity: ${APP_RATE_LIMITER_SERVICE_TOKEN_CAPACITY:5}
+        tokens: ${APP_RATE_LIMITER_SERVICE_TOKEN_TOKENS:5}
+        seconds: ${APP_RATE_LIMITER_SERVICE_TOKEN_SECONDS:60}
 
   audit-pool:
     core-size: 1

@@ -814,6 +814,72 @@ without completing its module rename, infrastructure decoupling or rollout gates
 
 ---
 
+### 2026-10-30 — Shared servlet API rate limiting
+
+**Action:** Moved dashboard's `@RateLimited` annotation and Bucket4j enforcement
+into `com.bioinformatics.common.ratelimit` in `common-starter`. Added servlet-only
+`RateLimitConfig` with independent `app.rate-limiter` binding, enabled by default
+and disabled explicitly with `app.rate-limiter.enabled=false`. Removed the old
+dashboard aspect/properties and unused provider injections, plus auth's duplicated
+rate-limiter property types. Updated affected constructor tests and dashboard test
+policies.
+
+The advice binds its annotation directly rather than reflecting with a
+catch-and-continue fallback. Invalid/duplicate policy definitions fail binding;
+an unknown annotation key or missing servlet request fails explicitly. Buckets
+still use policy name plus servlet remote IP; methods with the same key share
+their budget. Throttling throws the existing exception and standard HTTP 429 body.
+Audit advice wraps rate limiting so audited throttling failures remain observable.
+
+Applied annotations to all 43 current business-controller mappings across
+dashboard (10), auth (5), analytics (14), import (4), export (9) and audit (1).
+Protected authentication and credential changes, job starts/retries, downloads,
+search/detail/saved-filter operations, analytics/comparison and audit-history
+queries. Polling, autocomplete and chart fan-out have separate, larger budgets.
+Gene row-count requests now share `search`, not the export budget.
+
+Centralized the enabled switch and 100-token/60-second `global` default in
+`backend-config/application.yml`; each of the six service base files now owns its
+complete named-policy list with environment-backed capacity/token/period values.
+Removed dashboard policies for extracted APIs and auth's unused registration
+policy. Documented the complete policy matrix and deployment requirements in
+`backend-config/README.md`, and updated the common-starter guide/example and
+ARCH-001 plan.
+
+**Verification during implementation:** The 27 new shared-limiter checks passed
+(`RateLimitConfigTest`: 14; `RateLimitAspectTest`: 13), covering default/custom
+binding, disabling, non-servlet activation, invalid/duplicate definitions, exact
+capacity, greedy refill, concurrent consumption, policy/IP/instance isolation,
+shared method budgets, preservation of business exceptions and the standard
+HTTP 429 JSON response. Auth controller/JWT regressions also passed (25 checks).
+The final clean targeted reactor run passed all 83 selected checks, including
+24 saved-filter controller and 7 PostgreSQL gene-provider regressions:
+
+```bash
+mvn -q -f ./backend/pom.xml \
+  -pl libs/common-starter,dashboard,services/auth-service,services/analytics-service,services/import-service,services/export-service,services/audit-service \
+  -am clean test \
+  -Dtest=RateLimitConfigTest,RateLimitAspectTest,AuthControllerTest,JwtServiceTest,PostgresGeneServiceTest,SavedFilterControllerTest \
+  -Dsurefire.failIfNoSpecifiedTests=false
+```
+
+A JVM check loaded and bound the real shared/service Config Server YAML and
+matched all 43 controller annotation keys to their policies; there were no missing
+or unused named policies. The IDE project build passed. These are targeted
+results, not a full-suite or coverage qualification.
+
+**Limits and rollout:** `global` remains a default key, not an additional aggregate
+ceiling. Buckets are local, retained for the instance lifetime and reset on restart;
+no distributed quota, bounded cache or eviction mechanism was introduced. Raw
+forwarding headers are not trusted. Gateway Redis-backed throttling is unchanged;
+proxy address handling, memory/load behavior and replica-wide quotas require
+deployment qualification. Publish the Config Server files and deploy/restart all
+affected services together. No live Config Server publication, proxy/load test or
+production rollout is claimed. This advances shared infrastructure without closing
+the remaining ARCH-001 migration gates.
+
+---
+
 **Last Updated:** 2026-10-30
 
 **Phase Status Summary:**

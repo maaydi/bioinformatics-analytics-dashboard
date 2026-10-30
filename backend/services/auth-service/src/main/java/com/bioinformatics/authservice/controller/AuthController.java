@@ -4,6 +4,7 @@ import com.bioinformatics.authservice.dto.*;
 import com.bioinformatics.authservice.service.AuthService;
 import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import com.bioinformatics.shared.models.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
  * <ul>
  *   <li>No sensitive data (passwords, tokens) logged or exposed
  *   <li>All endpoints use HTTPS in production
- *   <li>Rate limiting recommended on /login endpoint
+ *   <li>Per-client-IP rate limits on credential and session endpoints
  *   <li>CSRF protection via Spring Security
  * </ul>
  */
@@ -51,6 +52,7 @@ public class AuthController {
      * @return OK (200) with access and refresh tokens
      */
     @PostMapping("/login")
+    @RateLimited(key = "login")
     @Auditable(action = AuditAction.LOGIN, targetId = "#request.username")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
@@ -66,6 +68,7 @@ public class AuthController {
      * @return OK (200) with new access and refresh tokens
      */
     @PostMapping("/refresh")
+    @RateLimited(key = "refresh")
     @Auditable(action = AuditAction.TOKEN_REFRESH, auditOnlyOnFailure = true)
     public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
@@ -81,6 +84,7 @@ public class AuthController {
      * @return NO_CONTENT (204)
      */
     @PostMapping("/logout")
+    @RateLimited(key = "logout")
     @Auditable(action = AuditAction.LOGOUT, targetId = "#user?.id")
     public ResponseEntity<Void> logout(@CurrentUser UserPrincipal user) {
         authService.logout(user.id());
@@ -104,6 +108,7 @@ public class AuthController {
      * @throws AccessDeniedException if user is not admin
      */
     @PostMapping("/service-token")
+    @RateLimited(key = "service-token")
     @PreAuthorize("hasRole('ADMIN')")
     @Auditable(action = AuditAction.SERVICE_TOKEN_ISSUE, targetId = "#user?.id")
     public ResponseEntity<TokenResponse> issueServiceToken(@CurrentUser UserPrincipal user) {
@@ -122,6 +127,7 @@ public class AuthController {
      * @throws BadCredentialsException if current password is incorrect
      */
     @PutMapping("/password")
+    @RateLimited(key = "change-password")
     @Auditable(action = AuditAction.PASSWORD_CHANGE, targetId = "#user?.id")
     public ResponseEntity<ChangePasswordResponse> updatePassword(
             @Valid @RequestBody ChangePasswordRequest request,

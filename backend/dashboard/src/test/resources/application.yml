@@ -45,7 +45,19 @@ app:
       tokens: 5
       seconds: 60
     endpoints:
-      - name: login
+      - name: search
+        capacity: 5
+        tokens: 5
+        seconds: 60
+      - name: detail
+        capacity: 5
+        tokens: 5
+        seconds: 60
+      - name: autocomplete
+        capacity: 5
+        tokens: 5
+        seconds: 60
+      - name: export
         capacity: 5
         tokens: 5
         seconds: 60

@@ -36,6 +36,13 @@ common:
       ack-mode: manual
 
 app:
+  rate-limiter:
+    endpoints:
+      - name: search
+        capacity: ${APP_RATE_LIMITER_SEARCH_CAPACITY:30}
+        tokens: ${APP_RATE_LIMITER_SEARCH_TOKENS:30}
+        seconds: ${APP_RATE_LIMITER_SEARCH_SECONDS:60}
+
   audit-pool:
     core-size: 1
     max-size: 10

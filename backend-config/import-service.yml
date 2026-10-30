@@ -52,12 +52,15 @@ common:
 
 app:
   rate-limiter:
-    enabled: true
-    global:
-      name: global
-      capacity: 200
-      tokens: 200
-      seconds: 60
+    endpoints:
+      - name: import
+        capacity: ${APP_RATE_LIMITER_IMPORT_CAPACITY:5}
+        tokens: ${APP_RATE_LIMITER_IMPORT_TOKENS:5}
+        seconds: ${APP_RATE_LIMITER_IMPORT_SECONDS:60}
+      - name: status
+        capacity: ${APP_RATE_LIMITER_STATUS_CAPACITY:120}
+        tokens: ${APP_RATE_LIMITER_STATUS_TOKENS:120}
+        seconds: ${APP_RATE_LIMITER_STATUS_SECONDS:60}
 
   audit-pool:
     core-size: 1

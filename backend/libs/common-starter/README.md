@@ -134,8 +134,8 @@ Dashboard audit producers now use this shared package and the enums from
 Dashboard-local audit persistence/search classes have been removed.
 `audit-service` alone persists and searches new audit events. Historical Flyway
 migrations and old audit rows are left intact; migrating/archive of existing
-rows must be handled separately before removing the legacy table. The dashboard's
-unrelated `RateLimited` annotation and aspect remain local.
+rows must be handled separately before removing the legacy table. Request throttling
+also uses the starter's independent `com.bioinformatics.common.ratelimit` package.
 
 ### Controller audit policy
 
@@ -170,3 +170,39 @@ binding/validation failures that prevent controller invocation; those require
 separate security/HTTP telemetry. Audit-history searches emit one access event,
 not events for every returned row; Kafka persistence itself is not annotated,
 so consuming an audit event does not recursively generate another.
+
+## Servlet API rate limiting
+
+Import `com.bioinformatics.common.ratelimit.annotation.RateLimited` on controller
+methods. `@RateLimited(key = "search")` selects a named policy;
+`@RateLimited` selects `global`. The starter discovers `RateLimitConfig` through
+`CommonAutoConfiguration` and binds `app.rate-limiter.*` independently of each
+service's application properties. It activates only in servlet applications,
+defaults to enabled, and can be disabled with `app.rate-limiter.enabled=false`.
+Disabling `common.enabled` also disables the starter and its limiter.
+
+`global` defaults to capacity 100, refill tokens 100, period 60 seconds. Named
+policies are configured in the `endpoints` list with `name`, `capacity`, `tokens`
+and `seconds`; see `application-example.yml`. Capacity is the initial burst;
+tokens refill greedily over the period, not at fixed window boundaries. Blank
+names, nonpositive values, duplicate names and a renamed `global` policy fail
+configuration binding. An annotation referring to a missing policy fails
+explicitly rather than silently bypassing throttling or using another budget.
+
+Each policy shares one bucket across its annotated methods **per client IP per
+service instance**. `global` is a default policy, not an additional service-wide
+ceiling. Exhaustion throws the existing `RateLimitExceededException`, mapped by
+`GlobalExceptionHandler` to the standard HTTP 429 error body. Failed controller
+calls consume tokens too. Audit advice runs outside rate-limit advice so an
+audited, throttled invocation can still be recorded as a failure.
+
+The limiter uses the servlet request's `getRemoteAddr()`; it does not trust raw
+`X-Forwarded-For` headers. Behind a proxy, configure trusted-proxy address handling
+at the deployment boundary or clients may share the proxy's budget. Buckets are
+in-memory, retained for the instance lifetime and reset on restart; replicas do
+not share them. Gateway Redis-backed rate limits remain a separate layer and
+are not replaced by this servlet aspect. This advice does not protect actuator
+endpoints, filter-chain failures or requests rejected before controller invocation.
+
+The active API policy defaults and override variables are documented in
+[`backend-config/README.md`](../../../backend-config/README.md#servlet-api-rate-limits).

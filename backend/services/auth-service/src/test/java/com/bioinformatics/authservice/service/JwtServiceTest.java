@@ -34,10 +34,9 @@ class JwtServiceTest {
         );
         var token = new ApplicationProperties.Token(true, 5);
         var password = new ApplicationProperties.Password(12, true, true, true, 12);
-        var rateLimiter = new ApplicationProperties.RateLimiter(false, null, List.of());
         var auditPool = new ApplicationProperties.AuditPoolSettings(2, 4, 100, "auth-");
 
-        properties = new ApplicationProperties(jwt, token, password, rateLimiter, auditPool);
+        properties = new ApplicationProperties(jwt, token, password, auditPool);
         jwtService = new JwtService(properties);
 
         Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -113,7 +112,6 @@ class JwtServiceTest {
                 expiredJwt,
                 properties.token(),
                 properties.password(),
-                properties.rateLimiter(),
                 properties.auditPool()
         );
         var expiredService = new JwtService(expiredProperties);
@@ -185,4 +183,3 @@ class JwtServiceTest {
         assertThat(serviceExpiry).isAfter(accessExpiry);
     }
 }
-

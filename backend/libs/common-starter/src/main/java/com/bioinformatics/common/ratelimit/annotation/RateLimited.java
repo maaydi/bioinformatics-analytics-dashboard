@@ -1,4 +1,4 @@
-package com.bioinformatics.dashboard.audit.annotation;
+package com.bioinformatics.common.ratelimit.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RateLimited {
     /**
-     * The key referencing the configuration in application.yml.
-     * Defaults to "global" if not specified.
+     * Policy name under {@code app.rate-limiter}. Methods with the same key
+     * share one per-client-IP budget within each service instance.
      */
     String key() default "global";
 }

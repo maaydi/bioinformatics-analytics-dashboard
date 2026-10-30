@@ -52,6 +52,14 @@ spring:
 
 # ── Application: JWT (shared) ────────────────────────────────────────────────
 app:
+  rate-limiter:
+    enabled: ${APP_RATE_LIMITER_ENABLED:true}
+    global:
+      name: global
+      capacity: ${APP_RATE_LIMITER_GLOBAL_CAPACITY:100}
+      tokens: ${APP_RATE_LIMITER_GLOBAL_TOKENS:100}
+      seconds: ${APP_RATE_LIMITER_GLOBAL_SECONDS:60}
+
   jwt:
     secret: ${APP_JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
     issuer: bioinformatics-auth

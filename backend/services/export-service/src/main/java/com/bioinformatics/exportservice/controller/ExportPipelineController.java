@@ -3,6 +3,7 @@ package com.bioinformatics.exportservice.controller;
 import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.config.web.CurrentUser;
 import com.bioinformatics.common.models.PagedResponse;
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.exportservice.dto.*;
 import com.bioinformatics.exportservice.service.ExportPipelineService;
 import com.bioinformatics.shared.models.audit.AuditAction;
@@ -63,6 +64,7 @@ public class ExportPipelineController {
      * @return CREATED (201) with pipeline DTO
      */
     @PostMapping("/pipelines")
+    @RateLimited(key = "export")
     @Auditable(action = AuditAction.EXPORT_CREATE, targetId = "#result?.id")
     public ResponseEntity<ExportPipelineResponse> createPipeline(@Valid @RequestBody ExportPipelineCreateRequest request,
                                                                  @CurrentUser UserPrincipal user) {
@@ -79,6 +81,7 @@ public class ExportPipelineController {
      * @return OK (200) with paginated pipeline list
      */
     @GetMapping("/pipelines")
+    @RateLimited
     public ResponseEntity<PagedResponse<ExportPipelineResponse>> listPipelines(
             @RequestParam(required = false) ExportStatus status,
             @RequestParam(defaultValue = "0") int page,
@@ -98,6 +101,7 @@ public class ExportPipelineController {
      * @return OK (200) with pipeline DTO
      */
     @GetMapping("/pipelines/{id}")
+    @RateLimited
     @Auditable(action = AuditAction.DETAIL_VIEW, target = AuditTarget.EXPORT_PIPELINE,
             targetId = "#id", auditOnlyOnFailure = true)
     public ResponseEntity<ExportPipelineResponse> getPipeline(
@@ -122,6 +126,7 @@ public class ExportPipelineController {
      * @return OK (200) with status and progress
      */
     @GetMapping("/pipelines/{id}/status")
+    @RateLimited(key = "status")
     public ResponseEntity<ExportJobStatusResponse> getPipelineJobStatus(
             @PathVariable("id") long id,
             @CurrentUser UserPrincipal user) {
@@ -138,6 +143,7 @@ public class ExportPipelineController {
      * @return OK (200) with download URL and file metadata
      */
     @GetMapping("/pipelines/{id}/download")
+    @RateLimited(key = "download")
     @Auditable(action = AuditAction.EXPORT_DOWNLOAD_REQUEST, targetId = "#id")
     public ResponseEntity<DownloadUrlDto> getPipelineDownloadUrl(
             @PathVariable("id") long id,
@@ -156,6 +162,7 @@ public class ExportPipelineController {
      * @throws IOException if file cannot be read
      */
     @GetMapping("/pipelines/{id}/download-file")
+    @RateLimited(key = "download")
     @Auditable(action = AuditAction.EXPORT_DOWNLOAD, targetId = "#id")
     public ResponseEntity<Resource> downloadFile(@PathVariable("id") long id, @CurrentUser UserPrincipal user) throws IOException {
         var fileStream = exportPipelineService.getExportFileStream(id, user);
@@ -185,6 +192,7 @@ public class ExportPipelineController {
      * @return ACCEPTED (202) with new pipeline DTO
      */
     @PostMapping("/pipelines/{id}/retry")
+    @RateLimited(key = "export")
     @Auditable(action = AuditAction.EXPORT_RETRY, targetId = "#id")
     public ResponseEntity<ExportPipelineResponse> retry(@PathVariable("id") long id, @CurrentUser UserPrincipal user) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(exportPipelineService.retryPipeline(id, user));
@@ -201,6 +209,7 @@ public class ExportPipelineController {
      * @return NO_CONTENT (204)
      */
     @DeleteMapping("/pipelines/{id}")
+    @RateLimited
     @Auditable(action = AuditAction.EXPORT_DELETE, targetId = "#id")
     public ResponseEntity<Void> deletePipeline(@PathVariable("id") long id, @CurrentUser UserPrincipal user) {
         exportPipelineService.deletePipeline(id, user);
@@ -215,6 +224,7 @@ public class ExportPipelineController {
      * @return OK (200) with array of exportable fields
      */
     @GetMapping("/fields")
+    @RateLimited
     public ResponseEntity<List<ExportFieldSchema>> getAvailableFields() {
         return ResponseEntity.ok(exportPipelineService.getAvailableFields());
     }

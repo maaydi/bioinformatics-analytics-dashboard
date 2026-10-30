@@ -1,5 +1,6 @@
 package com.bioinformatics.dashboard.gene.autocomplete;
 
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class AutoCompleteController {
      * @return a list of up to 10 matching suggestions
      */
     @GetMapping
+    @RateLimited(key = "autocomplete")
     public List<String> suggest(@RequestParam(name = "field") String field, @RequestParam(name = "query") String query) {
         log.info("[DASHBOARD][AUTOCOMPLETE] field={} query={}", field, query);
         return suggestionService.suggest(field, query);

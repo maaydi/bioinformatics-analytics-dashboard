@@ -7,6 +7,7 @@ import com.bioinformatics.analyticsservice.models.compare.CompareRequestDto;
 import com.bioinformatics.analyticsservice.models.compare.CompareResponseDto;
 import com.bioinformatics.common.audit.annotation.Auditable;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.common.ratelimit.annotation.RateLimited;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -61,6 +62,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered KPIs
      */
     @PostMapping("/dashboard-kpis")
+    @RateLimited(key = "analysis")
     public ResponseEntity<DashboardKpisDto> getDashboardKpis(@RequestBody @Valid GeneSearchRequest request) {
         var kpis = service.getDashboardKpis(request);
         return ResponseEntity.ok(kpis);
@@ -76,6 +78,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered histogram buckets
      */
     @PostMapping("/length-histogram")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<LengthHistogramBucketDto>> getLengthHistogram(@RequestBody @Valid GeneSearchRequest request) {
         var buckets = service.getLengthHistogram(request);
         return ResponseEntity.ok(buckets);
@@ -89,6 +92,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered organism counts
      */
     @PostMapping("/by-organism")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<OrganismCountDto>> getByOrganism(
             @Min(value = 1, message = "Limit should be greater than 0")
             @Max(value = 200, message = "Limit should be lower than 201")
@@ -105,6 +109,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered reviewed/unreviewed ratios
      */
     @PostMapping("/reviewed-ratio")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<ReviewedRatioDto>> getReviewedRatio(@RequestBody @Valid GeneSearchRequest request) {
         var ratios = service.getReviewedRatio(request);
         return ResponseEntity.ok(ratios);
@@ -117,6 +122,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered evidence distribution
      */
     @PostMapping("/evidence-levels")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<EvidenceDistributionDto>> getEvidenceLevels(@RequestBody @Valid GeneSearchRequest request) {
         var ev = service.getEvidenceLevels(request);
         return ResponseEntity.ok(ev);
@@ -130,6 +136,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with filtered keyword frequencies
      */
     @PostMapping("/keyword-frequency")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<KeywordFrequencyDto>> getKeywordFrequency(
             @Min(value = 1, message = "Limit should be greater than 0")
             @Max(value = 500, message = "Limit should be lower than 501")
@@ -149,6 +156,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with raw length/weight pairs
      */
     @PostMapping("/length-weight")
+    @RateLimited(key = "analysis")
     public ResponseEntity<List<ProteinLengthWeightCount>> getProteinLengthWeightCount(
             @RequestBody @Valid GeneSearchRequest request) {
         var raws = service.getProteinLengthWeightCount(request);
@@ -172,6 +180,7 @@ public class FilteredAnalyticsController {
      * @return OK (200) with comparison results
      */
     @PostMapping("/compare")
+    @RateLimited(key = "compare")
     @Auditable(action = AuditAction.COMPARE_ANALYTICS)
     public ResponseEntity<CompareResponseDto> compare(@RequestBody @Valid CompareRequestDto request) {
         var result = service.compare(request);

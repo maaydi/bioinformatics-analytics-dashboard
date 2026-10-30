@@ -9,7 +9,6 @@ import com.bioinformatics.common.providers.uniprotkb.AbstractUniprotKbProvider;
 import com.bioinformatics.common.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
-import com.bioinformatics.dashboard.config.AppProperties;
 import com.bioinformatics.dashboard.interfaces.gene.GeneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,6 @@ import java.util.Objects;
 @Slf4j
 public class UniprotKbGeneService extends AbstractUniprotKbProvider implements GeneService {
 
-    private final AppProperties appProperties;
     private final UniProtApiClient client;
     private final UniprotKbPaginationCacheService cursorCacheService;
     private final UniProtProteinDtoMapper geneMapper;
