@@ -8,10 +8,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static com.bioinformatics.common.models.SearchRequestUtils.*;
 
 /**
  * Request body for {@code POST /api/genes/search} and {@code POST /api/genes/export-csv}.
@@ -19,29 +20,29 @@ import java.util.Set;
  * <p>All field-level validation rules are defined in documentation/validation-rules.md §2.
  * Validation annotations here must match those rules exactly.
  *
- * @param globalSearch free-text query applied across supported gene fields
- * @param accession UniProt accession filter
- * @param entryName UniProt entry-name filter
- * @param geneNamePrimary primary gene-name filter
- * @param proteinFullName protein full-name filter
- * @param reviewed whether to include reviewed or unreviewed entries
- * @param organism organism-name filter
- * @param taxid NCBI taxonomy identifier
- * @param lineage taxonomy-lineage filter
- * @param lengthMin minimum protein length
- * @param lengthMax maximum protein length
+ * @param globalSearch       free-text query applied across supported gene fields
+ * @param accession          UniProt accession filter
+ * @param entryName          UniProt entry-name filter
+ * @param geneNamePrimary    primary gene-name filter
+ * @param proteinFullName    protein full-name filter
+ * @param reviewed           whether to include reviewed or unreviewed entries
+ * @param organism           organism-name filter
+ * @param taxid              NCBI taxonomy identifier
+ * @param lineage            taxonomy-lineage filter
+ * @param lengthMin          minimum protein length
+ * @param lengthMax          maximum protein length
  * @param molecularWeightMin minimum molecular weight
  * @param molecularWeightMax maximum molecular weight
- * @param evidenceLevels allowed evidence levels
- * @param keywords keyword filters
- * @param goTermId Gene Ontology term identifier
- * @param goAspect Gene Ontology aspect: {@code P}, {@code F}, or {@code C}
- * @param featureType feature-type filter
- * @param crossRefSource cross-reference database source
- * @param page zero-based page number
- * @param size maximum number of results per page
- * @param sort field used to order results
- * @param direction sort direction, either {@code asc} or {@code desc}
+ * @param evidenceLevels     allowed evidence levels
+ * @param keywords           keyword filters
+ * @param goTermId           Gene Ontology term identifier
+ * @param goAspect           Gene Ontology aspect: {@code P}, {@code F}, or {@code C}
+ * @param featureType        feature-type filter
+ * @param crossRefSource     cross-reference database source
+ * @param page               zero-based page number
+ * @param size               maximum number of results per page
+ * @param sort               field used to order results
+ * @param direction          sort direction, either {@code asc} or {@code desc}
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Builder
@@ -109,43 +110,12 @@ public record GeneSearchRequest(
         String direction
 ) {
 
-    /**
-     * Compares two lists as null-safe sets, ignoring order and duplicates.
-     *
-     * @param listA first list
-     * @param listB second list
-     * @param <T> element type
-     * @return {@code true} if both lists are the same reference or contain the same distinct elements
-     */
-    private static <T> boolean listEquals(List<T> listA, List<T> listB) {
-        if (listA == listB) return true;
-        if (listA == null || listB == null) return false;
-
-        var setA = new HashSet<T>(listA);
-        var setB = new HashSet<T>(listB);
-
-        return setA.equals(setB);
-    }
-
-    /**
-     * Formats a non-null, non-empty field for diagnostic output.
-     *
-     * @param fieldName field name to display
-     * @param value field value
-     * @return formatted {@code name=value} text with a trailing separator, or an empty string
-     *         when the value is null or an empty list
-     */
-    private static String fieldToString(String fieldName, Object value) {
-        if (value == null) return "";
-        if (value instanceof List<?> lst && lst.isEmpty()) return "";
-        return String.format("%s=%s, ", fieldName, value);
-    }
 
     /**
      * Validates that the length range is ordered when both bounds are present.
      *
      * @return {@code true} if either bound is absent or {@code lengthMin} is not greater than
-     *         {@code lengthMax}
+     * {@code lengthMax}
      */
     @AssertTrue(message = "lengthMin must be ≤ lengthMax")
     private boolean isLengthRangeValid() {
@@ -157,7 +127,7 @@ public record GeneSearchRequest(
      * Validates that the molecular-weight range is ordered when both bounds are present.
      *
      * @return {@code true} if either bound is absent or {@code molecularWeightMin} is not greater
-     *         than {@code molecularWeightMax}
+     * than {@code molecularWeightMax}
      */
     @AssertTrue(message = "molecularWeightMin must be ≤ molecularWeightMax")
     private boolean isMolecularWeightRangeValid() {
@@ -194,7 +164,7 @@ public record GeneSearchRequest(
     public @NonNull String toString() {
         return "GeneSearchRequest[" + fieldsToString() +
                 ',' +
-                PaginationToString() +
+                PaginationToString(page(), size(), sort(), direction()) +
                 "]";
     }
 
@@ -223,23 +193,6 @@ public record GeneSearchRequest(
                 fieldToString("goAspect", goAspect) +
                 fieldToString("featureType", featureType) +
                 fieldToString("crossRefSource", crossRefSource);
-        var s = sb.trim();
-        if (s.endsWith(",")) {
-            s = s.substring(0, s.length() - 1);
-        }
-        return s + "]";
-    }
-
-    /**
-     * Formats the populated pagination fields for diagnostic output.
-     *
-     * @return formatted pagination-field text
-     */
-    private String PaginationToString() {
-        String sb = "Pagination=[" + fieldToString("page", page) +
-                fieldToString("size", size) +
-                fieldToString("sort", sort) +
-                fieldToString("direction", direction);
         var s = sb.trim();
         if (s.endsWith(",")) {
             s = s.substring(0, s.length() - 1);

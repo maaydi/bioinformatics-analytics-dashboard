@@ -844,7 +844,7 @@ benefits from independent scaling.
         created_at TIMESTAMPTZ DEFAULT NOW()
     );
     ```
-- [ ] API: `GET /api/v1/audit` (ADMIN only, paginated, filterable); the audit-service is the only audit search API owner.
+- [x] API: `GET /api/v1/admin/audit` (ADMIN only, paginated, filterable); the audit-service is the only audit search API owner.
 - [ ] Retention: configurable policy and scheduled cleanup/archive, with metrics and an operator runbook.
 - [ ] High-throughput: batch Kafka consumer (100 messages per batch insert), preserving event ID, actor, source service
   and correlation ID.
