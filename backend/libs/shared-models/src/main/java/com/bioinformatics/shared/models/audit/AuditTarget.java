@@ -1,6 +1,7 @@
 package com.bioinformatics.shared.models.audit;
 
 public enum AuditTarget {
+    DEFAULT,
     AUTH,
     SAVED_FILTER,
     SEARCH,
