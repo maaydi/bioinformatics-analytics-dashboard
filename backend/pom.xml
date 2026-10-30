@@ -46,17 +46,27 @@
         <jjwt.version>0.12.6</jjwt.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <common-compress.version>1.26.1</common-compress.version>
+        <bucket4j.version>8.19.0</bucket4j.version>
+        <commons-csv.version>1.14.1</commons-csv.version>
+        <poi.version>5.5.1</poi.version>
         <jacoco.version>0.8.13</jacoco.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Cloud BOM -->
+            <!-- Platform BOMs -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -85,32 +95,37 @@
                 <version>${mapstruct.version}</version>
             </dependency>
 
-            <!-- Testcontainers & Commons -->
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>kafka</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
+            <!-- Utilities and export formats -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${common-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j_jdk17-core</artifactId>
+                <version>${bucket4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>${commons-csv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
             </dependency>
 
             <!-- Internal Modules -->
             <dependency>
                 <groupId>com.bioinformatics</groupId>
                 <artifactId>common-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bioinformatics</groupId>
+                <artifactId>shared-models</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

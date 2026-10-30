@@ -7,8 +7,8 @@ Shared Spring Boot starter for the Bioinformatics microservices ecosystem.
 ### 1. Install locally
 
 ```bash
-cd libs/common-starter
-./mvnw clean install
+# From the repository root
+mvn -f ./backend/pom.xml -pl libs/common-starter -am clean install
 ```
 
 ### 2. Add dependency to a service
@@ -18,9 +18,35 @@ cd libs/common-starter
 <dependency>
     <groupId>com.bioinformatics</groupId>
     <artifactId>common-starter</artifactId>
-    <version>1.0.0</version>
 </dependency>
 ```
+
+The backend parent manages the versions of `common-starter` and `shared-models`.
+Consumers outside this Maven reactor must specify the published version.
+
+### Dependency ownership
+
+The starter provides MVC, WebClient/RestClient, validation, OAuth2 resource-server
+security, JPA/PostgreSQL, Flyway, Kafka, Redis caching, resilience/retry, AOP, rate limiting,
+and Actuator/Brave/Zipkin tracing. Backend services do not redeclare these shared
+starters. WebFlux supports the shared WebClient; it does not replace the services'
+servlet web stack.
+
+The routing datasource uses Flyway's datasource annotation, so Flyway stays in
+this starter. Services declare their runtime PostgreSQL migration module.
+Only import/export services include JDBC Batch and OpenFeign; only auth-service
+and api-gateway include JJWT. The gateway uses `shared-models`, not this servlet
+starter. OAuth2 client login and MVC Gateway are not part of the shared starter.
+
+Test dependencies remain local to each module: use JPA slices, MockMvc, Batch
+utilities, embedded Kafka, or Testcontainers only where tests need them.
+Testcontainers PostgreSQL is also required by `jdbc:tc:` test URLs, even without
+container imports. The parent imports the Testcontainers 1.x BOM for the existing
+APIs and centrally manages library versions, including transitive Commons
+Compress; per-module exclusions and replacement declarations are unnecessary.
+The export writers explicitly declare the Jackson 2 APIs they still use rather
+than obtaining them indirectly through JJWT. Do not narrow Jackson 2 to test
+scope: the existing Spring Cloud runtime dependencies still require it.
 
 ### 3. Minimal `application.yml` per service
 

@@ -13,10 +13,13 @@
     <description>Bioinformatics Analytics Dashboard — API Gateway Server</description>
 
     <dependencies>
+        <!-- Internal models -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>shared-models</artifactId>
         </dependency>
+
+        <!-- Reactive gateway and infrastructure -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
@@ -43,15 +46,15 @@
             <artifactId>spring-retry</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Build-time tooling -->
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.bioinformatics</groupId>
-            <artifactId>shared-models</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <!-- ── JWT (JJWT) ──────────────────── -->
         <dependency>
@@ -69,14 +72,10 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
