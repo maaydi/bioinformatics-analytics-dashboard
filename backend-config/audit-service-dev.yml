@@ -1,0 +1,38 @@
+# Audit Service - development overrides
+
+server:
+  port: 0
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      pool-name: audit-dev-pool
+
+  jpa:
+    show-sql: false
+
+  data:
+    redis:
+      host: redis
+      password: ${REDIS_PASSWORD:password}
+
+logging:
+  level:
+    com.bioinformatics.auditservice: DEBUG
+    org.springframework.security: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    healthcheck:
+      enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90

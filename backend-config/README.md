@@ -18,6 +18,20 @@ git commit -m "Initial config"
 git push origin main
 ```
 
+### Audit service configuration
+
+Publish `audit-service.yml`, `audit-service-dev.yml`, and `audit-service-prod.yml`
+to the config repository alongside `application.yml`. Config Server combines
+the shared configuration, the service configuration, and the active profile's
+overrides for the `audit-service` application.
+
+The base configuration uses the `audit_log` database schema, Flyway migrations
+from `classpath:migration`, and the `audit-logger` Kafka consumer group with
+manual acknowledgements. Development uses a random port; production uses
+port `8089` and requires `SPRING_DATA_REDIS_HOST`, `REDIS_PASSWORD`, and
+`EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE`. Database connection settings remain
+in the service's environment-backed local configuration.
+
 ### `.env` additions
 
 Add these to your existing `.env` file:

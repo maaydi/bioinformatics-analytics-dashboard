@@ -1,0 +1,43 @@
+# Audit Service - business configuration (all profiles)
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: audit_log
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:migration
+    schemas: audit_log
+    default-schema: audit_log
+    create-schemas: true
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+common:
+  enabled: true
+  cache:
+    enabled: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: audit-logger
+      concurrency: 1
+      auto-offset-reset: earliest
+      batch-listener: false
+      ack-mode: manual
+
+app:
+  audit-pool:
+    core-size: 1
+    max-size: 10
+    queue-capacity: 25
+    thread-name-prefix: audit-
