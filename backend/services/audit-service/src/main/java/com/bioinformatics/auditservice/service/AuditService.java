@@ -1,9 +1,13 @@
 package com.bioinformatics.auditservice.service;
 
 import com.bioinformatics.auditservice.dto.AuditLogDto;
+import com.bioinformatics.auditservice.dto.AuditSearchRequest;
 import com.bioinformatics.auditservice.mapper.AuditLogMapper;
 import com.bioinformatics.auditservice.repository.AuditLogRepository;
+import com.bioinformatics.auditservice.specification.AuditSearchSpecification;
+import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.shared.models.kafka.events.AuditLogEvent;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,4 +51,10 @@ public class AuditService {
         return m;
     }
 
+    public PagedResponse<AuditLogDto> listAuditLogs(@Valid AuditSearchRequest request) {
+        var page = request.getRequestPage();
+        var spec = AuditSearchSpecification.fromRequest(request);
+        var result = repository.findAll(spec, page).map(mapper::toDto);
+        return PagedResponse.of(result);
+    }
 }
