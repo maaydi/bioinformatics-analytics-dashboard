@@ -32,6 +32,19 @@ spring:
                   args:
                     name: authServiceCircuitBreaker
                     fallbackUri: forward:/fallback/auth
+            - id: audit-service
+              uri: lb://audit-service
+              predicates:
+                - Path=/api/v1/admin/audit/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@userRouteKeyResolver}"
+                - name: CircuitBreaker
+                  args:
+                    name: auditServiceCircuitBreaker
             - id: analytics-service
               uri: lb://analytics-service
               predicates:
@@ -111,6 +124,8 @@ resilience4j:
     instances:
       authServiceCircuitBreaker:
         baseConfig: default
+      auditServiceCircuitBreaker:
+        baseConfig: default
       analyticsServiceCircuitBreaker:
         baseConfig: default
       importServiceCircuitBreaker:
@@ -125,6 +140,8 @@ resilience4j:
         cancelRunningFuture: true
     instances:
       authServiceCircuitBreaker:
+        baseConfig: default
+      auditServiceCircuitBreaker:
         baseConfig: default
       analyticsServiceCircuitBreaker:
         baseConfig: default

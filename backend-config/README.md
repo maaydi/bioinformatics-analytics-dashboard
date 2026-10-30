@@ -32,6 +32,12 @@ port `8089` and requires `SPRING_DATA_REDIS_HOST`, `REDIS_PASSWORD`, and
 `EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE`. Database connection settings remain
 in the service's environment-backed local configuration.
 
+The gateway routes `/api/v1/admin/audit/**` directly to `lb://audit-service`,
+without rewriting the audit controller's path. The route uses the shared Redis
+rate limiter and `auditServiceCircuitBreaker`; requests still require authentication
+and the audit controller's `ADMIN` role. Publish the updated `api-gateway.yml`
+to the config repository and restart the gateway to activate the route.
+
 ### Servlet API rate limits
 
 Publish the updated `application.yml` and all six service base files (dashboard,
