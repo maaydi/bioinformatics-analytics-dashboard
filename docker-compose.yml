@@ -7,7 +7,7 @@ x-common-spring-env: &common-spring-env
   SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
   SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
   SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
-  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
   SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING: zookeeper:2181
   SPRING_CLOUD_ZOOKEEPER_DISCOVERY_ENABLED: "true"
   SPRING_CLOUD_ZOOKEEPER_DISCOVERY_ROOT: /services
@@ -15,6 +15,12 @@ x-common-spring-env: &common-spring-env
   # Zipkin tracing configuration
   MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
   COMMON_TRACING_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+# Shared starter settings for the six business services, not infrastructure.
+x-common-application-env: &common-application-env
+  <<: *common-spring-env
+  COMMON_KAFKA_BOOTSTRAP_SERVERS: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+  APP_RATE_LIMITER_ENABLED: ${APP_RATE_LIMITER_ENABLED:-true}
 
 services:
   # ==========================================================================
@@ -189,14 +195,15 @@ services:
     entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
+        set -eu
         echo "Creating Kafka topics..."
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic protein.events.imported --partitions 3 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic export.events.completed --partitions 3 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic auth.events.authenticated --partitions 1 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic audit.events.log --partitions 6 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic nlq.events.executed --partitions 1 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic structure.events.viewed --partitions 1 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic notification.events.trigger --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic protein.events.imported --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic export.events.completed --partitions 3 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic auth.events.authenticated --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic audit.events.log --partitions 6 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic nlq.events.executed --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic structure.events.viewed --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server "${COMMON_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}" --create --if-not-exists --topic notification.events.trigger --partitions 3 --replication-factor 1
         echo "Topics created successfully."
 
   kafka-ui:
@@ -369,7 +376,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_AUTH_SERVICE:-8081}
       SPRING_APPLICATION_NAME: auth-service
       COMMON_DATASOURCE_PRIMARY_URL: ${COMMON_DATASOURCE_PRIMARY_URL}
@@ -406,13 +413,12 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_AUDIT_SERVICE:-8089}
       SPRING_APPLICATION_NAME: audit-service
       COMMON_DATASOURCE_REPLICA_URL: ${COMMON_DATASOURCE_REPLICA_URL}
       COMMON_DATASOURCE_REPLICA_USERNAME: ${COMMON_DATASOURCE_REPLICA_USERNAME}
       COMMON_DATASOURCE_REPLICA_PASSWORD: ${COMMON_DATASOURCE_REPLICA_PASSWORD}
-      COMMON_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       COMMON_KAFKA_CONSUMER_ACK_MODE: manual
     depends_on:
       config-server:
@@ -442,13 +448,12 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_ANALYTICS_SERVICE:-8082}
       SPRING_APPLICATION_NAME: analytics-service
       COMMON_DATASOURCE_REPLICA_URL: ${COMMON_DATASOURCE_REPLICA_URL}
       COMMON_DATASOURCE_REPLICA_USERNAME: ${COMMON_DATASOURCE_REPLICA_USERNAME}
       COMMON_DATASOURCE_REPLICA_PASSWORD: ${COMMON_DATASOURCE_REPLICA_PASSWORD}
-      COMMON_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       COMMON_KAFKA_CONSUMER_ACK_MODE: manual
     depends_on:
       config-server:
@@ -478,7 +483,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_BACKEND:-8084}
       SPRING_APPLICATION_NAME: dashboard
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -514,12 +519,11 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_IMPORT_SERVICE:-8083}
       SPRING_APPLICATION_NAME: import-service
       SPRING_BATCH_JOB_ENABLED: false
       SPRING_BATCH_JOB_NAME: NONE
-      COMMON_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       config-server:
         condition: service_healthy
@@ -552,7 +556,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      <<: *common-spring-env
+      <<: *common-application-env
       SERVER_PORT: ${SERVER_PORT_EXPORT_SERVICE:-8085}
       SPRING_APPLICATION_NAME: export-service
       SPRING_BATCH_JOB_ENABLED: false
@@ -560,6 +564,8 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+      kafka-init-topics:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       discovery-server:

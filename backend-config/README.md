@@ -86,6 +86,31 @@ aspect does not parse untrusted forwarding headers. Config publishing and servic
 restart/rollout remain deployment steps; editing these files alone does not update
 the Config Server Git backend or running services.
 
+### Compose wiring for shared infrastructure
+
+The root `.env.example` includes every `APP_RATE_LIMITER_*` override referenced by
+these files. Copy the relevant additions into an existing local `.env`; Compose
+passes that file to each business service. The `common-application-env` anchor
+provides the limiter switch and `COMMON_KAFKA_BOOTSTRAP_SERVERS` (default:
+`kafka:29092`, the Docker-internal listener) to dashboard, auth, analytics, import,
+export and audit. Spring Kafka and topic initialization use the same broker address. Each service already
+sets a distinct `SPRING_APPLICATION_NAME`, which identifies its shared audit events;
+no duplicate service-local publisher implementation is needed.
+
+All six services wait for `kafka-init-topics` to complete successfully, including
+creation of `audit.events.log` with six partitions. Topic initialization fails
+immediately if a creation command fails, rather than reporting false success.
+Publishing remains asynchronous and best-effort; this startup dependency is not
+a durable-delivery guarantee.
+
+Optional `APP_AUDIT_POOL_CORE_SIZE`, `APP_AUDIT_POOL_MAX_SIZE`,
+`APP_AUDIT_POOL_QUEUE_CAPACITY` and `APP_AUDIT_POOL_THREAD_NAME_PREFIX` overrides
+are documented as comments in `.env.example`. Leave them unset to retain each
+service's Config Server pool sizes/prefix. Uncommenting them in `.env` overrides
+the corresponding setting for all six business services. Compose deliberately
+uses the `prod` Spring profile for container network settings; the example's
+`SPRING_PROFILES_ACTIVE=dev` is for locally run applications.
+
 ### `.env` additions
 
 Add these to your existing `.env` file:
