@@ -89,8 +89,8 @@ spring:
                   args:
                     name: exportServiceCircuitBreaker
                     fallbackUri: forward:/fallback/export
-            - id: dashboard
-              uri: lb://dashboard
+            - id: gene-service
+              uri: lb://gene-service
               predicates:
                 - Path=/api/genes/**,/api/autocomplete/**,/api/saved-filters/**
               filters:
@@ -101,8 +101,8 @@ spring:
                     key-resolver: "#{@userRouteKeyResolver}"
                 - name: CircuitBreaker
                   args:
-                    name: dashboardCircuitBreaker
-                    fallbackUri: forward:/fallback/dashboard
+                    name: geneServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/gene
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
