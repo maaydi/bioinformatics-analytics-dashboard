@@ -33,6 +33,10 @@ common:
   enabled: true
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: false
   export:
     max-rows: 100
     temp-dir: ${java.io.tmpdir}/bio-export
