@@ -17,7 +17,7 @@ DB_USER="${SPRING_DATASOURCE_USERNAME:-bio_user}"
 DB_PASS="${SPRING_DATASOURCE_PASSWORD:-}"
 
 echo "==> Flyway $COMMAND on $DB_URL"
-cd "$ROOT_DIR/backend/dashboard"
+cd "$ROOT_DIR/backend/services/gene-service"
 mvn flyway:"$COMMAND" \
     -Dflyway.url="$DB_URL" \
     -Dflyway.user="$DB_USER" \

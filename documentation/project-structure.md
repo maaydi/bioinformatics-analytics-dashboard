@@ -8,28 +8,22 @@ uniprot-dashboard/
 │── .env
 │── docs/
 │
-├── backend/                 # Spring Boot app
+├── backend/                 # Maven reactor
 │   ├── pom.xml
-│   ├── mvnw
-│   ├── mvnw.cmd
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/example/uniprot/
-│       │   │   ├── config/
-│       │   │   ├── controller/
-│       │   │   ├── dto/
-│       │   │   ├── entity/
-│       │   │   ├── mapper/
-│       │   │   ├── repository/
-│       │   │   ├── service/
-│       │   │   ├── specification/
-│       │   │   ├── batch/
-│       │   │   └── UniprotApplication.java
-│       │   └── resources/
-│       │       ├── application.yml
-│       │       ├── db/migration/
-│       │       └── data/
-│       └── test/
+│   ├── libs/
+│   │   ├── shared-models/
+│   │   └── common-starter/  # Explicit conditional auto-configurations; producer-only audit
+│   ├── infrastructure/
+│   │   ├── discovery-server/
+│   │   ├── config-server/
+│   │   └── api-gateway/
+│   └── services/
+│       ├── gene-service/    # com.bioinformatics.geneservice; former backend/dashboard
+│       ├── auth-service/
+│       ├── analytics-service/
+│       ├── import-service/
+│       ├── export-service/
+│       └── audit-service/   # Owns audit_log persistence/search; separate from catalog
 │
 ├── frontend/               # Angular app
 │   ├── package.json
@@ -141,14 +135,22 @@ features/genes/
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvn -pl services/gene-service -am install -DskipTests
+cd services/gene-service
+mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8084
 ```
 
 Runs on:
 
 ```text
-http://localhost:8080
+http://localhost:8084
 ```
+
+The frontend normally calls the gateway on `8080`, not gene-service directly.
+Config Server source files live in `backend-config`; container definitions and
+Kubernetes manifests live in `devops`. Each service declares its own infrastructure
+starters. Only gene/import/export/analytics temporarily opt into legacy catalog
+beans with `app.legacy-catalog.enabled`; audit production requires `app.audit.enabled`.
 
 ---
 

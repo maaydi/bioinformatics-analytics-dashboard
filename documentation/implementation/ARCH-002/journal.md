@@ -126,6 +126,7 @@ ARCH-001 Phase 8 and ARCH-002 P1 continue with the remaining ownership,
 refactor, operational and qualification work.
 
 ---
+
 ### 2026-11-06 — My Decision alignment; plan rev. 6
 
 **Action:** Updated `plan.md`, `analyse.md` and `overview.md` from the D1–D4 My Decision notes:
@@ -146,15 +147,82 @@ no implementation phase, runtime behavior, coverage target or acceptance gate is
 
 ---
 
+### 2026-11-06 — P1 platform implementation and remaining acceptance gates
+
+**Action:** Replaced the common package scan with individually listed conditional auto-configurations. The starter's
+infrastructure dependencies are optional, and each business service declares its own MVC/security/data/Kafka/cache/AOP/
+observability dependencies. The gateway remains reactive and does not depend on common-starter. Legacy catalog
+entities/repositories/services require `app.legacy-catalog.enabled=true` in gene/import/export/analytics; UniProt clients
+additionally require their HTTP/retry dependencies. Auth/audit no longer scan catalog entities or repositories.
+Provider-header routing is explicitly registered by the shared MVC feature, independently of UniProt/JPA; analytics
+requires it even when UniProt clients are absent. Analytics' JPA slice explicitly imports the legacy feature.
+
+Audit production now requires `app.audit.enabled=true`, uses validated bounded pool settings and starts on a classpath
+without JPA/JDBC/Flyway/Batch/Redis or servlet APIs. All six existing producers opt in through service configuration.
+The existing AOP/event contract, actor identity, source service and best-effort/logged failure policy remain unchanged.
+Ordinary database-backed controller tests disable audit production explicitly; embedded-Kafka tests enable and exercise it.
+No audit persistence/runtime dependency or audit credential was added to the producer feature.
+
+Kafka producers disable Java type headers; both audit and legacy refresh listeners select their concrete default
+value type and ignore sender type headers. Wildcard trusted packages are removed. A nullable global consumer group is
+omitted rather than inserted into Kafka's null-rejecting configuration map; existing listener-specific groups remain
+authoritative. The custom factory honors `spring.kafka.listener.auto-startup`, including isolated integration tests.
+Servlet, Feign and Kafka interceptors propagate `X-Correlation-Id` using MDC `correlationId`, restoring prior context on
+success/failure. IDs are bounded to the audit schema's 100-character limit; invalid IDs are logged without echoing their
+contents and replaced with UUIDs. Audit workers and import-refresh sends/callbacks preserve their envelope correlation;
+all six business-service logging configurations expose the MDC key.
+
+The module/package/runtime move to gene-service was already present when this task began. Completed remaining wiring:
+development/migration scripts, build-script help, Compose import/export dependencies and gene Dockerfile path, gateway
+gene circuit-breaker/time-limiter names, and current project/operator documentation. The reactor, Config Server files,
+Feign target, gateway destination, Kubernetes selectors/config/secret references and probes use `gene-service`; no
+compatibility alias is needed by current callers. Product-wide `bio-dashboard` namespace/image prefixes and JWT audience
+are intentionally unchanged. Public/internal paths, migration contents/history, database objects and Kafka topics were
+not changed.
+
+**Integration boundary:** ARCH-001 Phase 8 now specifies the existing authorized, paginated
+`POST /api/v1/admin/audit` search contract rather than a new GET API. Existing topic ownership, separate audit storage,
+retention requirements and the historical-data/Flyway approval gate remain explicit.
+
+**Verification evidence:**
+
+- `mvn -q -fae -f backend\pom.xml test` passed with 883 tests across 153 suites, zero failures/errors/skips,
+  including PostgreSQL-backed service/API tests.
+  Earlier runs caught and led to fixes for the optional Zipkin sender, absent global Kafka group, analytics legacy
+  entity registration and provider-filter placement; expectations were not relaxed to hide those regressions.
+- `mvn -q -f backend\pom.xml -DskipTests package` passed for the complete reactor after the successful test run.
+- `PlatformAutoConfigurationTest` covers feature switches, master disable, optional-classpath isolation, existing
+  datasource pools, audit opt-in/missing transport, invalid pool settings and MVC provider routing without UniProt/JPA.
+- `ViewRefreshTransportTest` and `AuditPublisherConsumerTest` use embedded Kafka and the real respective consumers,
+  assert absence of `__TypeId__`, and check consumer MDC. Database/idempotency collaborators are mocked in these
+  transport tests; separate audit persistence tests remain distinct evidence.
+- `CorrelationPropagationTest` covers the servlet/Feign/Kafka chain, missing/invalid IDs, failure cleanup and worker
+  context restoration. The import publisher test checks envelope/MDC correlation consistency at send time.
+- `docker compose config --quiet` passes. Offline checks parse all 79 Kubernetes manifests and verify gene selectors,
+  ports, config/secret references and probes; all Compose build/Dockerfile paths and service dependencies resolve.
+  Config Server/service YAML, logging XML and optional dependency declarations also pass structural checks.
+- Actual Config Server YAML route checks preserve the gene public path set and audit destination, with matching
+  gene circuit-breaker/time-limiter IDs. Kubernetes client dry-run could not contact a cluster API; offline checks are
+  not a deployed-manifest or gateway acceptance claim.
+
+**Acceptance remains open:** P0 public-response golden files were not captured before this change. Config Server Git
+publishing, independent deployed startup/route qualification and production rollout have not been performed. Existing
+shared environment-backed database credentials do not demonstrate producer denial of audit storage. Historical audit
+transfer versus archive/purge, count/key verification and Flyway baseline approval remain unresolved; no data was
+moved/purged and no migration was replayed. Retention remains ARCH-001 Phase 8 work. P1 items 1.1-1.8 are implemented,
+while the remaining 1.9/1.10 release gates and phase acceptance remain open. No new coverage percentage is claimed.
+
+---
+
 ## Coverage Tracking
 
 | Component                         | Target | Current | Status      |
 |-----------------------------------|--------|---------|-------------|
-| dashboard (catalog, outbox)       | ≥ 80 % | —       | Not started |
+| gene-service (catalog, outbox)    | ≥ 80 % | —       | P1 groundwork complete; catalog/outbox work pending |
 | import-service (writer, ACL)      | ≥ 80 % | —       | Not started |
 | analytics-service (API-backed refresh) | ≥ 80 % | — | Not started |
 | api-gateway (trust filters)       | ≥ 80 % | —       | Not started |
-| common-starter (auto-config, S2S, audit) | ≥ 80 % | Not measured | Audit producer implemented; broader auto-config/S2S work pending |
+| common-starter (auto-config, S2S, audit) | ≥ 80 % | Not measured | P1 auto-config/correlation/audit implemented; S2S work remains P3 |
 | audit-service (consumer boundary) | ≥ 75 % (ARCH-001) | Not measured | Embedded-Kafka contract check passed; storage/authorization/retention qualification pending |
 
 **Last Updated:** 2026-11-06

@@ -82,11 +82,12 @@ restart_redis() {
 
 start_backend() {
   echo "==> [Backend] Building Spring Boot application..."
-  cd "$ROOT_DIR/backend/dashboard"
-  mvn clean install -DskipTests
+  cd "$ROOT_DIR/backend"
+  mvn -pl services/gene-service -am install -DskipTests
+  cd "$ROOT_DIR/backend/services/gene-service"
 
   echo "==> [Backend] Starting Spring Boot application..."
-  mvn spring-boot:run -DskipTests &
+  SERVER_PORT=8080 mvn spring-boot:run -DskipTests &
   BACKEND_PID=$!
 
   echo "==> [Backend] Waiting for port 8080..."

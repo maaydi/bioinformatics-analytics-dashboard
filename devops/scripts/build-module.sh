@@ -4,7 +4,7 @@
 #
 # Supported modules:
 #   frontend
-#   dashboard (or backend)
+#   gene-service
 #   discovery-server
 #   config-server
 #   api-gateway
@@ -72,7 +72,7 @@ else
 
   if [[ -z "$MAVEN_MODULE_PATH" || -z "$COMPOSE_SERVICE" ]]; then
     echo "Unsupported module: $MODULE_NAME" >&2
-    echo "Supported modules: frontend, dashboard, discovery-server, config-server, api-gateway, auth-service, analytics-service, import-service, export-service." >&2
+    echo "Supported modules: frontend, gene-service, discovery-server, config-server, api-gateway, auth-service, analytics-service, import-service, export-service." >&2
     exit 64
   fi
 

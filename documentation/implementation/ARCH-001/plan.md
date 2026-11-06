@@ -852,9 +852,13 @@ benefits from independent scaling.
   producer-only audit aspect/event publisher in `common-starter` and never call audit persistence synchronously.
   - Shared producer: `com.bioinformatics.common.audit`, using `shared-models` audit enums and `AuditLogEvent`.
     Dashboard annotations now publish through this starter; local audit persistence has been removed.
-    Enable with `spring.application.name` and `common.kafka.bootstrap-servers`; tune the bounded executor
+    Enable with `app.audit.enabled=true`, `spring.application.name` and `common.kafka.bootstrap-servers`; tune the bounded executor
     with `app.audit-pool.*`. Delivery is best-effort with logged queue/send failures, not a durable outbox.
     Legacy audit migrations/rows are preserved pending an explicit historical-data handoff.
+    ARCH-002 P1 registers the producer through explicit auto-configuration without JPA/JDBC;
+    all six producer services opt in. Consumers bind their own event types and ignore Java type headers.
+    The historical transfer/archive choice, count/key verification and Flyway baseline must be approved
+    before enabling an existing-database cutover; V13-V17 are not replayed or moved to `gene_data`.
 - [x] Single-event Kafka consumer with manual acknowledgements, Redis event-ID deduplication (24-hour TTL),
   and a database uniqueness constraint on `event_id`.
 - [ ] Qualify duplicate/replay behavior across Redis expiry, restart, concurrent delivery and persistence failure;
@@ -888,8 +892,9 @@ benefits from independent scaling.
     ```
 - [x] Audit-service owns the search controller, implemented as `POST /api/v1/admin/audit` with a validated search body
   and class-level `hasRole('ADMIN')` authorization.
-- [ ] Reconcile the planned `GET /api/v1/admin/audit` contract with the implemented POST endpoint and gateway routing;
-  verify authorization and pagination/filtering through integration tests before rollout.
+- [x] Use the existing `POST /api/v1/admin/audit` search contract (validated body, paginated response)
+  rather than introducing a second GET contract. The gateway routes the same path to `lb://audit-service`.
+- [ ] Qualify authorization and pagination/filtering through the deployed gateway before rollout.
 - [ ] Retention: configurable policy and scheduled cleanup/archive, with metrics and an operator runbook.
 - [ ] High-throughput: batch Kafka consumer (100 messages per batch insert), preserving event ID, actor, source service
   and correlation ID.
@@ -901,7 +906,7 @@ benefits from independent scaling.
 - [x] `AuditEventPublisherTest` — caller-context snapshot before async execution, event fields/metadata,
   actor classification, and logged queue/immediate/asynchronous send failures.
 - [x] `AuditContextFilterTest` and `AuditPublisherConfigTest` — context cleanup on success/failure,
-  Kafka-property activation, servlet-only filter and existing `app.audit-pool.*` bindings.
+  explicit audit opt-in, servlet-only filter and validated `app.audit-pool.*` bindings.
 - [x] `AuditPublisherConsumerTest` — embedded Kafka using the real shared producer/consumer configuration and
   `AuditConsumer`; persistence and Redis idempotency services are mocked. Confirms transport compatibility,
   event fields/metadata and post-save deduplication marking, not real database persistence or Redis behavior.

@@ -1,4 +1,4 @@
-# ARCH-002 — Implementation Plan (rev. 6)
+# ARCH-002 — Implementation Plan (rev. 7)
 
 > **Revision history**
 >
@@ -10,6 +10,7 @@
 > | 4   | 2026-10-28 | Separate producer-side common audit instrumentation, existing Kafka transport, and audit-service-owned persistence/API/retention; exclude audit data from `gene_data` |
 > | 5   | 2026-10-30 | Record completed shared audit producer migration and targeted Kafka verification; keep module rename, explicit auto-configuration, ownership/history and rollout gates open |
 > | 6   | 2026-11-06 | Apply D1–D4 My Decision: `libs/gene-model-lib`, Feign chunk writes, Kafka-triggered API-backed analytics refresh and retained transactional outbox; remove analytics CQRS/backfill requirements |
+> | 7   | 2026-11-06 | Implement P1 explicit feature configuration, optional infrastructure dependencies, header-free Kafka/correlation, producer opt-in and remaining gene-service rename wiring; retain deployment/history/parity acceptance gates |
 
 ---
 
@@ -295,7 +296,7 @@ P9  Qualification, rollout & handover
 
 - [ ] P-1 — Pre-start refactor plan
 - [ ] P0 — Baseline & documentation alignment
-- [ ] P1 — Platform groundwork (producer-side audit migration complete; remaining platform/refactor gates open)
+- [ ] P1 — Platform groundwork (implementation delivered; release qualification/history/parity gates remain open)
 - [ ] P2 — `gene-model-lib` v1
 - [ ] P3 — Trust-model hardening & S2S security
 - [ ] P4 — Catalog ownership in gene-service
@@ -310,7 +311,16 @@ P9  Qualification, rollout & handover
 analysis/overview. This is a documentation update only; it does not close implementation phases or acceptance gates.
 Earlier implementation status below is retained as a dated historical record.
 
-**Current update — 2026-10-30:** Item 1.8 is implemented against the existing
+**Current update — 2026-11-06:** Shared features now use explicit conditional auto-configuration without a common
+component scan. Services declare their infrastructure dependencies, audit production explicitly opts in, and legacy
+catalog registration is limited to gene/import/export/analytics. Both existing Kafka listeners bind their own event
+types before header-free publishing; servlet/Feign/Kafka scopes propagate `X-Correlation-Id` and restore MDC.
+The existing gene-service move is completed across leftover scripts, Compose references and gateway breaker IDs.
+Public paths, migration files/history, database objects and Kafka topics are unchanged. Items 1.9/1.10 retain the
+unapproved historical handoff, credential-denial, deployed-startup and missing P0 golden-file acceptance gates.
+See the journal for current verification evidence rather than treating implementation as production acceptance.
+
+**Historical update — 2026-10-30:** Item 1.8 is implemented against the existing
 `backend/dashboard` module, ahead of the full planned P-1/P0/P1 sequence.
 `common-starter` now produces audit events and dashboard no longer persists them;
 audit-service Config Server profiles and an embedded-Kafka publisher-to-consumer
@@ -391,19 +401,19 @@ and limits; the rollout order below remains the required acceptance gate.
 
 **Goal:** decouple shared infrastructure and perform the approved module/audit refactor without changing externally observable behavior.
 
-- [ ] 1.1 `common-starter`: replace `@ComponentScan("com.bioinformatics.common")` with explicit
+- [x] 1.1 `common-starter`: replace `@ComponentScan("com.bioinformatics.common")` with explicit
   `AutoConfiguration.imports` entries, each guarded by `@ConditionalOnClass` / `@ConditionalOnProperty`.
-- [ ] 1.2 Legacy catalog beans (`ProteinEntryService`, UniProt clients) are registered **only** where still needed,
+- [x] 1.2 Legacy catalog beans (`ProteinEntryService`, UniProt clients) are registered **only** where still needed,
   through an explicit temporary opt-in (`app.legacy-catalog.enabled`), not by scan.
-- [ ] 1.3 Mark heavy dependencies `<optional>true</optional>`; remove `spring-cloud-starter-gateway-server-webmvc` and
+- [x] 1.3 Mark heavy dependencies `<optional>true</optional>`; remove `spring-cloud-starter-gateway-server-webmvc` and
   the unused `spring-boot-starter-oauth2-client`; each service declares its own web / data / Kafka starters.
-- [ ] 1.4 Kafka (F9): bind the legacy `ViewRefreshRequestedEvent` listener to an explicit default value type, then set
+- [x] 1.4 Kafka (F9): bind the legacy `ViewRefreshRequestedEvent` listener to an explicit default value type, then set
   `ADD_TYPE_INFO_HEADERS=false`; remove `TRUSTED_PACKAGES=com.bioinformatics.*`.
-- [ ] 1.5 Correlation id: servlet filter + Feign interceptor + Kafka producer/consumer interceptors propagating
+- [x] 1.5 Correlation id: servlet filter + Feign interceptor + Kafka producer/consumer interceptors propagating
   `X-Correlation-Id`; MDC keys documented.
-- [ ] 1.6 Tests: auto-configuration context tests (each feature on/off), Kafka round-trip without `__TypeId__`,
+- [x] 1.6 Tests: auto-configuration context tests (each feature on/off), Kafka round-trip without `__TypeId__`,
   correlation propagation test.
-- [ ] 1.7 Refactor the Maven module from `backend/dashboard` to `backend/services/gene-service`; update the reactor
+- [x] 1.7 Refactor the Maven module from `backend/dashboard` to `backend/services/gene-service`; update the reactor
   module, artifact ID, parent path, application entry point and Java packages to `com.bioinformatics.geneservice`.
   Update Config Server names/profiles, `spring.application.name`, import-service Feign service ID, gateway `lb://`
   route, Compose/build scripts, Kubernetes resource/service selectors, probes, config/secret references and docs as
@@ -421,17 +431,20 @@ and limits; the rollout order below remains the required acceptance gate.
   publishing, actor/correlation/source-service propagation, and fail/retry policy. Run common-starter and gene-service
   tests, reactor tests, gateway route checks, Compose validation and Kubernetes manifest checks. Confirm producer
   services have no audit DB credentials and public API golden files remain unchanged.
-  Partial evidence: producer activation/pool bindings, actual AOP behavior, caller-context snapshot and failure
-  logging are covered by targeted tests; embedded Kafka reaches the real `AuditConsumer` with storage mocked.
-  Configuration still enters through the existing common component scan and activates on the Kafka bootstrap
-  property, not a dedicated audit opt-in or explicit auto-configuration import. Shared infrastructure still has JPA
-  dependencies. No full reactor-test, gateway/Compose/Kubernetes, credential-isolation or golden-file gate is closed.
+  Implementation evidence: `AuditPublisherConfig` is explicitly imported and requires `app.audit.enabled=true`;
+  pool settings are validated. A filtered-classpath context runs without JPA/JDBC/Flyway/Batch/Redis or servlet APIs.
+  Tests exercise actual AOP, caller-context snapshot and logged queue/send failures; embedded Kafka reaches the real
+  `AuditConsumer` with storage mocked and asserts header-free transport and consumer MDC. Source service, actor and
+  correlation remain distinct. Full-reactor testing passed (883 tests, zero failures/errors/skips), followed by successful
+  reactor packaging. Remaining release gates: publish the Config Server files, deployed independent startup,
+  exclusive credential/access-denial proof and P0 public-response golden files (not available before this change).
 - [ ] 1.10 Update audit-service creation/integration in the ARCH-001 implementation plan: consume existing
   `audit.events.log`, persist to its own schema, provide authorized paginated/search APIs, and enforce configurable
   retention. Align its schema/migration baseline with the approved P−1 history and data handoff decision.
-  Partial evidence: ARCH-001 Phase 8 now records the consumer, persistence/search implementation, migration,
-  three Config Server files and targeted tests. Retention and historical handoff remain open; the implemented search
-  endpoint is POST, not the planned GET, and authorization/route qualification is pending.
+  Partial evidence: ARCH-001 Phase 8 records the existing topic, exclusive ownership, migrations, consumer, configuration,
+  authorized POST search contract and retention requirements. POST is retained to preserve the existing public API,
+  not replaced by a new GET endpoint. Historical transfer/archive and Flyway baseline approval, retention and deployed
+  authorization/route qualification remain open; no historical rows or migrations were changed.
 
 **Exit:** gene-service builds and starts under its new identity; producer instrumentation publishes audit events without
 database access; audit-service ownership and integration are defined; all services start with unchanged public behavior
