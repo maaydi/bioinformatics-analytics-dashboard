@@ -47,7 +47,7 @@ reachable only by trusted internal callers.
 
 ### Servlet API rate limits
 
-Publish the updated `application.yml` and all six service base files (dashboard,
+Publish the updated `application.yml` and all six service base files (gene-service,
 auth, analytics, import, export and audit) together with the shared-starter/controller
 changes. `application.yml` supplies `app.rate-limiter.enabled` and the default
 `global` policy; each service file supplies its own complete `endpoints` list.
@@ -58,10 +58,10 @@ Development and production currently inherit the same policies.
 | Service | API group / policy | Capacity and refill tokens per 60 seconds |
 |---------|--------------------|------------------------------------------|
 | All servlet services | Default `global` (saved filters; import listing; export listing, detail, deletion and field metadata) | 100 |
-| dashboard | Gene list/search/count: `search` | 30 |
-| dashboard | Gene detail: `detail` | 60 |
-| dashboard | Typeahead: `autocomplete` | 120 |
-| dashboard | Legacy CSV export: `export` | 10 |
+| gene-service | Gene list/search/count: `search` | 30 |
+| gene-service | Gene detail: `detail` | 60 |
+| gene-service | Typeahead: `autocomplete` | 120 |
+| gene-service | Legacy CSV export: `export` | 10 |
 | auth-service | `login` | 10 |
 | auth-service | `refresh` | 20 |
 | auth-service | `logout` | 30 |
@@ -105,7 +105,7 @@ The root `.env.example` includes every `APP_RATE_LIMITER_*` override referenced 
 these files. Copy the relevant additions into an existing local `.env`; Compose
 passes that file to each business service. The `common-application-env` anchor
 provides the limiter switch and `COMMON_KAFKA_BOOTSTRAP_SERVERS` (default:
-`kafka:29092`, the Docker-internal listener) to dashboard, auth, analytics, import,
+`kafka:29092`, the Docker-internal listener) to gene-service, auth, analytics, import,
 export and audit. Spring Kafka and topic initialization use the same broker address. Each service already
 sets a distinct `SPRING_APPLICATION_NAME`, which identifies its shared audit events;
 no duplicate service-local publisher implementation is needed.
@@ -175,7 +175,7 @@ kubectl apply -f devops/kubernetes/audit-service/
 kubectl -n bio-dashboard rollout status deployment/audit-service --timeout=300s
 ```
 
-Apply the updated manifests for auth, analytics, dashboard, import and export as
+Apply the updated manifests for auth, analytics, gene-service, import and export as
 well. Updating an environment-backed ConfigMap does not restart existing pods:
 after applying changes, explicitly roll out the six business Deployments to pick
 them up. Check that the topic Job completed and `audit.events.log` exists with six
