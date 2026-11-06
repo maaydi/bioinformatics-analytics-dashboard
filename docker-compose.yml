@@ -478,7 +478,7 @@ services:
   gene-service:
     build:
       context: ./backend/services/gene-service
-      dockerfile: ../../devops/docker/backend/services/gene-service/Dockerfile
+      dockerfile: ../../../devops/docker/backend/services/gene-service/Dockerfile
     container_name: gene_service
     restart: unless-stopped
     env_file: .env
@@ -535,7 +535,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      backend:
+      gene-service:
         condition: service_healthy
 
     volumes:
@@ -572,7 +572,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      backend:
+      gene-service:
         condition: service_healthy
     volumes:
       - export_data:/app/bio-export

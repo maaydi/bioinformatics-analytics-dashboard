@@ -190,7 +190,8 @@ docker compose up --build
 
 ```bash
 # Start PostgreSQL, then:
-cd backend/dashboard  && ./mvnw spring-boot:run          # http://localhost:8080
+cd backend && mvn -pl services/gene-service -am install -DskipTests
+cd services/gene-service && mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 cd frontend && npm install && npm start        # http://localhost:4200
 ```
 
@@ -236,7 +237,7 @@ cd frontend && npm install && npm start        # http://localhost:4200
 ## 📁 Project Structure
 
 ```
-backend/dashboard       → Spring Boot (controller → service → repository → dto)
+backend/services/gene-service → Spring Boot (controller → service → repository → dto)
 backend/services/export-service/ → Export microservice: pipelines, batch jobs, CSV/TSV/JSON/Excel writers
 frontend/               → Angular features: dashboard, genes, analytics, import-admin, auth
 documentation/          → Specs: api-contract, domain-model, validation-rules, overview
