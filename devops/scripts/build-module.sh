@@ -24,8 +24,7 @@ if [[ -z "$MODULE_NAME" || $# -ne 1 ]]; then
 fi
 
 declare -A MAVEN_MODULE_PATHS=(
-  [dashboard]="dashboard"
-  [backend]="dashboard"
+  [gene-service]="services/gene-service"
   [discovery-server]="infrastructure/discovery-server"
   [config-server]="infrastructure/config-server"
   [api-gateway]="infrastructure/api-gateway"
@@ -36,8 +35,7 @@ declare -A MAVEN_MODULE_PATHS=(
 )
 
 declare -A COMPOSE_SERVICES=(
-  [dashboard]="backend"
-  [backend]="backend"
+  [gene-service]="gene-service"
   [discovery-server]="discovery-server"
   [config-server]="config-server"
   [api-gateway]="api-gateway"

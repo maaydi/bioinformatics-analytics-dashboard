@@ -30,7 +30,7 @@ SERVICES=(
   "api-gateway"
   "auth-service"
   "analytics-service"
-  "backend"
+  "gene-service"
   "import-service"
   "export-service"
   "frontend"
