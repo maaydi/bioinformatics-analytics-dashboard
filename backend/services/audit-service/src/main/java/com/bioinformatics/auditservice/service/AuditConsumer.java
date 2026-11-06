@@ -22,7 +22,11 @@ public class AuditConsumer {
     @KafkaListener(
             topics = AUDIT_EVENTS_LOG,
             groupId = AUDIT_LOGGER,
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "kafkaListenerContainerFactory",
+            properties = {
+                    "spring.json.value.default.type=com.bioinformatics.shared.models.kafka.events.AuditLogEvent",
+                    "spring.json.use.type.headers=false"
+            }
     )
     public void consume(@Payload AuditLogEvent event, Acknowledgment ack) {
         if (idempotencyService.isProcessed(event.eventId())) {
