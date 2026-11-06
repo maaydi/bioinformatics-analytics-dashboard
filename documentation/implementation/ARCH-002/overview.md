@@ -24,6 +24,10 @@ Other services reach catalog data **only** through:
   (`/internal/v1/**`), using decoupled DTOs.
 - **Asynchronous catalog events:** Kafka events published by `gene-service` through a transactional outbox.
 
+For analytics, Kafka ingestion completion is a **refresh trigger**, not a feed of protein rows: analytics calls the
+gene-service statistics API and saves the returned aggregate results in its own refresh tables/views. Filtered and
+compare queries use the same owner-side aggregation API; no per-protein CQRS projection is built.
+
 Audit events follow a separate path: common-starter's producer-side `@Auditable` aspect publishes to the already-existing
 `audit.events.log` topic; the new audit-service owns its separate schema, persistence, search API and retention. The
 producer library and producer services do not connect to audit storage.
@@ -54,8 +58,9 @@ producer library and producer services do not connect to audit storage.
 1. **Single Responsibility:** target `gene-service` is the only runtime that contains `ProteinEntry` and related catalog persistence code.
 2. **Database-per-Service:** only the `gene-service` database role can read or write `gene_data`. Every other
    role gets `permission denied`.
-3. **Explicit contracts:** a thin `dashboard-client` module publishes DTOs, the Feign interfaces and the event
-   payload schemas. It contains no JPA, no Spring Data and no auto-configured beans.
+3. **Explicit contracts:** a thin `backend/libs/gene-model-lib` module publishes reused cross-service DTOs, Feign
+   interfaces and reference event schemas. Service-specific/internal types remain local. The library contains no JPA,
+   Spring Data, component scan or auto-configured beans.
 4. **Reliable events:** catalog changes are published with at-least-once delivery through a transactional outbox.
    Consumers are idempotent.
 5. **Infrastructure-only starter:** `common-starter` keeps cross-cutting concerns only (security, error handling,
@@ -80,36 +85,35 @@ producer library and producer services do not connect to audit storage.
 ## Target Architecture
 
 ```text
-                              ┌──────────────────────┐
-     Browser ── HTTPS ──────► │     API Gateway      │   /api/** only; /internal/** denied
-                              └──────────┬───────────┘
-                                         │ lb://
-          ┌──────────────────────────────┼───────────────────────────────┐
-          ▼                              ▼                               ▼
- ┌─────────────────┐   Feign (sync)  ┌─────────────────────────────┐  Feign  ┌──────────────────┐
- │ import-service  │ ──────────────► │ gene-service (Protein Catalog) │ ◄────── │ export-service   │
- │ parse .dat/.tsv │ POST /internal/ │  • ProteinEntry aggregate   │ scan    │ (PIPE-001, later)│
- │ owns import_job │ v1/protein-     │  • /api/genes/** (public)   │         └──────────────────┘
- └───────┬─────────┘ ingestions/...  │  • /internal/v1/** (S2S)    │
-         │                           │  • Outbox → Kafka relay     │
-         │                           └──────┬───────────────┬──────┘
-         │                                  │ JDBC (only)   │ Kafka (async)
-         ▼                                  ▼               ▼
- ┌─────────────────┐              ┌──────────────────┐   ┌──────��────���──────────────────────────┐
- │ schema          │              │ schema gene_data │   │ catalog.protein-entry.changed.v1     │
- │ import_batch    │              │ (role gene_      │   │   key = accession, compacted         │
- │ (role import_   │              │  service_svc ONLY)│   │ catalog.protein-ingestion.completed.v1│
- │  svc)           │              └──────────────────┘   └──────────────────┬───────────────────┘
- └─────────────────┘                                                        │ consume
-                                                                            ▼
-                                                           ┌───────────────────────────────────┐
-                                                           │ analytics-service                  │
-                                                           │  • analytics.protein_fact (CQRS    │
-                                                           │    read model, own schema)         │
-                                                           │  • materialized views on its OWN   │
-                                                           │    projection                      │
-                                                           └───────────────────────────────────┘
+Browser -> API Gateway -> explicit /api/** service routes
+                         /internal/** denied
+
+import-service -- Feign chunk writes + completion --> gene-service
+  | owns parsing/import_job                            | owns ProteinEntry + merge
+  v                                                    | local search + statistics API
+import_batch (import_svc)                               v
+                                               gene_data (gene_service_svc only)
+                                                       |
+                                               transactional outbox -> Kafka
+                                                       |
+                             catalog.protein-ingestion.completed.v1
+                                                       |
+                                                       v
+analytics-service refresh coordinator -- Feign statistics --> gene-service
+  |
+  +--> atomic save of aggregate results in analytics-owned refresh tables/views
+  +--> cached KPI reads from those results
+  +--> live filtered/compare requests use gene-service statistics API
+
+catalog.protein-entry.changed.v1 remains a catalog contract for other consumers;
+analytics does not consume per-entry events or maintain a protein projection.
+export-service (later) uses gene-service internal read APIs.
 ```
+
+The legacy end-of-import refresh remains in parallel until parity sign-off (Q7). The final path has no cross-schema
+SQL reads. Cached aggregates remain readable during a gene-service outage; refresh and live filtered/compare calls
+depend on that API and expose errors explicitly. Configurable refresh scheduling defaults to 60 seconds; actual API
+and publication time are measured separately.
 
 ### Audit Event Flow (separate from catalog persistence)
 
@@ -180,19 +184,25 @@ Then the chunk is retried with exponential backoff (max 3 attempts)
 Given a protein entry is created or updated in gene-service
 When the database transaction commits
 Then one ProteinEntryChangedEvent (CREATED or UPDATED) is written to the outbox in the same transaction
-  and is published to catalog.protein-entry.changed.v1 with key = accession within 5 s (p95)
+  and is published to catalog.protein-entry.changed.v1 with key = accession within 5 s (p95 in steady state)
   and no event is published if the transaction rolls back
   and the message carries no Java type header (__TypeId__)
+  and ingestion completion commits exactly one completion marker to the outbox after all chunks succeed
+  and the completion marker is eventually published to catalog.protein-ingestion.completed.v1 across relay restarts
 ```
 
-### AC-6 — Analytics read model
+### AC-6 — API-backed analytics refresh
 
 ```
-Given analytics-service consumes catalog.protein-entry.changed.v1
-When it receives duplicated or out-of-order events for the same accession
-Then analytics.protein_fact ends in the state of the highest entry version (idempotent, version-guarded upsert)
-  and after catalog.protein-ingestion.completed.v1 plus a quiet period, the materialized views are refreshed
-  and the dashboard KPIs match gene-service's own counts (parity check)
+Given analytics-service consumes catalog.protein-ingestion.completed.v1 after an import
+When a refresh is due under the configured debounce and maximum scheduling delay (default 60 s)
+Then it calls gene-service POST /internal/v1/protein-entries/statistics with a scoped service token
+  and atomically saves the returned complete aggregate set in analytics-owned refresh tables/views
+  and dashboard KPIs/distributions match the legacy path and gene-service's counts
+  and duplicate/out-of-order markers and restarts do not lose pending refresh work or corrupt published results
+  and a marker received during a refresh causes a subsequent fetch
+  and API/storage failure preserves the last complete set, records an explicit failure and allows recovery
+  and analytics does not read catalog tables or consume per-entry events on the new path
 ```
 
 ### AC-7 — Filtered analytics parity
@@ -201,6 +211,8 @@ Then analytics.protein_fact ends in the state of the highest entry version (idem
 Given a fixture set of at least 30 GeneSearchRequest combinations (all filter fields covered)
 When the filtered analytics total is compared with gene-service POST /internal/v1/protein-entries/search totalElements
 Then both counts are equal for every fixture
+  and filtered/compare requests use gene-service statistics and retain the existing public JSON shape
+  and all aggregate values match the legacy path on the same stable fixture dataset
 ```
 
 ### AC-8 — Internal API is not public
@@ -216,7 +228,7 @@ Then the gateway returns 404
 ### AC-9 — Contract safety
 
 ```
-Given the dashboard-client module version N
+Given the gene-model-lib module version N
 When a consumer receives a payload that contains an unknown field
 Then deserialization succeeds (tolerant reader)
   and the consumer contract tests (WireMock stubs) and the provider verification tests pass in CI
@@ -277,10 +289,10 @@ Then it persists the event idempotently and makes it available through an author
 
 | ID  | Decision                                                                                                                      | Status        |
 |-----|-------------------------------------------------------------------------------------------------------------------------------|---------------|
-| D1  | Hybrid contract: a shared `dashboard-client` module for Feign and DTOs. Event consumers keep their own tolerant-reader copies | Proposed      |
+| D1 | Hybrid: `backend/libs/gene-model-lib` for reused DTOs/Feign contracts; service-specific/internal records stay local | Confirmed My Decision C |
 | D2  | Import writes go through a Feign bulk-upsert endpoint on `gene-service`, not through Kafka commands                            | Confirmed     |
-| D3  | Analytics owns a CQRS projection (`analytics.protein_fact`) fed by Kafka, not Feign aggregation calls                         | Proposed      |
-| D4  | Transactional outbox with a polling relay (Debezium-ready)                                                                    | Proposed      |
+| D3 | Kafka ingestion completion triggers a gene-service statistics API call; analytics saves aggregate results in its own refresh tables/views, no protein projection | Confirmed My Decision B (adapted) |
+| D4 | Transactional outbox with a polling relay, including ingestion completion (Debezium-ready) | Confirmed My Decision OK |
 | D5  | One event per entry, compacted topic keyed by accession, plus an ingestion-completed marker event                             | Proposed      |
 | D6  | Stage A: logical isolation (schemas + roles + REVOKE) is mandatory. Stage B: dedicated catalog cluster is optional            | Proposed — Q2 |
 | D7  | Move catalog tables from `public` to schema `gene_data` (`ALTER TABLE … SET SCHEMA`, metadata-only)                           | Confirmed Q1  |
@@ -306,5 +318,5 @@ Then it persists the event idempotently and makes it available through an author
 ---
 
 **Ticket Created**: 2026-09-29 **Depends on**: ARCH-001 Phases 0–3 (done)
-**Estimated Effort**: L (about 4–6 weeks for 1–2 engineers; Stage B DB split excluded)
-
+**Estimated Effort**: L (plan rev. 6 retains the provisional ≈ 54 eng-days / 8–10 weeks for 1–2 engineers;
+re-estimate P6 after the aggregate-contract inventory; Stage B DB split excluded)

@@ -1,8 +1,9 @@
 # ARCH-002 — Ambiguity Analysis & Architecture Decisions
 
-> **Status:** Q1–Q8 have answers recorded below. D1–D11 are the existing design proposals; D12–D15 capture the
-> confirmed trust, freshness, refactor and audit ownership decisions. Remaining operational choices are listed as
-> implementation gates rather than unresolved ownership questions.
+> **Status (2026-11-06):** Q1–Q8 and the D1–D4 **My Decision** notes are applied in plan rev. 6.
+> D1 confirms `libs/gene-model-lib`, D2 confirms Feign writes, D3 replaces the CQRS proposal with Kafka-triggered
+> API-backed aggregate refresh, and D4 confirms the outbox. D5–D15 remain applicable except where explicitly
+> superseded by D3. Remaining operational choices are implementation gates, not unresolved ownership questions.
 
 ---
 
@@ -18,8 +19,8 @@
 | `GeneSpecification`                                                                                                                                                                   | `common.gene.specification`                        | gene-service analytics-service                           | **gene-service** `catalog.specification`                    |
 | `GeneSpecification` (UniProt query builder)                                                                                                                                           | `common.providers.uniprotkb.gene.specification`    | gene-service                                              | **gene-service** `providers.uniprotkb.query`                |
 | `UniprotKbRestService`, `SuggesterRestService`, `UniProtApiClient`, … + `uniprot.dto.*`, `providers.uniprotkb.dto.*`, `UniprotRestClientConfig`, `RetryConfig`                        | `common.providers.uniprotkb.*`, `common.uniprot.*` | gene-service only (REMOTE-001)                            | **gene-service** `providers.uniprotkb.client`               |
-| `GeneSearchRequest`                                                                                                                                                                   | `common.models.gene`                               | gene-service analytics-service (compare / filtered)      | **gene-service-client** (search contract, owned by catalog) |
-| `SavedFilterDto`                                                                                                                                                                      | `common.models.filter`                             | gene-service import-service (`SavedFilterClient`)        | **gene-service-client**                                     |
+| `GeneSearchRequest` | `common.models.gene` | gene-service analytics-service (compare / filtered) | **gene-model-lib** (shared search contract, unchanged JSON) |
+| `SavedFilterDto` | `common.models.filter` | gene-service import-service (`SavedFilterClient`) | **gene-model-lib** |
 | `MalformedUniprotFileException`, `ImportAlreadyRunningException`, `UnsupportedFileTypeException`                                                                                      | `common.exception`                                 | import-service                                         | **import-service**                                       |
 | `ExportRowCapExceededException`, `DuplicateFilterNameException`                                                                                                                       | `common.exception`                                 | gene-service                                              | **gene-service**                                            |
 | `PasswordUpdateException`                                                                                                                                                             | `common.exception`                                 | auth-service                                           | **auth-service**                                         |
@@ -29,7 +30,7 @@
 | Artifact                                                                                    | Problem                                                              | Target                                                                                    |
 |---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `DbSchema` (`GENES_SCHEMA = "public"`, …)                                                   | Publishes every service's physical schema to every other service     | **Delete**. Each service keeps a private constant                                         |
-| `KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED`                                              | The topic name belongs to a producer, not to a platform kernel       | Replaced by `CatalogTopics` in `gene-service-client`. The legacy topic is removed in Phase 6 |
+| `KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED` | The topic belongs to a producer, not a platform kernel | Replaced by `CatalogTopics` in `gene-model-lib`; legacy flow stays through P6 parity and is removed in P8 |
 | `ViewRefreshRequestedEvent`                                                                 | A shared event class with FQCN type headers means a shared classpath | **Deprecated → deleted** (replaced by `ProteinIngestionCompletedEvent`)                   |
 | `UserPrincipal`, `AppHeaders`, `AppClaims`, `TypeClaimValue`, `Constants`, `TypedCacheSpec` | Platform-level (security, cache). Acceptable in a kernel             | **Keep**                                                                                  |
 
@@ -64,24 +65,27 @@
 
 | Option                                                       | Pros                                                                                | Cons                                                                          |
 |--------------------------------------------------------------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| A. Shared `gene-service-client` module (DTOs + Feign interface) | Compile-time safety, single source of truth, easy to use in a monorepo              | Consumers take a binary dependency on the provider's release train            |
+| A. Shared `gene-model-lib` module (DTOs + Feign interface) | Compile-time safety, single source of truth, easy to use in a monorepo | Consumers take a binary dependency on the provider's release train |
 | B. Each consumer duplicates DTOs                             | Full autonomy, a consumer maps only the fields it needs                             | Drift risk, duplicated effort, needs contract tests to catch breaking changes |
 | **C. Hybrid (recommended)**                                  | Sync API: provider-owned SDK (A). Async events: consumers own their read models (B) | Two conventions to document                                                   |
 
-**Decision (proposed): C.**
+**Decision (confirmed): C**, with the module naming and local-type boundary below.
 **My Decision: C** For common used DTOs use a common module and for specific ones or internal ones they are defined in the service where they are used, module name should be like "gene-model-lib" under libs folder
 
-- `gene-service-client` contains **only**: Java records (DTOs), Feign interfaces, topic-name constants and event payload
+- `backend/libs/gene-model-lib` (under the backend `libs` folder) contains **only reused cross-service contracts**:
+  Java records (DTOs), Feign interfaces, topic-name constants and event payload
   records (as a reference schema). Its dependencies are `jakarta.validation-api`, `jackson-annotations` and
   `spring-cloud-openfeign-core` (`provided`/`optional`). There is **no** Spring Boot auto-configuration, **no**
   JPA and **no** component scan.
+- Service-specific/internal DTOs and parse models remain in the service that uses them. Shared `GeneSearchRequest`,
+  saved-filter, ingestion and statistics contracts retain their public JSON compatibility where reused publicly.
 - The provider controller **does not implement** the Feign interface. The Spring Cloud OpenFeign documentation
   explicitly advises against sharing one interface between server and client. Server/client alignment is enforced by
-  contract tests (Phase 3/4).
-- Tolerant reader rule: every DTO in `gene-service-client` is annotated `@JsonIgnoreProperties(ignoreUnknown = true)`.
+  contract tests (P4/P5/P6).
+- Tolerant reader rule: every DTO in `gene-model-lib` is annotated `@JsonIgnoreProperties(ignoreUnknown = true)`.
   Changes are **additive only** within `v1`. A breaking change means `/internal/v2` plus a new topic version.
 - Kafka consumers may deserialize into **their own local record** that holds only the fields they use. The
-  `gene-service-client` event records are the published reference schema, and `documentation/event-catalog.md` is the
+  `gene-model-lib` event records are the published reference schema, and `documentation/event-catalog.md` is the
   human-readable schema.
 
 ### D2 — Import write path
@@ -92,7 +96,7 @@
 | B. Kafka command topic (`catalog.protein-entry.upsert-requested`) | Fully async, buffers dashboard outages                                                                                | The import job can no longer know when data is persisted; error reporting is harder; a second write path to reconcile |
 | C. Move the whole import pipeline into gene-service                  | No network hop                                                                                                        | Brings back the monolith; defeats ARCH-001 Phase 3                                                                    |
 
-**Decision (proposed): A.**
+**Decision (confirmed): A.**
 
 - `import-service` owns the **file parsing**, the **job lifecycle** (`import_batch.import_job`, Spring Batch
   metadata) and progress reporting.
@@ -106,46 +110,58 @@
 
 | Option                                                                                 | Pros                                                                                                                                      | Cons                                                                                                          |
 |----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| **A. CQRS projection `analytics.protein_fact` fed by Kafka (recommended)**             | True autonomy (analytics works when gene-service is down); join-free wide table is faster for aggregations; MVs built on data analytics owns | Filter semantics are duplicated (`ProteinFactSpecification`); needs a backfill; eventual consistency          |
+| A. CQRS projection `analytics.protein_fact` fed by Kafka (superseded proposal) | True autonomy; local aggregations | Duplicated filter semantics, backfill, eventual consistency |
 | B. Feign aggregation API on gene-service (`POST /internal/v1/protein-entries/statistics`) | No duplication; `GeneSpecification` stays with the owner                                                                                  | Analytics becomes a thin proxy with a runtime dependency on gene-service; heavy aggregations load the catalog DB |
 | C. Keep cross-schema SQL reads with read-only grants                                   | Zero effort                                                                                                                               | **Rejected**: it is the problem this ticket solves                                                            |
 
-**Decision (proposed): A**, with B as the documented fallback if the parity tests (AC-7) show that the filter
-semantics cannot be reproduced reliably.
+**Decision (confirmed): B, adapted to the existing end-of-import refresh lifecycle.** Option A above is the
+superseded proposal, not the implementation target.
 
-- The projection is **denormalized**: scalar columns plus `TEXT[]` columns (`keywords`, `go_term_ids`, `go_aspects`,
-  `feature_types`, `cross_ref_sources`, `lineage`) with GIN indexes, and a generated `search_vector`.
-- `GeneSearchRequest` (from `gene-service-client`) stays the **request contract**. Each side translates it into its own
-  predicates.
+**My Decision:B** Not exactly but when import finishes and import message is sent via kafka as now , the refresh view service will be changed instead of using protein entry to refresh view it will call an api gene-service and get result and saved it in refresh views
 
-**My Decision:B** Not exactly but when import finishes and import message is sent via kafka as now , the refresh view service will be changed instead of using protein entry to refresh view it will call an api gene-service and get result and saved it in refresh views 
+- Keep Kafka ingestion completion as the refresh trigger. The analytics refresh service calls
+  `POST /internal/v1/protein-entries/statistics` on gene-service, then atomically persists the returned aggregate
+  results in analytics-owned refresh tables/views. SQL views cannot call HTTP: any retained views read only those
+  local aggregate tables.
+- Gene-service computes the aggregates over its local catalog using its own filter specification. Shared search
+  and statistics contracts live in `gene-model-lib`; service-only response adapters remain local.
+- Do not build `analytics.protein_fact`, consume per-entry events in analytics, duplicate `GeneSpecification`, or
+  add a catalog republish/backfill endpoint for analytics. Initial population/recovery uses the same statistics API.
+- Filtered/compare requests also use owner-side statistics. Cached aggregates remain readable during catalog
+  outages, but refreshes and live filtered/compare requests depend on gene-service; failures are explicit.
+- Q7 still requires legacy and API-backed refreshes in parallel until parity is proven. Persist pending work before
+  Kafka acknowledgement, coalesce markers, publish complete results atomically and retain the last successful set on
+  failure; plan §3.6.1 specifies restart, duplicate and concurrent-marker behavior.
 
 ### D4 — Event publication reliability
 
 | Option                                                        | Delivery                     | Notes                                                                                                      |
 |---------------------------------------------------------------|------------------------------|------------------------------------------------------------------------------------------------------------|
 | `KafkaTemplate.send()` inside `@Transactional`                | Can publish phantom events   | Rejected                                                                                                   |
-| `@TransactionalEventListener(AFTER_COMMIT)` → `KafkaTemplate` | At most once (lost on crash) | Rejected for projection-feeding events                                                                     |
+| `@TransactionalEventListener(AFTER_COMMIT)` → `KafkaTemplate` | At most once (lost on crash) | Rejected for reliable catalog/completion events |
 | **Transactional outbox + polling relay (recommended)**        | At least once                | One table, JDBC batch insert (fits bulk ingestion), `FOR UPDATE SKIP LOCKED` relay; Debezium-ready later   |
 | Spring Modulith event externalization                         | At least once                | Good off-the-shelf option. One registry row per event plus async dispatch; less control over bulk batching |
 
-**Decision (proposed): hand-rolled, minimal outbox.** A single ingestion can produce about 570k events (PERF-001
-dataset), so we need explicit control over batch sizes and cleanup.
-**My Decision : OK** 
+**Decision (confirmed): hand-rolled, minimal outbox.** Retain reliable catalog change and ingestion-completed
+publication. A single ingestion can still produce about 570k D5 entry-change events (PERF-001 dataset), so batch sizes
+and cleanup remain relevant even though analytics no longer consumes those events.
+**My Decision : OK**
 
 ### D5 — Topic and event granularity
 
 - `catalog.protein-entry.changed.v1`: **one event per entry**, `key = accession`, `cleanup.policy=compact`,
-  6 partitions. Per-key ordering is guaranteed. Compaction turns the topic into a replayable snapshot for new
-  projections.
+  6 partitions. Per-key ordering is guaranteed. Compaction turns the topic into a replayable snapshot for future
+  entry-event consumers. Analytics does not consume this topic under confirmed D3.
 - `catalog.protein-ingestion.completed.v1`: one marker per ingestion, `key = ingestionId`, `cleanup.policy=delete`,
-  3 partitions. It is a **hint** to refresh materialized views. It is **not** a correctness barrier, because
-  ordering across topics is not guaranteed; the consumer uses a quiet-period debounce.
+  3 partitions. After all chunks succeed, gene-service commits ingestion completion and its outbox marker together.
+  Analytics uses the marker to schedule an API-backed aggregate refresh; a quiet period coalesces completed imports.
+  It does not wait for the entry-change topic to drain, because the API reads already committed catalog data.
 - Envelope fields: `eventId` (UUID), `eventType`, `schemaVersion`, `occurredAt`, `aggregateVersion`
-  (`entry_version` or a monotonic `updated_at`), `correlationId`, `payload`.
+  (`revision` for entry changes, not UniProt `entry_version`), `correlationId`, `actor`, `payload`. Completion uses
+  `INGESTION_COMPLETED` and has no per-entry aggregate version. Repeated completion calls emit only one marker.
 - Type headers are **disabled** (`spring.json.add.type.headers=false`). Consumers bind to a default local type.
-- Legacy topics `analytics.view-refresh.requested` and `protein.events.imported` are deprecated in Phase 5 and
-  removed in Phase 6.
+- Legacy topics `analytics.view-refresh.requested` and `protein.events.imported` are deprecated in P5, kept through
+  P6 shadow/parity, and removed in P8.
 
 ### D6 — Level of database isolation
 
@@ -164,7 +180,7 @@ dataset), so we need explicit control over batch sizes and cleanup.
 - The gene-service catalog move includes `saved_filter` but excludes `audit_log` and its sequence. Audit records live
   in the separate `audit_log` schema owned only by audit-service; the database/cluster placement and existing-history
   handoff must be approved and rehearsed before cutover.
-- This step runs **after** analytics stops reading the catalog tables (Phase 5), otherwise the MVs would break.
+- This step runs in **P7, after P6 parity sign-off** and disabling legacy refresh; otherwise legacy MVs would break.
 
 ### D8 — Shape of `common-starter`
 
@@ -215,7 +231,9 @@ repository, datasource, schema migration, search API or retention implementation
 
 ### D13 — Configurable analytics freshness
 
-- Confirmed in Q5: projection refresh uses configurable quiet period and maximum staleness, defaulting to 60 seconds.
+- Confirmed in Q5 and adapted by D3: API-backed refresh uses `analytics.refresh.*` for quiet period, maximum
+  scheduling delay (default 60 seconds), timeout and bounded retries. API/refresh duration and end-to-end aggregate
+  age are measured separately; failures remain visible and recoverable.
 
 ### D14 — gene-service module refactor
 
@@ -246,14 +264,14 @@ repository, datasource, schema migration, search API or retention implementation
 | Q4 | 🟡       | Is there any use case for **deleting** proteins (single or bulk "purge before import")?                                                         | No for now; `DELETED` event type is reserved, and a tombstone is emitted if it is introduced           | No delete for existing data only add or merge ( update current with new data )                                                                                                                              |
 | Q5 | 🔴       | Acceptable analytics staleness after an import completes (SLA)?                                                                                 | ≤ 60 s after `ingestion.completed` (quiet period 15 s + refresh time)                                  | ir depends on data size and hardware resource so make it configurable and default to 60s.                                                                                                                   |
 | Q6 | 🟡       | Is hardening the gateway header trust model (`X-User-*`) in scope?                                                                              | Out of scope; `/internal/**` gets service JWT (D9), `/api/**` unchanged                                | yes as other services are using this header to get user info so it should be hardened. and for traçability                                                                                                  |
-| Q7 | 🟡       | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until the Phase 5 exit criteria are met                                                           | the refresh view is done at the end of import so it should be kept in parallel until parity is proven.                                                                                                      |
+| Q7 | 🟡 | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until P6 parity sign-off | the refresh view is done at the end of import so it should be kept in parallel until parity is proven. |
 | Q8 | ✅       | Where should audit instrumentation, transport and persistence live?                                                                             | Common producer instrumentation publishes events; audit-service persistence ownership to be confirmed  | Common-starter emits audit events; existing Kafka topic `audit.events.log` transports them; new audit-service owns schema, persistence, search and retention. Historical-data/Flyway handoff is a P−1 gate. |
 
 ---
 
 ## 4. Assumptions
 
-1. The monorepo keeps a single `${revision}` for all modules, so `gene-service-client` is versioned with the build.
+1. The monorepo keeps a single `${revision}` for all modules, so `gene-model-lib` is versioned with the build.
    Consumers still treat it as a **published contract** (additive changes only).
 2. Kafka runs single-broker in local dev (`replication-factor 1`). Production sizing (RF=3, `min.insync.replicas=2`)
    belongs to the deployment and is out of scope here.
@@ -262,4 +280,3 @@ repository, datasource, schema migration, search API or retention implementation
    be measured in Phase 4).
 5. Kafka is already provisioned with the `audit.events.log` topic. Audit producers and audit-service use that existing
    transport; no parallel synchronous persistence path is introduced.
-

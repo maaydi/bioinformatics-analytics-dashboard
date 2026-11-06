@@ -126,6 +126,25 @@ ARCH-001 Phase 8 and ARCH-002 P1 continue with the remaining ownership,
 refactor, operational and qualification work.
 
 ---
+### 2026-11-06 — My Decision alignment; plan rev. 6
+
+**Action:** Updated `plan.md`, `analyse.md` and `overview.md` from the D1–D4 My Decision notes:
+
+- D1: name the shared contract module `backend/libs/gene-model-lib`; reuse common cross-service DTOs while keeping
+  service-specific/internal types local.
+- D2: retain Feign chunk writes, with import-service parsing/orchestration and gene-service merge/persistence.
+- D3: replace the analytics CQRS proposal with Kafka ingestion completion → gene-service statistics API →
+  atomic persistence of aggregate results in analytics-owned refresh tables/views. Remove the entry-event consumer,
+  protein projection, duplicated filter specification and analytics republish/backfill requirements.
+- D4: retain the catalog transactional outbox and polling relay, including reliable ingestion-completed markers.
+  Per-entry events remain separate catalog contracts, not analytics input.
+
+**Outcome:** P2/P4/P5/P6 contracts, configuration, rollout, risks and AC-6/AC-7 now describe the API-backed refresh.
+Q7 legacy shadow/parity remains mandatory. Cached aggregates remain readable during catalog outages; refreshes and
+live filtered/compare requests depend on gene-service and must expose failures. This is documentation-only work:
+no implementation phase, runtime behavior, coverage target or acceptance gate is closed.
+
+---
 
 ## Coverage Tracking
 
@@ -133,9 +152,9 @@ refactor, operational and qualification work.
 |-----------------------------------|--------|---------|-------------|
 | dashboard (catalog, outbox)       | ≥ 80 % | —       | Not started |
 | import-service (writer, ACL)      | ≥ 80 % | —       | Not started |
-| analytics-service (projection)    | ≥ 80 % | —       | Not started |
+| analytics-service (API-backed refresh) | ≥ 80 % | — | Not started |
 | api-gateway (trust filters)       | ≥ 80 % | —       | Not started |
 | common-starter (auto-config, S2S, audit) | ≥ 80 % | Not measured | Audit producer implemented; broader auto-config/S2S work pending |
 | audit-service (consumer boundary) | ≥ 75 % (ARCH-001) | Not measured | Embedded-Kafka contract check passed; storage/authorization/retention qualification pending |
 
-**Last Updated:** 2026-10-30
+**Last Updated:** 2026-11-06
