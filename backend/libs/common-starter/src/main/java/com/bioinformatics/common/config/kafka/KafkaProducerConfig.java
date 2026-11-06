@@ -2,14 +2,17 @@ package com.bioinformatics.common.config.kafka;
 
 
 import com.bioinformatics.common.config.CommonProperties;
+import com.bioinformatics.common.correlation.CorrelationProducerInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -20,11 +23,12 @@ import java.util.HashMap;
 /**
  * {@link KafkaTemplate} configured with JSON value serialization so that
  * domain events (POJOs / Records) are published without manual mapping.
- * <p>Type info is added to headers to allow safe polymorphic consumption.
+ * <p>Consumers select their own explicit event type; Java type headers are never sent.
  */
-@Configuration
+@AutoConfiguration(beforeName = "org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration")
 @RequiredArgsConstructor
 @ConditionalOnClass(KafkaTemplate.class)
+@ConditionalOnProperty(prefix = "common", name = {"enabled", "kafka.enabled"}, havingValue = "true", matchIfMissing = true)
 @ConditionalOnProperty(prefix = "common.kafka", name = "bootstrap-servers")
 @EnableConfigurationProperties(CommonProperties.class)
 public class KafkaProducerConfig {
@@ -32,7 +36,9 @@ public class KafkaProducerConfig {
     private final CommonProperties commonProperties;
 
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    @ConditionalOnMissingBean(ProducerFactory.class)
+    public ProducerFactory<String, Object> producerFactory(
+            @Value("${common.correlation.enabled:true}") boolean correlationEnabled) {
         var props = new HashMap<String, Object>();
         var producer = commonProperties.kafka().producer();
 
@@ -43,13 +49,17 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.RETRIES_CONFIG, producer.retries());
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, producer.batchSize());
         props.put(ProducerConfig.LINGER_MS_CONFIG, producer.lingerMs());
-        props.put(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS, true);
+        props.put(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        if (correlationEnabled) {
+            props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, CorrelationProducerInterceptor.class.getName());
+        }
 
         return new DefaultKafkaProducerFactory<>(props);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    @ConditionalOnMissingBean(KafkaTemplate.class)
+    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }

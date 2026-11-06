@@ -5,12 +5,14 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.flyway.autoconfigure.FlywayDataSource;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
@@ -26,9 +28,11 @@ import java.util.HashMap;
  * routed to the replica. The outer {@link LazyConnectionDataSourceProxy} defers connection creation
  * until the first actual database interaction.
  */
-@Configuration
+@AutoConfiguration(before = DataSourceAutoConfiguration.class)
 @RequiredArgsConstructor
-@ConditionalOnClass(DataSource.class)
+@ConditionalOnClass({HikariDataSource.class, LazyConnectionDataSourceProxy.class, FlywayDataSource.class})
+@ConditionalOnProperty(prefix = "common", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "common.datasource", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnProperty(prefix = "common.datasource", name = "primary-url")
 @EnableConfigurationProperties(CommonProperties.class)
 @Slf4j
@@ -38,6 +42,7 @@ public class RoutingDataSourceConfig {
 
     @Bean
     @FlywayDataSource
+    @ConditionalOnMissingBean(name = "primaryDataSource")
     public DataSource primaryDataSource() {
         log.debug("Creating PRIMARY datasource");
         var dsProps = commonProperties.datasource();
@@ -51,6 +56,7 @@ public class RoutingDataSourceConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "replicaDataSource")
     public DataSource replicaDataSource() {
         log.debug("Creating REPLICA datasource");
         var dsProps = commonProperties.datasource();
@@ -65,6 +71,7 @@ public class RoutingDataSourceConfig {
 
     @Bean
     @Primary
+    @ConditionalOnMissingBean(name = "routingDataSource")
     public DataSource routingDataSource(DataSource primaryDataSource, DataSource replicaDataSource) {
         log.debug("Creating routing datasource with PRIMARY/REPLICA targets");
         var routingDataSource = new AbstractRoutingDataSource() {

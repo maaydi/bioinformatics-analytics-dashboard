@@ -25,7 +25,7 @@ class AuditPublisherConfigTest {
     void activatesWithKafkaAndUsesDefaultPoolWithoutServletContext() {
         new ApplicationContextRunner().withUserConfiguration(AuditPublisherConfig.class)
                 .withBean(KafkaTemplate.class, () -> kafkaTemplate)
-                .withPropertyValues("spring.application.name=test-service", "common.kafka.bootstrap-servers=localhost:9092")
+                .withPropertyValues("spring.application.name=test-service", "app.audit.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(AuditEventPublisher.class).hasSingleBean(AuditAspect.class)
                             .doesNotHaveBean(AuditContextFilter.class);
@@ -48,7 +48,7 @@ class AuditPublisherConfigTest {
     void bindsExistingPoolPropertiesAndRegistersServletFilter() {
         new WebApplicationContextRunner().withUserConfiguration(AuditPublisherConfig.class)
                 .withBean(KafkaTemplate.class, () -> kafkaTemplate)
-                .withPropertyValues("spring.application.name=test-service", "common.kafka.bootstrap-servers=localhost:9092",
+                .withPropertyValues("spring.application.name=test-service", "app.audit.enabled=true",
                         "app.audit-pool.core-size=2", "app.audit-pool.max-size=4",
                         "app.audit-pool.queue-capacity=8", "app.audit-pool.thread-name-prefix=test-audit-")
                 .run(context -> {

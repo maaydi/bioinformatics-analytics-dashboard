@@ -1,6 +1,10 @@
 # Example per-service configuration (place in Config Server or local bootstrap)
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: true
   rate-limiter:
     enabled: true
     global:

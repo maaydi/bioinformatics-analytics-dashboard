@@ -1,9 +1,11 @@
 package com.bioinformatics.common.audit.service;
 
 import com.bioinformatics.common.audit.dto.AuditWebDetails;
+import com.bioinformatics.common.correlation.CorrelationContext;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -15,7 +17,7 @@ import java.io.IOException;
  * <p>Each request is inspected once, the request method, URI, and client IP are stored in a thread-local audit
  * context, and the context is always cleared in a finally block to avoid leaking state across requests.</p>
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j
 public class AuditContextFilter implements Filter {
     /**
@@ -35,7 +37,8 @@ public class AuditContextFilter implements Filter {
             var method = httpRequest.getMethod();
             var endpoint = httpRequest.getRequestURI();
             AuditContextHolder.set(new AuditWebDetails(method, endpoint, ipAddress,
-                    httpRequest.getHeader("X-Correlation-ID")));
+                    MDC.get(CorrelationContext.MDC_KEY) != null ? MDC.get(CorrelationContext.MDC_KEY)
+                            : httpRequest.getHeader(CorrelationContext.HEADER)));
             try {
                 chain.doFilter(request, response);
             } finally {

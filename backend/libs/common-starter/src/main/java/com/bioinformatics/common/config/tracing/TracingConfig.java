@@ -7,11 +7,12 @@ import com.bioinformatics.common.config.CommonProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import zipkin2.reporter.BytesMessageSender;
 import zipkin2.reporter.brave.AsyncZipkinSpanHandler;
 import zipkin2.reporter.urlconnection.URLConnectionSender;
@@ -22,9 +23,10 @@ import zipkin2.reporter.urlconnection.URLConnectionSender;
  * <p>The starter creates a single {@link Tracing} bean that bridges into Spring Boot's Micrometer
  * tracing integration and exports spans to Zipkin using B3 propagation headers.
  */
-@Configuration
+@AutoConfiguration(beforeName = "org.springframework.boot.micrometer.tracing.brave.autoconfigure.BraveAutoConfiguration")
+@ConditionalOnProperty(prefix = "common", name = {"enabled", "tracing.enabled"}, havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
-@ConditionalOnClass(Tracing.class)
+@ConditionalOnClass({Tracing.class, AsyncZipkinSpanHandler.class, URLConnectionSender.class})
 @EnableConfigurationProperties(CommonProperties.class)
 @Slf4j
 public class TracingConfig {

@@ -3,8 +3,11 @@ package com.bioinformatics.common.audit.config;
 import com.bioinformatics.common.audit.aspect.AuditAspect;
 import com.bioinformatics.common.audit.service.AuditContextFilter;
 import com.bioinformatics.common.audit.service.AuditEventPublisher;
+import com.bioinformatics.common.config.kafka.KafkaProducerConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,8 +17,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(prefix = "common.kafka", name = "bootstrap-servers")
+@AutoConfiguration(after = KafkaProducerConfig.class)
+@ConditionalOnClass({KafkaTemplate.class, org.aspectj.lang.annotation.Aspect.class})
+@ConditionalOnProperty(prefix = "common", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.audit", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(AuditPublisherProperties.class)
 @EnableAspectJAutoProxy
 public class AuditPublisherConfig {
@@ -34,8 +39,8 @@ public class AuditPublisherConfig {
 
     @Bean
     public AuditEventPublisher auditEventPublisher(KafkaTemplate<String, Object> kafkaTemplate,
-                                                 @Qualifier("auditPublisherExecutor") ThreadPoolTaskExecutor executor,
-                                                 @Value("${spring.application.name}") String sourceService) {
+                                                   @Qualifier("auditPublisherExecutor") ThreadPoolTaskExecutor executor,
+                                                   @Value("${spring.application.name}") String sourceService) {
         return new AuditEventPublisher(kafkaTemplate, executor, sourceService);
     }
 
@@ -44,9 +49,13 @@ public class AuditPublisherConfig {
         return new AuditAspect(publisher);
     }
 
-    @Bean
+    @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    public AuditContextFilter auditContextFilter() {
-        return new AuditContextFilter();
+    @ConditionalOnClass(name = "jakarta.servlet.Filter")
+    static class ServletAuditConfiguration {
+        @Bean
+        public AuditContextFilter auditContextFilter() {
+            return new AuditContextFilter();
+        }
     }
 }

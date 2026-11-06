@@ -1,5 +1,6 @@
 package com.bioinformatics.common.audit.service;
 
+import com.bioinformatics.common.correlation.CorrelationContext;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import com.bioinformatics.shared.models.audit.AuditStatus;
 import com.bioinformatics.shared.models.audit.AuditTarget;
@@ -53,6 +54,9 @@ public class AuditEventPublisher {
         var actorType = authenticated ? "USER" : details == null ? "SYSTEM" : "ANONYMOUS";
         var correlationId = details != null ? details.correlationId() : null;
         if (!StringUtils.hasText(correlationId)) {
+            correlationId = MDC.get(CorrelationContext.MDC_KEY);
+        }
+        if (!StringUtils.hasText(correlationId)) {
             correlationId = MDC.get("traceId");
         }
         if (!StringUtils.hasText(correlationId)) {
@@ -72,12 +76,14 @@ public class AuditEventPublisher {
     }
 
     private void send(AuditLogEvent event) {
-        try {
+        try (var ignored = CorrelationContext.open(event.correlationId())) {
             kafkaTemplate.send(AUDIT_EVENTS_LOG, event.eventId().toString(), event)
-                    .whenComplete((ignored, error) -> {
-                        if (error != null) {
-                            log.error("Audit publish failed eventId={} sourceService={}",
-                                    event.eventId(), sourceService, error);
+                    .whenComplete((result, error) -> {
+                        try (var callbackScope = CorrelationContext.open(event.correlationId())) {
+                            if (error != null) {
+                                log.error("Audit publish failed eventId={} sourceService={}",
+                                        event.eventId(), sourceService, error);
+                            }
                         }
                     });
         } catch (RuntimeException error) {

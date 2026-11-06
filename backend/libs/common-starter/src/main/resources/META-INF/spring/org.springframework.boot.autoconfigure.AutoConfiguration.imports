@@ -1,1 +1,17 @@
 com.bioinformatics.common.config.CommonAutoConfiguration
+com.bioinformatics.common.config.LegacyCatalogAutoConfiguration
+com.bioinformatics.common.config.LegacyUniprotAutoConfiguration
+com.bioinformatics.common.config.cache.CommonCacheConfig
+com.bioinformatics.common.config.datasource.RoutingDataSourceConfig
+com.bioinformatics.common.config.jwt.JwtDecoderConfig
+com.bioinformatics.common.config.kafka.KafkaProducerConfig
+com.bioinformatics.common.config.kafka.KafkaConsumerConfig
+com.bioinformatics.common.config.resilience.Resilience4jConfig
+com.bioinformatics.common.config.security.CommonSecurityConfig
+com.bioinformatics.common.config.tracing.TracingConfig
+com.bioinformatics.common.config.web.WebClientConfig
+com.bioinformatics.common.config.web.WebMvcConfig
+com.bioinformatics.common.config.correlation.CorrelationAutoConfiguration
+com.bioinformatics.common.config.correlation.FeignCorrelationAutoConfiguration
+com.bioinformatics.common.audit.config.AuditPublisherConfig
+com.bioinformatics.common.ratelimit.config.RateLimitConfig

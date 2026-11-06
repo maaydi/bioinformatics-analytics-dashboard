@@ -1,8 +1,10 @@
 package com.bioinformatics.common.config.web;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -13,7 +15,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  * registry, while the primary builder is kept as the default choice for external HTTP or custom URI
  * targets that do not require discovery.
  */
-@Configuration
+@AutoConfiguration
+@ConditionalOnClass({WebClient.class, LoadBalanced.class})
+@ConditionalOnProperty(prefix = "common", name = {"enabled", "web-client.enabled"}, havingValue = "true", matchIfMissing = true)
 public class WebClientConfig {
 
     @Bean

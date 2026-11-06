@@ -4,12 +4,14 @@ import com.bioinformatics.common.config.CommonProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -37,11 +39,15 @@ import java.util.List;
  * all microservices. Typed cache registrations can be contributed by individual services through
  * {@link CacheRegistryProvider} implementations.
  */
-@Configuration
+@AutoConfiguration(afterName = "org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration",
+        beforeName = "org.springframework.boot.cache.autoconfigure.CacheAutoConfiguration")
 @EnableCaching
 @Profile("!test")
 @RequiredArgsConstructor
 @ConditionalOnClass({RedisConnectionFactory.class, RedisCacheManager.class})
+@ConditionalOnBean(RedisConnectionFactory.class)
+@ConditionalOnMissingBean(name = "redisCacheManager")
+@ConditionalOnProperty(prefix = "common", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnProperty(prefix = "common.cache", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(CommonProperties.class)
 @Slf4j

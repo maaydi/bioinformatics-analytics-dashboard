@@ -3,12 +3,13 @@ package com.bioinformatics.common.config.jwt;
 import com.bioinformatics.common.config.CommonProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -24,11 +25,13 @@ import java.nio.charset.StandardCharsets;
  * can define their own {@code JwtDecoder} bean; this bean backs off through
  * {@link ConditionalOnMissingBean}.
  */
-@Configuration
+@AutoConfiguration(beforeName = "org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration")
 @RequiredArgsConstructor
 @ConditionalOnClass(JwtDecoder.class)
+@ConditionalOnProperty(prefix = "common", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnProperty(prefix = "common.jwt", name = "secret")
 @EnableConfigurationProperties(CommonProperties.class)
+@Import(JwtContext.class)
 @Slf4j
 public class JwtDecoderConfig {
 

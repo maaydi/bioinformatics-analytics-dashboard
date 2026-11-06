@@ -10,10 +10,11 @@ import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 
@@ -23,7 +24,8 @@ import java.time.Duration;
  * <p>The starter provisions default circuit breaker, retry, and rate limiter registries so service
  * code can opt into standard resilience patterns without repeating boilerplate configuration.
  */
-@Configuration
+@AutoConfiguration
+@ConditionalOnProperty(prefix = "common", name = {"enabled", "resilience4j.enabled"}, havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 @ConditionalOnClass(CircuitBreakerRegistry.class)
 @EnableConfigurationProperties(CommonProperties.class)

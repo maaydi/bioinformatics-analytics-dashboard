@@ -1,10 +1,9 @@
 package com.bioinformatics.common.config.security;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,10 +20,14 @@ import org.springframework.security.web.SecurityFilterChain;
  * stateless JWT authentication, guards all non-public endpoints, and leaves metrics/health endpoints
  * accessible for operational checks and load-balancer probes.
  */
-@Configuration
+@AutoConfiguration(after = com.bioinformatics.common.config.jwt.JwtDecoderConfig.class,
+        beforeName = "org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration")
 @EnableWebSecurity
 @EnableMethodSecurity
 @ConditionalOnClass(SecurityFilterChain.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnProperty(prefix = "common", name = {"enabled", "security.enabled"}, havingValue = "true", matchIfMissing = true)
+@Import(GatewayUserAuthenticationFilter.class)
 public class CommonSecurityConfig {
 
     /**
