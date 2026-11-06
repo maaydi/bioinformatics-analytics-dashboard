@@ -22,7 +22,11 @@ public class ViewRefreshConsumer {
     @KafkaListener(
             topics = PROTEIN_EVENTS_IMPORTED,
             groupId = ANALYTICS_VIEW_REFRESHERS,
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "kafkaListenerContainerFactory",
+            properties = {
+                    "spring.json.value.default.type=com.bioinformatics.shared.models.kafka.events.ViewRefreshRequestedEvent",
+                    "spring.json.use.type.headers=false"
+            }
     )
     public void consume(@Payload ViewRefreshRequestedEvent event, Acknowledgment ack) {
         if (idempotencyService.isProcessed(event.jobId())) {

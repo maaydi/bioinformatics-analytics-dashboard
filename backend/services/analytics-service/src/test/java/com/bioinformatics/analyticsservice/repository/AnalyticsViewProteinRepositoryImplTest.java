@@ -1,11 +1,13 @@
 package com.bioinformatics.analyticsservice.repository;
 
 import com.bioinformatics.analyticsservice.providers.postgres.repository.AnalyticsProteinRepository;
+import com.bioinformatics.common.config.LegacyCatalogAutoConfiguration;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
@@ -17,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
+@ImportAutoConfiguration(LegacyCatalogAutoConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 class AnalyticsViewProteinRepositoryImplTest {

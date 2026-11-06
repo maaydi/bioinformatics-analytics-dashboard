@@ -10,14 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EntityScan(basePackages = {
-        "com.bioinformatics.analyticsservice",
-        "com.bioinformatics.common.gene.entity"
-})
-@EnableJpaRepositories(basePackages = {
-        "com.bioinformatics.analyticsservice",
-        "com.bioinformatics.common"
-})
+@EntityScan(basePackageClasses = AnalyticsServiceApplication.class)
+@EnableJpaRepositories(basePackageClasses = AnalyticsServiceApplication.class)
 @EnableConfigurationProperties(ApplicationProperties.class)
 public class AnalyticsServiceApplication {
 

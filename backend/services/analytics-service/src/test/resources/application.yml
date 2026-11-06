@@ -1,4 +1,7 @@
 spring:
+  kafka:
+    listener:
+      auto-startup: false
   application:
     name: analytics-service
   config:
@@ -40,6 +43,10 @@ common:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:analytics-view-refreshers}
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: false
   view-refresh:
     max-attempts: 3
     per-view-timeout-ms: 1000
