@@ -1,7 +1,7 @@
 package com.bioinformatics.geneservice.controller;
 
 import com.bioinformatics.common.ratelimit.annotation.RateLimited;
-import com.bioinformatics.dashboard.interfaces.suggest.SuggestionService;
+import com.bioinformatics.geneservice.interfaces.suggest.SuggestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;

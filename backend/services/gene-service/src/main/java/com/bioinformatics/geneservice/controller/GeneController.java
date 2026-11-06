@@ -6,7 +6,7 @@ import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.ratelimit.annotation.RateLimited;
-import com.bioinformatics.dashboard.interfaces.gene.GeneService;
+import com.bioinformatics.geneservice.interfaces.gene.GeneService;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

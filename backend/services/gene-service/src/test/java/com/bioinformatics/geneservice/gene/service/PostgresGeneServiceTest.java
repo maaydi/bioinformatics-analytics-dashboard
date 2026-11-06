@@ -1,0 +1,193 @@
+package com.bioinformatics.geneservice.gene.service;
+
+import com.bioinformatics.common.exception.ResourceNotFoundException;
+import com.bioinformatics.common.gene.dto.ProteinDetailDto;
+import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
+import com.bioinformatics.common.gene.entity.ProteinEntry;
+import com.bioinformatics.common.gene.mapper.GeneMapper;
+import com.bioinformatics.common.gene.service.ProteinEntryService;
+import com.bioinformatics.common.models.PagedResponse;
+import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.geneservice.providers.postgres.gene.service.PostgresGeneService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class PostgresGeneServiceTest {
+
+    @Mock
+    ProteinEntryService proteinEntryService;
+
+    @Mock
+    GeneMapper mapper;
+
+    PostgresGeneService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new PostgresGeneService(proteinEntryService, mapper);
+    }
+
+    private GeneSearchRequest buildRequest(
+            List<String> keywords,
+            Integer taxid,
+            String lineage,
+            Integer size,
+            String sort
+    ) {
+        return new GeneSearchRequest(
+                null, // globalSearch
+                null, // accession
+                null, // entryName
+                null, // geneNamePrimary
+                null, // proteinFullName
+                null, // reviewed
+                null, // organism
+                taxid, // taxid
+                lineage, // lineage
+                null, // lengthMin
+                null, // lengthMax
+                null, // molecularWeightMin
+                null, // molecularWeightMax
+                null, // evidenceLevels
+                keywords, // keywords
+                null, // goTermId
+                null, // goAspect
+                null, // featureType
+                null, // crossRefSource
+                0, // page
+                size, // size
+                sort, // sort
+                null // direction
+        );
+    }
+
+    @Test
+    void listGenes_returnsPage() {
+        var entry = new ProteinEntry();
+        entry.setId(1L);
+
+        var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
+        when(proteinEntryService.findAll(any(PageRequest.class))).thenReturn(page);
+
+        var dto = new ProteinSummaryDto(1L, "ACC", "entry", "full", "gene", "org", 123, true, 100, 200, (short) 1, List.of());
+        when(mapper.toSummary(entry)).thenReturn(dto);
+
+        PagedResponse<ProteinSummaryDto> result = service.listGenes(0, 10, "id", "asc");
+
+        assertNotNull(result);
+        assertEquals(1, result.content().size());
+        assertEquals(dto, result.content().getFirst());
+    }
+
+    @Test
+    void getGeneById_found() {
+        var entry = new ProteinEntry();
+        entry.setAccession("ACC");
+
+        when(proteinEntryService.findAdditionalDetails("ACC")).thenReturn(Optional.of(entry));
+
+        var detail = new ProteinDetailDto(
+                2L,
+                "ACC", "entry", false,
+                null, null, null, null, null,
+                null, null, null,
+                null, new String[0], new String[0], new String[0],
+                null, null, null, new String[0],
+                null, null, null, null,
+                null,
+                null,
+                null, null,
+                List.of(), Set.of(), Set.of(), Set.of(), Set.of(), Set.of(), Set.of()
+        );
+
+        when(mapper.toDetail(entry)).thenReturn(detail);
+
+        var res = service.getGeneByAccession("ACC");
+        assertEquals(detail, res);
+    }
+
+    @Test
+    void getGeneById_notFound_throws() {
+        when(proteinEntryService.findAdditionalDetails("ACC99")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> service.getGeneByAccession("ACC99"));
+    }
+
+    @Test
+    void assertWithinExportLimit_return_size() {
+
+        var request = buildRequest(null, null, null, 10, null);
+
+        when(proteinEntryService.count(ArgumentMatchers.any())).thenReturn(3L);
+
+        var count = service.count(request);
+        assertEquals(3L, count);
+    }
+
+    @Test
+    void searchGenes_withKeywords_filters() {
+        var entry = new ProteinEntry();
+        entry.setId(10L);
+
+        var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+
+        var dto = new ProteinSummaryDto(10L, "ACC10", "entry10", "full10",
+                "gene10", "org10", 100, true, 50, 60,
+                (short) 1, List.of("kw"));
+        when(mapper.toSummary(entry)).thenReturn(dto);
+
+        var request = buildRequest(List.of("kw"), null, null, 10, null);
+        var res = service.searchGenes(request);
+
+        assertNotNull(res);
+        assertEquals(1, res.content().size());
+        assertEquals(dto, res.content().getFirst());
+    }
+
+    @Test
+    void searchGenes_lineage_filters() {
+        var entry = new ProteinEntry();
+        entry.setId(11L);
+
+        var page = new PageImpl<>(List.of(entry), PageRequest.of(0, 10), 1);
+        when(proteinEntryService.findAll(ArgumentMatchers.<Specification<ProteinEntry>>any(), any(Pageable.class))).thenReturn(page);
+
+        var dto = new ProteinSummaryDto(11L, "ACC11", "entry11", "full11",
+                "gene11", "org11", 101, false, 70, 80,
+                (short) 2, List.of());
+        when(mapper.toSummary(entry)).thenReturn(dto);
+
+        var request = buildRequest(null, 111, "Bacteria", 10, null);
+        var res = service.searchGenes(request);
+
+        assertNotNull(res);
+        assertEquals(1, res.content().size());
+        assertEquals(dto, res.content().getFirst());
+    }
+
+    @Test
+    void requestPage_invalidSort_throws() {
+        var request = buildRequest(null, null, null, 10, "badSort");
+        var allowed = Set.of("id");
+        assertThrows(IllegalArgumentException.class, () -> request.getRequestPage(allowed, "id"));
+    }
+}
+

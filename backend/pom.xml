@@ -36,7 +36,6 @@
         <module>services/import-service</module>
         <module>services/export-service</module>
         <module>services/gene-service</module>
-        <module>dashboard</module>
     </modules>
 
     <properties>
