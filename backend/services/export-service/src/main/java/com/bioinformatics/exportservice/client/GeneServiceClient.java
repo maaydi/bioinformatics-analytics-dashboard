@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.bioinformatics.shared.models.security.Constants.*;
 
-@FeignClient(name = "dashboard")
+@FeignClient(name = "gene-service")
 public interface GeneServiceClient {
     @PostMapping("/api/genes/count")
     long countRequestRecords(@RequestBody GeneSearchRequest request, @RequestHeader(USER_ID_HEADER) String username, @RequestHeader(USER_ROLE_HEADER) List<String> roles, @RequestHeader(DATA_PROVIDER_HEADER) String dataProvider);
