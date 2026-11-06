@@ -10,14 +10,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 @EnableDiscoveryClient
-@EntityScan(basePackages = {
-        "com.bioinformatics.geneservice",
-        "com.bioinformatics.common.gene.entity"
-})
-@EnableJpaRepositories(basePackages = {
-        "com.bioinformatics.geneservice",
-        "com.bioinformatics.common"
-})
+@EntityScan(basePackageClasses = GeneServiceApplication.class)
+@EnableJpaRepositories(basePackageClasses = GeneServiceApplication.class)
 public class GeneServiceApplication {
 
     static void main(String[] args) {

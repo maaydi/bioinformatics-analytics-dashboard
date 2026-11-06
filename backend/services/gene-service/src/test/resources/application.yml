@@ -22,6 +22,10 @@ spring:
       enabled: false
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: false
   jwt:
     secret: test-secret-key-at-least-32-characters-long
     access-token-expiry-seconds: 3600
