@@ -58,7 +58,7 @@ decommissioned.
 - [x] Phase 2 — analytics-service extracted (7 of 8 items; Phase 2.4 Kafka listener deferred)
 - [x] Phase 3 — import-service extracted
 - [ ] Phase 4 — gene-service extracted
-- [ ] Phase 5 — export-service extracted
+- [x] Phase 5 — export-service extracted
 - [ ] Phase 6 — structure-service extracted
 - [ ] Phase 7 — nlq-service extracted
 - [ ] Phase 8 — notification + audit services extracted (audit producer/consumer foundation implemented; qualification and notification work remain)
