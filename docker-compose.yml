@@ -475,17 +475,17 @@ services:
       retries: 3
       start_period: 30s
 
-  backend:
+  gene-service:
     build:
-      context: ./backend/dashboard
-      dockerfile: ../../devops/docker/backend/Dockerfile
-    container_name: bio_backend
+      context: ./backend/services/gene-service
+      dockerfile: ../../devops/docker/backend/services/gene-service/Dockerfile
+    container_name: gene_service
     restart: unless-stopped
     env_file: .env
     environment:
       <<: *common-application-env
-      SERVER_PORT: ${SERVER_PORT_BACKEND:-8084}
-      SPRING_APPLICATION_NAME: dashboard
+      SERVER_PORT: ${SERVER_PORT_GENE_SERVICE:-8084}
+      SPRING_APPLICATION_NAME: gene-service
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
