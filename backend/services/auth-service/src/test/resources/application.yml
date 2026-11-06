@@ -29,6 +29,8 @@ common:
     enabled: false
 
 app:
+  audit:
+    enabled: false
   jwt:
     secret: ${APP_JWT_SECRET:CHANGE_ME_IN_ALL_ENVIRONMENTS}
     issuer: bioinformatics-auth

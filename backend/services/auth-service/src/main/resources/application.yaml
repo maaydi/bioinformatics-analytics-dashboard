@@ -32,3 +32,9 @@ eureka:
 common:
   cache:
     enabled: false
+  kafka:
+    bootstrap-servers: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+app:
+  audit:
+    enabled: true

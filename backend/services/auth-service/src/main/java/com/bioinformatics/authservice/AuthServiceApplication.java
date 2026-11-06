@@ -11,14 +11,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableConfigurationProperties(ApplicationProperties.class)
-@EntityScan(basePackages = {
-        "com.bioinformatics.authservice",
-        "com.bioinformatics.common.gene.entity"
-})
-@EnableJpaRepositories(basePackages = {
-        "com.bioinformatics.authservice",
-        "com.bioinformatics.common"
-})
+@EntityScan(basePackageClasses = AuthServiceApplication.class)
+@EnableJpaRepositories(basePackageClasses = AuthServiceApplication.class)
 public class AuthServiceApplication {
 
     static void main(String[] args) {
