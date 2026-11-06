@@ -12,16 +12,16 @@
 
 | Artifact                                                                                                                                                                              | Package                                            | Used by today                                          | Target owner                                             |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|--------------------------------------------------------|----------------------------------------------------------|
-| `ProteinEntry`, `ProteinFeature`, `ProteinPublication`, `ProteinComment`, `Keyword`, `HostOrganism`, `GoTerm`, `CrossReference`                                                       | `common.gene.entity`                               | dashboard, import-service, analytics-service           | **dashboard** `catalog.entity`                           |
-| `ProteinEntryRepository`, `ProteinFeatureRepository`, `ProteinPublicationRepository`, `ProteinCommentRepository`, `KeywordRepository`, `GoTermRepository`, `CrossReferenceRepository` | `common.gene.repository`                           | dashboard, import-service, analytics-service (extends) | **dashboard** `catalog.repository`                       |
-| `ProteinEntryService`                                                                                                                                                                 | `common.gene.service`                              | dashboard                                              | **dashboard** `catalog.service.ProteinEntryQueryService` |
-| `GeneSpecification`                                                                                                                                                                   | `common.gene.specification`                        | dashboard, analytics-service                           | **dashboard** `catalog.specification`                    |
-| `GeneSpecification` (UniProt query builder)                                                                                                                                           | `common.providers.uniprotkb.gene.specification`    | dashboard                                              | **dashboard** `providers.uniprotkb.query`                |
-| `UniprotKbRestService`, `SuggesterRestService`, `UniProtApiClient`, … + `uniprot.dto.*`, `providers.uniprotkb.dto.*`, `UniprotRestClientConfig`, `RetryConfig`                        | `common.providers.uniprotkb.*`, `common.uniprot.*` | dashboard only (REMOTE-001)                            | **dashboard** `providers.uniprotkb.client`               |
-| `GeneSearchRequest`                                                                                                                                                                   | `common.models.gene`                               | dashboard, analytics-service (compare / filtered)      | **dashboard-client** (search contract, owned by catalog) |
-| `SavedFilterDto`                                                                                                                                                                      | `common.models.filter`                             | dashboard, import-service (`SavedFilterClient`)        | **dashboard-client**                                     |
+| `ProteinEntry`, `ProteinFeature`, `ProteinPublication`, `ProteinComment`, `Keyword`, `HostOrganism`, `GoTerm`, `CrossReference`                                                       | `common.gene.entity`                               | gene-service import-service, analytics-service           | **gene-service** `catalog.entity`                           |
+| `ProteinEntryRepository`, `ProteinFeatureRepository`, `ProteinPublicationRepository`, `ProteinCommentRepository`, `KeywordRepository`, `GoTermRepository`, `CrossReferenceRepository` | `common.gene.repository`                           | gene-service import-service, analytics-service (extends) | **gene-service** `catalog.repository`                       |
+| `ProteinEntryService`                                                                                                                                                                 | `common.gene.service`                              | gene-service                                              | **gene-service** `catalog.service.ProteinEntryQueryService` |
+| `GeneSpecification`                                                                                                                                                                   | `common.gene.specification`                        | gene-service analytics-service                           | **gene-service** `catalog.specification`                    |
+| `GeneSpecification` (UniProt query builder)                                                                                                                                           | `common.providers.uniprotkb.gene.specification`    | gene-service                                              | **gene-service** `providers.uniprotkb.query`                |
+| `UniprotKbRestService`, `SuggesterRestService`, `UniProtApiClient`, … + `uniprot.dto.*`, `providers.uniprotkb.dto.*`, `UniprotRestClientConfig`, `RetryConfig`                        | `common.providers.uniprotkb.*`, `common.uniprot.*` | gene-service only (REMOTE-001)                            | **gene-service** `providers.uniprotkb.client`               |
+| `GeneSearchRequest`                                                                                                                                                                   | `common.models.gene`                               | gene-service analytics-service (compare / filtered)      | **gene-service-client** (search contract, owned by catalog) |
+| `SavedFilterDto`                                                                                                                                                                      | `common.models.filter`                             | gene-service import-service (`SavedFilterClient`)        | **gene-service-client**                                     |
 | `MalformedUniprotFileException`, `ImportAlreadyRunningException`, `UnsupportedFileTypeException`                                                                                      | `common.exception`                                 | import-service                                         | **import-service**                                       |
-| `ExportRowCapExceededException`, `DuplicateFilterNameException`                                                                                                                       | `common.exception`                                 | dashboard                                              | **dashboard**                                            |
+| `ExportRowCapExceededException`, `DuplicateFilterNameException`                                                                                                                       | `common.exception`                                 | gene-service                                              | **gene-service**                                            |
 | `PasswordUpdateException`                                                                                                                                                             | `common.exception`                                 | auth-service                                           | **auth-service**                                         |
 
 ### 1.2 `libs/shared-models` — coupling constants
@@ -29,7 +29,7 @@
 | Artifact                                                                                    | Problem                                                              | Target                                                                                    |
 |---------------------------------------------------------------------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `DbSchema` (`GENES_SCHEMA = "public"`, …)                                                   | Publishes every service's physical schema to every other service     | **Delete**. Each service keeps a private constant                                         |
-| `KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED`                                              | The topic name belongs to a producer, not to a platform kernel       | Replaced by `CatalogTopics` in `dashboard-client`. The legacy topic is removed in Phase 6 |
+| `KafkaTopics.ANALYTICS_VIEW_REFRESH_REQUESTED`                                              | The topic name belongs to a producer, not to a platform kernel       | Replaced by `CatalogTopics` in `gene-service-client`. The legacy topic is removed in Phase 6 |
 | `ViewRefreshRequestedEvent`                                                                 | A shared event class with FQCN type headers means a shared classpath | **Deprecated → deleted** (replaced by `ProteinIngestionCompletedEvent`)                   |
 | `UserPrincipal`, `AppHeaders`, `AppClaims`, `TypeClaimValue`, `Constants`, `TypedCacheSpec` | Platform-level (security, cache). Acceptable in a kernel             | **Keep**                                                                                  |
 
@@ -64,23 +64,24 @@
 
 | Option                                                       | Pros                                                                                | Cons                                                                          |
 |--------------------------------------------------------------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| A. Shared `dashboard-client` module (DTOs + Feign interface) | Compile-time safety, single source of truth, easy to use in a monorepo              | Consumers take a binary dependency on the provider's release train            |
+| A. Shared `gene-service-client` module (DTOs + Feign interface) | Compile-time safety, single source of truth, easy to use in a monorepo              | Consumers take a binary dependency on the provider's release train            |
 | B. Each consumer duplicates DTOs                             | Full autonomy, a consumer maps only the fields it needs                             | Drift risk, duplicated effort, needs contract tests to catch breaking changes |
 | **C. Hybrid (recommended)**                                  | Sync API: provider-owned SDK (A). Async events: consumers own their read models (B) | Two conventions to document                                                   |
 
 **Decision (proposed): C.**
+**My Decision: C** For common used DTOs use a common module and for specific ones or internal ones they are defined in the service where they are used, module name should be like "gene-model-lib" under libs folder
 
-- `dashboard-client` contains **only**: Java records (DTOs), Feign interfaces, topic-name constants and event payload
+- `gene-service-client` contains **only**: Java records (DTOs), Feign interfaces, topic-name constants and event payload
   records (as a reference schema). Its dependencies are `jakarta.validation-api`, `jackson-annotations` and
   `spring-cloud-openfeign-core` (`provided`/`optional`). There is **no** Spring Boot auto-configuration, **no**
   JPA and **no** component scan.
 - The provider controller **does not implement** the Feign interface. The Spring Cloud OpenFeign documentation
   explicitly advises against sharing one interface between server and client. Server/client alignment is enforced by
   contract tests (Phase 3/4).
-- Tolerant reader rule: every DTO in `dashboard-client` is annotated `@JsonIgnoreProperties(ignoreUnknown = true)`.
+- Tolerant reader rule: every DTO in `gene-service-client` is annotated `@JsonIgnoreProperties(ignoreUnknown = true)`.
   Changes are **additive only** within `v1`. A breaking change means `/internal/v2` plus a new topic version.
 - Kafka consumers may deserialize into **their own local record** that holds only the fields they use. The
-  `dashboard-client` event records are the published reference schema, and `documentation/event-catalog.md` is the
+  `gene-service-client` event records are the published reference schema, and `documentation/event-catalog.md` is the
   human-readable schema.
 
 ### D2 — Import write path
@@ -89,22 +90,24 @@
 |-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | **A. Feign bulk upsert per chunk (recommended)**                  | Keeps Spring Batch chunk semantics (retry, skip, restart), natural backpressure, job status reflects real persistence | HTTP overhead; payload size (sequences). Needs gzip and chunk tuning                                                  |
 | B. Kafka command topic (`catalog.protein-entry.upsert-requested`) | Fully async, buffers dashboard outages                                                                                | The import job can no longer know when data is persisted; error reporting is harder; a second write path to reconcile |
-| C. Move the whole import pipeline into dashboard                  | No network hop                                                                                                        | Brings back the monolith; defeats ARCH-001 Phase 3                                                                    |
+| C. Move the whole import pipeline into gene-service                  | No network hop                                                                                                        | Brings back the monolith; defeats ARCH-001 Phase 3                                                                    |
 
 **Decision (proposed): A.**
 
 - `import-service` owns the **file parsing**, the **job lifecycle** (`import_batch.import_job`, Spring Batch
   metadata) and progress reporting.
-- `dashboard` owns **persistence and invariants** of the aggregate.
+- `gene-service` owns **persistence and invariants** of the aggregate.
 - An anti-corruption layer is added in `import-service`: the line processors build a local parse model
   (`ParsedProtein`), and the writer maps it to `ProteinEntryUpsertDto` (MapStruct).
+
+**My Decision: A**
 
 ### D3 — How analytics gets catalog data
 
 | Option                                                                                 | Pros                                                                                                                                      | Cons                                                                                                          |
 |----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| **A. CQRS projection `analytics.protein_fact` fed by Kafka (recommended)**             | True autonomy (analytics works when dashboard is down); join-free wide table is faster for aggregations; MVs built on data analytics owns | Filter semantics are duplicated (`ProteinFactSpecification`); needs a backfill; eventual consistency          |
-| B. Feign aggregation API on dashboard (`POST /internal/v1/protein-entries/statistics`) | No duplication; `GeneSpecification` stays with the owner                                                                                  | Analytics becomes a thin proxy with a runtime dependency on dashboard; heavy aggregations load the catalog DB |
+| **A. CQRS projection `analytics.protein_fact` fed by Kafka (recommended)**             | True autonomy (analytics works when gene-service is down); join-free wide table is faster for aggregations; MVs built on data analytics owns | Filter semantics are duplicated (`ProteinFactSpecification`); needs a backfill; eventual consistency          |
+| B. Feign aggregation API on gene-service (`POST /internal/v1/protein-entries/statistics`) | No duplication; `GeneSpecification` stays with the owner                                                                                  | Analytics becomes a thin proxy with a runtime dependency on gene-service; heavy aggregations load the catalog DB |
 | C. Keep cross-schema SQL reads with read-only grants                                   | Zero effort                                                                                                                               | **Rejected**: it is the problem this ticket solves                                                            |
 
 **Decision (proposed): A**, with B as the documented fallback if the parity tests (AC-7) show that the filter
@@ -112,8 +115,10 @@ semantics cannot be reproduced reliably.
 
 - The projection is **denormalized**: scalar columns plus `TEXT[]` columns (`keywords`, `go_term_ids`, `go_aspects`,
   `feature_types`, `cross_ref_sources`, `lineage`) with GIN indexes, and a generated `search_vector`.
-- `GeneSearchRequest` (from `dashboard-client`) stays the **request contract**. Each side translates it into its own
+- `GeneSearchRequest` (from `gene-service-client`) stays the **request contract**. Each side translates it into its own
   predicates.
+
+**My Decision:B** Not exactly but when import finishes and import message is sent via kafka as now , the refresh view service will be changed instead of using protein entry to refresh view it will call an api gene-service and get result and saved it in refresh views 
 
 ### D4 — Event publication reliability
 
@@ -126,6 +131,7 @@ semantics cannot be reproduced reliably.
 
 **Decision (proposed): hand-rolled, minimal outbox.** A single ingestion can produce about 570k events (PERF-001
 dataset), so we need explicit control over batch sizes and cleanup.
+**My Decision : OK** 
 
 ### D5 — Topic and event granularity
 
@@ -146,7 +152,7 @@ dataset), so we need explicit control over batch sizes and cleanup.
 | Stage                                   | What                                                                                                                    | Cost                                         |
 |-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | **A — Logical (mandatory in ARCH-002)** | Same PostgreSQL cluster; one schema and one login role per service; `REVOKE ALL … FROM PUBLIC`; per-service credentials | Low; reversible                              |
-| B — Physical (optional, see Q2)         | Dedicated `catalog-db` (+ replica) for dashboard; `platform-db` for auth, analytics and import                          | Medium: more containers, backups, monitoring |
+| B — Physical (optional, see Q2)         | Dedicated `catalog-db` (+ replica) for gene-service; `platform-db` for auth, analytics and import                          | Medium: more containers, backups, monitoring |
 
 ### D7 — Catalog schema `gene_data`; audit schema separately owned
 
@@ -181,7 +187,7 @@ repository, datasource, schema migration, search API or retention implementation
 - Callers attach a short-lived **service JWT** (`typ=service` → `TypeClaimValue.SERVICE_TOKEN`) through a Feign
   `RequestInterceptor` from `common-starter`. The token carries `sub=<service-id>` and scopes
   `catalog:read` / `catalog:write`.
-- `dashboard` security: `/internal/v1/protein-entries/**` requires `SCOPE_catalog:read`;
+- `gene-service` security: `/internal/v1/protein-entries/**` requires `SCOPE_catalog:read`;
   `/internal/v1/protein-ingestions/**` requires `SCOPE_catalog:write`. A user token gets 403.
 - Token issuance reuses the ARCH-001 AC-7 mechanism (auth-service). Until auth-service issues tokens through
   client-credentials, `common-starter` can mint service tokens with the shared HMAC key (`app.jwt.secret`). That is
@@ -204,7 +210,8 @@ repository, datasource, schema migration, search API or retention implementation
 ### D12 — Header trust model
 
 - Confirmed in Q6: gateway strips inbound identity/internal headers, exact public route matching is used, services
-  authenticate from validated JWT claims, and service-to-service calls use scoped service tokens. See ARCH-002 plan §3.5.
+  authenticate from validated JWT claims, and service-to-service calls use scoped service tokens. See ARCH-002 plan
+  §3.5.
 
 ### D13 — Configurable analytics freshness
 
@@ -231,22 +238,22 @@ repository, datasource, schema migration, search API or retention implementation
 
 ## 3. Confirmed Questions and Implementation Gates
 
-| ID | Priority | Question                                                                                                                                        | Proposed default                                                                                       | Response                                                                                                                                                                          |
-|----|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Q1 | 🟡       | Schema name for dashboard-owned tables: `dashboard` or `catalog`?                                                                               | `dashboard` (matches the service ID and the existing `auth` / `analytics` / `import_batch` convention) | gene_data as dashboard will be renamed to gene-service in the future.                                                                                                             |
-| Q2 | 🔴       | Is Stage B (a physically separate catalog PostgreSQL cluster) in scope for ARCH-002, or deferred to ARCH-001 Phase 10?                          | Deferred; only Stage A is mandatory                                                                    | keep it for arch-001 phase 10.                                                                                                                                                    |
-| Q3 | 🔴       | Re-import of an existing accession: **replace**, **merge**, or **reject**?                                                                      | Replace (D11)                                                                                          | merge in gene consumer would be good so if data exists from file which is light weight and them imported from api which is detailed it will be updated by new data so merge works |
-| Q4 | 🟡       | Is there any use case for **deleting** proteins (single or bulk "purge before import")?                                                         | No for now; `DELETED` event type is reserved, and a tombstone is emitted if it is introduced           | No delete for existing data only add or merge ( update current with new data )                                                                                                    |
-| Q5 | 🔴       | Acceptable analytics staleness after an import completes (SLA)?                                                                                 | ≤ 60 s after `ingestion.completed` (quiet period 15 s + refresh time)                                  | ir depends on data size and hardware resource so make it configurable and default to 60s.                                                                                         |
-| Q6 | 🟡       | Is hardening the gateway header trust model (`X-User-*`) in scope?                                                                              | Out of scope; `/internal/**` gets service JWT (D9), `/api/**` unchanged                                | yes as other services are using this header to get user info so it should be hardened. and for traçability                                                                        |
-| Q7 | 🟡       | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until the Phase 5 exit criteria are met                                                           | the refresh view is done at the end of import so it should be kept in parallel until parity is proven.                                                                            |
-| Q8 | ✅       | Where should audit instrumentation, transport and persistence live?                                                                        | Common producer instrumentation publishes events; audit-service persistence ownership to be confirmed | Common-starter emits audit events; existing Kafka topic `audit.events.log` transports them; new audit-service owns schema, persistence, search and retention. Historical-data/Flyway handoff is a P−1 gate. |
+| ID | Priority | Question                                                                                                                                        | Proposed default                                                                                       | Response                                                                                                                                                                                                    |
+|----|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Q1 | 🟡       | Schema name for dashboard-owned tables: `dashboard` or `catalog`?                                                                               | `dashboard` (matches the service ID and the existing `auth` / `analytics` / `import_batch` convention) | gene_data as dashboard will be renamed to gene-service in the future.                                                                                                                                       |
+| Q2 | 🔴       | Is Stage B (a physically separate catalog PostgreSQL cluster) in scope for ARCH-002, or deferred to ARCH-001 Phase 10?                          | Deferred; only Stage A is mandatory                                                                    | keep it for arch-001 phase 10.                                                                                                                                                                              |
+| Q3 | 🔴       | Re-import of an existing accession: **replace**, **merge**, or **reject**?                                                                      | Replace (D11)                                                                                          | merge in gene consumer would be good so if data exists from file which is light weight and them imported from api which is detailed it will be updated by new data so merge works                           |
+| Q4 | 🟡       | Is there any use case for **deleting** proteins (single or bulk "purge before import")?                                                         | No for now; `DELETED` event type is reserved, and a tombstone is emitted if it is introduced           | No delete for existing data only add or merge ( update current with new data )                                                                                                                              |
+| Q5 | 🔴       | Acceptable analytics staleness after an import completes (SLA)?                                                                                 | ≤ 60 s after `ingestion.completed` (quiet period 15 s + refresh time)                                  | ir depends on data size and hardware resource so make it configurable and default to 60s.                                                                                                                   |
+| Q6 | 🟡       | Is hardening the gateway header trust model (`X-User-*`) in scope?                                                                              | Out of scope; `/internal/**` gets service JWT (D9), `/api/**` unchanged                                | yes as other services are using this header to get user info so it should be hardened. and for traçability                                                                                                  |
+| Q7 | 🟡       | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until the Phase 5 exit criteria are met                                                           | the refresh view is done at the end of import so it should be kept in parallel until parity is proven.                                                                                                      |
+| Q8 | ✅       | Where should audit instrumentation, transport and persistence live?                                                                             | Common producer instrumentation publishes events; audit-service persistence ownership to be confirmed  | Common-starter emits audit events; existing Kafka topic `audit.events.log` transports them; new audit-service owns schema, persistence, search and retention. Historical-data/Flyway handoff is a P−1 gate. |
 
 ---
 
 ## 4. Assumptions
 
-1. The monorepo keeps a single `${revision}` for all modules, so `dashboard-client` is versioned with the build.
+1. The monorepo keeps a single `${revision}` for all modules, so `gene-service-client` is versioned with the build.
    Consumers still treat it as a **published contract** (additive changes only).
 2. Kafka runs single-broker in local dev (`replication-factor 1`). Production sizing (RF=3, `min.insync.replicas=2`)
    belongs to the deployment and is out of scope here.

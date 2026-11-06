@@ -272,13 +272,13 @@ and limits; the rollout order below remains the required acceptance gate.
 
 **Goal:** agree the module-rename and audit-ownership boundaries before implementation; this phase changes documentation only.
 
-- [ ] -1.1 Inventory every reference to `backend/dashboard`, Maven artifact `dashboard`, Java package
+- [x] -1.1 Inventory every reference to `backend/dashboard`, Maven artifact `dashboard`, Java package
   `com.bioinformatics.dashboard`, and runtime/config/deployment ID `dashboard` across Maven, source, tests, Config Server,
   gateway routes, Docker Compose, Kubernetes, scripts and documentation. Record the current build, test and API baselines.
-- [ ] -1.2 Confirm the target module path `backend/services/gene-service`, artifact/service ID `gene-service`, and Java
+- [x] -1.2 Confirm the target module path `backend/services/gene-service`, artifact/service ID `gene-service`, and Java
   root package `com.bioinformatics.geneservice`; list all files and config keys that will change, plus any stable aliases
   needed during rollout.
-- [ ] -1.3 Split the current dashboard audit package by responsibility. Move only `@Auditable`, the producer-side AOP
+- [x] -1.3 Split the current dashboard audit package by responsibility. Move only `@Auditable`, the producer-side AOP
   aspect, audit event contract/context and Kafka publisher/configuration to `com.bioinformatics.common.audit` in
   `common-starter`; inventory annotations, callers and tests. Do not move `AuditLog`, repositories, search services,
   persistence configuration or retention code into common. Define common-owned validated producer settings independent
@@ -286,14 +286,14 @@ and limits; the rollout order below remains the required acceptance gate.
   Implementation status: the producer split and caller/test migration are complete (1.8); settings now bind in
   `AuditPublisherProperties` independently of dashboard `AppProperties`. The complete pre-start inventory,
   settings-validation matrix and approval gate are not closed.
-- [ ] -1.4 Specify the existing `audit.events.log` topic contract, producer identity/context, delivery/retry and
+- [x] -1.4 Specify the existing `audit.events.log` topic contract, producer identity/context, delivery/retry and
   duplicate handling, audit-service consumer behavior, authorization for search APIs, retention rules, and audit
   database/schema placement. Audit-service alone runs audit migrations and connects to audit storage; producers and
   common-starter receive no audit database credentials.
-- [ ] -1.5 Decide historical continuity: inventory V13–V17 and current audit rows; approve either transfer/baseline into
+- [x] -1.5 Decide historical continuity: inventory V13–V17 and current audit rows; approve either transfer/baseline into
   audit-service ownership with count/key-field verification, or an explicit archive/purge and collection cutover. Plan
   Flyway history without rerunning existing versions or allowing two migration runners to own one schema.
-- [ ] -1.6 Record invariants and cutover/rollback order: preserve public `/api/**` and internal `/internal/v1/**`
+- [x] -1.6 Record invariants and cutover/rollback order: preserve public `/api/**` and internal `/internal/v1/**`
   contracts, `gene_data`, table/sequence names, Flyway history, event topics and frontend behavior; change runtime IDs
   and deployment selectors together, with compatibility aliases only where the inventory proves they are needed.
 
