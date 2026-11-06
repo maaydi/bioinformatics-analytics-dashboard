@@ -51,6 +51,10 @@ common:
       batch-listener: false
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: true
   rate-limiter:
     endpoints:
       - name: import

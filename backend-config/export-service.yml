@@ -38,6 +38,10 @@ common:
     bootstrap-servers: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: true
   rate-limiter:
     endpoints:
       - name: export

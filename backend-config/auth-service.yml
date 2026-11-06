@@ -33,6 +33,8 @@ common:
     bootstrap-servers: ${COMMON_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
 app:
+  audit:
+    enabled: true
   token:
     refresh-rotation-enabled: true
     max-active-sessions-per-user: 5

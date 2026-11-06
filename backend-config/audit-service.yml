@@ -36,6 +36,8 @@ common:
       ack-mode: manual
 
 app:
+  audit:
+    enabled: true
   rate-limiter:
     endpoints:
       - name: search

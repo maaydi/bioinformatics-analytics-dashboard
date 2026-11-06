@@ -130,7 +130,7 @@ resilience4j:
         baseConfig: default
       importServiceCircuitBreaker:
         baseConfig: default
-      dashboardCircuitBreaker:
+      geneServiceCircuitBreaker:
         baseConfig: default
 
   timelimiter:
@@ -147,7 +147,7 @@ resilience4j:
         baseConfig: default
       importServiceCircuitBreaker:
         baseConfig: default
-      dashboardCircuitBreaker:
+      geneServiceCircuitBreaker:
         timeoutDuration: 120s
 app:
   security:

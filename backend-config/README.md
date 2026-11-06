@@ -12,13 +12,19 @@ Run `docker compose up gitea-db gitea-server`:
 ```bash
 git clone http://localhost:3000/bioinformatics/config-repo.git
 cd config-repo
-# ... create application.yml, bioinformatics-dashboard.yml, etc ...
+# ... copy application.yml and the service/profile files from backend-config ...
 git add .
 git commit -m "Initial config"
 git push origin main
 ```
 
 ### Audit service configuration
+
+All six business-service base files explicitly set `app.audit.enabled=true`.
+Deploy these files before/with the P1 starter: broker configuration alone no longer
+activates audit instrumentation. `app.legacy-catalog.enabled=true` is temporary and
+set only for gene/import/export/analytics while they still use shared catalog code.
+Auth and audit do not load catalog entities, repositories or UniProt clients.
 
 Publish `audit-service.yml`, `audit-service-dev.yml`, and `audit-service-prod.yml`
 to the config repository alongside `application.yml`. Config Server combines
@@ -98,6 +104,33 @@ must establish trusted-proxy handling to avoid sharing one proxy IP budget; the
 aspect does not parse untrusted forwarding headers. Config publishing and service
 restart/rollout remain deployment steps; editing these files alone does not update
 the Config Server Git backend or running services.
+
+### Gene-service identity and P1 rollout
+
+The Maven module is `backend/services/gene-service`, artifact/Eureka/Config Server
+ID `gene-service`, application `GeneServiceApplication`, root Java package
+`com.bioinformatics.geneservice`. Compose and Kubernetes use the same service ID,
+port `8084`, `gene-service-config` and `gene-service-secret`; the gateway targets
+`lb://gene-service`. No runtime `dashboard` alias is required by current callers.
+Public `/api/**` and internal `/internal/v1/**` paths, migration locations/history,
+database objects and Kafka topics are unchanged. Database isolation into `gene_data`
+is P7, not part of this rename. The `bio-dashboard` namespace/image prefix describes
+the whole application and is not a stale service identity.
+
+Publish all updated service files to the Config Server Git backend, deploy
+audit/analytics consumers with explicit JSON event types first, then roll out the
+header-free producer starter and gene-service identity consistently with gateway
+routes, Feign targets, images, selectors and probes. Check independent startup,
+API response parity and the correlation header/MDC across HTTP and Kafka.
+Rollback consumers and producers as one release before restoring the former
+module/runtime identity; do not change Flyway history as part of rollback.
+The checked-in configuration is the source to publish; local untracked Gitea
+data is not edited by this implementation.
+
+Audit history/Flyway V13-V17 handoff and exclusive audit-schema credentials remain
+release gates: current environment-backed shared database credentials do not
+demonstrate denial of audit access from producer services. Do not copy audit
+credentials into producer configuration or move audit migrations into `gene_data`.
 
 ### Compose wiring for shared infrastructure
 
