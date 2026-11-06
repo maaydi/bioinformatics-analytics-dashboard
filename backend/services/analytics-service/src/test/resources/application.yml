@@ -45,3 +45,17 @@ app:
     per-view-timeout-ms: 1000
     retry-backoff-ms: 0
     sequence-sla-ms: 10000
+  rate-limiter:
+    endpoints:
+      - name: analytics
+        capacity: ${APP_RATE_LIMITER_ANALYTICS_CAPACITY:120}
+        tokens: ${APP_RATE_LIMITER_ANALYTICS_TOKENS:120}
+        seconds: ${APP_RATE_LIMITER_ANALYTICS_SECONDS:60}
+      - name: analysis
+        capacity: ${APP_RATE_LIMITER_ANALYSIS_CAPACITY:60}
+        tokens: ${APP_RATE_LIMITER_ANALYSIS_TOKENS:60}
+        seconds: ${APP_RATE_LIMITER_ANALYSIS_SECONDS:60}
+      - name: compare
+        capacity: ${APP_RATE_LIMITER_COMPARE_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_COMPARE_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_COMPARE_SECONDS:60}

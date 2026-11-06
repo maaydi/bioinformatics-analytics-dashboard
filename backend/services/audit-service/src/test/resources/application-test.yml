@@ -39,3 +39,10 @@ logging:
     org.apache.kafka: WARN
     kafka: WARN
     org.springframework.security: WARN
+app:
+  rate-limiter:
+    endpoints:
+      - name: search
+        capacity: ${APP_RATE_LIMITER_SEARCH_CAPACITY:30}
+        tokens: ${APP_RATE_LIMITER_SEARCH_TOKENS:30}
+        seconds: ${APP_RATE_LIMITER_SEARCH_SECONDS:60}

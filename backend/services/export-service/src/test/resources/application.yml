@@ -41,3 +41,18 @@ app:
       max-size: 10
       queue-capacity: 25
       thread-name-prefix: ExportBatchAsync-
+
+  rate-limiter:
+    endpoints:
+      - name: export
+        capacity: ${APP_RATE_LIMITER_EXPORT_CAPACITY:10}
+        tokens: ${APP_RATE_LIMITER_EXPORT_TOKENS:10}
+        seconds: ${APP_RATE_LIMITER_EXPORT_SECONDS:60}
+      - name: download
+        capacity: ${APP_RATE_LIMITER_DOWNLOAD_CAPACITY:20}
+        tokens: ${APP_RATE_LIMITER_DOWNLOAD_TOKENS:20}
+        seconds: ${APP_RATE_LIMITER_DOWNLOAD_SECONDS:60}
+      - name: status
+        capacity: ${APP_RATE_LIMITER_STATUS_CAPACITY:120}
+        tokens: ${APP_RATE_LIMITER_STATUS_TOKENS:120}
+        seconds: ${APP_RATE_LIMITER_STATUS_SECONDS:60}
