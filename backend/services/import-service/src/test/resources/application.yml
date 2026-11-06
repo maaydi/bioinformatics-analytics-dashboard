@@ -35,6 +35,10 @@ common:
   enabled: true
 
 app:
+  legacy-catalog:
+    enabled: true
+  audit:
+    enabled: false
   batch:
     chunk-size: ${APP_BATCH_CHUNK_SIZE:250}
     skip-limit: ${APP_BATCH_SKIP_LIMIT:1000}
