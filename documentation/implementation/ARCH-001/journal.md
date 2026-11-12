@@ -693,9 +693,9 @@ microservice using read replica routing for performance validation.
 | api-gateway          | ≥ 75%           | TBD     | ✅ Implemented |
 | auth-service         | ≥ 85%           | 91%     | ✅ Complete    |
 | analytics-service    | ≥ 80%           | 86%     | ✅ Complete    |
-| gene-service         | ≥ 85%           | 0%      | ⏳ Not started |
-| import-service       | ≥ 80%           | 0%      | ⏳ Not started |
-| export-service       | ≥ 80%           | 0%      | ⏳ Not started |
+| gene-service         | ≥ 85%           | TBD     | Exists via ARCH-002 rename of the monolith; tests present; coverage not measured; catalog extraction open (ARCH-002 P2–P8) |
+| import-service       | ≥ 80%           | TBD     | ✅ Implemented (Phase 3); coverage not measured |
+| export-service       | ≥ 80%           | TBD     | ✅ Implemented by PIPE-001; coverage not measured; completion event/lifecycle audit open |
 | structure-service    | ≥ 80%           | 0%      | ⏳ Not started |
 | nlq-service          | ≥ 80%           | 0%      | ⏳ Not started |
 | notification-service | ≥ 75%           | 0%      | ⏳ Not started |
@@ -880,14 +880,138 @@ the remaining ARCH-001 migration gates.
 
 ---
 
-**Last Updated:** 2026-10-30
+### 2026-11-10 — Plan reconciliation with PIPE-001, ARCH-002, OPS-002, REMOTE-001 and current code
+
+**Action:** Reconciled `plan.md` with the repository state, because several
+ARCH-001 phases had been delivered or taken over by other tickets while the
+plan still described the original extraction design. The checks covered:
+
+- Maven modules, git history, Kafka topics, publishers and listeners.
+- Gateway routes, Flyway migrations and datasource wiring.
+- Feign clients, frontend API configuration and test classes.
+- The PIPE-001, ARCH-002, OPS-002, REMOTE-001, STRUCT-001 and NLQ-001 docs.
+
+Historical checkboxes were kept and annotated rather than rewritten. A
+cross-ticket ownership table and a dated status note were added to `plan.md`.
+
+**Findings applied to the plan:**
+
+- **Phase 0:**
+  - The stack runs from the root `docker-compose.yml`; there is no
+    `docker-compose.infra.yml`.
+  - The config repo is Gitea `bioinformatics/config-repo`.
+  - Schemas actually in use: `auth`, `analytics`, `import_batch`,
+    `export_data`, `audit_log` and `public`. The target for `public` is
+    `gene_data`.
+  - Actual gateway routes:
+    - Legacy `/api/auth|analytics|admin/import/**` paths are rewritten to
+      `/api/v1/...`.
+    - Audit uses `/api/v1/admin/audit/**`.
+    - Gene-service uses `/api/genes|autocomplete|saved-filters/**`.
+    - There are no structure, nlq or notification routes.
+  - Of the seven created topics, only `protein.events.imported` and
+    `audit.events.log` have producers.
+- **Phase 2.4 / 3.5:**
+  - Implemented, but not as `ProteinImportedEvent`.
+  - Import `ImportJobRefreshViewsListener` calls
+    `MaterializedViewRefreshService`, which publishes
+    `ViewRefreshRequestedEvent(jobId, source, jobCompletedAt, correlationId)`.
+  - Analytics `ViewRefreshConsumer` consumes it with per-job idempotency and
+    alerting.
+  - The previously open listener/publishing tests are covered by
+    `ViewRefreshConsumerTest`, `ViewRefreshTransportTest` (embedded Kafka),
+    `RefreshIdempotencyServiceTest`, both `MaterializedViewRefreshServiceTest`
+    classes and `ImportJobRefreshViewsListenerTest`.
+  - `ImportControllerIntegrationTest` does not declare `@EmbeddedKafka`.
+  - ARCH-002 D3/P6 will replace this flow.
+- **Phase 4 (ARCH-002):**
+  - The monolith was moved and renamed to `services/gene-service` (P1 item
+    1.7), with ports prod 8084 / dev 0.
+  - Controllers keep the existing `/api/genes`, `/api/autocomplete` and
+    `/api/saved-filters` contract.
+  - Catalog entities, `GeneSpecification`, `GeneMapper` and the DTOs remain
+    in the common-starter legacy catalog on `public`, on the primary
+    datasource only.
+  - There is no `AuthServiceClient`. The inbound `SavedFilterClient` and
+    `GeneServiceClient` forward `X-User-*` headers, which ARCH-002 P3 will
+    replace.
+  - Schema, contracts, ownership and legacy removal stay open under
+    ARCH-002 P2–P4/P7/P8.
+- **Phase 5 (PIPE-001):** The service is delivered. Three items previously
+  marked done were corrected:
+  - Read routing to the replica: export-service uses only the primary
+    `spring.datasource`.
+  - The legacy CSV redirect: gene-service `POST /api/genes/export-csv` is a
+    stub that throws "Not implemented".
+  - `ExportJobIntegrationTest`: no such test exists. Job flow is covered by
+    unit tests.
+
+  Other updates to the plan:
+  - Schema `export_data`, with migrations `V1__export_pipeline.sql` and
+    `V2__update_export_format_constraint.sql`.
+  - Actual reader, processor, tasklet and lifecycle classes, plus the six
+    `@Auditable` actions and the real test names.
+  - `ExportCompletedEvent` stays open: the topic exists but has no producer.
+- **Phase 8:**
+  - Corrected the gateway audit path.
+  - Mapped the planned tests to `AuditServiceTest`,
+    `AuditConsumerIntegrationTest`, `AuditLogControllerIntegrationTest`,
+    `SecurityConfigTest`, etc.; batch insert is still not implemented.
+  - Recorded the ARCH-002 P1 additions: explicit auto-configuration, header-free
+    Kafka and correlation-ID propagation.
+  - Notification-service is not started.
+- **Phase 9:**
+  - The frontend uses a single gateway base `/api` through the dev proxy and
+    nginx, which is sufficient because of the gateway rewrites.
+  - 429 is handled in `ErrorInterceptor`. 503 / `Retry-After` handling and
+    `GatewayHealthService` are absent.
+  - The 410 monolith drainage is superseded by the gene-service rename and
+    ARCH-002 P8.
+  - Kubernetes is owned by OPS-002.
+- **Phase 10:**
+  - Stage A belongs to ARCH-002: outbox in P4, `gene_data` roles/grants in
+    P7, analytics-owned tables in P6.
+  - Stage B (physical split, Debezium) stays in ARCH-001 per ARCH-002 Q2.
+  - Event names are mapped to `documentation/event-catalog.md`.
+- **Phases 6/7:** STRUCT-001 and NLQ-001 are not started.
+- **Commands and artifacts:** Commands now point to the root
+  `docker compose` and `mvn -f backend\pom.xml`. Artifact rows now point to
+  `backend-config/api-gateway.yml` and the existing event catalog.
+
+**Verification:** Documentation only. Evidence came from source, configuration
+and test-file inspection, plus the recorded results in the PIPE-001, ARCH-002
+and OPS-002 journals. No tests, builds, deployments or coverage measurements
+were run for this update. Coverage Tracking now marks gene, import and export
+as implemented with coverage not measured, instead of "Not started".
+
+**Remaining (ARCH-001-owned):**
+
+- Export completion event and notification-service.
+- Replica routing for gene-service and export-service.
+- 503 / `Retry-After` handling in the frontend.
+- Gateway and E2E qualification.
+- Audit batch ingestion, retention and resilience.
+- Phase 10 Stage B.
+- Coverage ≥ 80% qualification.
+- Also: remove or retire the gene-service `/export-csv` stub and the unused
+  frontend `GenesService.exportCsv`.
+
+**Outcome:** `plan.md` now reflects the current code and cross-ticket
+ownership. No phase was newly closed by this update.
+
+---
+
+**Last Updated:** 2026-11-10
 
 **Phase Status Summary:**
 
-- ✅ Phase 0 (Infrastructure): 100% complete (common-starter, Eureka, Config, Gateway)
+- ✅ Phase 0 (Infrastructure): 100% complete (common-starter, Eureka, Config, Gateway); plan paths/schemas/routes corrected 2026-11-10
 - ✅ Phase 1 (Auth Service): 100% complete (API, DB, tests, monolith adaptation)
-- ✅ Phase 2 (Analytics Service): 100% complete (7 of 8 items; 1 deferred to Phase 3 previously — now in active progress)
-- Phase 3 (Import Service): Extraction marked complete in `plan.md`; the earlier event/E2E qualification follow-ups were not requalified by this audit work.
-- Phases 4–7: Not closed in `plan.md`; no new completion claim from this update.
+- ✅ Phase 2 (Analytics Service): complete, including 2.4 (`ViewRefreshRequestedEvent` consumer); successor flow in ARCH-002 P6
+- ✅ Phase 3 (Import Service): extraction complete; refresh event published via `MaterializedViewRefreshService`
+- Phase 4 (Gene Service): service exists via ARCH-002 rename; catalog ownership/schema/contracts/S2S open in ARCH-002 P2–P8
+- ✅ Phase 5 (Export Service): delivered by PIPE-001; completion event, lifecycle audit and replica routing open
+- Phases 6–7 (Structure, NLQ): not started (STRUCT-001, NLQ-001)
 - Phase 8 (Cross-cutting services): Audit producer/consumer foundation implemented; notification, retention, resilience, ownership and rollout qualification remain open.
-- Phases 9–10: Frontend/monolith drainage and database-per-service gates remain open.
+- Phase 9 (Frontend/drainage): single gateway base URL in place; drainage superseded by ARCH-002 P8; Kubernetes via OPS-002
+- Phase 10 (Database-per-service): Stage A in ARCH-002 P4/P6/P7; Stage B (physical split, CDC) open here
