@@ -73,6 +73,21 @@ cd uniprot-dashboard
 
 Ready to run.
 
+## ARCH-002 Module and Data Ownership
+
+| Component | Module/artifact | Runtime ID / Java root | Persistence and event boundary |
+|-----------|-----------------|------------------------|--------------------------------|
+| Catalog owner | `backend/services/gene-service` / `gene-service` | `gene-service` / `com.bioinformatics.geneservice` | Sole owner of catalog tables in `gene_data`; publishes catalog outbox events. Former module was `backend/dashboard`. |
+| Shared audit producer | `backend/libs/common-starter` | Shared library / `com.bioinformatics.common.audit` | Produces audit events only; it has no audit entity, repository, migration, or database credential. |
+| Audit owner | `backend/services/audit-service` / `audit-service` | `audit-service` / `com.bioinformatics.auditservice` | Sole owner of `audit_log` persistence, migrations, search, and retention. |
+| Cross-service gene contracts | `backend/libs/gene-model-lib` / `gene-model-lib` (planned) | Library / `com.bioinformatics.gene.model.v1` | Reused DTOs and Feign/event contracts only; internal types remain service-local. |
+
+Analytics persists refresh aggregates in its own `analytics` schema and consumes catalog ingestion-completion events;
+it does not read `gene_data` directly on the target path. Import, auth, and export services use their own schemas.
+Only `gene-service` receives catalog runtime access. Audit producers and audit-service do not receive catalog access;
+producer services do not receive audit-storage credentials. Public `/api/**` and internal `/internal/v1/**` paths
+remain unchanged by the module rename.
+
 ---
 
 # Backend Structure (Spring Boot)
@@ -204,13 +219,14 @@ cd frontend
 ng build
 ```
 
-Copy output to:
+Build output is packaged into the separate Nginx frontend image; the backend does not copy Angular assets into a
+dashboard module:
 
 ```text
-backend/src/main/resources/static/
+devops/docker/frontend/Dockerfile
 ```
 
-Then Spring Boot serves both frontend + API.
+The frontend is served separately by Nginx; API calls go through the gateway.
 
 ---
 

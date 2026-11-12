@@ -1,9 +1,10 @@
 # ARCH-002 — Ambiguity Analysis & Architecture Decisions
 
-> **Status (2026-11-06):** Q1–Q8 and the D1–D4 **My Decision** notes are applied in plan rev. 6.
-> D1 confirms `libs/gene-model-lib`, D2 confirms Feign writes, D3 replaces the CQRS proposal with Kafka-triggered
-> API-backed aggregate refresh, and D4 confirms the outbox. D5–D15 remain applicable except where explicitly
-> superseded by D3. Remaining operational choices are implementation gates, not unresolved ownership questions.
+> **Status (2026-11-10):** Q1–Q8 and the D1–D4 **My Decision** notes are recorded as confirmed resolutions and
+> applied in plan rev. 12. D1 confirms `backend/libs/gene-model-lib` and the local-type boundary; D2 confirms Feign
+> chunk writes; D3 replaces the CQRS proposal with Kafka-triggered API-backed aggregate refresh; D4 retains the
+> transactional outbox. D5–D15 are aligned below, with D11 superseded by Q3's merge decision. Remaining operational
+> choices are implementation gates, not unresolved ownership questions.
 
 ---
 
@@ -101,8 +102,11 @@
 - `import-service` owns the **file parsing**, the **job lifecycle** (`import_batch.import_job`, Spring Batch
   metadata) and progress reporting.
 - `gene-service` owns **persistence and invariants** of the aggregate.
-- An anti-corruption layer is added in `import-service`: the line processors build a local parse model
-  (`ParsedProtein`), and the writer maps it to `ProteinEntryUpsertDto` (MapStruct).
+- The writer sends bounded chunks through
+  `POST /internal/v1/protein-ingestions/{ingestionId}/entries`; gene-service merges and persists each chunk.
+- An anti-corruption layer in `import-service` keeps the parse model (`ParsedProtein`) local and maps it to the
+  shared `gene-model-lib` contract `ProteinEntryUpsert` (MapStruct). Internal parse and implementation types are not
+  shared.
 
 **My Decision: A**
 
@@ -149,6 +153,9 @@ and cleanup remain relevant even though analytics no longer consumes those event
 
 ### D5 — Topic and event granularity
 
+- `protein_entry.revision` is a monotonically increasing technical version used for catalog change detection and
+  event ordering. It is distinct from UniProt `entry_version`, which is source metadata used only by the staleness
+  guard in D11. New entries start at the defined initial revision; each material merge increments it once.
 - `catalog.protein-entry.changed.v1`: **one event per entry**, `key = accession`, `cleanup.policy=compact`,
   6 partitions. Per-key ordering is guaranteed. Compaction turns the topic into a replayable snapshot for future
   entry-event consumers. Analytics does not consume this topic under confirmed D3.
@@ -172,14 +179,17 @@ and cleanup remain relevant even though analytics no longer consumes those event
 
 ### D7 — Catalog schema `gene_data`; audit schema separately owned
 
+- The target schema for every gene-service catalog object is **`gene_data`**; `dashboard` is not the target schema.
+  The catalog move is performed in P7 after P6 parity sign-off.
 - `ALTER TABLE public.<t> SET SCHEMA gene_data` is metadata-only (instant, no data rewrite). Indexes, constraints and
   owned sequences move with the table. Functions (the FTS function from V3) and standalone sequences must be moved
   explicitly.
 - Reasons: least-privilege grants on a dedicated schema, no accidental unqualified access, symmetry with `auth`,
   `analytics` and `import_batch`.
-- The gene-service catalog move includes `saved_filter` but excludes `audit_log` and its sequence. Audit records live
-  in the separate `audit_log` schema owned only by audit-service; the database/cluster placement and existing-history
-  handoff must be approved and rehearsed before cutover.
+- The gene-service catalog move includes `saved_filter` but excludes all audit tables, sequences, functions and
+  migration ownership. Audit records live in the separate `audit_log` schema owned only by audit-service; database/
+  cluster placement and existing-history handoff must be approved and rehearsed before cutover. The catalog and audit
+  schemas have independent migration histories and credentials.
 - This step runs in **P7, after P6 parity sign-off** and disabling legacy refresh; otherwise legacy MVs would break.
 
 ### D8 — Shape of `common-starter`
@@ -199,12 +209,16 @@ repository, datasource, schema migration, search API or retention implementation
 ### D9 — Service-to-service authentication on `/internal/**`
 
 - `/internal/**` is **never** routed by the gateway: the discovery locator is disabled and an explicit deny route
-  returns 404.
+  returns 404. Gateway ingress strips inbound `X-User-*` and other internal headers on every route; public endpoint
+  bypasses use exact method-and-path matching, not substring matching.
 - Callers attach a short-lived **service JWT** (`typ=service` → `TypeClaimValue.SERVICE_TOKEN`) through a Feign
   `RequestInterceptor` from `common-starter`. The token carries `sub=<service-id>` and scopes
   `catalog:read` / `catalog:write`.
 - `gene-service` security: `/internal/v1/protein-entries/**` requires `SCOPE_catalog:read`;
   `/internal/v1/protein-ingestions/**` requires `SCOPE_catalog:write`. A user token gets 403.
+- Services derive user identity from a validated bearer JWT, never trusted `X-User-*` values; the temporary
+  `app.security.header-auth.enabled` transition is disabled after caller migration. Full ingress, routing, identity,
+  token and traceability requirements are consolidated in D12 and plan §3.5 (AC-11).
 - Token issuance reuses the ARCH-001 AC-7 mechanism (auth-service). Until auth-service issues tokens through
   client-credentials, `common-starter` can mint service tokens with the shared HMAC key (`app.jwt.secret`). That is
   an interim measure, documented as risk R8.
@@ -219,9 +233,12 @@ repository, datasource, schema migration, search API or retention implementation
 
 ### D11 — Re-import (upsert) semantics
 
-- Confirmed in Q3/Q4: merge present scalar values, preserve absent values, add/merge child collections without deleting,
-  and treat a lower UniProt `entry_version` as stale. Technical `revision` drives catalog event ordering.
-- Reapplying the same chunk is **idempotent**; see the normative merge matrix in ARCH-002 plan §3.2.
+- Q3 supersedes the earlier **replace** proposal: present non-null scalar values overwrite stored values; absent or
+  null values preserve stored data. Child collections are additive, matched by natural key, and never deleted. A
+  lower incoming UniProt `entry_version` is stale; equal versions may enrich the entry.
+- Material changes increment the technical `revision` once and produce one entry-change outbox event. Reapplying the
+  same chunk is **idempotent**; no material change produces no entry event. The normative merge matrix is in
+  ARCH-002 plan §3.2.
 
 ### D12 — Header trust model
 
@@ -241,6 +258,18 @@ repository, datasource, schema migration, search API or retention implementation
   `gene-service` and root package `com.bioinformatics.geneservice`; keep public `/api/**` and internal `/internal/v1/**`
   contracts stable.
 
+#### Approved module and identity map
+
+| Component | Former/current identity | Target identity | Contract/ownership invariant |
+|-----------|-------------------------|-----------------|------------------------------|
+| Catalog service | `backend/dashboard`, artifact and runtime ID `dashboard`, package `com.bioinformatics.dashboard` | `backend/services/gene-service`, artifact/runtime ID `gene-service`, package `com.bioinformatics.geneservice` | Preserve public `/api/**`, internal `/internal/v1/**`, catalog tables, migration history, and Kafka contracts. |
+| Shared audit producer | Dashboard-local audit instrumentation | `backend/libs/common-starter`, `com.bioinformatics.common.audit` | Annotation, AOP event creation/context, and Kafka publishing only; no audit persistence or credentials. |
+| Audit persistence service | Dashboard-local audit persistence | `backend/services/audit-service`, artifact/runtime ID `audit-service`, package `com.bioinformatics.auditservice` | Owns `audit_log`, its migrations, persistence, authorized search, and retention. |
+| Shared catalog contracts | Types shared from `common-starter` | `backend/libs/gene-model-lib`, `com.bioinformatics.gene.model.v1` (target) | Reused cross-service DTOs/contracts only; service-specific and internal types remain local. |
+
+Runtime IDs, Config Server names, gateway targets, Feign service IDs, Compose names, and Kubernetes selectors move
+together. No public API path or catalog schema alias is introduced for the former `dashboard` identity.
+
 ### D15 — Audit event producer and audit-service ownership
 
 - Common-starter supplies producer-side `@Auditable` AOP instrumentation and publishes events asynchronously to the
@@ -256,16 +285,16 @@ repository, datasource, schema migration, search API or retention implementation
 
 ## 3. Confirmed Questions and Implementation Gates
 
-| ID | Priority | Question                                                                                                                                        | Proposed default                                                                                       | Response                                                                                                                                                                                                    |
-|----|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Q1 | 🟡       | Schema name for dashboard-owned tables: `dashboard` or `catalog`?                                                                               | `dashboard` (matches the service ID and the existing `auth` / `analytics` / `import_batch` convention) | gene_data as dashboard will be renamed to gene-service in the future.                                                                                                                                       |
-| Q2 | 🔴       | Is Stage B (a physically separate catalog PostgreSQL cluster) in scope for ARCH-002, or deferred to ARCH-001 Phase 10?                          | Deferred; only Stage A is mandatory                                                                    | keep it for arch-001 phase 10.                                                                                                                                                                              |
-| Q3 | 🔴       | Re-import of an existing accession: **replace**, **merge**, or **reject**?                                                                      | Replace (D11)                                                                                          | merge in gene consumer would be good so if data exists from file which is light weight and them imported from api which is detailed it will be updated by new data so merge works                           |
-| Q4 | 🟡       | Is there any use case for **deleting** proteins (single or bulk "purge before import")?                                                         | No for now; `DELETED` event type is reserved, and a tombstone is emitted if it is introduced           | No delete for existing data only add or merge ( update current with new data )                                                                                                                              |
-| Q5 | 🔴       | Acceptable analytics staleness after an import completes (SLA)?                                                                                 | ≤ 60 s after `ingestion.completed` (quiet period 15 s + refresh time)                                  | ir depends on data size and hardware resource so make it configurable and default to 60s.                                                                                                                   |
-| Q6 | 🟡       | Is hardening the gateway header trust model (`X-User-*`) in scope?                                                                              | Out of scope; `/internal/**` gets service JWT (D9), `/api/**` unchanged                                | yes as other services are using this header to get user info so it should be hardened. and for traçability                                                                                                  |
-| Q7 | 🟡 | During the transition, should the legacy `analytics.view-refresh.requested` flow keep running in parallel (shadow mode) until parity is proven? | Yes, until P6 parity sign-off | the refresh view is done at the end of import so it should be kept in parallel until parity is proven. |
-| Q8 | ✅       | Where should audit instrumentation, transport and persistence live?                                                                             | Common producer instrumentation publishes events; audit-service persistence ownership to be confirmed  | Common-starter emits audit events; existing Kafka topic `audit.events.log` transports them; new audit-service owns schema, persistence, search and retention. Historical-data/Flyway handoff is a P−1 gate. |
+| ID | Priority | Question | Confirmed resolution |
+|----|----------|----------|----------------------|
+| Q1 | 🟡 | What schema owns the former dashboard catalog tables? | Use `gene_data`; the module and runtime identity move to `gene-service`. Preserve public and internal API paths. |
+| Q2 | 🔴 | Is a physically separate catalog PostgreSQL cluster in scope? | Defer Stage B to ARCH-001 Phase 10; ARCH-002 implements Stage A logical isolation. |
+| Q3 | 🔴 | How should re-import handle an existing accession? | Merge: present incoming values update stored values, absent values are retained, and child collections are additive. A lower UniProt `entry_version` is stale. D11 is superseded. |
+| Q4 | 🟡 | Can proteins be deleted or purged by import? | No. Existing entries are only added or merged; no delete endpoint or tombstone is introduced. |
+| Q5 | 🔴 | What analytics freshness is required after ingestion? | Make freshness configurable; default maximum scheduling delay is 60 seconds. Report API and refresh duration separately; this is not a bound on total freshness during outages. |
+| Q6 | 🟡 | Is gateway identity-header trust hardening in scope? | Yes. Strip spoofable inbound internal headers, use exact public-route matching, authenticate users from validated JWTs, and scope service-to-service JWTs (D9/D12). |
+| Q7 | 🟡 | Should legacy analytics refresh run during transition? | Yes. Keep it alongside the API-backed refresh until P6 parity sign-off; remove legacy flow only in P8. |
+| Q8 | ✅ | Where do audit instrumentation, transport and persistence belong? | `common-starter` produces audit events, existing Kafka topic `audit.events.log` transports them, and audit-service alone owns audit storage/APIs/retention. Historical data and Flyway handoff are P−1 gates. |
 
 ---
 

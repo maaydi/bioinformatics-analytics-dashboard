@@ -1,0 +1,19 @@
+ID   FIXTURE_HUMAN              Reviewed;         100 AA.
+AC   P12345;
+DT   01-JAN-2020, integrated into UniProtKB/Swiss-Prot.
+DT   01-JAN-2020, sequence version 1.
+DT   01-JAN-2022, entry version 3.
+DE   RecName: Full=Fixture protein kinase;
+GN   Name=fixture;
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Mammalia; Primates; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+PE   1: Evidence at protein level;
+KW   Kinase; Activator.
+DR   GO; GO:0004672; protein kinase activity; F:.
+DR   PDB; 1ABC; X-ray; 2.00 A.
+FT   ACT_SITE       10..10
+SQ   SEQUENCE   100 AA;  11000 MW;  0123456789ABCDEF CRC64;
+AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA
+AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA
+//

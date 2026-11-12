@@ -132,6 +132,32 @@ release gates: current environment-backed shared database credentials do not
 demonstrate denial of audit access from producer services. Do not copy audit
 credentials into producer configuration or move audit migrations into `gene_data`.
 
+### ARCH-002 Database and Kafka Access Boundaries
+
+Use separate database logins and least-privilege grants; service names or schema defaults are not an access-control
+boundary. The target catalog migration login `gene_data_owner` is used by gene-service Flyway only. The runtime
+`gene_service_svc` belongs to the `NOLOGIN` `gene_data_rw` group and is the only service runtime with catalog access.
+Other services use their own schema credentials: `analytics_svc` → `analytics`, `import_svc` → `import_batch`,
+`auth_svc` → `auth`, and `export_svc` → `export_data`. `audit_service_owner` runs audit migrations and
+`audit_service_svc` accesses only `audit_log`. Revoke `PUBLIC` privileges and grant database `CONNECT` and schema
+privileges explicitly. Do not give producers or common-starter an audit database credential. Keep the audit history
+handoff and its independent Flyway baseline as a release gate; never run audit migrations as gene-service migrations.
+
+Provision Kafka ACLs/credentials for the minimum topic and consumer-group access needed by each deployed service:
+
+| Service/component | Required Kafka access |
+|-------------------|-----------------------|
+| `gene-service` catalog outbox relay | Produce to `catalog.protein-entry.changed.v1` and `catalog.protein-ingestion.completed.v1`. |
+| `analytics-service` | Consume `catalog.protein-ingestion.completed.v1` with its analytics consumer group; it does not consume `catalog.protein-entry.changed.v1`. |
+| Audit-producing services using `common-starter` | Produce to the existing `audit.events.log` topic. |
+| `audit-service` | Consume `audit.events.log` with the `audit-logger` group. |
+| Other services | No catalog/audit topic permission unless a separately approved consumer or producer contract requires it. |
+
+The checked-in local Compose/Kubernetes wiring supplies broker connectivity and topic initialization; it does not by
+itself prove broker ACL isolation. Verify principal-level topic/group permissions and database access-denial tests
+before claiming the P7/P9 isolation gates are complete. Keep catalog and audit data/schema ownership separate even
+when they share a PostgreSQL cluster.
+
 ### Compose wiring for shared infrastructure
 
 The root `.env.example` includes every `APP_RATE_LIMITER_*` override referenced by

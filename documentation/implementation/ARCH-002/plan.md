@@ -11,6 +11,11 @@
 > | 5   | 2026-10-30 | Record completed shared audit producer migration and targeted Kafka verification; keep module rename, explicit auto-configuration, ownership/history and rollout gates open |
 > | 6   | 2026-11-06 | Apply D1–D4 My Decision: `libs/gene-model-lib`, Feign chunk writes, Kafka-triggered API-backed analytics refresh and retained transactional outbox; remove analytics CQRS/backfill requirements |
 > | 7   | 2026-11-06 | Implement P1 explicit feature configuration, optional infrastructure dependencies, header-free Kafka/correlation, producer opt-in and remaining gene-service rename wiring; retain deployment/history/parity acceptance gates |
+> | 8   | 2026-11-10 | Complete P0 task 0.1: record confirmed Q1–Q8 resolutions and align ARCH-002 decisions D5, D7, D9, D11–D15 with D1–D4 |
+> | 9   | 2026-11-10 | Complete P0 task 0.2: align overview acceptance criteria, decision summary and effort estimate with confirmed design |
+> | 10  | 2026-11-10 | Complete P0 task 0.3: align domain model with gene_data ownership, catalog traceability/outbox, analytics refresh state, and schema roles |
+> | 11  | 2026-11-10 | Complete P0 task 0.4: document catalog and audit event contracts, delivery semantics, ownership, and no-delete policy |
+> | 12  | 2026-11-10 | Add P0 baseline capture aids, AC-7 and merge fixtures, approved module map and operator access boundaries; record runtime-dependent blockers |
 
 ---
 
@@ -369,30 +374,33 @@ and limits; the rollout order below remains the required acceptance gate.
 
 **Goal:** freeze the public surface, measure the baseline, and align every spec document with Q1–Q8 and D1–D4 My Decision.
 
-- [ ] 0.1 `analyse.md`: record resolutions (Q1–Q8); amend D5 (`revision`), D7 (`gene_data`), D9 (+ trust model), D11
+- [x] 0.1 `analyse.md`: record resolutions (Q1–Q8); amend D5 (`revision`), D7 (`gene_data`), D9 (+ trust model), D11
   (merge); add D12 (trust model), D13 (configurable freshness), D14 (gene-service refactor), and D15 (producer-side
   common audit instrumentation / Kafka / audit-service persistence boundary). Apply D1's `gene-model-lib` naming and
   local-type boundary, D2's chunk API, D3's API-backed refresh and D4's retained outbox.
-- [ ] 0.2 `overview.md`: AC-2 on `gene_data`; remove the `X-User-*` non-goal; add AC-11 (trust model), AC-12 (merge),
+- [x] 0.2 `overview.md`: AC-2 on `gene_data`; remove the `X-User-*` non-goal; add AC-11 (trust model), AC-12 (merge),
   AC-13 (gene-service refactor / common audit producer), and AC-14 (audit-service ownership and asynchronous flow);
   update the decision table and the estimate; AC-6 must exercise completion-triggered API fetch and atomic aggregate
   publication, not entry-event projection.
-- [ ] 0.3 `domain-model.md`: target catalog `gene_data` schema, `revision`, `last_ingestion_id`, `protein_ingestion`,
+- [x] 0.3 `domain-model.md`: target catalog `gene_data` schema, `revision`, `last_ingestion_id`, `protein_ingestion`,
   `catalog_outbox`, analytics-owned aggregate refresh tables/metadata, roles and grants; explicitly exclude audit tables and audit credentials
   from gene-service ownership.
-- [ ] 0.4 Create `documentation/event-catalog.md` covering catalog and audit topics, event envelopes, actor/source-service/
+- [x] 0.4 Create `documentation/event-catalog.md` covering catalog and audit topics, event envelopes, actor/source-service/
   correlation context, payloads, ordering, delivery/retries, duplicates, and catalog no-delete rule.
 - [ ] 0.5 Baseline: PERF-001 import fixture → processed / skipped counts, duration, chunk size, row counts per table.
-- [ ] 0.6 Snapshot public responses for `/api/genes/**`, `/api/analytics/**`, `/api/admin/import/**`,
-  `/api/saved-filters/**` (golden files).
-- [ ] 0.7 Build the AC-7 fixture set: ≥ 30 search combinations covering every filter field, full-text, empty result,
+  BLOCKED: no PERF-001 input or running import/database stack; see `baseline/README.md` and `baseline/catalog-row-counts.sql`.
+- [ ] 0.6 Snapshot public responses for `/api/genes/**`, `/api/v1/analytics/**`, `/api/v1/admin/import/**`,
+  `/api/saved-filters/**` (golden files). Route inventory exists at `baseline/api-snapshot-inventory.md`; response
+  capture is blocked until services and a fixed database fixture are available.
+- [x] 0.7 Build the AC-7 fixture set: ≥ 30 search combinations covering every filter field, full-text, empty result,
   pagination and sorting.
-- [ ] 0.8 Record current KPI totals and MV refresh durations.
+- [ ] 0.8 Record current KPI totals and MV refresh durations. BLOCKED: database unavailable; see `baseline/README.md`.
 - [ ] 0.9 Merge fixtures: a light `.tsv` entry and a detailed `.dat` / API entry for the same accessions, plus a lower-
-  `entry_version` file (staleness guard).
-- [ ] 0.10 Include the P-1 approved module/package/service-ID map in `analyse.md` and `overview.md`; update references
+  `entry_version` file (staleness guard). Fixture inputs exist, but the current TSV parser cannot produce the light entry;
+  run evidence is blocked pending a supported TSV mapping or approved fixture contract.
+- [x] 0.10 Include the P-1 approved module/package/service-ID map in `analyse.md` and `overview.md`; update references
   to the former dashboard module without changing public API paths or the catalog schema.
-- [ ] 0.11 Update `documentation/project-structure.md` and operator/deployment documentation for the target module path,
+- [x] 0.11 Update `documentation/project-structure.md` and operator/deployment documentation for the target module path,
   gene-service identity, new audit-service identity, Kafka permissions, and separate schema/credential ownership.
 
 **Exit:** all documents consistent; baseline artifacts stored under `documentation/implementation/ARCH-002/baseline/`.

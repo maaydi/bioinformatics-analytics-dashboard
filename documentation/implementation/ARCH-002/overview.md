@@ -110,6 +110,18 @@ analytics does not consume per-entry events or maintain a protein projection.
 export-service (later) uses gene-service internal read APIs.
 ```
 
+### Module and Service Identity Map
+
+| Component | Target module/artifact | Runtime ID and Java root | Preserved boundary |
+|-----------|------------------------|--------------------------|--------------------|
+| Catalog owner | `backend/services/gene-service` / `gene-service` | `gene-service` / `com.bioinformatics.geneservice` | Former `backend/dashboard`; public `/api/**`, internal `/internal/v1/**`, catalog objects, and Kafka contracts stay stable. |
+| Audit event producer | `backend/libs/common-starter` | `common-starter` / `com.bioinformatics.common.audit` | Producer annotation, AOP, event context, and Kafka publishing only. |
+| Audit persistence owner | `backend/services/audit-service` / `audit-service` | `audit-service` / `com.bioinformatics.auditservice` | Owns `audit_log`, migrations, persistence, search authorization, and retention. |
+| Shared catalog contracts | `backend/libs/gene-model-lib` / `gene-model-lib` (planned) | Library; no runtime identity / `com.bioinformatics.gene.model.v1` | Reused contracts only; internal/service-specific types stay in their services. |
+
+Apply runtime identity changes atomically across Config Server, discovery, gateway, Feign clients, Compose, images,
+Kubernetes selectors, probes, and secrets. Do not change public API paths or introduce a `dashboard` runtime alias.
+
 The legacy end-of-import refresh remains in parallel until parity sign-off (Q7). The final path has no cross-schema
 SQL reads. Cached aggregates remain readable during a gene-service outage; refresh and live filtered/compare calls
 depend on that API and expose errors explicitly. Configurable refresh scheduling defaults to 60 seconds; actual API
@@ -154,7 +166,9 @@ Then no class annotated with @Entity, @Repository or a catalog @Service exists i
 Given the Stage A database provisioning has run
 When analytics_svc, import_svc or audit_service_svc accesses gene_data.protein_entry
 Then PostgreSQL returns "permission denied for schema gene_data"
-  and only gene_service_svc can read or write the catalog schema (on both the primary and the replica)
+  and auth_svc, export_svc and every other non-owner role are also denied access to gene_data
+  and only gene_service_svc (through gene_data_rw) can read or write the catalog schema on the primary
+  and gene_service_svc has read-only access on the physical replica
 ```
 
 ### AC-3 — Import through the owner's API
@@ -196,12 +210,14 @@ Then one ProteinEntryChangedEvent (CREATED or UPDATED) is written to the outbox 
 ```
 Given analytics-service consumes catalog.protein-ingestion.completed.v1 after an import
 When a refresh is due under the configured debounce and maximum scheduling delay (default 60 s)
-Then it calls gene-service POST /internal/v1/protein-entries/statistics with a scoped service token
+Then it durably records the completion marker before acknowledging Kafka
+  and calls gene-service POST /internal/v1/protein-entries/statistics with a scoped service token
   and atomically saves the returned complete aggregate set in analytics-owned refresh tables/views
+  and keeps the last complete aggregate set readable until the replacement publication commits
   and dashboard KPIs/distributions match the legacy path and gene-service's counts
   and duplicate/out-of-order markers and restarts do not lose pending refresh work or corrupt published results
   and a marker received during a refresh causes a subsequent fetch
-  and API/storage failure preserves the last complete set, records an explicit failure and allows recovery
+  and API/storage failure preserves the last complete set, records a visible failure and allows bounded retry/recovery
   and analytics does not read catalog tables or consume per-entry events on the new path
 ```
 
@@ -247,9 +263,15 @@ Then it starts without waiting for gene-service to be healthy (import-service no
 ### AC-11 — Hardened identity trust
 
 ```
-Given a request supplies forged X-User-* headers
-When it is routed through the gateway or sent directly to a service without a valid JWT
-Then the supplied identity is ignored and the request is rejected or authenticated only from validated token claims
+Given a request supplies forged X-User-* or other internal headers
+When it enters the gateway on any route, including a public authentication route
+Then the gateway strips those headers before routing
+  and public-route bypasses match exact HTTP method and path, not a path substring
+  and discovery-based service routes and /internal/** are not exposed through the gateway (404)
+  and services derive user identity only from validated bearer-token claims, never from X-User-* headers
+  and a direct /internal/** call without a token returns 401, a user token returns 403,
+      and a valid service token with the required audience and scope is authorized
+  and correlation ID, actor and service identity remain distinct in propagated request and audit context
 ```
 
 ### AC-12 — Merge semantics
@@ -257,8 +279,10 @@ Then the supplied identity is ignored and the request is rejected or authenticat
 ```
 Given a light protein record is followed by a detailed record for the same accession
 When gene-service merges both records
-Then present fields enrich/overwrite current values, absent fields and empty collections do not erase data,
+Then present non-null fields enrich/overwrite current values, absent fields and empty collections do not erase data,
+  child collections merge additively by natural key and are never deleted,
   lower UniProt entry versions are stale no-ops, and replaying the same input is idempotent
+  and each material change increments technical revision once and emits one entry-change event
 ```
 
 ### AC-13 — gene-service refactor and common audit instrumentation
@@ -287,20 +311,23 @@ Then it persists the event idempotently and makes it available through an author
 
 ## Key Design Decisions (summary — full rationale in `analyse.md`)
 
-| ID  | Decision                                                                                                                      | Status        |
-|-----|-------------------------------------------------------------------------------------------------------------------------------|---------------|
-| D1 | Hybrid: `backend/libs/gene-model-lib` for reused DTOs/Feign contracts; service-specific/internal records stay local | Confirmed My Decision C |
-| D2  | Import writes go through a Feign bulk-upsert endpoint on `gene-service`, not through Kafka commands                            | Confirmed     |
-| D3 | Kafka ingestion completion triggers a gene-service statistics API call; analytics saves aggregate results in its own refresh tables/views, no protein projection | Confirmed My Decision B (adapted) |
-| D4 | Transactional outbox with a polling relay, including ingestion completion (Debezium-ready) | Confirmed My Decision OK |
-| D5  | One event per entry, compacted topic keyed by accession, plus an ingestion-completed marker event                             | Proposed      |
-| D6  | Stage A: logical isolation (schemas + roles + REVOKE) is mandatory. Stage B: dedicated catalog cluster is optional            | Proposed — Q2 |
-| D7  | Move catalog tables from `public` to schema `gene_data` (`ALTER TABLE … SET SCHEMA`, metadata-only)                           | Confirmed Q1  |
-| D8  | Keep a single `common-starter`, stripped of business code, with optional dependencies and explicit auto-configuration         | Proposed      |
-| D9  | `/internal/**` requires a service JWT (`typ=service`, scopes `catalog:read` / `catalog:write`)                                | Proposed      |
-| D10 | Keep OpenFeign as requested (maintenance mode noted). Spring HTTP Interface clients are a drop-in alternative                 | Proposed      |
-| D14 | Refactor the former dashboard module and runtime identity to `gene-service`; preserve API paths and catalog tables             | Confirmed Q1  |
-| D15 | common-starter emits audit events; existing Kafka transports them; audit-service owns schema, persistence, search and retention | Confirmed Q8  |
+| ID | Decision | Status |
+|----|----------|--------|
+| D1 | `backend/libs/gene-model-lib` contains reused cross-service DTOs/contracts; service-specific and internal types stay local | Confirmed My Decision C |
+| D2 | Import-service parses and sends Feign upsert chunks to gene-service; gene-service owns persistence and merge | Confirmed My Decision A |
+| D3 | Ingestion completion triggers an API-backed statistics refresh into analytics-owned aggregate tables; no protein projection | Confirmed My Decision B (adapted) |
+| D4 | Transactional outbox and polling relay publish catalog changes and ingestion completion | Confirmed My Decision OK |
+| D5 | Entry-change events use technical `revision`; one compacted event per accession plus an ingestion-completion marker | Confirmed design |
+| D6 | Stage A schema/role isolation is mandatory; Stage B physical split is deferred to ARCH-001 Phase 10 | Confirmed Q2 |
+| D7 | Catalog objects move to `gene_data`; audit schema and migration ownership remain separate | Confirmed Q1/Q8 |
+| D8 | Retain a single `common-starter` with explicit opt-in auto-configuration and optional infrastructure dependencies | Confirmed design; P1 implementation delivered, qualification gates remain |
+| D9 | `/internal/**` is gateway-private and requires scoped service JWTs; users authenticate from validated bearer tokens | Confirmed design |
+| D10 | Use OpenFeign for cross-service clients, with portable mapping annotations and contract tests | Confirmed design |
+| D11 | Re-import merges present fields, preserves absent data, adds/merges children, and ignores lower source versions | Confirmed Q3/Q4; replaces earlier proposal |
+| D12 | Strip inbound identity/internal headers, use exact public-route matching, and trust validated JWT claims only | Confirmed Q6 |
+| D13 | Analytics freshness scheduling is configurable (60-second default); measure API duration and aggregate age separately | Confirmed Q5 |
+| D14 | Rename the former dashboard module/runtime to `gene-service`; preserve public and internal API contracts | Confirmed Q1 |
+| D15 | common-starter produces audit events over existing Kafka; audit-service alone owns audit persistence, APIs and retention | Confirmed Q8 |
 
 ---
 
@@ -318,5 +345,5 @@ Then it persists the event idempotently and makes it available through an author
 ---
 
 **Ticket Created**: 2026-09-29 **Depends on**: ARCH-001 Phases 0–3 (done)
-**Estimated Effort**: L (plan rev. 6 retains the provisional ≈ 54 eng-days / 8–10 weeks for 1–2 engineers;
+**Estimated Effort**: L (plan rev. 12 estimates ≈ 54 eng-days / 8–10 weeks for 1–2 engineers;
 re-estimate P6 after the aggregate-contract inventory; Stage B DB split excluded)

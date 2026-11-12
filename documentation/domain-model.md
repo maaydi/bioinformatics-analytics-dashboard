@@ -10,11 +10,35 @@
 | Goal                           | Design Decision                                |
 |--------------------------------|------------------------------------------------|
 | Fast multi-filter queries      | Normalised schema + JPA Specifications         |
-| Dashboard KPIs & charts        | Materialized views with pre-aggregated buckets |
+| Dashboard KPIs & charts        | Owner-computed statistics published to analytics-owned aggregate snapshots |
 | Full-text search               | PostgreSQL `tsvector` column on key fields     |
 | Flexible metadata storage      | `jsonb` fallback column on main table          |
 | Array-typed multi-value fields | PostgreSQL native arrays + GIN indexes         |
 | Import from `.dat` flat file   | Every UniProt line tag maps to a column        |
+
+## Target Persistence Ownership (ARCH-002)
+
+The following is the target ownership model. Catalog objects belong to `gene-service` in `gene_data`; analytics
+refresh state belongs to `analytics-service` in `analytics`. The audit domain is independently owned by
+`audit-service` in `audit_log`. No audit table, sequence, migration, or credential belongs to `gene-service`,
+`gene_data`, `common-starter`, or an audit-event producer.
+
+| Schema / data | Owner and role boundary |
+|---------------|------------------------|
+| `gene_data` | `gene_data_owner` runs Flyway and owns catalog objects. Runtime `gene_service_svc` is a member of `gene_data_rw`, which has catalog DML, sequence usage, and required function execution. |
+| `analytics` | Analytics migrations and runtime are owned by analytics-service; `analytics_svc` has no privilege on `gene_data` or `audit_log`. |
+| `audit_log` | `audit_service_owner` runs audit Flyway; `audit_service_svc` accesses audit persistence. Audit-service has no privilege on `gene_data`. |
+| `import_batch`, `auth`, `export_data` | `import_svc`, `auth_svc`, and `export_svc` access only their own schemas and have no privilege on `gene_data` or `audit_log`. |
+
+`gene_data_rw` is a `NOLOGIN` group role. `gene_data_owner` is a migration-only login; `gene_service_svc` is the
+catalog runtime login. Default privileges for `gene_data_owner` grant future catalog tables, sequences, and required
+functions to `gene_data_rw`. Revoke schema and database access from `PUBLIC`, then grant `CONNECT` and schema
+privileges explicitly. The physical replica carries the grants; `gene_service_svc` is read-only there.
+
+The catalog Flyway history is relocated from `public` to `gene_data` before changing the configured default schema.
+The legacy V13-V17 audit records in that history are retained as historical validation only. Audit-service has an
+independent Flyway history and an approved, rehearsed data/history handoff; the old audit migrations must not be
+replayed against `gene_data` or used as audit-service migrations.
 
 ---
 
@@ -37,6 +61,10 @@ protein_entry  ──< protein_keyword >── keyword
 
 Maps directly to one UniProt `.dat` record (delimited by `//`).
 
+The table is created in `gene_data`. `entry_version` below remains the UniProt source version; `revision` is the
+independent technical version used for catalog change detection and event ordering. The catalog SQL examples in
+this document are scoped to `gene_data` unless another schema is named.
+
 ```sql
 CREATE TABLE protein_entry
 (
@@ -54,6 +82,10 @@ CREATE TABLE protein_entry
     updated_date         DATE,                                -- DT: entry version N
     sequence_version     SMALLINT,
     entry_version        SMALLINT,
+
+    -- === CATALOG TRACEABILITY (ARCH-002) ===
+    revision             BIGINT       NOT NULL DEFAULT 0,
+    last_ingestion_id    TEXT,
 
     -- === PROTEIN NAME (DE lines) ===
     protein_full_name    TEXT,                                -- DE RecName: Full=...
@@ -90,11 +122,16 @@ CREATE TABLE protein_entry
     -- Extra parsed fields or raw sections not yet mapped
     metadata_jsonb       JSONB,
 
-    -- === AUDIT ===
+    -- === ROW LIFECYCLE ===
     created_at           TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at           TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 ```
+
+`last_ingestion_id` stores the ingestion identifier that materially changed the row. A material merge increments
+`revision` once and updates `updated_at` and `last_ingestion_id`; a no-op does not write the entry or emit an
+entry-change event. The ingestion ledger uses the same text representation for its ID so it can retain the import
+job's identifier without coupling to Spring Batch's internal numeric key.
 
 ### Indexes on `protein_entry`
 
@@ -361,9 +398,12 @@ CREATE INDEX idx_pub_pubmed ON protein_publication (pubmed_id);
 
 ---
 
-## 11. Materialized Views for Analytics
+## 11. Legacy Materialized Views (transition only)
 
-These power the Dashboard charts and Analytics page without scanning millions of rows on every request.
+The following views document the existing legacy analytics read model. They are not the target cross-service
+architecture: during P6 shadow mode they remain available for parity comparison, then legacy refresh/read paths are
+disabled after sign-off and removed in P8. The target analytics read model is described in §11.7 and does not query
+`gene_data` directly.
 
 ### 11.1 `mv_length_histogram`
 
@@ -489,6 +529,9 @@ FROM protein_entry;
 
 ### Refresh strategy
 
+This direct catalog refresh is legacy behavior only. The target flow is completion event -> gene-service statistics
+API -> analytics-owned staged aggregate results -> atomic publication.
+
 ```sql
 -- Called by the Spring Batch import job after a full import completes
 REFRESH
@@ -506,6 +549,24 @@ MATERIALIZED VIEW CONCURRENTLY mv_dashboard_kpis;
 ```
 
 > Use `CONCURRENTLY` so reads are never blocked during refresh.
+
+### 11.7 API-backed analytics aggregate and refresh state (target)
+
+Analytics persists only aggregate results returned by `POST /internal/v1/protein-entries/statistics`; no catalog
+entity, per-protein snapshot, or cross-schema view is introduced. All of the following objects belong to the
+`analytics` schema and are inaccessible to gene-service:
+
+| Logical persistence component | Data and invariant |
+|--------------------------------|--------------------|
+| Aggregate staging set | Complete result rows for an unpublished generation. A failed or partial fetch never replaces the published generation. |
+| Published aggregate set | The last complete KPI, distribution, and related aggregate results read by dashboard views/endpoints. |
+| Refresh metadata | Published generation ID, source generation timestamp, last successful publication, pending/failed state, and last error. |
+| Durable refresh requests | Completion event/ingestion identity, deduplication state, attempts, next retry time, and failure details. Persist before acknowledging Kafka; duplicate markers may coalesce safely. |
+
+Publication swaps the complete staged set and its metadata in one analytics-local transaction. Keep the prior
+published set available until commit. A marker received during a fetch remains pending for a subsequent fetch;
+restarts, retries, and concurrent service instances must not lose requests or publish stale partial results. The
+physical table names and aggregate row shape are finalized with the P6 statistics contract and migrations.
 
 ---
 
@@ -567,7 +628,7 @@ Quick reference for the ETL / Spring Batch `ItemProcessor`.
 
 ---
 
-## 14. Full DDL Summary (ordered by dependency)
+## 14. Historical Base DDL Summary (ordered by dependency)
 
 ```sql
 -- 1. Vocabulary tables (no FKs)
@@ -588,7 +649,7 @@ cross_reference
 protein_keyword
 protein_go_term
 
--- 5. Materialized views (after all base tables exist)
+-- 5. Legacy materialized views (transition only; not the target analytics read model)
 mv_dashboard_kpis
 mv_reviewed_ratio
 mv_evidence_distribution
@@ -597,10 +658,14 @@ mv_organism_counts
 mv_keyword_frequency
 ```
 
-All DDL scripts live in:
+The ARCH-002 target catalog additions are `protein_ingestion`, `catalog_outbox`, `saved_filter`, and the traceability
+columns on `gene_data.protein_entry`. Analytics aggregate staging/publication/refresh state is stored in
+`analytics`; audit persistence is stored separately in `audit_log` and is not included in this catalog DDL summary.
+
+The gene-service Flyway scripts live in:
 
 ```text
-backend/src/main/resources/db/migration/
+backend/services/gene-service/src/main/resources/db/migration/
   V1__create_protein_entry.sql
   V2__create_keyword_tables.sql
   V3__create_go_term_tables.sql
@@ -614,3 +679,37 @@ backend/src/main/resources/db/migration/
 ```
 
 Managed by **Flyway** (already in Spring Boot project structure).
+
+The ingestion ledger is catalog-owned by gene-service. Its ID is the external ingestion identifier (stored as text);
+the record includes source service, source type (`FILE_DAT`, `FILE_TSV`, `UNIPROT_API`), initiating user, status,
+created/updated/unchanged/stale/rejected counters, and start/completion timestamps. `last_ingestion_id` on
+`protein_entry` refers to this ID; it is updated only when a merge materially changes that entry.
+
+The target outbox DDL is summarized below:
+
+```sql
+CREATE TABLE gene_data.catalog_outbox (
+    id                  BIGSERIAL PRIMARY KEY,
+    aggregate_type      TEXT NOT NULL,
+    aggregate_id        TEXT NOT NULL,
+    aggregate_version   BIGINT,
+    event_type          TEXT NOT NULL,
+    topic               TEXT NOT NULL,
+    message_key         TEXT NOT NULL,
+    payload             JSONB NOT NULL,
+    correlation_id      TEXT,
+    occurred_at         TIMESTAMPTZ NOT NULL,
+    published_at        TIMESTAMPTZ,
+    attempts            INTEGER NOT NULL DEFAULT 0,
+    last_error          TEXT
+);
+
+CREATE INDEX idx_catalog_outbox_unpublished
+    ON gene_data.catalog_outbox (id)
+    WHERE published_at IS NULL;
+```
+
+One transaction commits each ingestion chunk's catalog changes and entry-change outbox rows. Ingestion completion
+and its completion marker are committed together after all chunks succeed. The relay publishes at least once and
+sets `published_at` only after broker acknowledgement; consumers deduplicate by event ID. Catalog deletion and
+tombstones are not supported.

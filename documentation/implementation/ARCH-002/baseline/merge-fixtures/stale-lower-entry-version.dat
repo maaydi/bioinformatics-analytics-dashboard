@@ -1,0 +1,15 @@
+ID   FIXTURE_HUMAN              Reviewed;         100 AA.
+AC   P12345;
+DT   01-JAN-2020, integrated into UniProtKB/Swiss-Prot.
+DT   01-JAN-2020, sequence version 1.
+DT   01-JAN-2021, entry version 2.
+DE   RecName: Full=Older fixture protein;
+GN   Name=fixture;
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Mammalia; Primates; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+PE   1: Evidence at protein level;
+SQ   SEQUENCE   100 AA;  10000 MW;  0123456789ABCDEF CRC64;
+AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA
+AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA
+//
