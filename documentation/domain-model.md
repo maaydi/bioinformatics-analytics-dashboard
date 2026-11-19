@@ -18,6 +18,34 @@
 
 ## Target Persistence Ownership (ARCH-002)
 
+### Current fresh-install baseline (decision 2026-11-16)
+
+All six existing services start from fresh databases/schemas and one service-owned V1 migration.
+There is no legacy-record transfer, archive/purge, Flyway-history relocation, repair or upgrade path.
+Existing databases must not be pointed at the rewritten baselines. No running database or volume is
+reset automatically; provision an empty database explicitly before deploying this release.
+
+The current deployment remains on shared PostgreSQL, as approved. Catalog tables and their history
+remain in `public` until ARCH-002 P7; physical database separation is not part of this reset.
+
+| Service | Current schema / history | Fresh migration |
+|---------|--------------------------|-----------------|
+| gene-service | `public` | `migration/V1__init_schema.sql`: catalog tables, saved filters keyed by username, FTS/trigram indexes/functions, eight pooled sequences (increment 500) |
+| auth-service | `auth` | `db/migration/V1__auth_schema.sql`: users, refresh tokens and existing seed accounts |
+| import-service | `import_batch` | `db/migration/V1__import_schema.sql`: import jobs |
+| analytics-service | `analytics` | `db/migration/V1__analytics_schema.sql`: current materialized views and refresh log |
+| export-service | `export_data` | `db/migration/V1__export_pipeline.sql`: pipeline/execution tables, extensible `VARCHAR(50)` format |
+| audit-service | `audit_log` | `migration/V1__audit_log_schema.sql`: events and pooled audit ID sequence (increment 500) |
+
+Each schema has its own `flyway_schema_history`. `baseline-on-migrate=false` prevents silently accepting
+an unmanaged nonempty schema; `validate-on-migrate=true` rejects incompatible applied scripts. Gene-service
+no longer creates obsolete audit, auth, import-job, materialized-view or refresh-log objects. The old
+V2–V21 catalog upgrade chain and analytics/export V2 scripts are replaced by their final V1 definitions.
+Install gene-service before analytics because current analytics views read `public` catalog tables.
+Import/export/filtered analytics still use shared catalog access until their API refactors land.
+
+### Planned isolated ownership
+
 The following is the target ownership model. Catalog objects belong to `gene-service` in `gene_data`; analytics
 refresh state belongs to `analytics-service` in `analytics`. The audit domain is independently owned by
 `audit-service` in `audit_log`. No audit table, sequence, migration, or credential belongs to `gene-service`,
@@ -35,10 +63,10 @@ catalog runtime login. Default privileges for `gene_data_owner` grant future cat
 functions to `gene_data_rw`. Revoke schema and database access from `PUBLIC`, then grant `CONNECT` and schema
 privileges explicitly. The physical replica carries the grants; `gene_service_svc` is read-only there.
 
-The catalog Flyway history is relocated from `public` to `gene_data` before changing the configured default schema.
-The legacy V13-V17 audit records in that history are retained as historical validation only. Audit-service has an
-independent Flyway history and an approved, rehearsed data/history handoff; the old audit migrations must not be
-replayed against `gene_data` or used as audit-service migrations.
+P7 will provision `gene_data` directly on a fresh database and initialize the catalog there; it will not relocate
+`public` tables or their Flyway history. Legacy audit scripts are removed from gene-service, not retained as active
+or validation-only migrations. Audit-service alone initializes `audit_log`. The SQL below is the ARCH-002 target
+blueprint (including not-yet-implemented revision/outbox/ingestion state), not the current V1 installation.
 
 ---
 

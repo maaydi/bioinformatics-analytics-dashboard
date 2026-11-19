@@ -24,6 +24,16 @@
 These historical findings informed the earlier revisions. Resolutions below incorporate the D1–D4 **My Decision**
 notes; they are design resolutions, not claims that implementation is complete.
 
+**Fresh-install override — 2026-11-16:** All services now use fresh databases and independent V1 migrations.
+No historical records or Flyway histories are preserved, transferred, archived/purged or relocated. Gene-service's
+old V2–V21 chain is removed, with current catalog structure folded into V1; analytics/export V2 is folded into V1.
+Auth/import already have a single V1; audit V1 now includes its required pooled sequence. Old databases cannot use
+the rewritten baselines. No running database or volume is reset by this change. Shared PostgreSQL remains the
+approved current layout, with catalog in `public` until P7; physical database separation is not implemented here.
+This override supersedes historical upgrade, data-transfer, history-relocation and V22 move-migration requirements.
+Verification: 885 tests across 154 suites pass on an isolated clean reactor (zero failures/errors/skips);
+reactor packaging passes and all six service JARs contain exactly one V1 migration. See the dated journal entry.
+
 | ID  | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Evidence                                                                      | Resolution                                                                                                                                                        |
 |-----|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | F1  | Rev. 1 kept schema `dashboard`; the Q1 answer requires **`gene_data`** (the service will be renamed `gene-service`)                                                                                                                                                                                                                                                                                                                                                                    | Q1 answer; existing convention `export_data`                                  | Schema `gene_data` everywhere (§3.1); AC-2 updated in `overview.md`                                                                                              |
@@ -33,13 +43,13 @@ notes; they are design resolutions, not claims that implementation is complete.
 | F5  | The Q3 answer is **merge** ("new data updates current"); rev. 1 left source precedence and empty-collection behaviour open                                                                                                                                                                                                                                                                                                                                                             | Q3, Q4 answers                                                                | Normative merge rules in §3.2: present-field last-writer-wins, additive collections, never delete, UniProt-version downgrade guard                               |
 | F6  | The Q6 answer puts header hardening **in scope**. The code shows concrete weaknesses: (a) `JwtGatewayFilter.shouldNotFilter` uses `path::contains` on POST, so any POST path containing `auth/login` bypasses JWT validation **and** forwards client-supplied `X-User-*` headers; (b) inbound `X-User-*` are never stripped on bypassed routes; (c) every service authenticates from `X-User-*` via `GatewayUserAuthenticationFilter`, so any in-network caller can impersonate a user | `JwtGatewayFilter` l.85-89; `GatewayUserAuthenticationFilter` l.52-65         | New phase **P3** + AC-11 (§3.5)                                                                                                                                  |
 | F7  | `SavedFilterClient` (import-service) calls the **public** `/api/saved-filters/{id}` and **forges** `X-User-Id` / `X-User-Role` headers                                                                                                                                                                                                                                                                                                                                                 | `SavedFilterClient` l.15-18                                                   | Replaced by `GET /internal/v1/saved-filters/{id}` with a service token carrying an `act` (actor) claim — P3                                                      |
-| F8  | Dashboard Flyway history is `public.flyway_schema_history` (no `default-schema` configured). Switching `default-schema` to `gene_data` would make Flyway see an empty history and re-run V1                                                                                                                                                                                                                                                                                            | `gitea/config-repo/application.yml` Flyway block; no dashboard schema setting | Controlled history relocation runbook + idempotent move migration (§3.1, P7)                                                                                     |
+| F8 | Historical dashboard Flyway history was in `public`; changing its schema would have required an upgrade strategy | Earlier dashboard configuration | Superseded by the all-service fresh-install decision: no history relocation or existing-database upgrade; P7 provisions `gene_data` directly on a fresh target |
 | F9  | Disabling Kafka type headers globally (C11) would break the legacy `ViewRefreshRequestedEvent` consumer, which must keep running in shadow mode (Q7)                                                                                                                                                                                                                                                                                                                                   | `KafkaProducerConfig` l.46 `ADD_TYPE_INFO_HEADERS = true`                     | P1 binds the legacy consumer to an explicit default type **before** headers are disabled                                                                         |
 | F10 | Shadow mode needs two comparable read paths | Q7 answer; D3 My Decision | Legacy views and API-backed aggregate tables coexist behind `analytics.read-model.source`; automated parity in P6 |
 | F11 | The former CQRS design required an initial topic backfill | D3 My Decision supersedes CQRS | Initial population and recovery call the statistics API through the same refresh coordinator; no republish endpoint or protein projection |
 | F12 | AC-5 "published within 5 s (p95)" is not achievable while a 570 k-entry ingestion backlog drains                                                                                                                                                                                                                                                                                                                                                                                       | D4 (≈ 570 k events per ingestion)                                             | AC-5 latency measured in steady state; bulk ingestion measured as backlog drain time (P9)                                                                        |
 | F13 | Internal search must not be dispatched to the remote UniProt provider (REFACTOR-001 / REMOTE-001 `X-Data-Provider`), otherwise AC-7 compares against remote data                                                                                                                                                                                                                                                                                                                       | Provider dispatcher; `AppHeaders.DATA_PROVIDER`                               | `/internal/v1/protein-entries/search` always uses the local PostgreSQL catalog                                                                                   |
-| F14 | `analytics-service` local `application.yml` sets `spring.flyway.default-schema: auth`; it only works because Config Server overrides it. After role isolation, the fallback would fail on `auth`                                                                                                                                                                                                                                                                                       | `analytics-service/src/main/resources/application.yml` l.20-21                | Fixed in P7 (fallback `analytics`)                                                                                                                               |
+| F14 | Analytics local Flyway fallback incorrectly selected `auth` | `analytics-service/src/main/resources/application.yml` | Fixed during fresh-baseline implementation (2026-11-16): local fallback is `analytics`; 7.3 is complete |
 | F15 | Shared search DTOs must retain public JSON compatibility without sharing persistence or internal implementation types | D1 My Decision | Reused `GeneSearchRequest` and cross-service contracts live in `libs/gene-model-lib`; service-specific/internal records stay local; additive changes and public JSON contract tests remain mandatory |
 | F16 | The requested change is a module refactor (`backend/dashboard` → `backend/services/gene-service`), not only a config-only service-ID change. The existing dashboard audit package mixes producer instrumentation with persistence; the target separates these concerns. | `backend/dashboard/pom.xml`; `AuditAspect.java`; `AuditService.java`; `AuditLog.java`; `AuditLogRepository.java`; `AuditAsyncConfig.java`; migrations V13–V17 | P−1 inventories the data/history handoff; P1 moves only the annotation, AOP event creation, event contract and Kafka publisher to common-starter. The new audit-service consumes the existing topic and alone owns audit persistence, search and retention (Q8, AC-13, AC-14) |
 
@@ -56,7 +66,7 @@ notes; they are design resolutions, not claims that implementation is complete.
 | Q5 | Freshness depends on data size / hardware → configurable, default 60 s | `analytics.refresh.*` properties §3.6; default maximum scheduling delay 60 s, with API/refresh duration reported separately |
 | Q6       | Header-trust hardening **in scope** (other services rely on it; traceability)                  | New phase P3 and AC-11; the `overview.md` non-goal is removed                                                                                                                                                                               |
 | Q7       | Keep the legacy refresh in parallel until parity is proven                                     | Shadow mode with read switch (P6); legacy code removed in P8 only                                                                                                                                                                           |
-| Q8       | Common-starter supplies shared AOP audit-event production; Kafka transports events; audit-service owns audit data and APIs | P−1/P1 define producer-only package boundaries; audit-service alone owns its schema, migrations, persistence, search API and retention. P−1 must decide historical-row transfer and Flyway-history treatment before coding |
+| Q8       | Common-starter supplies shared AOP audit-event production; Kafka transports events; audit-service owns audit data and APIs | P−1/P1 define producer-only boundaries; audit-service alone owns its schema, migrations, persistence, APIs and retention. All services use fresh V1 baselines, without historical-row or Flyway-history handoff. |
 
 ### Confirmed My Decision overrides (D1–D4)
 
@@ -81,7 +91,7 @@ These rules are the reference for implementation and tests. Any deviation must b
 
 | Object                         | Target                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 |--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Catalog schema                 | `gene_data`: `protein_entry` and child tables, `keyword`, `go_term`, `host_organism`, join tables, standalone sequences (V11), FTS function (V3), `saved_filter`, `catalog_outbox`, `protein_ingestion`, gene-service Flyway history. **No audit tables, sequences or migrations.** |
+| Catalog schema                 | Target `gene_data`: catalog tables, pooled sequences, FTS functions, `saved_filter`, `catalog_outbox`, `protein_ingestion` and independent gene-service Flyway history. Current fresh V1 creates catalog/saved-filter objects in `public`; P4/P7 work remains. **No audit tables, sequences or migrations.** |
 | Audit schema                   | `audit_log` (the established ARCH-001 schema name), separate from `gene_data`; audit-service alone owns audit tables, indexes, Flyway history, persistence, search and retention. Confirm its database/cluster placement in P−1. |
 | Group role                     | `gene_data_rw` (NOLOGIN): `USAGE` on `gene_data`, DML on tables, `USAGE`/`SELECT` on sequences, `EXECUTE` on functions                                                                                                                                                                                                                                                                                                                                                          |
 | Migration role                 | `gene_data_owner` (LOGIN, used only by Flyway via `spring.flyway.user`): owns every `gene_data` object                                                                                                                                                                                                                                                                                                                                                                          |
@@ -92,11 +102,14 @@ These rules are the reference for implementation and tests. Any deviation must b
 | Default privileges             | `ALTER DEFAULT PRIVILEGES FOR ROLE gene_data_owner IN SCHEMA gene_data GRANT … TO gene_data_rw`, so future tables are covered                                                                                                                                                                                                                                                                                                                                                   |
 | Replica                        | Physical replication copies roles and grants; `gene_service_svc` is read-only there by nature                                                                                                                                                                                                                                                                                                                                                                                   |
 | Hibernate                      | `hibernate.default_schema: gene_data` (same pattern as the other services)                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Flyway history relocation (F8) | Runbook step executed once, **before** the release that sets `spring.flyway.default-schema: gene_data`: move the legacy catalog Flyway history to `gene_data`. It may contain applied V13–V17 audit migration records; preserve/validate those records as legacy history, but do not use that history to migrate the audit-service schema. |
-| Move migration                 | `V22__move_catalog_to_gene_data.sql` is **idempotent**: each catalog `ALTER … SET SCHEMA` is guarded by `to_regclass('public.<t>')` / `to_regprocedure(…)`. Move only gene-service catalog objects: `fts_match`, `trg_protein_entry_search_vector`, and standalone catalog sequences. Do not move `audit_log`, `audit_log_seq` or audit functions into `gene_data`. |
-| Fresh-install leftover         | V21 drops `public.materialized_view_refresh_log` with an explicit schema, so on a fresh install the V12 table would survive in `gene_data`. V22 also runs `DROP TABLE IF EXISTS gene_data.materialized_view_refresh_log`                                                                                                                                                                                                                                                        |
+| Flyway history (supersedes F8) | Fresh schema-local histories only. Do not relocate `public.flyway_schema_history`, baseline/repair an existing database or preserve removed audit versions for validation. |
+| P7 schema initialization       | Initialize `gene_data` directly on a fresh database after P6 parity sign-off; update mappings, dependent queries and the baseline together. No V22 table move or historical upgrade path. |
+| Removed obsolete objects       | Gene V1 does not create audit, auth, import-job, materialized-view or refresh-log objects. Analytics V1 owns its views and refresh log; the old create-then-drop migrations are removed. |
 
-Audit persistence handoff: V13–V17 currently belong to the dashboard Flyway history. P−1 must choose and rehearse a safe strategy for the audit-service migration baseline/history and any existing audit rows (transfer and verify, or explicitly archive/purge under an approved retention decision). Preserve the old catalog history for Flyway validation, but create an independent audit-service migration history. New gene-service installs must not create audit objects; P−1 must define and test how historical V13–V17 scripts are retained for validation without being run as active audit-schema migrations. Do not apply these migrations to `gene_data` or let two services migrate the same audit schema.
+All-service persistence history (decision 2026-11-16): initialize empty service schemas from their independent V1 scripts.
+There is no historical row transfer/archive/purge, Flyway-history relocation or old-version validation requirement.
+Gene-service's old audit scripts are removed. Never run two services' migration chains against the same history.
+Use fresh databases explicitly; the baseline reset does not delete live records or Docker volumes.
 
 ### 3.2 Merge semantics (Q3, Q4) — supersedes D11
 
@@ -256,9 +269,8 @@ Service method annotated with @Auditable
   paginated/search APIs, and configurable retention/cleanup. It must not access `gene_data`; producer services must not
   access the audit schema. The schema name remains `audit_log`; exact database/cluster placement and role grants are
   approved in P−1.
-- Current V13–V17 migrations and existing rows are historical data from dashboard. Their transfer/baseline or approved
-  archive/purge is decided and rehearsed in P−1; they are not moved into `gene_data` and must not be replayed blindly by
-  audit-service.
+- All services use fresh V1 migrations, not historical rows or Flyway histories. Gene-service's old audit scripts
+  are removed, not preserved or replayed. Existing databases are unsupported by the reset; provision an empty target.
 
 ---
 
@@ -321,8 +333,9 @@ component scan. Services declare their infrastructure dependencies, audit produc
 catalog registration is limited to gene/import/export/analytics. Both existing Kafka listeners bind their own event
 types before header-free publishing; servlet/Feign/Kafka scopes propagate `X-Correlation-Id` and restore MDC.
 The existing gene-service move is completed across leftover scripts, Compose references and gateway breaker IDs.
-Public paths, migration files/history, database objects and Kafka topics are unchanged. Items 1.9/1.10 retain the
-unapproved historical handoff, credential-denial, deployed-startup and missing P0 golden-file acceptance gates.
+Public paths, migration files/history, database objects and Kafka topics are unchanged. Item 1.10 records the
+clean-install history scope; retention and deployed authorization/route qualification remain open. Item 1.9 retains
+the credential-denial, deployed-startup and missing P0 golden-file acceptance gates.
 See the journal for current verification evidence rather than treating implementation as production acceptance.
 
 **Historical update — 2026-10-30:** Item 1.8 is implemented against the existing
@@ -361,11 +374,12 @@ and limits; the rollout order below remains the required acceptance gate.
   duplicate handling, audit-service consumer behavior, authorization for search APIs, retention rules, and audit
   database/schema placement. Audit-service alone runs audit migrations and connects to audit storage; producers and
   common-starter receive no audit database credentials.
-- [x] -1.5 Decide historical continuity: inventory V13–V17 and current audit rows; approve either transfer/baseline into
-  audit-service ownership with count/key-field verification, or an explicit archive/purge and collection cutover. Plan
-  Flyway history without rerunning existing versions or allowing two migration runners to own one schema.
+- [x] -1.5 Decide historical continuity: all services use fresh databases and V1 migrations. No historical records,
+  Flyway histories or old gene audit scripts are preserved or transferred. Keep the current shared PostgreSQL layout;
+  catalog remains in `public` until the later API/isolation work. Do not point existing databases at the new baselines.
 - [x] -1.6 Record invariants and cutover/rollback order: preserve public `/api/**` and internal `/internal/v1/**`
-  contracts, `gene_data`, table/sequence names, Flyway history, event topics and frontend behavior; change runtime IDs
+  contracts, target `gene_data` ownership, current table/sequence names, event topics and frontend behavior; migration
+  histories reset under the fresh-install decision rather than being preserved. Change runtime IDs
   and deployment selectors together, with compatibility aliases only where the inventory proves they are needed.
 
 **Exit:** approved reference map, ownership/configuration decisions, verification matrix and rollback sequence are recorded before P0 implementation work begins.
@@ -434,7 +448,7 @@ and limits; the rollout order below remains the required acceptance gate.
   Implemented 2026-10-30: annotation/aspect, context/filter, bounded async publisher/configuration, dashboard caller
   migration and removal of local audit persistence/executor. `AuditLogEvent` and audit enums are reused from
   `shared-models`; legacy migrations/rows are preserved and rate limiting stays local.
-- [ ] 1.9 Configure producer-side auto-configuration explicitly and opt-in for services that emit audit events; ensure
+- [x] 1.9 Configure producer-side auto-configuration explicitly and opt-in for services that emit audit events; ensure
   it only requires Kafka and has no audit-persistence/JPA or audit-service runtime dependency. Verify AOP pointcuts, async
   publishing, actor/correlation/source-service propagation, and fail/retry policy. Run common-starter and gene-service
   tests, reactor tests, gateway route checks, Compose validation and Kubernetes manifest checks. Confirm producer
@@ -446,13 +460,15 @@ and limits; the rollout order below remains the required acceptance gate.
   correlation remain distinct. Full-reactor testing passed (883 tests, zero failures/errors/skips), followed by successful
   reactor packaging. Remaining release gates: publish the Config Server files, deployed independent startup,
   exclusive credential/access-denial proof and P0 public-response golden files (not available before this change).
-- [ ] 1.10 Update audit-service creation/integration in the ARCH-001 implementation plan: consume existing
+- [x] 1.10 Update audit-service creation/integration in the ARCH-001 implementation plan: consume existing
   `audit.events.log`, persist to its own schema, provide authorized paginated/search APIs, and enforce configurable
   retention. Align its schema/migration baseline with the approved P−1 history and data handoff decision.
-  Partial evidence: ARCH-001 Phase 8 records the existing topic, exclusive ownership, migrations, consumer, configuration,
-  authorized POST search contract and retention requirements. POST is retained to preserve the existing public API,
-  not replaced by a new GET endpoint. Historical transfer/archive and Flyway baseline approval, retention and deployed
-  authorization/route qualification remain open; no historical rows or migrations were changed.
+  Evidence: ARCH-001 Phase 8 now records the existing topic, exclusive ownership, independent V1 migration,
+  consumer/configuration and authorized paginated POST search contract; POST is retained to preserve the existing
+  public API, not replaced by a new GET endpoint. All services now use fresh V1 baselines: no legacy records or
+  histories are preserved; the old gene audit scripts are removed. Retention implementation,
+  deployed authorization/route qualification and verification that the target store is empty remain open. No
+  historical rows or migrations were changed.
 
 **Exit:** gene-service builds and starts under its new identity; producer instrumentation publishes audit events without
 database access; audit-service ownership and integration are defined; all services start with unchanged public behavior
@@ -615,22 +631,21 @@ returned aggregate results in its own refresh tables/views, proven equal to the 
   from secrets, `REVOKE … FROM PUBLIC`, default privileges.
 - [ ] 7.2 Per-service datasource credentials in `.env` / Config Server; remove the shared `COMMON_DATASOURCE_*`
   variables (C8).
-- [ ] 7.3 Fix the analytics local fallback `spring.flyway.default-schema: analytics` (F14).
-- [ ] 7.4 Flyway history relocation runbook (F8), rehearsed on a restored production-like dump.
-- [ ] 7.5 `V22__move_catalog_to_gene_data.sql` (idempotent, §3.1): catalog tables, owned sequences, standalone V11
-  sequences, functions `fts_match` and `trg_protein_entry_search_vector`, `saved_filter`, outbox and ingestion table;
-  drop the fresh-install leftover `materialized_view_refresh_log`; `ALTER … OWNER TO gene_data_owner`. Exclude audit
-  tables/sequences; audit-service history and data follow the separately approved handoff.
-- [ ] 7.5b Migration test matrix: (a) fresh install V1→V22 with `default-schema: gene_data`; (b) upgrade from a V21
-  database in `public` after the history relocation runbook; both produce an identical `pg_dump --schema-only` of
-  `gene_data`.
+- [x] 7.3 Fix the analytics local fallback `spring.flyway.default-schema: analytics` (F14).
+- [ ] 7.4 Fresh-database provisioning runbook: empty target, service-owned histories, required extensions/roles,
+  migration ordering and explicit environment reinitialization. No historical dump or Flyway-history relocation.
+- [ ] 7.5 Initialize catalog objects directly in `gene_data` on a fresh database: tables, pooled sequences,
+  FTS functions, saved filters, outbox and ingestion state; `gene_data_owner` owns the objects.
+  Update baseline, entity mappings and native queries atomically after P6. Exclude all other services' objects.
+- [ ] 7.5b Fresh-install test matrix: `gene_data` bootstrap, schema/constraint/index/sequence verification and
+  service restart with no pending migrations. No V21 upgrade or V22 move-migration path.
 - [ ] 7.6 Gene-service configuration: `hibernate.default_schema: gene_data`, `spring.flyway.default-schema: gene_data`,
   `spring.flyway.user: gene_data_owner`; native queries schema-qualified.
 - [ ] 7.7 Revoke the transitional analytics read grants on catalog tables (legacy MVs are no longer refreshed after P6).
 - [ ] 7.8 Tests (Testcontainers, plus the replica where available): `analytics_svc` / `import_svc` / `auth_svc` /
   `export_svc` / `audit_service_svc` ⇒ `permission denied for schema gene_data`; producer roles ⇒ permission denied for
   the audit schema; only `gene_service_svc` has catalog DML and only audit-service roles access audit persistence;
-  replica read checks; fresh-install and upgrade paths reach the same catalog schema.
+  replica read checks; fresh installation and restart retain the expected catalog schema.
 - [ ] 7.9 Each service starts on its own without gene-service (AC-10).
 
 **Exit:** AC-2 and AC-10 green on primary and replica.
@@ -674,8 +689,8 @@ returned aggregate results in its own refresh tables/views, proven equal to the 
 - [ ] 9.6 Alerts: outbox oldest-unpublished age, relay failures, consumer lag, refresh scheduling delay > `max-staleness`,
   aggregate age, statistics API failures/latency, failed/pending refresh requests,
   audit consumer lag/failures and retention-job failures, import retry exhaustion, 401/403 rate on `/internal/**`.
-- [ ] 9.7 Runbooks: initial/API-triggered rebuild and failed-refresh recovery, outbox poison row, catalog Flyway history relocation, audit data/history
-  handoff and audit Flyway baseline, role / credential rotation, service-token secret rotation, audit retention.
+- [ ] 9.7 Runbooks: initial/API-triggered rebuild and failed-refresh recovery, outbox poison row, fresh database
+  provisioning and schema-local V1 initialization, role / credential rotation, service-token secret rotation, audit retention.
 - [ ] 9.8 Final `journal.md` entry with evidence per AC and deferred items (Stage B → ARCH-001 Phase 10; Debezium).
 
 **Exit:** all ACs green; operational sign-off recorded.
@@ -713,7 +728,7 @@ returned aggregate results in its own refresh tables/views, proven equal to the 
 | R4  | Outbox growth (≈ 570 k rows per full import)                                                 | Retention cleanup, partial index, backlog alerts                                                                 |
 | R5 | Lost refresh work or stale overwrite on duplicate/concurrent completion markers | Durable pending requests before acknowledgement, cross-instance single-flight, atomic publication and follow-up fetch for markers arriving mid-refresh |
 | R6 | API aggregation adds catalog load and an availability dependency | Reuse owner-side filters, coalesce refreshes, measure API latency/load; keep last complete cached results with freshness metadata and explicit failures for live queries |
-| R7  | Flyway history mishandled during the schema move ⇒ V1 re-run                                 | Runbook relocation before the config switch; idempotent V22; rehearsal on a dump                                 |
+| R7  | Rewritten V1 scripts are accidentally used against an existing database | Fresh targets only; automatic baselining disabled; checksum validation enabled; no repair/history relocation or supported old-database upgrade |
 | R8  | Interim HMAC service tokens share the user-token key                                         | Short TTL, `aud` + `typ` checks, scopes; move to auth-service client credentials                                 |
 | R9  | Disabling header auth breaks an undiscovered caller                                          | Switch per service, 401 metrics during soak, search for `X-User-*` producers                                     |
 | R10 | Kafka type-header removal breaks the legacy consumer                                         | Default-type binding first (P1), round-trip test                                                                 |
@@ -721,7 +736,7 @@ returned aggregate results in its own refresh tables/views, proven equal to the 
 | R12 | Stacked retry layers multiply attempts                                                       | Single retry layer (Spring Batch); Feign retryer disabled                                                        |
 | R13 | Audit concerns leak into common-starter or producer services                                  | Common contains producer instrumentation only; no persistence dependencies/credentials; audit-service exclusively owns entity, repository, schema, APIs and retention |
 | R14 | Module rename breaks discovery, routing, deployment selectors or config loading              | P−1 inventory; update service ID and deployment references atomically; startup/route/manifest checks and rollback map |
-| R15 | Existing audit history is lost, duplicated or migrations are replayed during ownership transfer | P−1 approves transfer vs archive/purge, audits V13–V17 history, rehearses baseline/cutover and verifies record counts and key fields |
+| R15 | Obsolete cross-service objects return through the old catalog migration chain | Remove the old chain; verify fresh V1 creates only catalog/saved-filter objects; each service owns its schema-local V1 history |
 
 ---
 

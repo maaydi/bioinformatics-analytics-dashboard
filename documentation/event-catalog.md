@@ -100,9 +100,11 @@ policy required by ARCH-002 is explicitly approved and tested. Producer services
 database credentials or persistence classes.
 
 The audit consumer deduplicates by `eventId`, persists before acknowledging the Kafka record, and allows processing
-failures to be retried by Kafka. Duplicate delivery must not create duplicate audit records. Audit history currently
-associated with dashboard migrations V13-V17 is handled through the approved P−1 transfer/baseline or archive/purge
-decision; those migrations are not applied to `gene_data` and must not be blindly replayed by audit-service.
+failures to be retried by Kafka. Duplicate delivery must not create duplicate audit records. The clean-install decision
+applies to all services: initialize fresh service-owned V1 histories without transferring or preserving legacy rows.
+Gene-service's old audit scripts are removed; they are not replayed or retained for Flyway validation.
+Existing databases are not supported by this reset; provision an empty target explicitly. No existing records or
+volumes are deleted by the migration scripts.
 
 ## Ownership and ordering summary
 

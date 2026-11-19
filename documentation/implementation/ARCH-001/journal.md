@@ -1001,7 +1001,55 @@ ownership. No phase was newly closed by this update.
 
 ---
 
-**Last Updated:** 2026-11-10
+### 2026-11-16 — Audit-service plan aligned to clean-install history decision
+
+Updated Phase 8 and its schema/history notes to match the user decision that
+audit-service is a clean installation: no historical audit rows are transferred,
+archived or purged. The service uses its independent V1 migration; dashboard
+Flyway V13–V17 remain legacy history and must not be replayed against `audit_log`
+or `gene_data`. If an existing audit row or audit Flyway history is discovered at
+rollout, stop and request a separate migration decision.
+
+The existing authorized paginated `POST /api/v1/admin/audit` contract and
+`audit.events.log` consumer/persistence ownership remain unchanged. Configurable
+retention, deployed gateway authorization/route qualification, and the empty-store
+rollout check are still open; this documentation update does not claim those
+behaviors have been implemented or qualified. Documentation-only change; no
+tests or deployment checks were run.
+
+### 2026-11-16 — Fresh V1 baselines for every existing service
+
+The user extended the clean-install decision to all services and confirmed that
+the current shared PostgreSQL layout should remain. This supersedes the earlier
+audit-only history decision: no service preserves historical rows or Flyway
+history, and no existing-database migration or history relocation is required.
+Running databases and Docker volumes were not reset.
+
+Gene-service now has one current catalog/saved-filter V1, including TEXT columns,
+feature evidence, FTS/trigram indexes/functions and eight sequences with increment
+500. Its old V2–V21 chain, including audit, user, import-job and materialized-view
+create/drop steps, is removed. Analytics refresh-log and export format changes
+are folded into their V1 scripts; auth/import already have a single V1 and remain
+unchanged. Audit V1 creates the pooled sequence its entity requires.
+
+Automatic baselining is disabled; schema validation remains enabled. Local
+gene/audit Flyway locations and schemas are explicit; the analytics fallback is
+corrected from `auth` to `analytics`, and export's Flyway settings now bind under
+`spring.flyway`. Gene/audit integration contexts use Flyway plus Hibernate
+validation instead of generated DDL.
+
+`FreshDatabaseMigrationTest` installs the six baselines on disposable PostgreSQL,
+verifies independent V1 histories and migration-free restarts, exercises catalog
+FTS, analytics views, custom export formats and audit ID generation, and rejects
+an unmanaged nonempty schema. The initial focused run passed 32 tests with zero
+failures/errors/skips (Maven exit 0). Clean full-reactor verification in an isolated
+worktree passed 885 tests across 154 suites with zero failures/errors/skips (exit 0).
+Reactor packaging with tests skipped also passed (exit 0); every service JAR was
+inspected and contains exactly its V1 migration, with no deleted upgrade scripts.
+YAML parsing, single-V1 source inventory and `git diff --check` pass. This is not
+a deployed Config Server or role-isolation claim.
+
+**Last Updated:** 2026-11-16
 
 **Phase Status Summary:**
 
@@ -1012,6 +1060,6 @@ ownership. No phase was newly closed by this update.
 - Phase 4 (Gene Service): service exists via ARCH-002 rename; catalog ownership/schema/contracts/S2S open in ARCH-002 P2–P8
 - ✅ Phase 5 (Export Service): delivered by PIPE-001; completion event, lifecycle audit and replica routing open
 - Phases 6–7 (Structure, NLQ): not started (STRUCT-001, NLQ-001)
-- Phase 8 (Cross-cutting services): Audit producer/consumer foundation implemented; notification, retention, resilience, ownership and rollout qualification remain open.
+- Phase 8 (Cross-cutting services): Audit producer/consumer foundation implemented; clean-install history scope decided; notification, retention, resilience and rollout qualification remain open.
 - Phase 9 (Frontend/drainage): single gateway base URL in place; drainage superseded by ARCH-002 P8; Kubernetes via OPS-002
 - Phase 10 (Database-per-service): Stage A in ARCH-002 P4/P6/P7; Stage B (physical split, CDC) open here

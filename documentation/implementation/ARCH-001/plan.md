@@ -92,8 +92,8 @@ and annotates each item with its current owner.
 its own schema migration, consumer, persistence/search implementation, and three
 Config Server files. Targeted producer and embedded-Kafka consumer checks passed
 during implementation. This does not close Phase 8: retention, batch ingestion,
-consumer failure handling/metrics, API qualification, historical-data handoff and
-exclusive database credentials remain outstanding. See the dated journal entry.
+consumer failure handling/metrics, API qualification, clean-store rollout verification
+and exclusive database credentials remain outstanding. See the dated journal entry.
 
 **Rate-limiting update — 2026-10-30:** `@RateLimited`, its Bucket4j aspect and the
 independent `app.rate-limiter` binding now live in `common-starter`. Dashboard,
@@ -123,6 +123,18 @@ new tests were run for it. Main corrections:
   `docker-compose.infra.yml`.
 - Replica routing (`common.datasource.primary-url` / `replica-url`) is wired
   only for auth, analytics and audit.
+
+**Fresh database decision — 2026-11-16 (all services):** Start from empty databases
+and service-owned V1 migrations. Do not transfer/archive/purge legacy rows or retain,
+relocate or repair old Flyway histories. Gene-service's V2–V21 chain is removed;
+analytics/export V2 changes are folded into V1. Auth/import already have a single V1;
+audit V1 includes the pooled ID sequence required by its entity.
+The current shared PostgreSQL layout is retained: catalog in `public`, other services
+in their own schemas; analytics starts after gene-service. Physical separation and
+the target `gene_data` API/role isolation remain later phases. Existing databases
+cannot use the rewritten scripts; provision fresh targets explicitly. No live database
+or Docker volume is reset by this change. Older transfer/upgrade notes below are
+historical and superseded by this decision.
 
 ---
 
@@ -677,13 +689,11 @@ contract, and delegate CSV export to the export-service in Phase 5.
 - [ ] **Routing DataSource:**
     - [ ] `GET`, `POST /search` → REPLICA
     - [ ] Any write operation (future) → PRIMARY
-  > **2026-11-10:**
+  > **2026-11-16 (supersedes the previous migration inventory):**
   >
-  > - Gene-service Flyway lives in `src/main/resources/migration`: V1–V7 and
-  >   V11–V21, on the `public` schema.
-  >   - V13–V17 are the legacy audit migrations.
-  >   - V19 drops `app_user`.
-  >   - V20/V21 drop the public materialized views.
+  > - Gene-service Flyway lives in `src/main/resources/migration`: a single fresh V1
+  >   on `public`, with current catalog tables, saved filters, FTS/indexes and pooled sequences.
+  >   The former V2–V21 chain is removed; no other services' obsolete objects are created.
   > - The target schema is now `gene_data` (ARCH-002 P7), not `gene`.
   > - Gene-service uses plain `spring.datasource` (`SPRING_DATASOURCE_URL`) on
   >   the primary. Replica routing has not been wired for it.
@@ -1064,11 +1074,11 @@ benefits from independent scaling.
     Dashboard annotations now publish through this starter; local audit persistence has been removed.
     Enable with `app.audit.enabled=true`, `spring.application.name` and `common.kafka.bootstrap-servers`; tune the bounded executor
     with `app.audit-pool.*`. Delivery is best-effort with logged queue/send failures, not a durable outbox.
-    Legacy audit migrations/rows are preserved pending an explicit historical-data handoff.
+    All-service clean-install decision (2026-11-16): no legacy records or histories are transferred or retained.
+    Audit-service starts from its independent V1 migration; old dashboard audit scripts are removed.
     ARCH-002 P1 registers the producer through explicit auto-configuration without JPA/JDBC;
     all six producer services opt in. Consumers bind their own event types and ignore Java type headers.
-    The historical transfer/archive choice, count/key verification and Flyway baseline must be approved
-    before enabling an existing-database cutover; V13-V17 are not replayed or moved to `gene_data`.
+    Existing-database cutover is out of scope; use an empty database, not an old Flyway history.
 - [x] Single-event Kafka consumer with manual acknowledgements, Redis event-ID deduplication (24-hour TTL),
   and a database uniqueness constraint on `event_id`.
 - [ ] Qualify duplicate/replay behavior across Redis expiry, restart, concurrent delivery and persistence failure;
@@ -1079,9 +1089,10 @@ benefits from independent scaling.
   acknowledgements; dev uses a random port and prod uses port `8089`.
 - [ ] Provision and verify exclusive audit-schema credentials and denial of catalog `gene_data` access.
   The local datasource still accepts shared environment-backed credentials; isolation is not yet demonstrated.
-- [ ] Approve and rehearse the historical audit-row/Flyway-history handoff. Legacy dashboard migrations and rows
-  remain intact; removing producer-side persistence does not migrate historical data.
-- [x] Schema (initial target; migration baseline and existing-row handoff must be planned before cutover):
+- [x] History scope for all services is clean-install only: no historical rows or Flyway histories are retained.
+  Initialize `audit_log` using audit-service V1 with its pooled ID sequence; the old gene-service audit scripts
+  are removed. Existing databases are unsupported by the new baselines.
+- [x] Schema (`audit_log`; clean-install baseline is the audit-service V1 migration; no legacy-row handoff):
     ```sql
     CREATE SCHEMA IF NOT EXISTS audit_log;
     CREATE TABLE audit_log.audit_event (
@@ -1130,6 +1141,11 @@ benefits from independent scaling.
 - Additional delivered tests: `AuditLogRepositoryIntegrationTest`, `AuditSearchRequestTest`, `AuditLogMapperDecoratorTest`,
   `AuditLogTest`. ARCH-002 P1 also added correlation-ID propagation (servlet/Feign/Kafka, MDC `correlationId`)
   and header-free Kafka payloads; the full reactor run on 2026-11-06 passed (883 tests, 153 suites, 0 failures).
+
+- `FreshDatabaseMigrationTest` (gene-service module) installs all six services' V1 migrations on a disposable
+  PostgreSQL database in dependency order, checks independent histories/restarts, catalog FTS/sequences,
+  analytics projection, custom export format and audit ID generation, and refuses an unmanaged nonempty schema.
+  Gene and audit integration test contexts now use Flyway plus Hibernate validation rather than generated DDL.
 
 ---
 
@@ -1250,16 +1266,13 @@ benefits from independent scaling.
     - [ ] Service calls (synchronous) for immediate consistency needs
     - [ ] Async events (Kafka) for eventual consistency
 
-#### 10.3 Data Migration
+#### 10.3 Fresh Database Provisioning
 
-- [ ] `gene-service` data migration:
-    - [ ] Export `gene.*` tables from shared DB
-    - [ ] Import to `gene-db`
-    - [ ] Verify row counts and constraints
-- [ ] Zero-downtime migration:
-    - [ ] Dual-write period: monolith writes to both old and new DB
-    - [ ] Read from new DB, fallback to old DB on mismatch
-    - [ ] Cutover when consistency verified
+- [ ] Provision empty per-service targets only after the dependent API/isolation work is complete.
+- [ ] Initialize each target from its service-owned migration baseline; do not copy old records or Flyway history.
+- [ ] Load any required catalog fixture through the supported import workflow and rebuild analytics from source APIs.
+- [ ] Verify constraints, service startup and API behavior. No historical transfer, dual-write, old-DB fallback or
+  zero-downtime data-preservation requirement applies to this fresh-install scope.
 
 #### 10.4 Saga Implementation
 

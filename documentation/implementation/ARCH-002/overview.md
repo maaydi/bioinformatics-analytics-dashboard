@@ -139,8 +139,11 @@ Producer service @Auditable method
 
 `common-starter` and producer services have no audit database credentials and do not contain audit entities, repositories,
 search or retention logic. The audit-service schema is separate from `gene_data`; producer publication is asynchronous.
-The audit event preserves actor, source-service and correlation ID as separate fields. Existing audit rows and Flyway
-history are transferred/baselined or explicitly archived/purged according to the approved P−1 handoff plan.
+The audit event preserves actor, source-service and correlation ID as separate fields. All services use fresh database
+baselines: no legacy records or Flyway histories are transferred, archived/purged or preserved. Each service starts from
+its own V1 migration, including gene-service; its old V2–V21 chain is removed rather than retained for validation.
+Existing databases must not use the rewritten scripts. Shared PostgreSQL remains the current layout; catalog stays in
+`public` until P7 initializes `gene_data` directly on a fresh database after the dependent API refactors.
 
 ---
 

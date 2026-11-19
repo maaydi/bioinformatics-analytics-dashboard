@@ -212,7 +212,98 @@ transfer versus archive/purge, count/key verification and Flyway baseline approv
 moved/purged and no migration was replayed. Retention remains ARCH-001 Phase 8 work. P1 items 1.1-1.8 are implemented,
 while the remaining 1.9/1.10 release gates and phase acceptance remain open. No new coverage percentage is claimed.
 
+### 2026-11-16 — Plan item 1.9 re-verification; Maven output ignored by Git
+
+No production code changed. The opt-in producer-side `AuditPublisherConfig` was rechecked against 1.9 and the
+local gates were re-run.
+
+**Repository hygiene:** `.gitignore` only ignored `backend/target/`, so every nested module `target/` showed up as
+untracked. The rule is now `backend/**/target/`; the redundant `backend/target/site/` entry was removed. `git
+check-ignore` confirms all module build directories are ignored, and no `target/` file is tracked.
+
+**Verification:**
+- `mvn -f backend/pom.xml -pl libs/common-starter,services/gene-service -am test`: 152 + 245 tests pass.
+- Clean full reactor `clean test` in an isolated Git worktree at HEAD: 883 tests across 10 modules, zero
+  failures/errors/skips (Surefire XML totals).
+- `docker compose config --quiet` passes. All 79 Kubernetes manifests parse. All six business-service configs set
+  `app.audit.enabled: true`. Producer Config Server, Compose and Kubernetes config contains no audit DB password key.
+  The gateway keeps `lb://gene-service` (`/api/genes/**`) and `lb://audit-service` (`/api/v1/admin/audit/**`).
+- JaCoCo (run explicitly; not bound in the common-starter POM): the audit packages reach 99.2 % lines / 92.6 %
+  branches. The whole common-starter module is 35.2 % lines / 28.3 % branches, which is **below the 80 % target**.
+  The uncovered code is outside the 1.9 scope.
+
+**Local test pitfall:** in the working copy, the import-service `@SpringBootTest` classes intermittently failed with
+`NoSuchBeanDefinitionException: ImportJobMapper`. The cause is the IDE Java language server (Eclipse JDT) recompiling
+MapStruct output into `target/classes` at the same time as Maven. Its error stub ("Unresolved compilation problems")
+does not implement `ImportJobMapper`. This is not a code regression: the same commit passes in an isolated worktree.
+Run reactor verification with IDE auto-build paused, or in a separate worktree.
+
+**1.9 stays open** for the external gates: Config Server Git publishing, deployed independent startup, proof that
+producers are denied access to audit storage and hold no audit credential, and the P0 public-response golden files.
+
+### 2026-11-16 — Plan item 1.10; audit-service clean-install history scope
+
+Aligned ARCH-001 Phase 8, ARCH-002 P−1/P1, the domain model and event catalog
+with the user decision that audit-service is a clean installation. No legacy
+audit rows are transferred, archived or purged; audit-service starts from its
+independent V1 migration. Dashboard Flyway V13–V17 remain legacy history and are
+not replayed. If existing audit rows or audit Flyway history are found before
+rollout, stop and seek a separate migration decision.
+
+The existing `audit.events.log` consumer, `audit_log` ownership and authorized
+paginated POST search contract are documented. Configurable retention is not
+implemented; deployed authorization/route qualification and target-store-empty
+verification remain open in ARCH-001 Phase 8. No data or migrations were changed.
+Documentation-only change; no tests or deployment checks were run.
+
 ---
+
+### 2026-11-16 — All services reset to fresh V1 migration baselines
+
+The user confirmed fresh databases/migrations for all services, including clearing
+the gene-service migration chain, while retaining the current shared PostgreSQL
+layout. This supersedes the previous audit-only decision to retain dashboard
+audit history. Historical data transfer/archive/purge, Flyway-history preservation,
+repair, relocation and upgrade paths are out of scope. No running database or
+Docker volume was deleted or reset.
+
+- Gene-service: one V1 creates only current catalog/saved-filter objects, TEXT
+  columns, evidence, FTS/trigram indexes/functions and eight pooled sequences
+  (increment 500). Removed V2–V21, including all old audit/user/import-job/view
+  create/drop migrations.
+- Analytics/export: V2 is folded into V1; current analytics still depends on the
+  `public` catalog and runs after gene-service. Auth/import already have one V1.
+- Audit: V1 now creates `audit_log_seq` with increment 500 to match the entity.
+- Shared automatic baselining is disabled. Local service Flyway settings are
+  explicit where needed; analytics' incorrect `auth` fallback is fixed (7.3),
+  and export's incorrectly nested Flyway block is corrected.
+- Gene/audit integration contexts now migrate and validate real PostgreSQL
+  schemas. `FreshDatabaseMigrationTest` covers all six source baselines,
+  independent histories/restarts, FTS, analytics, custom formats, audit IDs and
+  refusal to baseline an unmanaged nonempty schema.
+- ARCH-001/ARCH-002 plans, analysis/overview, the domain model, event catalog and
+  Config Server README now distinguish current shared-PostgreSQL V1 installation
+  from later `gene_data` role/API isolation. P7 will initialize `gene_data`
+  directly on a fresh target; there is no V22 table move or historical upgrade.
+
+Verification:
+- Focused migration/gene API tests: 32 tests, zero failures/errors/skips, Maven exit 0.
+- Isolated clean reactor (`mvn -q -fae -f backend\pom.xml clean test`): 885 tests,
+  154 suites, zero failures/errors/skips, exit 0. Includes Flyway/Hibernate validation
+  for gene/audit and all existing business-service tests.
+- Reactor `package -DskipTests`: exit 0. Each of the six service JARs contains
+  exactly its V1 migration and no removed upgrade scripts.
+- YAML parsing, six-service single-V1 source inventory and `git diff --check`: pass.
+
+Deployment/credential isolation,
+API-backed readers, catalog outbox/ingestion state and audit retention are not
+implemented by this migration reset.
+
+Workspace cleanup note: `mvn -f backend\pom.xml clean` exited 1 because Windows
+could not delete export-service's IDE-active `target` directory. No process was
+terminated or directory forcibly removed. Remaining copied migration resources
+were checked and contain only V1; the full clean/test verification uses an
+isolated worktree to avoid IDE writes and file locks.
 
 ## Coverage Tracking
 
@@ -222,7 +313,7 @@ while the remaining 1.9/1.10 release gates and phase acceptance remain open. No 
 | import-service (writer, ACL)      | ≥ 80 % | —       | Not started |
 | analytics-service (API-backed refresh) | ≥ 80 % | — | Not started |
 | api-gateway (trust filters)       | ≥ 80 % | —       | Not started |
-| common-starter (auto-config, S2S, audit) | ≥ 80 % | Not measured | P1 auto-config/correlation/audit implemented; S2S work remains P3 |
+| common-starter (auto-config, S2S, audit) | ≥ 80 % | Module 35.2 % lines (below target); audit packages 99.2 % lines / 92.6 % branches | P1 auto-config/correlation/audit implemented; S2S work remains P3 |
 | audit-service (consumer boundary) | ≥ 75 % (ARCH-001) | Not measured | Embedded-Kafka contract check passed; storage/authorization/retention qualification pending |
 
-**Last Updated:** 2026-11-06
+**Last Updated:** 2026-11-16

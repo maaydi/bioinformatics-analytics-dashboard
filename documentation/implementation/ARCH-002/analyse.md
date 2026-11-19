@@ -180,16 +180,18 @@ and cleanup remain relevant even though analytics no longer consumes those event
 ### D7 — Catalog schema `gene_data`; audit schema separately owned
 
 - The target schema for every gene-service catalog object is **`gene_data`**; `dashboard` is not the target schema.
-  The catalog move is performed in P7 after P6 parity sign-off.
-- `ALTER TABLE public.<t> SET SCHEMA gene_data` is metadata-only (instant, no data rewrite). Indexes, constraints and
-  owned sequences move with the table. Functions (the FTS function from V3) and standalone sequences must be moved
-  explicitly.
+  The catalog schema switch is performed in P7 after P6 parity sign-off. The current fresh V1 baseline stays in
+  `public` to support the existing shared catalog readers and analytics views.
+- Fresh-install decision (2026-11-16): all services initialize empty schemas from their own V1 scripts.
+  No records, old migration scripts or Flyway histories are preserved or relocated. P7 will initialize `gene_data`
+  directly on a fresh database rather than moving `public` objects or replaying the old V1–V21 chain.
 - Reasons: least-privilege grants on a dedicated schema, no accidental unqualified access, symmetry with `auth`,
   `analytics` and `import_batch`.
 - The gene-service catalog move includes `saved_filter` but excludes all audit tables, sequences, functions and
-  migration ownership. Audit records live in the separate `audit_log` schema owned only by audit-service; database/
-  cluster placement and existing-history handoff must be approved and rehearsed before cutover. The catalog and audit
-  schemas have independent migration histories and credentials.
+  migration ownership. Audit records live in the separate `audit_log` schema owned only by audit-service; the user
+  selected fresh V1 baselines for all services with no legacy-row transfer/archive/purge. Audit-service uses its independent
+  V1 migration; use an empty target, never an old database. The catalog and audit schemas have
+  independent migration histories and credentials.
 - This step runs in **P7, after P6 parity sign-off** and disabling legacy refresh; otherwise legacy MVs would break.
 
 ### D8 — Shape of `common-starter`
@@ -278,8 +280,10 @@ together. No public API path or catalog schema alias is introduced for the forme
   authorized search APIs and retention policies. Producer services require Kafka access only, not audit DB credentials.
 - Audit events preserve actor, source-service and correlation ID as distinct fields. Delivery/retry, duplicate handling,
   API authorization and event payload allow-listing are specified and tested as part of the service implementation.
-- Historical records and dashboard Flyway V13–V17 require an explicit transfer/baseline or archive/purge decision and
-  rehearsed cutover; they are not moved into `gene_data` or blindly replayed.
+- Clean-install history decision (2026-11-16), extended to all services: initialize new databases from independent V1
+  migrations; do not transfer, archive/purge or preserve historical records or Flyway history. The old gene-service
+  V2–V21 scripts (including dashboard audit migrations) are removed. Do not repair/baseline existing databases into
+  the new chain. Shared PostgreSQL and catalog access remain until the later isolation/API refactor phases.
 
 ---
 
@@ -294,7 +298,7 @@ together. No public API path or catalog schema alias is introduced for the forme
 | Q5 | 🔴 | What analytics freshness is required after ingestion? | Make freshness configurable; default maximum scheduling delay is 60 seconds. Report API and refresh duration separately; this is not a bound on total freshness during outages. |
 | Q6 | 🟡 | Is gateway identity-header trust hardening in scope? | Yes. Strip spoofable inbound internal headers, use exact public-route matching, authenticate users from validated JWTs, and scope service-to-service JWTs (D9/D12). |
 | Q7 | 🟡 | Should legacy analytics refresh run during transition? | Yes. Keep it alongside the API-backed refresh until P6 parity sign-off; remove legacy flow only in P8. |
-| Q8 | ✅ | Where do audit instrumentation, transport and persistence belong? | `common-starter` produces audit events, existing Kafka topic `audit.events.log` transports them, and audit-service alone owns audit storage/APIs/retention. Historical data and Flyway handoff are P−1 gates. |
+| Q8 | ✅ | Where do audit instrumentation, transport and persistence belong? | `common-starter` produces audit events, existing Kafka topic `audit.events.log` transports them, and audit-service alone owns audit storage/APIs/retention. All services use fresh V1 databases without legacy-row or Flyway-history handoff. |
 
 ---
 
