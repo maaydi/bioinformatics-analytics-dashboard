@@ -9,10 +9,10 @@ spring:
     discovery:
       enabled: false
   flyway:
-    enabled: false
+    enabled: true
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     properties:
       hibernate:
         default_schema: audit_log

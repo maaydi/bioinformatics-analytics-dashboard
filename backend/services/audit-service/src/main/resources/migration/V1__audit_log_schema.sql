@@ -2,9 +2,10 @@
 -- Audit Service — Initial Schema
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE SCHEMA IF NOT EXISTS audit_log;
+CREATE SEQUENCE audit_log.audit_log_seq INCREMENT BY 500;
 CREATE TABLE audit_log.audit_event
 (
-    id             BIGSERIAL PRIMARY KEY,
+    id             BIGINT PRIMARY KEY DEFAULT nextval('audit_log.audit_log_seq'),
     event_id       UUID         NOT NULL UNIQUE,
     actor_identity VARCHAR(255),
     actor_type     VARCHAR(30),
