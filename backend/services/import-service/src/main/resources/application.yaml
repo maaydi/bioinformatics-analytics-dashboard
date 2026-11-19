@@ -19,6 +19,8 @@ spring:
 
   flyway:
     default-schema: import_batch
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
   batch:
     job:
