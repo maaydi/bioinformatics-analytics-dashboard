@@ -20,6 +20,8 @@ spring:
 
   flyway:
     default-schema: auth
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
 server:
   port: ${SERVER_PORT:0}
