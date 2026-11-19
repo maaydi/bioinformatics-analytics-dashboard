@@ -18,7 +18,9 @@ spring:
     open-in-view: false
 
   flyway:
-    default-schema: auth
+    default-schema: analytics
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
 server:
   port: ${SERVER_PORT:0}
