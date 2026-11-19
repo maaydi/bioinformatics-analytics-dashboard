@@ -18,6 +18,35 @@ git commit -m "Initial config"
 git push origin main
 ```
 
+### Fresh database baselines (all services)
+
+This release targets fresh databases only. Every existing service has a single V1
+baseline; do not reuse an old schema or Flyway history, run Flyway repair/baseline,
+or replay the removed upgrade scripts. Provision an empty database explicitly.
+This change does not delete running databases or Docker volumes.
+
+| Service | Flyway location | Default schema |
+|---------|-----------------|----------------|
+| gene-service | `classpath:migration` | `public` |
+| auth-service | `classpath:db/migration` | `auth` |
+| import-service | `classpath:db/migration` | `import_batch` |
+| analytics-service | `classpath:db/migration` | `analytics` |
+| export-service | `classpath:db/migration` | `export_data` |
+| audit-service | `classpath:migration` | `audit_log` |
+
+Publish the updated shared and service config together. Automatic baselining is
+disabled and migration validation is enabled. Each service owns its schema's
+Flyway history. Start gene-service before analytics: current analytics views need
+the catalog tables. Shared PostgreSQL and existing import/export/analytics catalog
+reads remain in place; `gene_data` role isolation and API-backed readers are later
+ARCH-002 phases. Auth's existing seed accounts are unchanged by this reset.
+Rollback to old migration scripts is not supported against these new histories.
+Recreate a disposable environment explicitly rather than mixing migration chains.
+Use a clean Maven build (`mvn -f backend\pom.xml clean test`) so deleted migration
+resources cannot linger in `target` or packaged JARs. The PostgreSQL
+`FreshDatabaseMigrationTest` in gene-service validates all six source baselines
+and their independent histories on a disposable container.
+
 ### Audit service configuration
 
 All six business-service base files explicitly set `app.audit.enabled=true`.
@@ -112,8 +141,8 @@ ID `gene-service`, application `GeneServiceApplication`, root Java package
 `com.bioinformatics.geneservice`. Compose and Kubernetes use the same service ID,
 port `8084`, `gene-service-config` and `gene-service-secret`; the gateway targets
 `lb://gene-service`. No runtime `dashboard` alias is required by current callers.
-Public `/api/**` and internal `/internal/v1/**` paths, migration locations/history,
-database objects and Kafka topics are unchanged. Database isolation into `gene_data`
+Public `/api/**` and internal `/internal/v1/**` paths and Kafka topics are unchanged.
+The fresh database baseline above supersedes the old migration histories. Database isolation into `gene_data`
 is P7, not part of this rename. The `bio-dashboard` namespace/image prefix describes
 the whole application and is not a stale service identity.
 
@@ -123,11 +152,11 @@ header-free producer starter and gene-service identity consistently with gateway
 routes, Feign targets, images, selectors and probes. Check independent startup,
 API response parity and the correlation header/MDC across HTTP and Kafka.
 Rollback consumers and producers as one release before restoring the former
-module/runtime identity; do not change Flyway history as part of rollback.
+module/runtime identity; do not mix the former migration chain with the fresh baselines.
 The checked-in configuration is the source to publish; local untracked Gitea
 data is not edited by this implementation.
 
-Audit history/Flyway V13-V17 handoff and exclusive audit-schema credentials remain
+Legacy data/history handoff is out of scope for every service. Exclusive audit-schema credentials remain
 release gates: current environment-backed shared database credentials do not
 demonstrate denial of audit access from producer services. Do not copy audit
 credentials into producer configuration or move audit migrations into `gene_data`.
@@ -140,8 +169,8 @@ boundary. The target catalog migration login `gene_data_owner` is used by gene-s
 Other services use their own schema credentials: `analytics_svc` → `analytics`, `import_svc` → `import_batch`,
 `auth_svc` → `auth`, and `export_svc` → `export_data`. `audit_service_owner` runs audit migrations and
 `audit_service_svc` accesses only `audit_log`. Revoke `PUBLIC` privileges and grant database `CONNECT` and schema
-privileges explicitly. Do not give producers or common-starter an audit database credential. Keep the audit history
-handoff and its independent Flyway baseline as a release gate; never run audit migrations as gene-service migrations.
+privileges explicitly. Do not give producers or common-starter an audit database credential. Initialize independent
+fresh histories; never run audit migrations as gene-service migrations.
 
 Provision Kafka ACLs/credentials for the minimum topic and consumer-group access needed by each deployed service:
 

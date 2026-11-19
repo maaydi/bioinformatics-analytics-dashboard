@@ -2,6 +2,13 @@
 # Gene Service — business configuration (all profiles)
 # ─────────────────────────────────────────────────────────────────────────────
 
+spring:
+  flyway:
+    locations: classpath:migration
+    default-schema: public
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
 app:
   legacy-catalog:
     enabled: true
