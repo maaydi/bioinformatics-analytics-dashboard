@@ -17,9 +17,6 @@ spring:
     jpa:
       open-in-view: false
 
-    flyway:
-      default-schema: export_data
-
     batch:
       job:
         enabled: false
@@ -29,6 +26,11 @@ spring:
         host: ${SPRING_DATA_REDIS_HOST:localhost}
         port: ${SPRING_DATA_REDIS_PORT:6379}
         password: ${REDIS_PASSWORD:password}
+
+  flyway:
+    default-schema: export_data
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
   server:
     port: ${SERVER_PORT:0}

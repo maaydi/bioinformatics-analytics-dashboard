@@ -13,7 +13,7 @@ CREATE TABLE export_data.export_pipeline
     name             VARCHAR(200) NOT NULL,
     description      VARCHAR(500),
     filter_json      JSONB        NOT NULL, -- Serialized GeneSearchRequest
-    format           VARCHAR(10)  NOT NULL CHECK (format IN ('CSV', 'TSV', 'JSON', 'EXCEL')),
+    format           VARCHAR(50)  NOT NULL,
     field_schema     JSONB        NOT NULL, -- Ordered list of selected field names
     status           VARCHAR(20)  NOT NULL DEFAULT 'QUEUED' CHECK (status IN ('QUEUED', 'RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED')),
     estimated_rows   BIGINT,
