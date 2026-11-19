@@ -6,10 +6,10 @@ spring:
     password: ${TEST_DB_PASS:bio_password}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
   flyway:
-    enabled: false          # Migration stubs incomplete; Hibernate manages test schema
+    enabled: true
   jpa:
     hibernate:
-      ddl-auto: create-drop  # Create schema from entities, drop on context close
+      ddl-auto: validate
   batch:
     job:
       enabled: false  # No batch jobs in test; UniProtImportJobConfig excluded via @Profile("!test")

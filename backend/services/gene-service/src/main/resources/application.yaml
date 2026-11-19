@@ -19,6 +19,12 @@ spring:
     job:
       enabled: false
 
+  flyway:
+    locations: classpath:migration
+    default-schema: public
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
