@@ -478,7 +478,7 @@ and golden files still match (AC-13, AC-14).
 
 **Goal:** a thin, versioned, persistence-free contract.
 
-- [ ] 2.1 Module `backend/libs/gene-model-lib` under the backend `libs` folder, packages
+- [x] 2.1 Module `backend/libs/gene-model-lib` under the backend `libs` folder, packages
   `com.bioinformatics.gene.model.v1` (shared DTOs/Feign contracts) and
   `com.bioinformatics.gene.model.v1.event` (reference event schema). No service-specific parse models, internal
   implementation DTOs, JPA entities, repositories or auto-configuration.
