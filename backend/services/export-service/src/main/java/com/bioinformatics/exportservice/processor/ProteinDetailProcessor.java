@@ -1,7 +1,7 @@
 package com.bioinformatics.exportservice.processor;
 
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.exportservice.batch.ExportJobParameters;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

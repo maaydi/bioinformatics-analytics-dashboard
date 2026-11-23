@@ -1,13 +1,13 @@
 package com.bioinformatics.geneservice.gene.service;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.gene.service.ProteinEntryService;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
+import com.bioinformatics.gene.model.v1.ProteinSummaryDto;
 import com.bioinformatics.geneservice.providers.postgres.gene.service.PostgresGeneService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
 package com.bioinformatics.exportservice.processor;
 
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.mapper.GeneMapper;
 import com.bioinformatics.common.uniprot.dto.UniProtEntry;
 import com.bioinformatics.common.uniprot.mapper.UniProtEntryMapper;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

@@ -1,11 +1,11 @@
 package com.bioinformatics.geneservice.controller;
 
 import com.bioinformatics.common.audit.annotation.Auditable;
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.ratelimit.annotation.RateLimited;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
+import com.bioinformatics.gene.model.v1.ProteinSummaryDto;
 import com.bioinformatics.geneservice.interfaces.gene.GeneService;
 import com.bioinformatics.shared.models.audit.AuditAction;
 import jakarta.servlet.http.HttpServletResponse;

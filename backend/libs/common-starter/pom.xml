@@ -22,6 +22,11 @@
             <groupId>com.bioinformatics</groupId>
             <artifactId>shared-models</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>gene-model-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Web and resource-server security -->
         <dependency>

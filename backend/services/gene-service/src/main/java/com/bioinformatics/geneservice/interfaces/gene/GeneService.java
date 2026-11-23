@@ -1,10 +1,10 @@
 package com.bioinformatics.geneservice.interfaces.gene;
 
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.Provider;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
+import com.bioinformatics.gene.model.v1.ProteinSummaryDto;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

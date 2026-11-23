@@ -1,4 +1,4 @@
-package com.bioinformatics.common.gene.dto;
+package com.bioinformatics.gene.model.v1;
 
 import com.bioinformatics.shared.models.gene.ExportFormatSerializable;
 import com.bioinformatics.shared.models.gene.export.ExportField;

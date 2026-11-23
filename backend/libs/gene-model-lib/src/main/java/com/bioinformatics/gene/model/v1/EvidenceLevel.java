@@ -1,4 +1,4 @@
-package com.bioinformatics.common.gene.dto;
+package com.bioinformatics.gene.model.v1;
 
 import lombok.Getter;
 

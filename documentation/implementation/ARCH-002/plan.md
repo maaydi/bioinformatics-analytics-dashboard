@@ -482,7 +482,7 @@ and golden files still match (AC-13, AC-14).
   `com.bioinformatics.gene.model.v1` (shared DTOs/Feign contracts) and
   `com.bioinformatics.gene.model.v1.event` (reference event schema). No service-specific parse models, internal
   implementation DTOs, JPA entities, repositories or auto-configuration.
-- [ ] 2.2 Dependencies: `jakarta.validation-api`, `jackson-annotations`, `spring-cloud-openfeign-core` (`provided`).
+- [x] 2.2 Dependencies: `jakarta.validation-api`, `jackson-annotations`, `spring-cloud-openfeign-core` (`provided`).
   Enforcer rule: no Spring Boot starter, JPA, Hibernate or Spring Data.
 - [ ] 2.3 Shared records: `ProteinEntryUpsert` (+ child records), `IngestionChunkResult`, `IngestionCompletion`,
   `ProteinEntrySummary`, `GeneSearchRequest` (reused search contract, unchanged JSON), `PageResponse<T>`, `SavedFilter`,

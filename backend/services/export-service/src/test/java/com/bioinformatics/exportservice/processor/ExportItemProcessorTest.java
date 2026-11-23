@@ -1,10 +1,10 @@
 package com.bioinformatics.exportservice.processor;
 
-import com.bioinformatics.common.gene.dto.CrossReferenceDto;
-import com.bioinformatics.common.gene.dto.GoTermDto;
-import com.bioinformatics.common.gene.dto.HostOrganismDto;
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
 import com.bioinformatics.exportservice.batch.ExportJobParameters;
+import com.bioinformatics.gene.model.v1.CrossReferenceDto;
+import com.bioinformatics.gene.model.v1.GoTermDto;
+import com.bioinformatics.gene.model.v1.HostOrganismDto;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

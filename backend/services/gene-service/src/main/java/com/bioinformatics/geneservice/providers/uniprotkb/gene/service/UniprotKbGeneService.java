@@ -1,14 +1,14 @@
 package com.bioinformatics.geneservice.providers.uniprotkb.gene.service;
 
 import com.bioinformatics.common.exception.ResourceNotFoundException;
-import com.bioinformatics.common.gene.dto.ProteinDetailDto;
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.models.PagedResponse;
 import com.bioinformatics.common.models.gene.GeneSearchRequest;
 import com.bioinformatics.common.providers.uniprotkb.AbstractUniprotKbProvider;
 import com.bioinformatics.common.providers.uniprotkb.mapper.UniProtProteinDtoMapper;
 import com.bioinformatics.common.providers.uniprotkb.service.UniProtApiClient;
 import com.bioinformatics.common.providers.uniprotkb.service.UniprotKbPaginationCacheService;
+import com.bioinformatics.gene.model.v1.ProteinDetailDto;
+import com.bioinformatics.gene.model.v1.ProteinSummaryDto;
 import com.bioinformatics.geneservice.interfaces.gene.GeneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

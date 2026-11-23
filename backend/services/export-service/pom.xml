@@ -84,6 +84,11 @@
             <groupId>com.bioinformatics</groupId>
             <artifactId>common-starter</artifactId>
         </dependency>
+         <dependency>
+            <groupId>com.bioinformatics</groupId>
+            <artifactId>gene-model-lib</artifactId>
+             <version>${project.version}</version>
+        </dependency>
 
         <!-- ── Config client setup ───────────────────────────────────────── -->
         <dependency>

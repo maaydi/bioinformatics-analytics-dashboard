@@ -1,9 +1,9 @@
 package com.bioinformatics.geneservice.gene;
 
-import com.bioinformatics.common.gene.dto.ProteinSummaryDto;
 import com.bioinformatics.common.gene.entity.ProteinEntry;
 import com.bioinformatics.common.gene.repository.ProteinEntryRepository;
 import com.bioinformatics.common.models.PagedResponse;
+import com.bioinformatics.gene.model.v1.ProteinSummaryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
